@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Devin O’Rourke — operator-trained builder shipping tool apps and UI systems." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Devin O’Rourke — About" property="og:title"/>
+<meta content="Operator-trained builder shipping tool apps and UI systems." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/about/" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Devin O’Rourke — About" name="twitter:title"/>
+<meta content="Operator-trained builder shipping tool apps and UI systems." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>Devin O’Rourke — About</title>
+<link href="/shared/tokens.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+<!-- Speed: preload hero image (WebP) -->
+<link as="image" fetchpriority="high" href="/assets/about-hero.webp" rel="preload" type="image/webp"/>
+<link href="https://dev-in-portfolio.netlify.app/about/" rel="canonical"/>
+<link href="/icon-192.png" rel="icon"/>
+<script src="/runtime-guard.js"></script>
+<style>
+    :root{
+      --bg:#05060b;
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.72);
+      --hair:rgba(255,255,255,.14);
+      --glow:rgba(150,220,255,.18);
+      --serif: ui-serif, Iowan Old Style, Palatino, Georgia, serif;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    html, body{height:100%;}
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      letter-spacing: .2px;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      overflow-x:hidden;
+    }
+
+    /* Keep nav above everything */
+    nav.nxTopNav{ position: relative; z-index: 9000; }
+
+    /* ===== HERO ===== */
+    .hero{
+      position: relative;
+      min-height: calc(100svh - 68px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 64px 18px 54px;
+      isolation:isolate;
+    }
+    .heroBg{
+      position:absolute; inset:0;
+      overflow:hidden;
+      background:
+        url('/assets/about-hero-blur.webp') center/cover no-repeat;
+      z-index:-3;
+    }
+
+    .heroBg::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(900px 520px at 50% 45%, rgba(255,255,255,.10), transparent 60%);
+      pointer-events:none;
+    }
+
+    .heroBgMedia{
+      position:absolute; inset:0;
+    }
+
+    .heroBgMedia img{
+      width:100%; height:100%;
+      object-fit: cover;
+      display:block;
+      filter: saturate(1.08) contrast(1.05);
+      transform: scale(1.03);
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+
+    .heroBg.isLoaded .heroBgMedia img{
+      opacity: 1;
+    }
+
+    .heroVignette{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1200px 700px at 50% 40%, rgba(0,0,0,.12), rgba(0,0,0,.72) 62%, rgba(0,0,0,.92) 100%),
+        linear-gradient(to bottom, rgba(0,0,0,.40), rgba(0,0,0,.92));
+      z-index:-2;
+    }
+
+    /* super subtle grain so it feels cinematic, not “teen novel cover” */
+    .heroGrain{
+      position:absolute; inset:-40px;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 6px);
+      mix-blend-mode: overlay;
+      opacity:.08;
+      pointer-events:none;
+      z-index:-1;
+    }
+
+    .heroInner{
+      width: min(1120px, 100%);
+      display:grid;
+      gap: 18px;
+      padding: 0;
+    }
+
+    .kicker{
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .24em;
+      opacity: .78;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .title{
+      font-family: var(--serif);
+      font-size: clamp(40px, 6.2vw, 88px);
+      line-height: 1.02;
+      letter-spacing: .01em;
+      margin: 0;
+      text-shadow: 0 16px 40px rgba(0,0,0,.45);
+    }
+
+    .sub{
+      max-width: 72ch;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .ctaRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.94);
+      text-decoration:none;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: 12px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.38);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); border-color: rgba(150,220,255,.38); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.ghost{
+      background: rgba(0,0,0,.25);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .scrollCue{
+      margin-top: 16px;
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.72);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      width: fit-content;
+      opacity: .9;
+    }
+    .scrollCue::before{
+      content:"";
+      width: 22px;
+      height: 1px;
+      background: rgba(255,255,255,.35);
+    }
+
+    /* ===== STORY BEATS ===== */
+    main{
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 0 18px 96px;
+    }
+
+    .beat{
+      padding: 64px 0;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+
+    .beatLine{
+      font-family: var(--serif);
+      font-size: clamp(26px, 3.2vw, 44px);
+      line-height: 1.10;
+      margin: 0 0 10px;
+      letter-spacing: .01em;
+    }
+
+    .beatText{
+      margin: 0;
+      max-width: 78ch;
+      color: rgba(255,255,255,.78);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .proofRow{
+      margin-top: 22px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+    }
+
+    .proof{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.92);
+      text-decoration:none;
+      font-weight: 850;
+      letter-spacing: .06em;
+      font-size: 12px;
+    }
+    .proof:hover{ background: rgba(255,255,255,.09); border-color: rgba(150,220,255,.38); }
+
+    .micro{
+      margin-top: 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.60);
+      letter-spacing: .06em;
+    }
+
+    /* reveal (slower + deliberate) */
+    .reveal{
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 1.05s cubic-bezier(.2,.8,.2,1),
+        transform 1.05s cubic-bezier(.2,.8,.2,1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    .reveal.on{ opacity: 1; transform: translateY(0); }
+
+    /* smaller screens */
+    @media (max-width: 720px){
+      .hero{ padding-top: 54px; }
+      .sub{ font-size: 14px; }
+      .beat{ padding: 46px 0; }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .reveal{ opacity: 1 !important; transform: none !important; transition: none !important; }
+      .btn:active{ transform:none; }
+      .heroBg{ transform:none; }
+    }
+  </style>
+</head>
+<body class="page-about" data-app="about">
+  <nav class="nxTopNav"></nav>
+
+<!-- Nav placeholder (hydrated by /shared/nexus-topnav-v2.js) -->
+<header aria-label="About hero" class="hero">
+<div aria-hidden="true" class="heroBg">
+<picture class="heroBgMedia">
+<source srcset="/assets/about-hero.webp" type="image/webp"/>
+<img alt="" decoding="async" fetchpriority="high" loading="eager" src="/assets/about-hero-v29.png"/>
+</picture>
+</div>
+<div aria-hidden="true" class="heroVignette"></div>
+<div aria-hidden="true" class="heroGrain"></div>
+<div class="heroInner">
+<p class="kicker">Devin O’Rourke</p>
+<h1 class="title">I ship when others hesitate.</h1>
+<p class="sub">Operator-trained builder. I make tool apps and UI systems that hold up under pressure — constraints, edge cases, humans, hosting quirks, and the stuff that breaks “pretty demos.”</p>
+<div aria-hidden="true" class="scrollCue">Scroll</div>
+</div>
+</header>
+<main>
+<section class="beat reveal" id="beat-1">
+<h2 class="beatLine">Pressure trained. Not vibe trained.</h2>
+<p class="beatText">Fifteen years in kitchens wired my brain for throughput, triage, and recovery: when something goes wrong, you don’t panic — you isolate the cause, patch the system, and keep service moving. I build software the same way.</p>
+</section>
+<section class="beat reveal" id="beat-2">
+<h2 class="beatLine">I build systems people can actually operate.</h2>
+<p class="beatText">Navigation that stays consistent. Flows that survive reloads. UI that doesn’t collapse on mobile. Tools that don’t require faith. If a feature can be used wrong, it will be — so I design for reality, not best-case.</p>
+</section>
+<section class="beat reveal" id="beat-3">
+<h2 class="beatLine">Clarity wins. Explainability wins.</h2>
+<p class="beatText">My best work isn’t just interface polish — it’s decision tooling: making complex tradeoffs legible, defensible, and inspectable. The user should understand why an output happened, not just accept it.</p>
+</section>
+<section class="beat reveal" id="beat-4">
+<h2 class="beatLine">Proof beats promises.</h2>
+<p class="beatText">If you want the résumé version, it’s on LinkedIn. This page is the short version: open the artifacts.</p>
+<div aria-label="Primary artifacts" class="proofRow">
+<a class="proof" href="/apps/coverage-compass/">Coverage Compass</a>
+<a class="proof" href="/apps/ubr/">UBR</a>
+<a class="proof" href="/apps/alibi/">Alibi</a>
+<a class="proof" href="/apps/agents/">Agents (UI)</a>
+<a class="proof" href="/do-not-press.html">Do Not Press</a>
+</div>
+<div class="micro">Charlotte, NC · Remote-friendly · Built in public · Shipped in iterations</div>
+</section>
+</main>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+<script>
+    (function(){
+      const els = Array.from(document.querySelectorAll('.reveal'));
+      els.forEach((el,i) => el.style.setProperty('--reveal-delay', `${Math.min(i*120, 420)}ms`));
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(el => el.classList.add('on'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) e.target.classList.add('on');
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
+      els.forEach(el => io.observe(el));
+    })();
+  </script>
+<script>
+    (function(){
+      const bg = document.querySelector('.heroBg');
+      const img = bg && bg.querySelector('img');
+      if (!bg || !img) return;
+      const done = () => bg.classList.add('isLoaded');
+      if (img.complete) { done(); }
+      else {
+        img.addEventListener('load', done, { once:true });
+        img.addEventListener('error', done, { once:true });
+      }
+    })();
+  </script>
+</body>
+</html>

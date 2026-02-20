@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#070A12"/>
+  <title>FloraGuide AI — Field-Guide Information Architecture for Plant Workflows</title>
+  <link href="/shared/docs-panels.css?v=1" rel="stylesheet"/>
+  <link rel="stylesheet" href="/shared/tokens.css"/>
+  <link rel="stylesheet" href="/shared/tile-polish.css"/>
+  <link rel="stylesheet" href="/shared/tap-physics.css"/>
+  <link rel="stylesheet" href="/shared/ui-physics.css"/>
+  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css"/>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+  <main class="dpHero">
+    <div class="dpHeroBg" aria-hidden="true"></div>
+    <div class="dpHeroVignette" aria-hidden="true"></div>
+
+    <div class="dpWrap">
+      <section class="dpHeaderCard">
+        <p class="dpKicker">CASE REPORT</p>
+        <h1 class="dpTitle">String: A Deep-Dive Case Report</h1>
+        <p class="dpSub">Canonical technical report in third-person format.</p>
+      </section>
+
+      <section class="dpCard" id="content">
+<h1>FloraGuide AI — Field-Guide Information Architecture for Plant Workflows</h1>
+<p class="dpLead">A portfolio build demonstrating how AI outputs are made usable through information design and safety-aware UX.</p>
+<h2>Problem the app solves</h2>
+<p>A plant-knowledge assistant concept that turns messy lookup into structured, scannable guidance.</p>
+<h2>Key experience goals</h2>
+<ul>
+<li>Structured output (ID cues → care → cautions) instead of a single chat blob.</li>
+<li>Fast demo path with sample inputs and readable sections.</li>
+<li>Uncertainty handling: prompts for clarifying details.</li>
+<li>Mobile-first reading experience for ‘in the yard’ use.</li>
+</ul>
+<h2>Architecture snapshot</h2>
+<ul>
+<li>Client-side UI with clear sections and consistent formatting.</li>
+<li>Optional AI layer can be abstracted (demo mode) without breaking the UX.</li>
+<li>Local-first state for notes/history where applicable.</li>
+</ul>
+<h2>Reliability and edge cases</h2>
+<ul>
+<li>Vague inputs: UI must request missing details rather than hallucinate confidence.</li>
+<li>Safety: cautions are presented as guidance, not medical claims.</li>
+<li>Offline/blocked AI: curated examples keep the app demoable.</li>
+</ul>
+<h2>Next build targets</h2>
+<ul>
+<li>Add source citations per section for production readiness.</li>
+<li>Add region/season filters and image-based ID (optional).</li>
+<li>Add exportable ‘care card’ one-pager.</li>
+</ul>
+</section>
+    </div>
+  </main>
+
+  <script defer src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

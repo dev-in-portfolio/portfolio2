@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Interactive product builds in the Nexus suite." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Devin O’Rourke — Portfolio" property="og:title"/>
+<meta content="Interactive product builds in the Nexus suite." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/not_found/" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Devin O’Rourke — Portfolio" name="twitter:title"/>
+<meta content="Interactive product builds in the Nexus suite." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>Devin O’Rourke — Portfolio</title>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<style>
+html,body{height:auto;min-height:100%;overflow:auto;}
+
+:root{color-scheme:dark}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0f14;color:#e8eef6}
+.wrap{max-width:980px;margin:0 auto;padding:26px 18px}
+a{color:#a7d7ff;text-decoration:none} a:hover{text-decoration:underline}
+ul{line-height:1.65}
+.top a.btn{display:inline-block;margin-right:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(255,255,255,.05)}
+.small{opacity:.7;font-size:12px;margin-top:18px}
+code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:8px}
+
+
+/* ===== Phase 4: Accessibility, Contrast, & Perception ===== */
+/* Kill default shiny-blue links globally (unless explicitly styled) */
+a:link, a:visited{
+  color: rgba(255,255,255,0.92);
+  text-decoration-color: rgba(255,255,255,0.35);
+}
+a:hover{
+  color: rgba(255,255,255,0.98);
+  text-decoration-color: rgba(155,209,255,0.70);
+}
+a:active{
+  color: rgba(255,255,255,1);
+}
+
+/* If something is intended to look like a button, it should feel like one */
+a.btn, a.buttonlike, .nxs-btn, .nxs-pill, .pillBtn, button, [role="button"]{
+  text-decoration: none !important;
+}
+
+/* Keyboard: always visible focus, never the default outline that disappears on dark backgrounds */
+:focus-visible{
+  outline: 2px solid rgba(155,209,255,0.85);
+  outline-offset: 4px;
+}
+
+/* Increase tap target comfort on mobile */
+a, button{
+  -webkit-tap-highlight-color: rgba(155,209,255,0.25);
+}
+
+
+/* ===== Phase 5: Performance, SEO, & Production Paranoia ===== */
+/* Reduce layout shift from images */
+img{ height:auto; }
+
+</style>
+<script>
+(function(){
+  // Load shared/loader.js without assuming site root (works on file:// and subpaths)
+  var tries=[
+    'shared/loader.js','../shared/loader.js','../../shared/loader.js','../../../shared/loader.js','../../../../shared/loader.js'
+  ];
+  function load(i){
+    if(i>=tries.length){console.error('Failed to load shared/loader.js');return;}
+    var s=document.createElement('script');
+    s.src=tries[i];
+    s.onload=function(){};
+    s.onerror=function(){load(i+1);};
+    document.head.appendChild(s);
+  }
+  load(0);
+})();
+</script>
+<script>
+(function(){
+  const tries=[
+    'shared/loader.js','../shared/loader.js','../../shared/loader.js','../../../shared/loader.js','../../../../shared/loader.js'
+  ];
+  function loadNext(i){
+    if(i>=tries.length){
+      const pre=document.createElement('pre');
+      pre.style.whiteSpace='pre-wrap';
+      pre.textContent='FATAL: could not load shared/loader.js from any relative path.';
+      document.addEventListener('DOMContentLoaded',()=>document.body.appendChild(pre));
+      return;
+    }
+    const s=document.createElement('script');
+    s.src=tries[i];
+    s.onload=()=>{window.__TREE_LOADER_BOOTSTRAPPED__=true;};
+    s.onerror=()=>loadNext(i+1);
+    document.head.appendChild(s);
+  }
+  loadNext(0);
+})();
+</script>
+<script>
+(function(){
+  const candidates = [
+    './shared/loader.js','../shared/loader.js','../../shared/loader.js','../../../shared/loader.js','../../../../shared/loader.js'
+  ];
+  for (const src of candidates){
+    const s=document.createElement('script');
+    s.src=src;
+    s.async=false;
+    s.onload=()=>{window.__TREE_LOADER_OK__=true;};
+    s.onerror=()=>{};
+    document.head.appendChild(s);
+    // stop after first attempt; browser will try to load; if 404, next scripts still run but harmless
+  }
+})();
+</script>
+<link href="/shared/tokens.css" rel="stylesheet"/><link href="https://dev-in-portfolio.netlify.app/" rel="canonical"/><link href="/icon-192.png" rel="icon"/><script src="/runtime-guard.js"></script>
+<link href="/shared/tile-polish.css" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+</head><body>
+  <nav class="nxTopNav"></nav>
+
+<a class="skip-link" href="#main" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to content</a>
+<div class="wrap">
+<div class="top">
+<a class="btn" href="/">Home</a>
+<a class="btn" href="/health/">Health</a>
+<a class="btn" href="/settings/">Settings</a>
+</div>
+<h1 style="margin:14px 0 6px">404 Index</h1>
+<p style="margin:0 0 14px;opacity:.9">Direct links for each app (/404).</p>
+<ul id="list"></ul>
+<div class="small">Registry: <code>/config/registry.json</code></div>
+</div>
+<script>
+(async function(){
+  const ul=document.getElementById("list");
+  function esc(s){return (s??"").toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  try{
+    const res=await fetch("/config/registry.json",{cache:"no-store"});
+    const reg=await res.json();
+    const apps=reg.apps||{};
+    const keys=Object.keys(apps).sort();
+    ul.innerHTML = keys.map(k=>{
+      const a=apps[k]||{};
+      const href = a["not_found"] || "/404/"+k+"/";
+      return `<li><a href="${esc(href)}">${esc(k)}</a></li>`;
+    }).join("");
+  }catch(e){
+    ul.innerHTML = `<li>Registry load failed: ${esc(e.message||String(e))}</li>`;
+  }
+})();
+</script>
+<script>
+/* APP_404_REDIRECT */
+(function(){
+  const params=new URLSearchParams(location.search);
+  const app=(params.get('app')||'').toLowerCase();
+  if(!app) return;
+  const target='/404/'+encodeURIComponent(app)+'/';
+  // try fetch to see if exists then redirect
+  fetch(target,{method:'GET'}).then(r=>{ if(r.ok) location.replace(target); }).catch(()=>{});
+})();
+</script><!-- removed missing script src: /shared/global-polyfill.js?v=20251230 -->
+<!-- removed missing script src: /shared/state-store.js?v=20251230 -->
+<!-- removed missing script src: /shared/telemetry-hub.js?v=20251230 -->
+<!-- removed missing script src: /shared/ai-router.js?v=20251230 -->
+<!-- removed missing script src: /shared/app-settings.js?v=20260101 --><script defer="" src="/shared/runtime-load-guard.js"></script>
+<script defer="" src="/shared/render-recovery-guard.js"></script>
+<script defer="" src="/shared/resize-dpr-guard.js"></script>
+<script defer="" src="/shared/error-boundary-guard.js"></script>
+<script defer="" src="/shared/state-init-guard.js"></script>
+<script defer="" src="/shared/scroll-focus-guard.js"></script>
+<script defer="" src="/shared/ui-physics-guard.js"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body></html>

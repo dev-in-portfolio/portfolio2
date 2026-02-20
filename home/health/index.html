@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Interactive product builds in the Nexus suite." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Health Panel — Devin O’Rourke" property="og:title"/>
+<meta content="Interactive product builds in the Nexus suite." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/health/" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Health Panel — Devin O’Rourke" name="twitter:title"/>
+<meta content="Interactive product builds in the Nexus suite." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>Health Panel — Devin O’Rourke</title>
+<link href="/shared/tokens.css" rel="stylesheet"/>
+<style>
+    body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);}
+    .wrap{max-width:980px;margin:0 auto;padding:28px 16px;}
+    h1{font-size:var(--h1);margin:0 0 8px 0;}
+    p{color:var(--muted);margin:0 0 18px 0;line-height:1.5;}
+    .row{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0 18px;}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid var(--border2);background:rgba(255,255,255,0.06);text-decoration:none;color:var(--text);}
+    .pill:hover{background:rgba(255,255,255,0.10);}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:14px 14px;margin:12px 0;}
+    .k{font-weight:700}
+    .ok{color:#7CFFB2}
+    .bad{color:#FF7C7C}
+    pre{white-space:pre-wrap;background:rgba(0,0,0,0.35);padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.12);overflow:auto;}
+
+
+/* ===== Phase 4: Accessibility, Contrast, & Perception ===== */
+/* Kill default shiny-blue links globally (unless explicitly styled) */
+a:link, a:visited{
+  color: rgba(255,255,255,0.92);
+  text-decoration-color: rgba(255,255,255,0.35);
+}
+a:hover{
+  color: rgba(255,255,255,0.98);
+  text-decoration-color: rgba(155,209,255,0.70);
+}
+a:active{
+  color: rgba(255,255,255,1);
+}
+
+/* If something is intended to look like a button, it should feel like one */
+a.btn, a.buttonlike, .nxs-btn, .nxs-pill, .pillBtn, button, [role="button"]{
+  text-decoration: none !important;
+}
+
+/* Keyboard: always visible focus, never the default outline that disappears on dark backgrounds */
+:focus-visible{
+  outline: 2px solid rgba(155,209,255,0.85);
+  outline-offset: 4px;
+}
+
+/* Increase tap target comfort on mobile */
+a, button{
+  -webkit-tap-highlight-color: rgba(155,209,255,0.25);
+}
+
+
+/* ===== Phase 5: Performance, SEO, & Production Paranoia ===== */
+/* Reduce layout shift from images */
+img{ height:auto; }
+
+</style>
+<link href="https://dev-in-portfolio.netlify.app/health/" rel="canonical"/><link href="/icon-192.png" rel="icon"/><script src="/runtime-guard.js"></script>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="/shared/tile-polish.css" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<a class="skip-link" href="#main" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to content</a>
+<div class="wrap">
+<h1>Health Panel</h1>
+<p>Quick self-checks for links, assets, and known corruption patterns. (This runs locally in your browser—no data leaves the device.)</p>
+<div class="row">
+<a class="pill" href="/">← Back to Nexus</a>
+<a class="pill" href="/404.html">404 page</a>
+<button class="pill" id="runBtn" type="button">Run checks</button>
+</div>
+<div class="card" id="summary">Ready.</div>
+<div class="card"><div class="k">Findings</div><pre id="out">Click “Run checks”.</pre></div>
+</div>
+<script>
+(function(){
+  const out=document.getElementById('out');
+  const sum=document.getElementById('summary');
+  const btn=document.getElementById('runBtn');
+
+  function line(s){ out.textContent += s + "\n"; }
+  function setSummary(html){ sum.innerHTML = html; }
+
+  async function headOk(url){
+    try{
+      const r = await fetch(url, {method:'HEAD', cache:'no-store'});
+      return r.ok;
+    }catch(e){ return false; }
+  }
+
+  function isExternal(href){
+    return /^https?:\/\//i.test(href) || /^mailto:/i.test(href) || /^tel:/i.test(href);
+  }
+
+  btn.addEventListener('click', async ()=>{
+    out.textContent='';
+    setSummary('Running…');
+    const pages=['/','/about/','/case-studies/','/readme/','/help/','/404.html'];
+    let broken=0, ok=0, warns=0;
+
+    // 1) Check that key pages respond
+    for(const p of pages){
+      const good = await headOk(p);
+      if(good){ ok++; line('OK   ' + p); }
+      else { broken++; line('FAIL ' + p); }
+    }
+
+    // 2) Scan DOM for common corruption patterns on THIS page
+    const html=document.documentElement.outerHTML;
+    const patterns=[
+      {name:'Nested <a> inside href', re:/href="\s*<a\s/i},
+      {name:'Stray LinkedIn fragment', re:/rel="noopener"\s+target="_blank"&gt;LinkedIn/i},
+      {name:'Empty href="#"', re:/href="\s*"/i}
+    ];
+    const htmlNoScripts = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi,'');
+    for(const p of patterns){
+      if(p.re.test(htmlNoScripts)){ warns++; line('WARN ' + p.name + ' (on /health/)'); }
+    }
+
+    // 3) Check visible anchors on THIS page for broken internal links
+    const anchors=[...document.querySelectorAll('a[href]')];
+    for(const a of anchors){
+      const href=a.getAttribute('href');
+      if(!href || href==='#') continue;
+      if(isExternal(href)) continue;
+      const good = await headOk(href);
+      if(!good){ broken++; line('FAIL link -> ' + href); }
+    }
+
+    setSummary(
+      '<span class="k">Results:</span> ' +
+      '<span class="ok">' + ok + ' OK</span> · ' +
+      '<span class="' + (warns? 'bad':'ok') + '">' + warns + ' warnings</span> · ' +
+      '<span class="' + (broken? 'bad':'ok') + '">' + broken + ' broken</span>'
+    );
+  });
+})();
+</script>
+<section class="healthBlock" style="margin-top:18px;">
+<div class="muted" id="deep-summary">Deep Health: not run</div>
+<div class="healthGrid" style="margin-top:10px;">
+<div class="healthCol">
+<h3>OK</h3>
+<ul id="deep-ok"></ul>
+</div>
+<div class="healthCol">
+<h3>Warnings</h3>
+<ul id="deep-warn"></ul>
+</div>
+<div class="healthCol">
+<h3>Broken</h3>
+<ul id="deep-broken"></ul>
+</div>
+</div>
+</section>
+<script>
+(function(){
+  const $ = (sel, el=document) => el.querySelector(sel);
+  const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+  const state = {
+    manifest: null,
+    fileSet: new Set(),
+    htmlPages: [],
+    routes: [],
+    fetched: new Map(), // url -> text
+    pageDom: new Map(), // url -> Document
+    results: {
+      ok: [], warn: [], broken: []
+    }
+  };
+
+  function isExternal(href){
+    try{
+      const u = new URL(href, location.origin);
+      return u.origin !== location.origin;
+    }catch(e){
+      return false;
+    }
+  }
+
+  function resolveRef(pageUrl, ref){
+    // Resolve a ref against the page URL correctly:
+    // - Absolute paths (/x) resolve against origin
+    // - Relative refs (x, ./x, ../x) resolve against the pageUrl directory
+    // - Full URLs keep their own origin
+    try{
+      // Full URL with scheme
+      if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(ref)) return new URL(ref);
+      // Absolute path
+      if (ref.startsWith("/")) return new URL(ref, location.origin);
+      // Relative path
+      const base = new URL(pageUrl, location.origin);
+      return new URL(ref, base);
+    }catch(e){
+      return null;
+    }
+  }
+
+  function normalizeInternalPath(href){
+    // returns pathname+search+hash stripped to pathname for file existence checks
+    try{
+      const u = new URL(href, location.origin);
+      return u.pathname;
+    }catch(e){
+      return href;
+    }
+  }
+
+  function stripHash(path){
+    return path.split("#")[0];
+  }
+
+  function stripQuery(path){
+    return path.split("?")[0];
+  }
+
+  function escCssIdent(s){
+    // Best-effort: use CSS.escape if available; otherwise return as-is.
+    try{
+      if (window.CSS && typeof window.CSS.escape === 'function') return CSS.escape(String(s));
+    }catch(e){}
+    return String(s || '');
+  }
+
+  function parseSrcsetUrls(srcset){
+    return String(srcset || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(part => part.split(' ')[0])
+      .filter(Boolean);
+  }
+
+  function pathToRel(pathname){
+    // /about/ -> about/index.html if exists else about.html etc (best effort using manifest)
+    const p = stripQuery(stripHash(pathname));
+    if (p === "/") return "index.html";
+    // direct file
+    const direct = p.startsWith("/") ? p.slice(1) : p;
+    if (state.fileSet.has(direct)) return direct;
+    // folder route
+    const idx = (direct.endsWith("/") ? direct : (direct + "/")) + "index.html";
+    if (state.fileSet.has(idx)) return idx;
+    // try .html fallback
+    const html = direct.endsWith("/") ? (direct.slice(0,-1) + ".html") : (direct + ".html");
+    if (state.fileSet.has(html)) return html;
+    return null;
+  }
+
+  async function fetchText(url){
+    if (state.fetched.has(url)) return state.fetched.get(url);
+    try{
+      const res = await fetch(url, {cache:"no-store"});
+      const txt = await res.text();
+      state.fetched.set(url, {ok: res.ok, status: res.status, text: txt});
+      return state.fetched.get(url);
+    }catch(e){
+      state.fetched.set(url, {ok:false, status:0, text:"", error: String(e)});
+      return state.fetched.get(url);
+    }
+  }
+
+  // --- DeepDive6: broken-link enforcement + route validation + fix suggestions ---
+  const headCache = new Map(); // url -> {ok,status,error?}
+
+  async function headProbe(url){
+    const key = String(url || '');
+    if (!key) return {ok:false, status:0};
+    if (headCache.has(key)) return headCache.get(key);
+    try{
+      const res = await fetch(key, {method:'HEAD', cache:'no-store'});
+      const out = {ok: res.ok, status: res.status};
+      headCache.set(key, out);
+      return out;
+    }catch(e){
+      const out = {ok:false, status:0, error:String(e)};
+      headCache.set(key, out);
+      return out;
+    }
+  }
+
+  function buildLowerFileMap(){
+    const m = new Map();
+    try{
+      for (const f of state.fileSet){
+        const k = String(f || '').toLowerCase();
+        if (k && !m.has(k)) m.set(k, f);
+      }
+    }catch(e){}
+    return m;
+  }
+
+  function suggestFixForPath(pathname, lowerMap){
+    try{
+      const p = stripQuery(stripHash(String(pathname||'')));
+      if (!p) return '';
+      const raw = p.startsWith('/') ? p.slice(1) : p;
+      if (!raw) return '';
+
+      const ci = lowerMap && lowerMap.get(raw.toLowerCase());
+      if (ci && ci !== raw){
+        return `Case mismatch: use "/${ci}"`;
+      }
+
+      const hasSlash = raw.endsWith('/');
+      const base = hasSlash ? raw.slice(0, -1) : raw;
+
+      if (hasSlash){
+        const altHtml = base + '.html';
+        if (state.fileSet.has(altHtml)) return `Try "/${altHtml}" (file exists)`;
+      }
+
+      if (raw.endsWith('.html')){
+        const dir = raw.replace(/\.html$/,'/');
+        const altIdx = dir + 'index.html';
+        if (state.fileSet.has(altIdx)) return `Try "/${dir}" (index exists)`;
+      }
+
+      if (!raw.endsWith('.html') && !hasSlash){
+        const alt1 = raw + '.html';
+        if (state.fileSet.has(alt1)) return `Try "/${alt1}"`;
+        const alt2 = raw + '/index.html';
+        if (state.fileSet.has(alt2)) return `Try "/${raw}/" (index exists)`;
+      }
+
+      if (hasSlash){
+        const altIdx = raw + 'index.html';
+        if (state.fileSet.has(altIdx)) return `Try "/${raw}" (index exists)`;
+      }
+
+      const fname = (base.split('/').pop() || '').toLowerCase();
+      if (fname && lowerMap){
+        for (const [k,v] of lowerMap){
+          if (k.endsWith('/' + fname) || k === fname){
+            return `Closest match: "/${v}"`;
+          }
+        }
+      }
+
+      return '';
+    }catch(e){
+      return '';
+    }
+  }
+
+  function deriveRoutesFromFiles(){
+    const rs = new Set();
+    rs.add('/');
+    try{
+      for (const f of state.fileSet){
+        if (!f || !String(f).endsWith('.html')) continue;
+        const s = String(f);
+        if (s.endsWith('index.html')){
+          const dir = s.slice(0, -'index.html'.length);
+          const route = '/' + dir;
+          rs.add(route);
+        } else {
+          rs.add('/' + s);
+        }
+      }
+    }catch(e){}
+    return Array.from(rs);
+  }
+  function addResult(kind, msg, meta = {}){
+    const k = (kind === 'ok' || kind === 'warn' || kind === 'broken') ? kind : 'warn';
+    try{
+      state.results[k].push({ msg, ...(meta || {}) });
+    }catch(e){
+      // Fail-safe: if state is corrupted, don't crash health panel
+      (state.results.warn || (state.results.warn = [])).push({ msg: String(msg) });
+    }
+  }
+
+  function renderResults(){
+    const okEl = $("#deep-ok");
+    const warnEl = $("#deep-warn");
+    const brokenEl = $("#deep-broken");
+    const sumEl = $("#deep-summary");
+
+    const ok = state.results.ok.length;
+    const warn = state.results.warn.length;
+    const broken = state.results.broken.length;
+
+    sumEl.textContent = `Deep Health: ${ok} OK · ${warn} warnings · ${broken} broken (scanned ${state.htmlPages.length} pages, ${state.fileSet.size} files)`;
+
+    function renderList(el, items){
+      el.innerHTML = "";
+      items.slice(0, 400).forEach(it => {
+        const li = document.createElement("li");
+        li.textContent = it.msg;
+        el.appendChild(li);
+      });
+      if (items.length > 400){
+        const li = document.createElement("li");
+        li.textContent = `…and ${items.length-400} more`;
+        el.appendChild(li);
+      }
+    }
+    renderList(okEl, state.results.ok);
+    renderList(warnEl, state.results.warn);
+    renderList(brokenEl, state.results.broken);
+  }
+
+  async function deepHealth(){
+    // reset
+    state.results = {ok:[], warn:[], broken:[]};
+    state.fetched = new Map();
+    renderResults();
+
+    const man = await fetchText('/site-manifest.json');
+    if (!man.ok){
+      addResult('broken', `Missing /site-manifest.json (status ${man.status || 0}). Deep Health requires the manifest.`);
+      renderResults();
+      return;
+    }
+
+    let parsed;
+    try{
+      parsed = JSON.parse(man.text);
+    }catch(e){
+      addResult('broken', `site-manifest.json is not valid JSON: ${e}`);
+      renderResults();
+      return;
+    }
+
+    state.manifest = parsed;
+    state.fileSet = new Set(parsed.files || []);
+    const lowerMap = buildLowerFileMap();
+    state.htmlPages = (parsed.html_pages || []).map(p => '/' + String(p).replace(/^\/+/,''));
+    const routesParsed = Array.isArray(parsed.routes) ? parsed.routes : [];
+    state.routes = routesParsed;
+
+    const parser = new DOMParser();
+
+    // 1) Crawl each HTML page and validate links/assets
+    for (const pageUrl of state.htmlPages){
+      const res = await fetchText(pageUrl);
+      if (!res.ok){
+        addResult('broken', `HTTP ${res.status} on ${pageUrl}`);
+        continue;
+      }
+
+      const doc = parser.parseFromString(res.text, 'text/html');
+
+      if (doc.querySelector('parsererror')){
+        addResult('warn', `HTML parsererror detected on ${pageUrl}`);
+      } else {
+        addResult('ok', `Loaded ${pageUrl}`);
+      }
+
+      const nodes = [
+        ...$$('a[href]', doc),
+        ...$$('link[href]', doc),
+        ...$$('script[src]', doc),
+        ...$$('img[src]', doc),
+        ...$$('img[srcset]', doc),
+        ...$$('source[src]', doc),
+        ...$$('source[srcset]', doc)
+      ];
+
+      for (const node of nodes){
+        const tag = node.tagName.toLowerCase();
+        const attr = (tag === 'a' || tag === 'link') ? 'href' : (node.getAttribute('src') ? 'src' : 'srcset');
+        const rawVal = (node.getAttribute(attr) || '').trim();
+
+        const candidates = (attr === 'srcset') ? parseSrcsetUrls(rawVal) : [rawVal];
+        if (attr === 'srcset' && candidates.length === 0){
+          addResult('warn', `Empty srcset on <${tag}> in ${pageUrl}`);
+          continue;
+        }
+
+        for (const cand of candidates){
+          const v = (cand || '').trim();
+          if (!v){
+            addResult('warn', `Empty ${attr} on <${tag}> in ${pageUrl}`);
+            continue;
+          }
+
+          if (v === '#' || v === 'javascript:void(0)' || v.startsWith('javascript:')){
+            addResult('warn', `Suspicious link "${v}" in ${pageUrl}`);
+            continue;
+          }
+
+          if (v.startsWith('mailto:') || v.startsWith('tel:')){
+            addResult('ok', `Contact link ok in ${pageUrl}`);
+            continue;
+          }
+
+          if (v.startsWith('data:') || v.startsWith('blob:')){
+            addResult('ok', `Inline asset ok in ${pageUrl}`);
+            continue;
+          }
+
+          if (v.startsWith('http')){
+            addResult('ok', `External ${tag} link ok in ${pageUrl}`);
+            continue;
+          }
+
+          // internal
+          const resolved = resolveRef(pageUrl, v);
+          const fullPath = resolved ? resolved.pathname : normalizeInternalPath(v);
+          const rel = pathToRel(fullPath);
+
+          if (!rel){
+            const h = await headProbe(fullPath);
+            const sug = suggestFixForPath(fullPath, lowerMap);
+            if (h.ok){
+              addResult('warn', `Link "${v}" in ${pageUrl} resolves (HTTP ${h.status}) but is missing from site-manifest.json${sug ? ' — ' + sug : ''}`);
+            } else {
+              addResult('broken', `Missing target for "${v}" referenced in ${pageUrl}${sug ? ' — ' + sug : ''}`);
+            }
+            continue;
+          }
+
+          // Enforce real server reachability (manifest hit isn't enough)
+          const h = await headProbe(fullPath);
+          if (!h.ok){
+            const sug = suggestFixForPath(fullPath, lowerMap);
+            addResult('broken', `HTTP ${h.status || 0} for "${v}" referenced in ${pageUrl}${sug ? ' — ' + sug : ''}`);
+            continue;
+          }
+
+          // Reduce OK spam: only log OK for clickable page links
+          if (tag === 'a'){
+            addResult('ok', `OK link "${v}" (${h.status}) in ${pageUrl}`);
+          }
+
+          // hash anchor validation for <a>
+          if (tag === 'a' && v.includes('#')){
+            const parts = v.split('#');
+            const basePart = parts[0] || '';
+            const hash = parts[1] || '';
+            if (hash){
+              const targetPath = basePart ? ((resolveRef(pageUrl, basePart) && resolveRef(pageUrl, basePart).pathname) || normalizeInternalPath(basePart)) : pageUrl;
+              const targetRel = pathToRel(targetPath);
+              if (!targetRel){
+                addResult('broken', `Anchor base missing for "${v}" from ${pageUrl}`);
+                continue;
+              }
+              const targetUrl = '/' + targetRel;
+              const tRes = await fetchText(targetUrl);
+              if (!tRes.ok){
+                addResult('broken', `Anchor target page HTTP ${tRes.status} for "${v}" from ${pageUrl}`);
+              } else {
+                const tDoc = parser.parseFromString(tRes.text, 'text/html');
+                const hit = tDoc.getElementById(hash) || tDoc.querySelector(`[name="${escCssIdent(hash)}"]`);
+                if (!hit){
+                  addResult('broken', `Missing #${hash} on ${targetUrl} (linked from ${pageUrl})`);
+                } else {
+                  addResult('ok', `Anchor #${hash} ok on ${targetUrl}`);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 2) Route validation (derived from manifest files + optional manifest routes)
+    const derivedRoutes = deriveRoutesFromFiles();
+    const routeSet = new Set();
+    for (const r of derivedRoutes){
+      if (!r) continue;
+      routeSet.add(String(r).startsWith('/') ? String(r) : '/' + String(r));
+    }
+    if (Array.isArray(state.routes)) {
+      for (const r of state.routes){
+        if (!r) continue;
+        routeSet.add(String(r).startsWith('/') ? String(r) : '/' + String(r));
+      }
+    }
+
+    let routeBroken = 0;
+    for (const r of routeSet){
+      const hr = await headProbe(r);
+      if (!hr.ok){
+        routeBroken++;
+        const sug = suggestFixForPath(r, lowerMap);
+        addResult('broken', `Route not reachable: ${r} (HTTP ${hr.status || 0})${sug ? ' — ' + sug : ''}`);
+      }
+    }
+
+    if (!routeBroken){
+      addResult('ok', `Routes validated (${routeSet.size} checked)`);
+    } else {
+      addResult('warn', `Route validation: ${routeBroken} failing route(s) out of ${routeSet.size}`);
+    }
+
+    // 3) Orphans: files never referenced (best effort)
+    const referenced = new Set();
+    for (const payload of state.fetched.values()){
+      if (!payload || !payload.text) continue;
+      const t = payload.text;
+      for (const f of state.fileSet){
+        if (f.endsWith('.html')) continue;
+        if (t.includes(f) || t.includes('/'+f)) referenced.add(f);
+      }
+    }
+
+    const orphans = [];
+    for (const f of state.fileSet){
+      if (f.endsWith('.html')) continue;
+      if (!referenced.has(f)) orphans.push(f);
+    }
+    if (orphans.length){
+      addResult('warn', `Potential orphan files (not referenced by any scanned HTML): ${orphans.length} (showing first 25) -> ${orphans.slice(0,25).join(', ')}`);
+    }
+
+    renderResults();
+  }
+
+  function wireUI(){
+    const btn = document.createElement("button");
+    btn.className = "pill";
+    btn.type = "button";
+    btn.textContent = "Run Deep Health";
+    btn.style.marginLeft = "10px";
+    btn.onclick = deepHealth;
+
+    const host = document.querySelector(".row") || document.body;
+    host.appendChild(btn);
+  }
+
+  document.addEventListener("DOMContentLoaded", wireUI);
+})();
+</script>
+<script defer="" src="/shared/runtime-load-guard.js"></script>
+<script defer="" src="/shared/render-recovery-guard.js"></script>
+<script defer="" src="/shared/resize-dpr-guard.js"></script>
+<script defer="" src="/shared/error-boundary-guard.js"></script>
+<script defer="" src="/shared/state-init-guard.js"></script>
+<script defer="" src="/shared/scroll-focus-guard.js"></script>
+<script defer="" src="/shared/ui-physics-guard.js"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+:root{
+  /* STACKING MODEL */
+  --z-bg:0;
+  --z-canvas:1;
+  --z-ui:10;
+  --z-nav:50;
+  --z-overlay:900;
+  --z-toast:1000;
+
+
+  /* BRAND */
+  --bg:#070A12;
+  --panel:#0D1222;
+  --panel2:#101A33;
+  --text:#F5F7FF;
+  --muted:rgba(245,247,255,0.74);
+
+  --accent:#7C5CFF;
+  --accent2:#34D3FF;
+
+  --border:rgba(255,255,255,0.16);
+  --border2:rgba(255,255,255,0.24);
+  --shadow:0 10px 40px rgba(0,0,0,0.45);
+
+  /* TYPE */
+  --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  --h1: 28px;
+  --h2: 18px;
+  --body: 14px;
+
+  /* SPACING */
+  --r-sm: 10px;
+  --r-pill: 999px;
+
+  --p-1: 8px;
+  --p-2: 12px;
+  --p-3: 16px;
+
+  /* LINKS (kill shiny blue defaults) */
+  --link: #EAF0FF;
+  --linkHover: #FFFFFF;
+  --linkBg: rgba(255,255,255,0.10);
+  --linkBgHover: rgba(255,255,255,0.16);
+  --linkBorder: rgba(255,255,255,0.22);
+
+  /* FOCUS */
+  --focus: 0 0 0 3px rgba(124,92,255,0.35);
+
+  /* MICRO-INTERACTIONS (Phase C) */
+  --dur-fast: 120ms;
+  --dur-med: 220ms;
+  --dur-slow: 420ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+a{ color: var(--link); }
+a:visited{ color: var(--link); }
+a:hover{ color: var(--linkHover); }
+a:focus-visible{ outline: none; box-shadow: var(--focus); border-radius: 10px; }
+
+/* Default pill/button style for nav-ish anchors */
+a.nxs-pill, a.nxPill, a.linkPill, nav a, .nxs-pill, .nxPill{
+  color: var(--link) !important;
+  text-decoration: none !important;
+}
+
+/* Base typography + background (keeps your design, prevents browser-default weirdness) */
+html, body{
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--body);
+  line-height: 1.55;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Phase C — consistent interaction feel across the suite (safe, non-breaking) */
+button, .btn, input, select, textarea,
+a.nxs-pill, a.nxPill, a.linkPill, nav a,
+.pill, .toggle, [role="button"]{
+  transition:
+    background-color var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    color var(--dur-med) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    opacity var(--dur-med) var(--ease-out);
+}
+
+button:active, .btn:active, [role="button"]:active,
+a.nxs-pill:active, a.nxPill:active, nav a:active{
+  transform: translateY(1px) scale(0.99);
+}
+
+.tile, .card, .panel, .nxs-tile{
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    box-shadow var(--dur-med) var(--ease-out),
+    border-color var(--dur-med) var(--ease-out),
+    background-color var(--dur-med) var(--ease-out);
+}
+
+/* Soft focus ring consistency */
+button:focus-visible, .btn:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+a:focus-visible{
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+/* Toast stack (shared) */
+#nxToastStack{
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: var(--z-toast);
+  pointer-events: none;
+}
+.nxToast{
+  pointer-events: auto;
+  max-width: min(560px, calc(100vw - 22px));
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(15,18,30,0.92);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(255,255,255,0.92);
+  font-weight: 650;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  animation: nxToastIn var(--dur-med) var(--ease-out);
+}
+.nxToast[data-kind="ok"]{ border-color: rgba(16,185,129,0.55); }
+.nxToast[data-kind="warn"]{ border-color: rgba(245,158,11,0.60); }
+.nxToast[data-kind="danger"]{ border-color: rgba(239,68,68,0.60); }
+.nxToast.nxOut{ animation: nxToastOut var(--dur-fast) var(--ease-in) forwards; }
+
+@keyframes nxToastIn{
+  from{ opacity: 0; transform: translateY(10px) scale(0.98); }
+  to{ opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes nxToastOut{
+  from{ opacity: 1; transform: translateY(0) scale(1); }
+  to{ opacity: 0; transform: translateY(8px) scale(0.98); }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+
+/* === Recommended Path Tile (compact) === */
+/* === More Tile === */
+
+
+/* === Hybrid Editorial Tile System (C) === */
+.inline-tile{
+  position: relative;
+  background: linear-gradient(180deg, rgba(18,22,35,0.92) 0%, rgba(12,16,28,0.88) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.inline-tile::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:4px;
+  background: linear-gradient(180deg, rgba(168,85,247,0.85) 0%, rgba(59,130,246,0.55) 100%);
+  
+}
+
+.inline-tile h3{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  
+}
+
+.inline-tile p{
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0;
+  
+  max-width: 70ch;
+}
+
+/* Slightly tighter cards for short statements */
+.inline-tile--tight{
+  padding: 16px 18px;
+}
+
+@media (max-width: 520px){
+  .inline-tile{
+    padding: 16px 16px;
+    border-radius: 14px;
+  }
+  .inline-tile p{
+    font-size: 14px;
+  }
+}
+
+
+
+/* === Inline Tiles Full-Width === */
+.inline-tile{
+  width: 100% !important;
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+}
+.inline-tile p{ max-width: none; }
+
+
+/* === Thumb De-Dimming === */
+.thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img{
+  filter: none !important;
+  opacity: 1 !important;
+}
+.thumb::after, .tile-thumb::after, .app-thumb::after, .nxs-thumb::after, .thumbs::after,
+.thumb::before, .tile-thumb::before, .app-thumb::before, .nxs-thumb::before, .thumbs::before{
+  display: none !important;
+  content: none !important;
+}
+
+
+/* === Force remove thumb dimming (override) === */
+img{ filter: none !important; opacity: 1 !important; }
+.tile img, .card img, .thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img,
+.tile picture img, picture img { filter:none !important; opacity:1 !important; mix-blend-mode: normal !important; }
+.tile::before, .tile::after,
+.card::before, .card::after,
+.thumb::before, .thumb::after,
+.tile-thumb::before, .tile-thumb::after,
+.app-thumb::before, .app-thumb::after,
+.nxs-thumb::before, .nxs-thumb::after,
+.thumbs::before, .thumbs::after,
+.tile img::before, .tile img::after { display:none !important; content:none !important; }
+
+
+/* === Full-width for Start Here + key tiles === */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* If they sit inside a grid, make them span the grid */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  grid-column: 1 / -1 !important;
+}
+
+/* Mobile / Touch ergonomics */
+html, body{
+  -webkit-text-size-adjust: 100%;
+}
+
+a, button, [role="button"], input, select, textarea{
+  touch-action: manipulation;
+}
+
+@media (hover: none){
+  a, button, [role="button"]{
+    -webkit-tap-highlight-color: rgba(124,92,255,0.25);
+  }
+}

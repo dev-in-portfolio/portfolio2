@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Interactive product builds in the Nexus suite." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="UBR — Ultimate Broker Routing — Devin O’Rourke" property="og:title"/>
+<meta content="Interactive product builds in the Nexus suite." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/apps/ubr/" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="UBR — Ultimate Broker Routing — Devin O’Rourke" name="twitter:title"/>
+<meta content="Interactive product builds in the Nexus suite." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>UBR — Ultimate Broker Routing — Devin O’Rourke</title>
+<!-- Tailwind (CDN) -->
+<script defer="defer" src="https://cdn.tailwindcss.com"></script>
+<script>
+    window.tailwind = window.tailwind || {};
+  window.window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: { accent: { 500: '#facc15' }, panel: '#1e293b' }
+        }
+      }
+    };
+  </script>
+<!-- Cropper.js -->
+<link href="/shared/tokens.css" rel="stylesheet"/><link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="" src="/shared/toast.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet"/>
+<script defer="" src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<!-- Tesseract.js -->
+<script defer="" src="https://unpkg.com/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
+<!-- Leaflet -->
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+<script defer="defer" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    :root{
+      --gold:#facc15;
+      --bg:#0b0f19;
+      --panel:#111827;
+      --line:#374151;
+      --text:#e5e7eb;
+    }
+    html{ font-size:18px; } /* ≈14pt overall */
+    html,body{height:100%}
+    body{
+      background:var(--bg);
+      color:var(--text);
+      margin:0;
+      font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overscroll-behavior-y: none;
+    }
+    .app{display:grid;grid-template-rows:auto 1fr;height:100dvh;overflow:hidden;}
+    
+    /* Navigation & Header */
+    .topbar{
+      display:flex;
+      flex-wrap: wrap;
+      gap:.5rem;
+      align-items:center;
+      justify-content:space-between;
+      padding:.6rem .8rem;
+      border-bottom:1px solid var(--line);
+      background:#0f172a;
+      z-index:20;
+    }
+    .app-title{
+      font-weight:700;
+      font-size:1rem;
+      white-space: nowrap;
+    }
+    .nav{display:flex;gap:.3rem;flex-wrap:wrap;justify-content:flex-end}
+    
+    .btn{
+      background:#1e293b;
+      border:1px solid var(--line);
+      color: #94a3b8;
+      border-radius:.5rem;
+      padding:.4rem .7rem;
+      cursor:pointer;
+      font-size:.8rem;
+      font-weight:600;
+      transition:all .2s ease;
+      white-space: nowrap;
+    }
+    .btn:active{transform:scale(.96)}
+    
+    /* Active Nav State */
+    .btn.nav-active {
+      background: #334155;
+      color: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 5px rgba(250, 204, 21, 0.2);
+    }
+
+    .btn-accent{background:var(--gold);color:#111827;border:1px solid var(--gold); font-weight: 700;}
+    .btn-accent:hover{background:#eab308;}
+    
+    .btn-danger{background:#ef4444;color:#fff;border:1px solid #dc2626;}
+    .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text);}
+    
+    .btn-mini{
+      background:#0f172a;
+      border:1px solid #334155;
+      border-radius:.3rem;
+      padding:.2rem .4rem;
+      font-size:.75rem;
+      color:#cbd5e1;
+      cursor:pointer;
+    }
+
+    /* Layout & Cards */
+    .page{padding:.8rem;overflow-y:auto; height: 100%; -webkit-overflow-scrolling: touch;}
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:.75rem;
+      padding:.85rem;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Phase D: Route Preview (Today) */
+    .route-summary{ display:flex; flex-direction:column; gap:.75rem; }
+    .route-kpis{ display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:.5rem; }
+    .route-kpi{
+      background:#0f172a;
+      border:1px solid #334155;
+      border-radius:.75rem;
+      padding:.55rem .6rem;
+    }
+    .route-k{ font-size:.62rem; color:#94a3b8; text-transform:uppercase; letter-spacing:.08em; }
+    .route-v{ font-size:.95rem; font-weight:800; color:#fff; margin-top:.1rem; }
+    .route-next-h{ display:flex; justify-content:space-between; align-items:flex-end; gap:.5rem; }
+    .route-next-list{ display:flex; flex-direction:column; gap:.5rem; margin-top:.5rem; }
+    .route-next-row{
+      display:grid;
+      grid-template-columns: 30px 1fr;
+      gap:.6rem;
+      align-items:flex-start;
+      padding:.55rem .6rem;
+      border:1px solid #334155;
+      border-radius:.75rem;
+      background:#0b1224;
+    }
+    .route-next-row.is-current{
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(250,204,21,.10);
+      background:#171d2d;
+    }
+    .route-next-n{ font-weight:900; color:var(--gold); display:flex; align-items:center; justify-content:center; }
+    .route-next-title{ font-size:.78rem; font-weight:800; color:#fff; }
+    .route-next-sub{ font-size:.68rem; color:#94a3b8; margin-top:.15rem; line-height:1.2; }
+    
+    /* Animation */
+    .fade-in-up {
+      animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .list-scroll{max-height:50dvh;overflow-y:auto; padding-right: 2px;}
+    
+    .badge{
+      padding:.1rem .35rem;
+      border-radius:.3rem;
+      font-size:.75rem;
+      margin-right:.25rem;
+      border:1px solid var(--line);
+      font-weight: 600;
+    }
+    .badge.ok{background:#065f46;color:#a7f3d0;border-color:#059669}
+    .badge.warn{background:#451a03;color:#fbbf24;border-color:#92400e}
+    .badge.low{background:#172554;color:#93c5fd;border-color:#1e40af}
+
+    .current-stop{
+      border: 1px solid var(--gold);
+      box-shadow: 0 0 0 1px var(--gold), 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      background: #171d2d;
+    }
+
+    .input{
+      background:#020617;
+      border:1px solid #374151;
+      border-radius:.4rem;
+      padding:.4rem .6rem;
+      color:#e5e7eb;
+      width:100%;
+      font-size:.9rem;
+    }
+    .input:focus { outline: 2px solid var(--gold); border-color: transparent; }
+
+    .row{display:flex;gap:.5rem;flex-wrap:wrap}
+    .grow{flex:1 1 auto}
+    .w-28{width:7rem}
+    
+    .spinner{
+      border:3px solid rgba(250,204,21,.25);
+      border-top-color:#facc15;
+      border-radius:50%;
+      width:24px;
+      height:24px;
+      animation:spin 0.8s linear infinite;
+      margin:0 auto
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    
+    .hidden{display:none !important}
+    
+    #map{
+      height:40vh;
+      border:1px solid var(--line);
+      border-radius:.5rem;
+      z-index: 1;
+    }
+    textarea.devnotes{
+      min-height:100px;
+      font-family: monospace;
+      font-size: .85rem;
+    }
+
+    .toggle{
+      border:1px solid #374151;
+      background:#0f172a;
+      color:#94a3b8;
+      border-radius:.5rem;
+      padding:.6rem .5rem;
+      font-size:.8rem;
+      text-align:center;
+      transition: all 0.15s;
+      cursor: pointer;
+    }
+    .toggle:active { transform: scale(0.97); }
+    .toggle.active{
+      border-color: var(--gold);
+      background: rgba(250, 204, 21, 0.15);
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* Scrollbar Polish */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* =========================
+       DOUBLE SPLASH OVERLAY
+    ========================= */
+.splash-inner{
+      width:100%;
+      max-width:720px;
+      max-height:90vh;
+    }
+    .splash-card{
+      background: #020617;
+      border-radius:1rem;
+      border:1px solid #1f2937;
+      padding:1rem 1.1rem;
+      box-shadow:0 20px 40px rgba(0,0,0,0.6);
+      max-height:90vh;
+      overflow-y:auto;
+    }
+    .splash-eyebrow{
+      font-size:.75rem;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:#e5e7eb;
+      opacity:.8;
+    }
+    .splash-title{
+      font-size:1.2rem;
+      font-weight:800;
+      margin-top:.25rem;
+      margin-bottom:.75rem;
+      color:#facc15;
+    }
+    .splash-lead{
+      font-size:.9rem;
+      color:#e5e7eb;
+      opacity:.9;
+    }
+    .splash-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      padding:.2rem .55rem;
+      border-radius:999px;
+      border:1px solid #374151;
+      font-size:.75rem;
+      color:#e5e7eb;
+      background:rgba(15,23,42,0.9);
+    }
+    .splash-list{
+      margin-top:.75rem;
+      padding-left:1rem;
+      font-size:.85rem;
+      color:#cbd5e1;
+    }
+    .splash-list li{
+      margin-bottom:.4rem;
+    }
+    .splash-tagline{
+      font-size:.8rem;
+      color:#9ca3af;
+      margin-top:.75rem;
+    }
+
+
+/* ===== Phase 4: Accessibility, Contrast, & Perception ===== */
+/* Kill default shiny-blue links globally (unless explicitly styled) */
+a:link, a:visited{
+  color: rgba(255,255,255,0.92);
+  text-decoration-color: rgba(255,255,255,0.35);
+}
+a:hover{
+  color: rgba(255,255,255,0.98);
+  text-decoration-color: rgba(155,209,255,0.70);
+}
+a:active{
+  color: rgba(255,255,255,1);
+}
+
+/* If something is intended to look like a button, it should feel like one */
+a.btn, a.buttonlike, .nxs-btn, .nxs-pill, .pillBtn, button, [role="button"]{
+  text-decoration: none !important;
+}
+
+/* Keyboard: always visible focus, never the default outline that disappears on dark backgrounds */
+:focus-visible{
+  outline: 2px solid rgba(155,209,255,0.85);
+  outline-offset: 4px;
+}
+
+/* Increase tap target comfort on mobile */
+a, button{
+  -webkit-tap-highlight-color: rgba(155,209,255,0.25);
+}
+
+
+/* ===== Phase 5: Performance, SEO, & Production Paranoia ===== */
+/* Reduce layout shift from images */
+img{ height:auto; }
+
+
+    /* === Phase A Skin (deploy120): UBR Command Center polish === */
+    :root{
+      --ubr-shadow: 0 18px 42px rgba(0,0,0,.45);
+      --ubr-focus: 0 0 0 3px rgba(250,204,21,.28);
+    }
+
+    body{
+      background:
+        radial-gradient(900px 600px at 20% -10%, rgba(250,204,21,.10), transparent 55%),
+        radial-gradient(900px 600px at 90% 0%, rgba(56,189,248,.10), transparent 60%),
+        var(--bg);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .topbar{
+      background: rgba(15,23,42,.86);
+      backdrop-filter: blur(12px);
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.08)), var(--panel);
+      border-color: rgba(148,163,184,.22);
+      box-shadow: var(--ubr-shadow);
+    }
+
+    .btn{
+      border-color: rgba(148,163,184,.25);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
+      color: #e5e7eb;
+      padding: .46rem .78rem;
+      border-radius: .65rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+      transition: transform .14s ease, box-shadow .14s ease, background .14s ease, border-color .14s ease;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(0,0,0,.26));
+    }
+    .btn:active{
+      transform: translateY(0) scale(.98);
+    }
+    .btn:focus-visible{
+      outline: none;
+      box-shadow: var(--ubr-focus), 0 6px 18px rgba(0,0,0,.25);
+    }
+
+    .input, textarea.devnotes{
+      background: rgba(2,6,23,.78);
+      border-color: rgba(148,163,184,.25);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .input::placeholder{
+      color: rgba(226,232,240,.55);
+    }
+    .input:focus{
+      outline: none;
+      box-shadow: var(--ubr-focus);
+      border-color: transparent;
+    }
+
+    .page::-webkit-scrollbar{ width: 10px; }
+    .page::-webkit-scrollbar-thumb{
+      background: rgba(148,163,184,.20);
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+
+
+    /* === Phase B Layout Reframe (deploy121) === */
+    .ubr-grid-2{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+    .ubr-stack{display:flex;flex-direction:column;gap:12px}
+    @media (min-width: 1024px){
+      .ubr-grid-2{grid-template-columns: 1.15fr .85fr;}
+    }
+    .card .card-h{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px
+    }
+    .card .card-title{font-weight:700;font-size:14px;color:rgba(226,232,240,0.95);letter-spacing:0.02em}
+    .card .card-sub{font-size:12px;color:rgba(148,163,184,0.95);margin-top:2px}
+
+</style>
+<script>window.APP_ID="ubr-ultimate-broker-routing";</script>
+<link href="/manifest.webmanifest" rel="manifest"><link href="https://dev-in-portfolio.netlify.app/apps/ubr/" rel="canonical"/><link href="/icon-192.png" rel="icon"/><script src="/runtime-guard.js"></script>
+<link href="/shared/tile-polish.css" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+</link></head>
+<body data-app="ubr">
+  <nav class="nxTopNav"></nav>
+
+<!-- DOUBLE SPLASH OVERLAY -->
+<div class="app">
+<header class="topbar">
+<div class="app-title text-accent-500">
+      UB Route <span class="text-white font-normal">+ Asst</span>
+</div>
+<nav class="nav" id="mainNav">
+<button class="btn" data-target="today" onclick="showPage('today')">Today</button>
+<button class="btn" data-target="book" onclick="showPage('book')">Book</button>
+<button class="btn" data-target="week" onclick="showPage('week')">Plan</button>
+<button class="btn" data-target="ocr" onclick="showPage('ocr')">Scan</button>
+<button class="btn" data-target="assistant" onclick="showPage('assistant')">Tracker</button>
+<button class="btn" data-target="settings" onclick="showPage('settings')">Settings</button>
+ · </nav>
+</header>
+<main class="page" id="mainContainer">
+<!-- TODAY PAGE -->
+<section class="fade-in-up" id="page-today">
+<div class="max-w-5xl mx-auto">
+<div class="ubr-grid-2">
+<div class="ubr-stack">
+<div class="card">
+<div class="flex justify-between items-center mb-2">
+<div class="text-lg font-bold">Today's Route</div>
+<div class="text-[0.65rem] text-accent-500 bg-accent-500/10 px-2 py-1 rounded" id="currentStopTodayBanner"></div>
+</div>
+<div class="row">
+<button class="btn btn-accent grow" id="btnOptimize" onclick="Today.optimize()">Optimize Route</button>
+<button class="btn grow" id="btnSendNav" onclick="Today.sendNavAll()">Start Nav</button>
+<button class="btn btn-danger" id="btnClearToday" onclick="Today.clear()">Clear</button>
+</div>
+</div>
+<div class="card" id="routeSummary"></div>
+<div class="card p-0 overflow-hidden">
+<div class="text-[0.7rem] px-3 py-2 text-slate-300 bg-slate-900/60 border-b border-white/10" id="mapStatus">
+            Map: waiting to initialize…
+          </div>
+<div id="map"></div>
+</div>
+</div>
+<div class="ubr-stack">
+<div class="card">
+<div class="card-h">
+<div>
+<div class="card-title">Stops</div>
+<div class="card-sub">Tap to open, long-press to reorder (mobile).</div>
+</div>
+<div class="text-[0.7rem] text-slate-400" id="todayStopsMeta"></div>
+</div>
+<div class="space-y-2" id="todayList"></div>
+</div>
+<div class="card">
+<div class="card-h">
+<div>
+<div class="card-title">Notes / Scratchpad</div>
+<div class="card-sub">Anything you type is local-only (device storage).</div>
+</div>
+</div>
+<textarea class="input devnotes" id="devNotes" placeholder="Type quick notes here..."></textarea>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ADDRESS BOOK PAGE -->
+<section class="hidden fade-in-up" id="page-book">
+<div class="max-w-5xl mx-auto">
+<div class="ubr-grid-2">
+<div class="ubr-stack">
+<div class="card">
+<div class="card-h">
+<div>
+<div class="card-title">Address Book</div>
+<div class="card-sub">Search, filter, geocode, then add to Today.</div>
+</div>
+<div class="row">
+<button class="btn btn-accent" id="massAddToToday" onclick="Book.massAdd()">+ Today</button>
+<button class="btn" id="massClear" onclick="Book.clearSelection()">Clear Sel.</button>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-h">
+<div>
+<div class="card-title">Lists</div>
+<div class="card-sub">Clients • Leads • Archived</div>
+</div>
+</div>
+<div class="row w-full justify-center" role="tablist">
+<button class="btn grow" id="tabClients" onclick="Book.active='clients'">Clients</button>
+<button class="btn grow" id="tabLeads" onclick="Book.active='leads'">Leads</button>
+<button class="btn grow" id="tabArchived" onclick="Book.active='archived'">Archived</button>
+</div>
+</div>
+<div class="card">
+<div class="card-h">
+<div>
+<div class="card-title">Filters</div>
+<div class="card-sub">Tighten the list before you route.</div>
+</div>
+</div>
+<div class="row">
+<input class="input grow" id="searchBox" oninput="Book.render()" placeholder="Search..."/>
+<select class="input w-24" id="priorityFilter" onchange="Book.render()">
+<option value="">Pri: All</option>
+<option>High</option><option>Medium</option><option>Low</option>
+</select>
+<select class="input w-24" id="geoFilter" onchange="Book.render()">
+<option value="">Geo: All</option>
+<option value="yes">Yes</option>
+<option value="no">No</option>
+</select>
+</div>
+</div>
+<div class="card border-t-2 border-slate-700">
+<div class="card-h">
+<div>
+<div class="card-title">Quick Add</div>
+<div class="card-sub">Fast entry — geocode when you’re ready.</div>
+</div>
+</div>
+<div class="row mb-2">
+<input class="input grow" id="newName" placeholder="Name"/>
+<select class="input w-24" id="newPriority">
+<option>High</option><option selected="">Medium</option><option>Low</option>
+</select>
+</div>
+<input class="input w-full mb-2" id="newAddress" placeholder="Address"/>
+<div class="row">
+<button class="btn grow" onclick="Book.add('clients')">+ Client</button>
+<button class="btn grow" onclick="Book.add('leads')">+ Lead</button>
+<button class="btn btn-accent" onclick="Book.geocodeNew()">Geocode New</button>
+</div>
+</div>
+</div>
+<div class="ubr-stack">
+<div class="card">
+<div class="card-h">
+<div>
+<div class="card-title">Results</div>
+<div class="card-sub">Select entries, then hit “+ Today”.</div>
+</div>
+</div>
+<div class="list-scroll space-y-2" id="bookList"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- PLAN WEEK PAGE -->
+<section class="hidden fade-in-up" id="page-week">
+<div class="max-w-5xl mx-auto space-y-3">
+<div class="card">
+<div class="text-lg font-bold mb-2">Plan My Week</div>
+<div class="muted text-sm mb-3">Clusters geocoded stops into daily routes based on location.</div>
+<div class="row items-center bg-slate-900 p-2 rounded">
+<label class="text-sm text-gray-300 ml-2">Stops/Day:</label>
+<input class="input w-20" id="pmwStops" max="60" min="5" type="number" value="25"/>
+<button class="btn btn-accent grow" onclick="PlanWeek.run()">Generate Plan</button>
+</div>
+</div>
+<div class="space-y-3 pb-8" id="pmwOut"></div>
+</div>
+</section>
+<!-- OCR PAGE -->
+<section class="hidden fade-in-up" id="page-ocr">
+<div class="max-w-3xl mx-auto space-y-3">
+<div class="card">
+<div class="text-lg font-bold mb-2">Lead Scanner</div>
+<div class="row">
+<label class="btn grow text-center cursor-pointer bg-slate-800">
+                📸 Take Photo / Upload
+                <input accept="image/*" capture="environment" class="hidden" id="ocrFile" onchange="OCR.loadFile(this.files[0])" type="file"/>
+</label>
+<button class="btn btn-ghost" onclick="OCR.reset()">Reset</button>
+</div>
+</div>
+<div class="card">
+<div class="text-sm font-semibold mb-2">1. Crop Image</div>
+<div class="rounded border border-gray-700" style="max-height:40vh;overflow:hidden;background:#000;">
+<img class="block max-w-full" decoding="async" id="ocrImage" loading="lazy"/>
+</div>
+<div class="row mt-2">
+<button class="btn btn-accent grow" id="btnScanOCR" onclick="OCR.cropAndOCR()">2. Scan Text</button>
+<button class="btn grow" id="btnParseToLead" onclick="OCR.parseToLead()">3. Fill Fields</button>
+</div>
+<div class="mt-3 hidden text-center" id="ocrProgress">
+<div class="spinner"></div>
+<div class="text-xs mt-2 text-accent-500">Reading text...</div>
+</div>
+</div>
+<!-- Hidden text area for raw OCR -->
+<textarea class="hidden" id="ocrText"></textarea>
+<div class="card">
+<div class="text-sm font-semibold mb-2">4. Review &amp; Save</div>
+<div class="space-y-2">
+<input class="input" id="ocrName" placeholder="Name / Business"/>
+<input class="input" id="ocrAddr" placeholder="Address"/>
+<div class="row">
+<input class="input grow" id="ocrPhone" placeholder="Phone"/>
+<input class="input grow" id="ocrEmail" placeholder="Email"/>
+</div>
+<textarea class="input" id="ocrNotes" placeholder="Notes (T65, etc)" rows="2"></textarea>
+<div class="row items-center bg-slate-900 p-2 rounded">
+<select class="input w-24" id="ocrPriority">
+<option>High</option><option selected="">Medium</option><option>Low</option>
+</select>
+<label class="row items-center gap-2 text-xs ml-2 cursor-pointer">
+<input id="ocrAddToToday" type="checkbox"/>
+<span>+ Today</span>
+</label>
+<div class="grow"></div>
+<button class="btn" onclick="OCR.geocodeRefined()">Geocode</button>
+<button class="btn btn-accent" onclick="OCR.createLead()">Save Lead</button>
+</div>
+</div>
+<div class="text-xs text-green-400 mt-2 h-4" id="ocrGeoStatus"></div>
+</div>
+</div>
+</section>
+<!-- ASSISTANT PAGE -->
+<section class="hidden fade-in-up" id="page-assistant">
+<div class="max-w-5xl mx-auto space-y-3">
+<header class="text-center mb-2">
+<h2 class="text-xl font-bold text-white">Field Tracker</h2>
+<div class="text-xs text-accent-500 mt-1" id="currentStopBanner"></div>
+</header>
+<!-- Actions -->
+<section class="card p-3 border-accent-500/30">
+<div class="flex justify-between items-end mb-3">
+<h3 class="text-sm font-bold text-gray-300">Action Logger</h3>
+<button class="text-xs text-red-400 underline" onclick="Assistant.clearSelections()">Clear</button>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="actions">
+<button class="toggle" data-key="doorKnock" onclick="Assistant.toggleAction(this)">🚪 Door Knock</button>
+<button class="toggle" data-key="noAnswer" onclick="Assistant.toggleAction(this)">🚫 No Answer</button>
+<button class="toggle" data-key="qualityConversation" onclick="Assistant.toggleAction(this)">💬 Conversation</button>
+<button class="toggle" data-key="flyerLeft" onclick="Assistant.toggleAction(this)">📄 Flyer Left</button>
+<button class="toggle" data-key="appointmentSet" onclick="Assistant.toggleAction(this)">📅 Appt Set</button>
+<button class="toggle" data-key="comeBack" onclick="Assistant.toggleAction(this)">↩️ Come Back</button>
+<button class="toggle" data-key="water12oz" onclick="Assistant.toggleAction(this)">💧 Water +12oz</button>
+<button class="toggle" data-key="notInterested" onclick="Assistant.toggleAction(this)">👎 Not Interested</button>
+</div>
+<button class="btn btn-accent w-full mt-4 py-3 text-lg shadow-lg" onclick="Assistant.submitStop()">SUBMIT &amp; NEXT</button>
+</section>
+<!-- Scoreboard -->
+<section class="card p-3">
+<h3 class="text-sm font-bold text-gray-400 mb-2">Today's Scoreboard</h3>
+<div class="grid grid-cols-3 gap-2 text-center" id="assistMini"></div>
+</section>
+<!-- Daily Brief -->
+<section class="card p-3">
+<div class="text-xs text-gray-300 italic" id="assistantDailyBrief"></div>
+</section>
+<!-- Analytics -->
+<section class="card p-3">
+<div class="flex justify-between mb-2">
+<h3 class="text-sm font-bold text-gray-400">Streak &amp; History</h3>
+<div class="space-x-2">
+<button class="btn-mini" onclick="Assistant.copyTodaySummary()">Copy Today</button>
+<button class="btn-mini" onclick="Assistant.copy7DaySummary()">Copy 7-Day</button>
+</div>
+</div>
+<div id="assistantStreaks"></div>
+<div class="mt-4">
+<button class="btn btn-danger w-full text-xs" onclick="Assistant.resetDailyMetrics()">Start Manual New Day</button>
+</div>
+</section>
+<!-- Log -->
+<section class="card p-3 pb-10">
+<h3 class="text-sm font-bold text-gray-400 mb-2">Recent Log</h3>
+<ul class="text-xs space-y-1 text-gray-400 max-h-40 overflow-y-auto" id="log"></ul>
+</section>
+</div>
+</section>
+<!-- SETTINGS PAGE -->
+<section class="hidden fade-in-up" id="page-settings">
+<div class="max-w-xl mx-auto space-y-4">
+<div class="card">
+<div class="text-lg font-bold mb-2">Configuration</div>
+<label class="text-xs text-gray-400">Home Base (Start Point):</label>
+<div class="row mt-1">
+<input class="input grow" id="homeInput" placeholder="e.g. 123 Main St, City, ST"/>
+<button class="btn btn-accent" id="btnSaveHome" onclick="Settings.saveHome()">Save</button>
+</div>
+</div>
+<div class="card">
+<div class="text-lg font-bold mb-2">Data Management</div>
+<p class="text-xs text-gray-400 mb-3">All data is stored locally on this device.</p>
+<div class="space-y-2">
+<button class="btn w-full text-left" onclick="Settings.downloadBackup()">⬇️ Download Backup (JSON)</button>
+<button class="btn btn-danger w-full text-left" id="btnClearAll" onclick="Settings.clearAll()">⚠️ Factory Reset / Clear All Data</button>
+</div>
+</div>
+<!-- UPDATED ABOUT + INCLUDED / BUNDLED ADD-ONS -->
+<div class="card bg-blue-900/20 border-blue-900">
+<div class="text-sm font-bold text-blue-300">About &amp; Upgrade Options</div>
+<p class="text-xs text-blue-200 mt-1">
+            Ultimate Broker Route v2.1 · Demo build<br/>
+            Focused on single-agent field use with local-only storage.
+          </p>
+<div class="mt-3">
+<div class="text-[0.7rem] font-semibold text-blue-200 uppercase tracking-wide mb-1">
+              Included in this demo
+            </div>
+<ul class="list-disc ml-4 text-xs text-blue-100 space-y-1">
+<li>Today route planner with basic optimization</li>
+<li>Address book for clients, leads, and archived contacts</li>
+<li>Plan My Week clustering (single device)</li>
+<li>Camera-based lead scanner with on-device OCR</li>
+<li>Daily tracker scoreboard &amp; recent activity log</li>
+<li>Local backup/export as a simple JSON file</li>
+</ul>
+</div>
+<div class="mt-3">
+<div class="text-[0.7rem] font-semibold text-blue-200 uppercase tracking-wide mb-1">
+              Available as bundled add-ons
+            </div>
+<ul class="list-disc ml-4 text-xs text-blue-100 space-y-1">
+<li><strong>Hosted Team Version</strong> – move off “local only” to a private server, with agent logins and central storage.</li>
+<li><strong>Manager Dashboard &amp; Territory View</strong> – simple door / conversation / appointment charts plus basic area views.</li>
+<li><strong>Reporting &amp; Exports Pack</strong> – CSV/Excel exports, printable daily and weekly scorecards, and summary PDFs.</li>
+<li><strong>CRM / Spreadsheet Sync Pack</strong> – import from spreadsheets, and export files that are easy to drop into existing systems.</li>
+<li><strong>Branding &amp; Customization</strong> – logo, colors, agency name, and custom labels or wording to match your field language.</li>
+<li><strong>Training &amp; Support Package</strong> – live onboarding sessions, quick-start cheat sheets, and a launch period for tweaks.</li>
+</ul>
+<p class="text-[0.7rem] text-blue-200 mt-2 italic">
+              Full available add-on list available by request.
+            </p>
+</div>
+</div>
+</div>
+</section>
+<section id="case-study" style="padding: 18px 16px; max-width: 980px; margin: 0 auto;">
+<h2 style="margin:0 0 8px;">Case Study — UBR (Ultimate Broker Routing)</h2>
+<p style="margin:0; opacity:0.9; line-height:1.6;">
+    Short skim first. Then the medium story. Deep dive if you want the mechanics.
+  </p>
+<div style="border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:14px; margin-top:12px;">
+<h3 style="margin:0 0 6px;">Skim (30–45 sec)</h3>
+<ul style="margin:0; padding-left:18px; line-height:1.75; opacity:0.93;">
+<li><strong>Broken frame:</strong> Routing tools treat humans like GPS coordinates.</li>
+<li><strong>Why it fails:</strong> Real work has interruptions, overrides, changing priorities, imperfect inputs.</li>
+<li><strong>Reframe:</strong> Routing is decision support under constraint — not "optimal" math.</li>
+<li><strong>System:</strong> Explainable planning with overrides + tradeoffs + drift tolerance.</li>
+<li><strong>Signal:</strong> Human-in-the-loop systems UX + robustness over brittle optimization.</li>
+</ul>
+</div>
+<div style="border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:14px; margin-top:12px;">
+<h3 style="margin:0 0 6px;">Medium (2–3 min)</h3>
+<p style="margin:10px 0 0; opacity:0.92; line-height:1.65;">Most route optimizers assume stability: fixed priorities, clean inputs, and user compliance. That works in demos, then collapses under real operational drift.</p>
+<p style="margin:10px 0 0; opacity:0.92; line-height:1.65;">UBR treats routing as a negotiation surface: constraints + priorities + human judgment. It’s designed to explain why something changed and what would change it back — which preserves trust.</p>
+<p style="margin:10px 0 0; opacity:0.92; line-height:1.65;">The point isn’t the shortest route. It’s a plan that remains useful when reality changes mid-day.</p>
+<div style="margin-top:12px;">
+<a href="../../case-studies/ubr.html" style="text-decoration:none; border:1px solid rgba(255,255,255,0.22); padding:8px 10px; border-radius:10px; display:inline-block;">Deep dive →</a>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- removed missing script src: /shared/global-polyfill.js?v=20260108 -->
+<!-- removed missing script src: /shared/state-store.js?v=20260108 -->
+<!-- removed missing script src: /shared/telemetry-hub.js?v=20260108 -->
+<!-- removed missing script src: /shared/ai-router.js?v=20260108 -->
+<style>
+  .nxFloatingHelp{position:fixed;right:14px;bottom:14px;z-index:9999}
+  .nxFloatingHelp a{display:inline-block;padding:10px 12px;border-radius:999px;
+    background:rgba(15,23,42,.9);border:1px solid rgba(148,163,184,.35);
+    color:#e5e7eb;text-decoration:none;font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+    font-size:13px;backdrop-filter: blur(10px)}
+  .nxFloatingHelp a:hover{transform: translateY(-1px)}
+</style>
+<div class="nxFloatingHelp"><a href="/althea/ubr/">Ask Althea (offline Q&amp;A)</a></div>
+<script defer="" src="/shared/runtime-load-guard.js"></script>
+<script defer="" src="/shared/render-recovery-guard.js"></script>
+<script defer="" src="/shared/resize-dpr-guard.js"></script>
+<script defer="" src="/shared/error-boundary-guard.js"></script>
+<script defer="" src="/shared/state-init-guard.js"></script>
+<script defer="" src="/shared/scroll-focus-guard.js"></script>
+<script defer="" src="/shared/ui-physics-guard.js"></script>
+<script defer="" src="/shared/global-polyfill.js?v=7"></script>
+<script defer="" src="/shared/appdata-client.js?v=1"></script>
+<script defer="" src="./app.js"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

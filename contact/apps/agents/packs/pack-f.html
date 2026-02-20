@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Pack F — Data + Docs</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="wrap">
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Pack F — Data + Docs</h1>
+<p class="muted">A curated set of agents with a shared permission &amp; risk profile.</p>
+<div class="kv">
+<a class="btn primary" download="" href="/apps/agents/assets/packs/pack-f.agentpack.zip">Download pack-f.agentpack.zip</a>
+</div>
+<div class="sep"></div>
+<h3>Pack permissions</h3>
+<div class="kv"><span class="tag">No special permissions</span></div>
+<div class="sep"></div>
+<h3>Quickstart</h3>
+<ul class="muted" style="margin-top:8px">
+<li>Download the pack bundle.</li>
+<li>Unzip it locally and review <code>pack.json</code> + each agent stub.</li>
+<li>Use the Local Runner to install (demo) packs, then run agents against demo targets.</li>
+</ul>
+<div class="sep"></div>
+<h3>Agents in this pack</h3>
+<div class="grid">
+<a class="card" href="/apps/agents/store/code-formatter-agent-dev-utility.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Code Formatter Agent (Dev Utility)</h3>
+<p class="muted" style="margin:0 0 10px">formats source code (.js, .json, .css, .md) using prettier. Ensures consistent style across your project files.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/contract-filler-legal-automation.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Contract Filler (Legal Automation)</h3>
+<p class="muted" style="margin:0 0 10px">Takes a text template (e.g., NDA) with placeholders like {{NAME}} and fills them with provided data. Safe, local document generation.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/cron-scheduler-agent.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Cron Scheduler Agent</h3>
+<p class="muted" style="margin:0 0 10px">Registers a task in a local JSON schedule registry. This avoids cross-platform issues with system crontab. A hypothetical "Runner" would read this file.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/csv-processor-agent-data-logic.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">CSV Processor Agent (Data Logic)</h3>
+<p class="muted" style="margin:0 0 10px">Reads a raw CSV file, parses it, filters rows based on criteria, and exports the result as JSON. Real data transformation logic.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/excel-cleaner-data-hygiene.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Excel Cleaner (Data Hygiene)</h3>
+<p class="muted" style="margin:0 0 10px">Reads an Excel file, removes duplicate rows, trims whitespace from cells, and saves a "Clean" version.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/in-memory-sql-engine-database.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">In-Memory SQL Engine (Database)</h3>
+<p class="muted" style="margin:0 0 10px">A tiny SQL parser that runs queries like SELECT name FROM users WHERE age &gt; 20 directly against a JSON array. Shows how database filtering logic works.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/invoice-generator-agent-finance.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Invoice Generator Agent (Finance)</h3>
+<p class="muted" style="margin:0 0 10px">Generates a professional PDF invoice with line items, totals, and tax calculations using pdfkit.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/json-validator-agent-devtools.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">JSON Validator Agent (DevTools)</h3>
+<p class="muted" style="margin:0 0 10px">Validates a JSON file against basic syntax rules or a provided schema. Finds syntax errors (trailing commas, missing quotes) instantly.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/license-compliance-agent-legal.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">License Compliance Agent (Legal)</h3>
+<p class="muted" style="margin:0 0 10px">Scans a project's node_modules folder (or package.json) to list all software licenses used. Flags "Copyleft" licenses (GPL) that might be risky for proprietary code.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/log-analyzer-agent-analytics-logic.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Log Analyzer Agent (Analytics Logic)</h3>
+<p class="muted" style="margin:0 0 10px">Parses raw server logs (Apache/Nginx style), aggregates traffic statistics, and identifies error spikes. Uses regex capture groups and statistical sorting.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/markdown-table-generator-productivity.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Markdown Table Generator (Productivity)</h3>
+<p class="muted" style="margin:0 0 10px">Converts a JSON array or CSV-like string into a perfectly formatted Markdown table. Useful for generating reports or documentation.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/markdown-to-html-agent-content-logic.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Markdown to HTML Agent (Content Logic)</h3>
+<p class="muted" style="margin:0 0 10px">Converts Markdown documentation into static HTML. Includes a simple regex-based parser (no heavy deps) to show logic implementation.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/pdf-extractor-agent-document-intelligence.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">PDF Extractor Agent (Document Intelligence)</h3>
+<p class="muted" style="margin:0 0 10px">Reads a PDF file and extracts raw text content. Essential for indexing documents, analyzing invoices, or scraping academic papers.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/slide-deck-builder-presentation.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Slide Deck Builder (Presentation)</h3>
+<p class="muted" style="margin:0 0 10px">Generates a .pptx PowerPoint presentation from a simple JSON structure. Great for automating monthly status reports.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/sqlite-query-agent.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">SQLite Query Agent</h3>
+<p class="muted" style="margin:0 0 10px">Executes SQL queries against a local database file (.db). Great for data seeding, verification, or ad-hoc reporting.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/text-adventure-engine-interactive-fiction.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Text Adventure Engine (Interactive Fiction)</h3>
+<p class="muted" style="margin:0 0 10px">Loads a JSON "world" definition (rooms, items, exits) and lets the user navigate it via command line. A mini-engine for Interactive Fiction.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/text-diff-engine-algorithms.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Text Diff Engine (Algorithms)</h3>
+<p class="muted" style="margin:0 0 10px">Compares two text files and outputs the line-by-line differences (Git style) using the diff algorithm. Shows exactly what changed.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/tree-visualizer-agent-file-utility.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Tree Visualizer Agent (File Utility)</h3>
+<p class="muted" style="margin:0 0 10px">Generates a text-based tree structure of a directory. Useful for documenting project structure or debugging file placement.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+</div>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.4.1</div>
+</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

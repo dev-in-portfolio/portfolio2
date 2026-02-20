@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
+<defs>
+  <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+    <stop offset="0" stop-color="#0b1020"/>
+    <stop offset="1" stop-color="#24104a"/>
+  </linearGradient>
+</defs>
+<rect width="1200" height="630" fill="url(#g)"/>
+<circle cx="1020" cy="150" r="210" fill="rgba(124,92,255,0.25)"/>
+<circle cx="180" cy="520" r="260" fill="rgba(52,211,255,0.18)"/>
+<text x="70" y="250" fill="#F5F7FF" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="700">Devin O’Rourke</text>
+<text x="70" y="320" fill="rgba(245,247,255,0.82)" font-family="Arial, Helvetica, sans-serif" font-size="34">Product Systems Engineer</text>
+<text x="70" y="395" fill="rgba(245,247,255,0.72)" font-family="Arial, Helvetica, sans-serif" font-size="28">Interactive systems • Decision tools • Product-grade UX</text>
+<text x="70" y="520" fill="rgba(245,247,255,0.62)" font-family="Arial, Helvetica, sans-serif" font-size="22">dev-in-portfolio.netlify.app</text>
+</svg>

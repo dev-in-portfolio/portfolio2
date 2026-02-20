@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#070A12"/>
+  <title>Splice — The Convergence of Mobile NLE UX and WebAssembly Architectures</title>
+  <link href="/shared/docs-panels.css?v=1" rel="stylesheet"/>
+  <link rel="stylesheet" href="/shared/tokens.css"/>
+  <link rel="stylesheet" href="/shared/tile-polish.css"/>
+  <link rel="stylesheet" href="/shared/tap-physics.css"/>
+  <link rel="stylesheet" href="/shared/ui-physics.css"/>
+  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css"/>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+  <main class="dpHero">
+    <div class="dpHeroBg" aria-hidden="true"></div>
+    <div class="dpHeroVignette" aria-hidden="true"></div>
+
+    <div class="dpWrap">
+      <section class="dpHeaderCard">
+        <p class="dpKicker">CASE REPORT</p>
+        <h1 class="dpTitle">String: A Deep-Dive Case Report</h1>
+        <p class="dpSub">Canonical technical report in third-person format.</p>
+      </section>
+
+      <section class="dpCard" id="content">
+<h1>Splice — The Convergence of Mobile NLE UX and WebAssembly Architectures</h1>
+<p class="dpLead">A cross-domain case study: the commercial Splice app’s mobile NLE patterns, and what it takes to recreate “splicing” workflows inside a modern browser.</p>
+<h2>Why this exists</h2>
+<p>This report exists to connect two realities that share the same word: <strong>Splice</strong> as a mainstream mobile editor, and <strong>splice</strong> as an engineering primitive used to build timeline-style interfaces. The goal is not trivia — it is to show how product decisions (touch UX, aspect ratios, low-friction workflows) map to technical constraints (memory, encoding, cross-origin isolation) when similar experiences are attempted on the web.</p>
+<h2>Product patterns worth stealing</h2>
+<ul>
+<li>Timeline interactions that feel tactile on touch devices (selection, trim handles, magnified previews).</li>
+<li>Aspect-ratio agnostic canvases (9:16, 1:1, 16:9) with Fit/Fill posture instead of forcing the user to re-shoot.</li>
+<li>Audio-first affordances: waveforms, beat markers, and ducking as default behavior instead of “pro-only” tools.</li>
+</ul>
+<h2>The engineering translation to the browser</h2>
+<p>Browser-based editors often model a timeline as an ordered list of clip segments. The simplest implementation uses a JavaScript array, so inserts/deletes/reorders map to <code>splice()</code>. That’s readable, but heavy edits can cause jank if each change forces large rerenders. Stronger builds reduce rerenders (virtualization, memoization) or use structures optimized for insert/delete at the cursor.</p>
+<h2>WASM + FFmpeg feasibility envelope</h2>
+<p>FFmpeg compiled to WebAssembly enables surprisingly powerful client-side media operations, but it comes with constraints: a virtual in-memory filesystem (MEMFS), large binary payloads, and heavy CPU work that must be pushed into Web Workers to keep the UI responsive. High-performance paths often depend on <code>SharedArrayBuffer</code>, which requires cross-origin isolation via COOP/COEP headers.</p>
+<h2>Deployment gotchas (Netlify-class hosts)</h2>
+<ul>
+<li>Cross-origin isolation headers (COOP/COEP) must be served correctly for SharedArrayBuffer-backed performance paths.</li>
+<li>Asset hosting must respect CORS/CORP rules or worker/WASM fetches can fail silently.</li>
+<li>Memory pressure is real: long sessions and large files can crash tabs if allocations never return to the OS.</li>
+</ul>
+<h2>What this demonstrates in the portfolio</h2>
+<ul>
+<li>Systems thinking: connecting UX patterns to implementation cost and platform limits.</li>
+<li>Reliability mindset: designing flows that do not dead-end when advanced capabilities are missing.</li>
+<li>Product clarity: translating complex operations into understandable, safe UI states.</li>
+</ul>
+</section>
+    </div>
+  </main>
+
+  <script defer src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

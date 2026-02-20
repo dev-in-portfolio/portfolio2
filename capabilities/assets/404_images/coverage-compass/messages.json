@@ -1,0 +1,20 @@
+{
+  "app": "Coverage Compass",
+  "updated": "2026-01-11",
+  "messages": [
+    "Your coverage compass is pointing to /404/ North.",
+    "You found a plan that doesn\u2019t exist (yet).",
+    "Network error: provider not in this universe.",
+    "This page aged out like an SEP trigger you forgot to document.",
+    "That route took a left turn into the void.",
+    "Stop list loaded. Destination: nonexistent.",
+    "Your next appointment is in /404/land.",
+    "Optimization succeeded. Location failed.",
+    "Time window missed. Universe window also missed.",
+    "Geocoder says: \u2018never heard of her.\u2019",
+    "Try fewer stops. Try more reality.",
+    "Your broker route is fine \u2014 this link isn\u2019t.",
+    "Detour added: existential dread.",
+    "Back to Nexus before the GPS calls the cops."
+  ]
+}

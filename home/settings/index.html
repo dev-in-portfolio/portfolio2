@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Interactive product builds in the Nexus suite." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Devin O’Rourke — Portfolio" property="og:title"/>
+<meta content="Interactive product builds in the Nexus suite." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/settings/" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Devin O’Rourke — Portfolio" name="twitter:title"/>
+<meta content="Interactive product builds in the Nexus suite." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>Devin O’Rourke — Portfolio</title>
+<link href="/shared/tokens.css" rel="stylesheet"/><link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<style>
+    /*
+      Readability pass (A107):
+      - Some browsers/devices can default body text to black; on a dark UI that makes labels/headings vanish.
+      - Increase contrast + hit targets for mobile.
+      - Add clear focus rings for keyboard/touch accessibility.
+    */
+    body {
+      background:#000;
+      color: rgba(255,255,255,.94);
+      font: 500 14pt/1.55 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .wrap { max-width: 1100px; margin: 18px auto; padding: 0 14px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 980px) { .grid{ grid-template-columns: 1fr; } }
+
+    .card{
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    h1 { font-size: 20pt; margin: 0 0 10px 0; color: rgba(255,255,255,.98); }
+    h2 { font-size: 15pt; margin: 0 0 10px 0; letter-spacing:.03em; color: rgba(255,255,255,.96); }
+    .muted { color: rgba(255,255,255,.78); line-height:1.65; }
+    label { display:block; font-weight: 900; margin: 12px 0 6px 0; color: rgba(255,255,255,.92); }
+    select, input[type="number"], input[type="color"]{
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.42);
+      color: rgba(255,255,255,.96);
+      padding: 12px 12px;
+      font-size: 13pt;
+      outline: none;
+      min-height: 46px; /* mobile tap target */
+    }
+    select:focus, input[type="number"]:focus, input[type="color"]:focus{
+      border-color: rgba(122,167,255,.75);
+      box-shadow: 0 0 0 3px rgba(122,167,255,.25);
+    }
+    .row { display:flex; gap: 10px; align-items:center; }
+    .row > * { flex: 1; }
+    .tog{
+      display:flex; gap: 10px; align-items:center; justify-content: space-between;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 14px;
+      background: rgba(0,0,0,.32);
+      margin-top:10px;
+    }
+    .tog span { font-weight: 900; color: rgba(255,255,255,.92); }
+    .tog input { transform: scale(1.35); accent-color: #7aa7ff; }
+    .btnRow { display:flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    button{
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.20);
+      background: rgba(255,255,255,.10);
+      color: rgba(255,255,255,.96);
+      padding: 12px 14px;
+      font-size: 13pt;
+      font-weight: 900;
+      cursor: pointer;
+      min-height: 46px;
+    }
+    button:hover { background: rgba(255,255,255,.12); }
+    button:focus{ outline: none; box-shadow: 0 0 0 3px rgba(122,167,255,.25); }
+    .note { margin-top: 10px; padding: 10px 12px; border-radius: 14px; border:1px solid rgba(255,255,255,.10); background: rgba(0,0,0,.25); }
+    code { background: rgba(255,255,255,.06); padding: 2px 6px; border-radius: 8px; }
+
+    /* Keep content comfortably below the sticky nav on small screens */
+    .wrap{ padding-top: 6px; }
+  
+/* ===== PHASE 5: SETTINGS READABILITY UPGRADE ===== */
+:root{
+  --bg: #0b0b0b;
+  --panel: rgba(255,255,255,0.05);
+  --panel2: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.14);
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.68);
+}
+
+html, body{
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.main{
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 22px 16px 70px;
+}
+
+.pageTitle{
+  font-size: clamp(24px, 2.4vw, 34px);
+  letter-spacing: 0.02em;
+  margin: 10px 0 6px;
+}
+
+.pageSub{
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+.settingsGrid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 880px){
+  .settingsGrid{ grid-template-columns: 1fr 1fr; gap: 18px; }
+}
+
+.sectionCard{
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 14px 10px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.sectionCard h2{
+  position: sticky;
+  top: 0;
+  background: linear-gradient(180deg, rgba(11,11,11,0.92), rgba(11,11,11,0.65));
+  border-radius: 12px;
+  padding: 10px 10px;
+  margin: 0 0 12px;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.88);
+}
+
+.row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 14px;
+  padding: 10px 10px;
+  border-radius: 12px;
+}
+
+.row + .row{ margin-top: 8px; }
+
+.row:hover{
+  background: var(--panel2);
+}
+
+.row .label{
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.row .help{
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ctrl{
+  flex: 0 0 auto;
+  min-width: 140px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+select, input[type="number"], input[type="text"]{
+  width: 100%;
+  max-width: 180px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+}
+
+input[type="range"]{ width: 180px; }
+
+/* Toggle */
+.switch{
+  position:relative;
+  width: 52px;
+  height: 30px;
+}
+.switch input{ opacity:0; width:0; height:0; }
+.slider{
+  position:absolute; inset:0;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid var(--border);
+  transition: 160ms ease;
+}
+.slider:before{
+  content:"";
+  position:absolute;
+  height: 22px; width: 22px;
+  left: 4px; top: 3px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.92);
+  transition: 160ms ease;
+}
+.switch input:checked + .slider{
+  background: rgba(255,255,255,0.28);
+}
+.switch input:checked + .slider:before{
+  transform: translateX(22px);
+}
+
+.actionsBar{
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  padding: 12px 14px;
+  background: rgba(0,0,0,0.75);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display:flex;
+  gap: 12px;
+  justify-content:center;
+  z-index: 9999;
+}
+
+.actionsBar button{
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  padding: 10px 14px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor:pointer;
+}
+.actionsBar button:hover{ background: rgba(255,255,255,0.14); }
+.actionsBar button:active{ transform: scale(0.98); }
+
+
+/* ===== Phase 4: Accessibility, Contrast, & Perception ===== */
+/* Kill default shiny-blue links globally (unless explicitly styled) */
+a:link, a:visited{
+  color: rgba(255,255,255,0.92);
+  text-decoration-color: rgba(255,255,255,0.35);
+}
+a:hover{
+  color: rgba(255,255,255,0.98);
+  text-decoration-color: rgba(155,209,255,0.70);
+}
+a:active{
+  color: rgba(255,255,255,1);
+}
+
+/* If something is intended to look like a button, it should feel like one */
+a.btn, a.buttonlike, .nxs-btn, .nxs-pill, .pillBtn, button, [role="button"]{
+  text-decoration: none !important;
+}
+
+/* Keyboard: always visible focus, never the default outline that disappears on dark backgrounds */
+:focus-visible{
+  outline: 2px solid rgba(155,209,255,0.85);
+  outline-offset: 4px;
+}
+
+/* Increase tap target comfort on mobile */
+a, button{
+  -webkit-tap-highlight-color: rgba(155,209,255,0.25);
+}
+
+
+/* ===== Phase 5: Performance, SEO, & Production Paranoia ===== */
+/* Reduce layout shift from images */
+img{ height:auto; }
+
+</style>
+<link href="https://dev-in-portfolio.netlify.app/" rel="canonical"/><link href="/icon-192.png" rel="icon"/><script src="/runtime-guard.js"></script>
+<link href="/shared/tile-polish.css" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+</head>
+<body data-app="settings">
+  <nav class="nxTopNav"></nav>
+
+<a class="skip-link" href="#main" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to content</a>
+<main class="main" id="main">
+<div class="wrap">
+<h1>Settings</h1>
+<p class="muted">Global defaults apply everywhere. Per‑app overrides let an individual app deviate without changing the rest.</p>
+<div class="grid">
+<section class="card" id="globalCard">
+<h2>Global defaults</h2>
+<label for="gTheme">Theme</label>
+<select id="gTheme">
+<option value="dark">Dark</option>
+<option value="light">Light</option>
+<option value="auto">Auto</option>
+</select>
+<div class="row">
+<div>
+<label for="gAccent">Accent</label>
+<input id="gAccent" type="color" value="#7aa7ff"/>
+</div>
+<div>
+<label for="gMinFont">Min font (pt)</label>
+<input id="gMinFont" max="24" min="12" step="1" type="number" value="12"/>
+</div>
+</div>
+<label for="gQuality">Quality</label>
+<select id="gQuality">
+<option value="low">Low</option>
+<option value="med">Medium</option>
+<option value="high">High</option>
+</select>
+<label for="gFps">FPS cap</label>
+<select id="gFps">
+<option value="30">30</option>
+<option value="60">60</option>
+<option value="120">120</option>
+</select>
+<div class="tog"><span>Anti‑aliasing</span><input id="gAA" type="checkbox"/></div>
+<div class="tog"><span>Post‑FX</span><input id="gPostFx" type="checkbox"/></div>
+<div class="tog"><span>Gestures</span><input id="gGestures" type="checkbox"/></div>
+<div class="tog"><span>Reduce motion</span><input id="gMotion" type="checkbox"/></div>
+<div class="tog"><span>Performance HUD</span><input id="gPerf" type="checkbox"/></div>
+<div class="tog"><span>Debug mode</span><input id="gDebug" type="checkbox"/></div>
+<label for="gSens">Gesture sensitivity</label>
+<input id="gSens" max="2.0" min="0.5" step="0.1" type="number" value="1.0"/>
+<div class="btnRow">
+<button id="gSave">Save global</button>
+<button id="gReset">Reset global</button>
+<button id="gApply">Apply now</button>
+</div>
+<div class="note muted">
+          Stored in <code>localStorage</code> under <code>portfolio:settings:global</code>.
+        </div>
+</section>
+<section class="card" id="appCard">
+<h2>Per‑app overrides</h2>
+<p class="muted">Select an app. Save overrides for only that app.</p>
+<label for="appPick">App</label>
+<select id="appPick">
+<option value="global">Global</option>
+<option value="coverage-compass">Coverage Compass</option>
+<option value="ubr">UBR</option>
+<option value="alibi">Alibi</option>
+</select>
+<div class="row">
+<div>
+<label for="aAccent">Accent</label>
+<input id="aAccent" type="color" value="#7aa7ff"/>
+</div>
+<div>
+<label for="aMinFont">Min font (pt)</label>
+<input id="aMinFont" max="24" min="12" step="1" type="number" value="12"/>
+</div>
+</div>
+<label for="aQuality">Quality</label>
+<select id="aQuality">
+<option value="">(inherit)</option>
+<option value="low">Low</option>
+<option value="med">Medium</option>
+<option value="high">High</option>
+</select>
+<label for="aFps">FPS cap</label>
+<select id="aFps">
+<option value="">(inherit)</option>
+<option value="30">30</option>
+<option value="60">60</option>
+<option value="120">120</option>
+</select>
+<div class="tog"><span>Anti‑aliasing</span><input id="aAA" type="checkbox"/></div>
+<div class="tog"><span>Post‑FX</span><input id="aPostFx" type="checkbox"/></div>
+<div class="tog"><span>Gestures</span><input id="aGestures" type="checkbox"/></div>
+<div class="tog"><span>Reduce motion</span><input id="aMotion" type="checkbox"/></div>
+<div class="tog"><span>Performance HUD</span><input id="aPerf" type="checkbox"/></div>
+<div class="tog"><span>Debug mode</span><input id="aDebug" type="checkbox"/></div>
+<label for="aSens">Gesture sensitivity</label>
+<input id="aSens" max="2.0" min="0.5" step="0.1" type="number" value="1.0"/>
+<div class="btnRow">
+<button id="aSave">Save override</button>
+<button id="aClear">Clear override</button>
+<button id="aApply">Preview on this page</button>
+</div>
+<div class="note muted">
+          Stored per app as <code>portfolio:settings:&lt;app&gt;</code>.
+        </div>
+</section>
+</div>
+</div>
+<!-- removed missing script src: /shared/app-settings.js?v=20260101 -->
+<!-- removed missing script src: /shared/nexus-topnav.js?v=20260101 -->
+<script>
+    (function(){
+      const S = window.PORTFOLIO_SETTINGS;
+      const $ = (id)=>document.getElementById(id);
+
+      function loadGlobal(){
+        const g = S.getSettings("");
+        $("gTheme").value = g.theme;
+        $("gAccent").value = g.accent;
+        $("gMinFont").value = g.minFontPt;
+        $("gQuality").value = g.quality;
+        $("gFps").value = String(g.fpsCap);
+        $("gAA").checked = g.antialias;
+        $("gPostFx").checked = g.postFx;
+        $("gGestures").checked = g.gestures;
+        $("gMotion").checked = (g.motion === "reduced");
+        $("gPerf").checked = g.showPerfHud;
+        $("gDebug").checked = g.debug;
+        $("gSens").value = g.gestureSensitivity;
+      }
+
+      function readGlobalForm(){
+        return {
+          theme: $("gTheme").value,
+          accent: $("gAccent").value,
+          minFontPt: Number($("gMinFont").value),
+          quality: $("gQuality").value,
+          fpsCap: Number($("gFps").value),
+          antialias: $("gAA").checked,
+          postFx: $("gPostFx").checked,
+          gestures: $("gGestures").checked,
+          motion: $("gMotion").checked ? "reduced" : "full",
+          showPerfHud: $("gPerf").checked,
+          debug: $("gDebug").checked,
+          gestureSensitivity: Number($("gSens").value)
+        };
+      }
+
+      function readAppRaw(app){
+        try { return JSON.parse(localStorage.getItem(S.keys.KEY_APP(app)) || "null"); } catch(e){ return null; }
+      }
+
+      function loadApp(app){
+        const g = S.getSettings("");
+        const a = readAppRaw(app) || {};
+        const merged = S.normalize(Object.assign({}, g, a));
+
+        $("aAccent").value = merged.accent;
+        $("aMinFont").value = merged.minFontPt;
+        $("aQuality").value = a.quality || "";
+        $("aFps").value = a.fpsCap ? String(a.fpsCap) : "";
+
+        $("aAA").checked = ("antialias" in a) ? !!a.antialias : merged.antialias;
+        $("aPostFx").checked = ("postFx" in a) ? !!a.postFx : merged.postFx;
+        $("aGestures").checked = ("gestures" in a) ? !!a.gestures : merged.gestures;
+        $("aMotion").checked = ("motion" in a) ? (a.motion === "reduced") : (merged.motion === "reduced");
+        $("aPerf").checked = ("showPerfHud" in a) ? !!a.showPerfHud : merged.showPerfHud;
+        $("aDebug").checked = ("debug" in a) ? !!a.debug : merged.debug;
+        $("aSens").value = ("gestureSensitivity" in a) ? a.gestureSensitivity : merged.gestureSensitivity;
+      }
+
+      function readAppForm(app){
+        const out = {};
+        out.accent = $("aAccent").value;
+        out.minFontPt = Number($("aMinFont").value);
+
+        const q = $("aQuality").value;
+        if (q) out.quality = q;
+
+        const f = $("aFps").value;
+        if (f) out.fpsCap = Number(f);
+
+        out.antialias = $("aAA").checked;
+        out.postFx = $("aPostFx").checked;
+        out.gestures = $("aGestures").checked;
+        out.motion = $("aMotion").checked ? "reduced" : "full";
+        out.showPerfHud = $("aPerf").checked;
+        out.debug = $("aDebug").checked;
+        out.gestureSensitivity = Number($("aSens").value);
+        return out;
+      }
+
+      $("gSave").addEventListener("click", ()=>{
+        const next = S.saveGlobal(readGlobalForm());
+        S.applyToDocument(next);
+        loadGlobal();
+      });
+      $("gReset").addEventListener("click", ()=>{
+        S.clearGlobal();
+        const next = S.getSettings("");
+        S.applyToDocument(next);
+        loadGlobal();
+      });
+      $("gApply").addEventListener("click", ()=>{
+        S.applyToDocument(S.getSettings(""));
+      });
+
+      $("appPick").addEventListener("change", (e)=> loadApp(e.target.value));
+
+      $("aSave").addEventListener("click", ()=>{
+        const app = $("appPick").value;
+        S.saveApp(app, readAppForm(app));
+        loadApp(app);
+      });
+      $("aClear").addEventListener("click", ()=>{
+        const app = $("appPick").value;
+        S.clearApp(app);
+        loadApp(app);
+      });
+      $("aApply").addEventListener("click", ()=>{
+        const app = $("appPick").value;
+        const s = S.getSettings(app);
+        S.applyToDocument(s);
+      });
+
+      loadGlobal();
+      loadApp($("appPick").value);
+    })();
+  </script>
+</main>
+<div class="actionsBar"><button id="saveBtn" type="button">Save</button><button id="resetBtn" type="button">Reset</button></div>
+<script defer="" src="/shared/runtime-load-guard.js"></script>
+<script defer="" src="/shared/render-recovery-guard.js"></script>
+<script defer="" src="/shared/resize-dpr-guard.js"></script>
+<script defer="" src="/shared/error-boundary-guard.js"></script>
+<script defer="" src="/shared/state-init-guard.js"></script>
+<script defer="" src="/shared/scroll-focus-guard.js"></script>
+<script defer="" src="/shared/ui-physics-guard.js"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • SDK</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Developer / SDK</h1>
+<p>Agent pack format (manifest + JS entrypoints) used by this demo.</p>
+<div class="sep"></div>
+<div class="code">
+pack.json
+{
+  "format": "agentpack.v1",
+  "slug": "pack-a",
+  "name": "Pack A — Desktop + Files",
+  "version": "0.1.0",
+  "agents": [
+    {
+      "id": "5.1.1.1",
+      "slug": "local-cli-runner",
+      "name": "Local CLI Runner",
+      "main": "agents/local-cli-runner/index.js",
+      "permissions": ["local.exec", "local.fs.read", ...],
+      "purpose": "..."
+    }
+  ]
+}
+  </div>
+<div class="sep"></div>
+<p><b>Receipts</b>: Every run writes <span class="tag">receipts.json</span> plus <span class="tag">artifacts/</span>.</p>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

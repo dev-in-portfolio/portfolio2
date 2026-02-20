@@ -1,0 +1,9 @@
+{
+  "name": "devin-portfolio-backend-pack",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "pg": "^8.12.0",
+    "uuid": "^9.0.1"
+  }
+}

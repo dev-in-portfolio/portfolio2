@@ -1,0 +1,100 @@
+:root{
+  --bg:#070818;
+  --panel:rgba(255,255,255,.09);
+  --panel2:rgba(255,255,255,.15);
+  --line:rgba(255,255,255,.15);
+  --text:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.70);
+  --accent:#7df9ff;
+  --accent2:#b46bff;
+  --danger:#ff4d6d;
+  --ok:#34d399;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background:
+    radial-gradient(900px 500px at 20% -10%, rgba(125,249,255,.28), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(180,107,255,.28), transparent 60%),
+    radial-gradient(800px 600px at 50% 100%, rgba(52,211,153,.16), transparent 60%),
+    var(--bg);
+  color:var(--text);
+}
+a{color:inherit}
+.container{max-width:1180px;margin:0 auto;padding:24px}
+.nav{
+  position:sticky;top:0;z-index:50;
+  background: rgba(10,10,18,.74);
+  border-bottom:1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+.nav .row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;max-width:1180px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo{
+  width:34px;height:34px;border-radius:12px;
+  background: linear-gradient(135deg, rgba(125,249,255,.9), rgba(180,107,255,.9));
+  box-shadow: 0 10px 30px rgba(125,249,255,.20);
+}
+.brand b{letter-spacing:.02em}
+.subnav{display:flex;flex-wrap:wrap;gap:10px}
+.pill{
+  font-size:13px; text-decoration:none;
+  padding:8px 10px;border-radius:999px;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  color: var(--muted);
+}
+.pill:hover{border-color:rgba(125,249,255,.35);color:var(--text)}
+.hero{
+  padding:42px 0 18px;
+  display:grid;
+  grid-template-columns: 1.3fr .7fr;
+  gap:18px;
+}
+@media (max-width: 900px){ .hero{grid-template-columns:1fr} }
+.hcard{
+  border:1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.05));
+  border-radius:18px;
+  padding:22px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
+}
+.hcard h1{margin:0 0 10px;font-size:34px;letter-spacing:-.02em}
+.hcard p{margin:0 0 14px;color:var(--muted);line-height:1.55}
+.ctas{display:flex;gap:10px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:12px;text-decoration:none;
+  border:1px solid var(--line);background: rgba(255,255,255,.06);
+}
+.btn.primary{border-color:rgba(125,249,255,.35);background: rgba(125,249,255,.10)}
+.btn:hover{transform:translateY(-1px)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width: 980px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width: 620px){.grid{grid-template-columns:1fr}}
+.card{
+  border:1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  border-radius:16px;padding:14px;
+}
+.card h3{margin:0 0 6px;font-size:16px}
+.card p{margin:0;color:var(--muted);line-height:1.45;font-size:13px}
+.kv{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.tag{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:5px 8px;border-radius:999px}
+.tag.ok{border-color:rgba(52,211,153,.35);color:rgba(52,211,153,.95)}
+.tag.warn{border-color:rgba(255,77,109,.35);color:rgba(255,77,109,.95)}
+.sep{height:1px;background:var(--line);margin:18px 0}
+small{color:var(--muted)}
+.footer{padding:26px 0;color:var(--muted);font-size:13px}
+.code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+  background: rgba(0,0,0,.35); border:1px solid var(--line);
+  border-radius:14px; padding:12px; overflow:auto; color: rgba(255,255,255,.86);
+}
+
+
+/* Status tags */
+.tag.bad{border-color:rgba(248,113,113,.35);color:rgba(248,113,113,.95)}
+.tag.warn{border-color:rgba(251,191,36,.35);color:rgba(251,191,36,.95)}

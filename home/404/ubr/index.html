@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<title>404 — UBR</title>
+<meta content="UBR — 404 route" name="description"/>
+<link href="/icon-192.png" rel="icon"/>
+<link href="/shared/tokens.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="/shared/tile-polish.css" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+<script src="/runtime-guard.js"></script>
+<style>
+    :root{--bg:#0b0b14;--panel:rgba(255,255,255,.06);--border:rgba(255,255,255,.12);--text:#eaeaf2;--muted:rgba(234,234,242,.72)}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    main{max-width:980px;margin:0 auto;padding:18px}
+    .nfHero{border:1px solid var(--border);border-radius:22px;background:rgba(255,255,255,.03);overflow:hidden}
+    .nfHero img{width:100%;height:auto;display:block;aspect-ratio:16/8;object-fit:cover}
+    .card{margin-top:14px;background:var(--panel);border:1px solid var(--border);border-radius:22px;padding:18px}
+    .k{opacity:.75;font-size:12px;margin:0 0 8px}
+    h1{margin:0 0 8px;font-size:30px;letter-spacing:.2px}
+    #msg{margin:0 0 14px;opacity:.9}
+    .btns{display:flex;flex-wrap:wrap;gap:10px}
+    .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);padding:10px 14px;border-radius:999px;text-decoration:none;color:rgba(255,255,255,.92)}
+    .pill:hover{background:rgba(255,255,255,.10)}
+    .small{margin-top:12px;opacity:.7;font-size:12px}
+    code{background:rgba(0,0,0,.35);padding:2px 6px;border-radius:8px}
+  </style>
+</head>
+<body data-app="ubr">
+  <nav class="nxTopNav"></nav>
+
+<main>
+<div class="nfHero">
+<img alt="UBR 404 hero" decoding="async" id="hero" loading="lazy" onerror="this.src='/assets/404_images/global/hero.png'" src="/assets/404_images/ubr/hero.png"/>
+</div>
+<section class="card">
+<p class="k">Tree-first 404</p>
+<h1>404 — ubr</h1>
+<p id="msg"><span style="opacity:.7">Loading a better message…</span></p>
+<div class="btns">
+<a class="pill" href="/">Back to Nexus</a>
+<a class="pill" href="/apps/ubr/index.html">Open App</a>
+<a class="pill" href="/help/ubr/">Help</a>
+<a class="pill" href="/readme/ubr/">Readme</a>
+</div>
+<div class="small">Missing route: <code id="missingPath"></code></div>
+</section>
+</main>
+<script>
+    (function(){
+      const el = document.getElementById('missingPath');
+      if(el) el.textContent = location.pathname;
+    })();
+  </script>
+<script defer="" src="/shared/404-page.js"></script>
+<script defer="" src="/shared/runtime-load-guard.js"></script>
+<script defer="" src="/shared/render-recovery-guard.js"></script>
+<script defer="" src="/shared/resize-dpr-guard.js"></script>
+<script defer="" src="/shared/error-boundary-guard.js"></script>
+<script defer="" src="/shared/state-init-guard.js"></script>
+<script defer="" src="/shared/scroll-focus-guard.js"></script>
+<script defer="" src="/shared/ui-physics-guard.js"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

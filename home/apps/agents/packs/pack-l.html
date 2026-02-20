@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Pack L — Utility Playground</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="wrap">
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Pack L — Utility Playground</h1>
+<p class="muted">A curated set of agents with a shared permission &amp; risk profile.</p>
+<div class="kv">
+<a class="btn primary" download="" href="/apps/agents/assets/packs/pack-l.agentpack.zip">Download pack-l.agentpack.zip</a>
+</div>
+<div class="sep"></div>
+<h3>Pack permissions</h3>
+<div class="kv"><span class="tag">No special permissions</span></div>
+<div class="sep"></div>
+<h3>Quickstart</h3>
+<ul class="muted" style="margin-top:8px">
+<li>Download the pack bundle.</li>
+<li>Unzip it locally and review <code>pack.json</code> + each agent stub.</li>
+<li>Use the Local Runner to install (demo) packs, then run agents against demo targets.</li>
+</ul>
+<div class="sep"></div>
+<h3>Agents in this pack</h3>
+<div class="grid">
+<a class="card" href="/apps/agents/store/a-pathfinder-ai.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">A Pathfinder (AI)**</h3>
+<p class="muted" style="margin:0 0 10px">Finds the shortest path between two points in a grid with obstacles using the A* (A-Star) algorithm. Visualizes the path in ASCII.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/arp-network-scanner-recon.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">ARP Network Scanner (Recon)</h3>
+<p class="muted" style="margin:0 0 10px">Scans the local network cache to identify connected devices (IP and MAC addresses). Useful for finding "who is on my WiFi."</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/astronomy-agent-space.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Astronomy Agent (Space)</h3>
+<p class="muted" style="margin:0 0 10px">Calculates the current phase of the moon and the position of the sun. Can determine sunrise/sunset times for a given latitude/longitude.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/brainfuck-interpreter-esoteric.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Brainfuck Interpreter (Esoteric)</h3>
+<p class="muted" style="margin:0 0 10px">Runs code written in Brainfuck, a famous minimalistic language that uses only 8 characters (&gt; &lt; + - . , [ ]). Requires manipulating a memory tape byte-by-byte.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/currency-converter-agent-finance.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Currency Converter Agent (Finance)</h3>
+<p class="muted" style="margin:0 0 10px">Fetches real-time exchange rates (USD base) from a public API and performs conversions.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/dice-roller-agent-randomness.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Dice Roller Agent (Randomness)</h3>
+<p class="muted" style="margin:0 0 10px">Simulates rolling dice (d6, d20, etc.) using cryptographic randomness. Useful for games or decision making.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/disk-space-analyzer-system.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Disk Space Analyzer (System)</h3>
+<p class="muted" style="margin:0 0 10px">Scans a directory recursively to calculate total size and identify largest files. Helpful for cleaning up clutter.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/dna-translator-agent-bio-informatics.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">DNA Translator Agent (Bio-informatics)</h3>
+<p class="muted" style="margin:0 0 10px">Translates a raw DNA sequence (e.g., "GATTACA") into its complementary strand, RNA equivalent, and Protein (Amino Acid) sequence.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/fake-update-agent-prank.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Fake Update Agent (Prank)</h3>
+<p class="muted" style="margin:0 0 10px">Instantly launches a full-screen browser window displaying a realistic "Windows Update" or "macOS Update" animation. Locks the user's attention (until they press F11/Esc).</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/ghost-typer-agent-haunted.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Ghost Typer Agent (Haunted)</h3>
+<p class="muted" style="margin:0 0 10px">Waits a few seconds, then takes control of the keyboard to type a message character by character. Looks exactly like someone has remote control of the PC.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/honeyport-agent-trap.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Honeyport Agent (Trap)</h3>
+<p class="muted" style="margin:0 0 10px">Opens a fake server on a common port (e.g., 8080 or 21). If anyone tries to connect to it (like a network scanner or hacker), it logs their IP and disconnects them.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/hue-light-controller-iot.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Hue Light Controller (IoT)</h3>
+<p class="muted" style="margin:0 0 10px">Controls Philips Hue smart lights (or compatible Zigbee bridges). Can toggle power, change brightness, and set RGB colors remotely.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/instagram-avatar-grabber-osint.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Instagram Avatar Grabber (OSINT)</h3>
+<p class="muted" style="margin:0 0 10px">Fetches the high-resolution profile picture URL for a public Instagram user without needing an API key (using public scraping).</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/invisible-folder-agent-magic-vanish.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Invisible Folder Agent (Magic Vanish)</h3>
+<p class="muted" style="margin:0 0 10px">Toggles the "Hidden" attribute of a folder. On Windows, this makes it disappear from Explorer (unless "Show Hidden" is on). On Mac/Linux, it renames it with a . prefix.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/language-detector-agent-linguistic-id.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Language Detector Agent (Linguistic ID)</h3>
+<p class="muted" style="margin:0 0 10px">Analyzes a text sample and determines the probability of it being English, Spanish, French, etc. Useful for routing support tickets or selecting translation models.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/linear-regression-agent-data-science.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Linear Regression Agent (Data Science)</h3>
+<p class="muted" style="margin:0 0 10px">Takes a set of X,Y data points, calculates the "Line of Best Fit" (y = mx + b), and predicts future values. The foundation of Machine Learning.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/local-server-agent-instant-hosting.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Local Server Agent (Instant Hosting)</h3>
+<p class="muted" style="margin:0 0 10px">Instantly spins up a static HTTP server for a specific directory. Useful for previewing HTML builds or sharing files on the LAN.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/loot-box-simulator-gacha-logic.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Loot Box Simulator (Gacha Logic)</h3>
+<p class="muted" style="margin:0 0 10px">Simulates opening "Loot Boxes" based on a weighted probability table. Useful for game balancing or demonstrating RNG (Random Number Generation) mechanics.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/markov-chain-agent-text-gen.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Markov Chain Agent (Text Gen)</h3>
+<p class="muted" style="margin:0 0 10px">Ingests a text source, builds a probabilistic model of word transitions (Markov Chain), and generates new "nonsense" text that mimics the style of the original.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/minecraft-server-pinger-gaming.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Minecraft Server Pinger (Gaming)</h3>
+<p class="muted" style="margin:0 0 10px">Queries a Minecraft Server (Java Edition) for its status, MOTD (Message of the Day), version, and current player count.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/mini-compiler-agent-language-design.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Mini-Compiler Agent (Language Design)</h3>
+<p class="muted" style="margin:0 0 10px">A tiny interpreter for a custom language called "ToyScript." It supports variables, printing, and basic math. Shows how code is actually parsed and executed.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/mqtt-broker-agent-iot-hub.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">MQTT Broker Agent (IoT Hub)</h3>
+<p class="muted" style="margin:0 0 10px">Connects to an MQTT broker (like Mosquitto) to publish messages or subscribe to a topic for a few seconds. Essential for debugging IoT sensor networks.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/neural-net-trainer-machine-learning.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Neural Net Trainer (Machine Learning)</h3>
+<p class="muted" style="margin:0 0 10px">Trains a simple Perceptron (Single-Layer Neural Network) from scratch to solve logic gates (like OR/AND) without using any ML libraries.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/physics-engine-agent-simulation.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Physics Engine Agent (Simulation)</h3>
+<p class="muted" style="margin:0 0 10px">Simulates simple 2D physics (gravity, bouncing balls) and outputs the frame data. Useful for understanding kinematics or creating animations.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/prime-number-checker-math.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Prime Number Checker (Math)</h3>
+<p class="muted" style="margin:0 0 10px">Determines if a number is prime and, if not, finds its factors. A classic computational task.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/quote-of-the-day-agent-inspiration.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Quote of the Day Agent (Inspiration)</h3>
+<p class="muted" style="margin:0 0 10px">Fetches an inspiring quote from a public API. Simple, but great for dashboard "motd" (Message of the Day) widgets.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/rhyme-finder-agent-linguistics.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Rhyme Finder Agent (Linguistics)</h3>
+<p class="muted" style="margin:0 0 10px">Finds perfect rhymes, near rhymes, and alliteration for a given word using the Datamuse API. Useful for poetry or songwriting.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/speedtest-agent-the-dashboard-tool.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Speedtest Agent (The "Dashboard" Tool)</h3>
+<p class="muted" style="margin:0 0 10px">Connects to Ookla's Speedtest.net servers to measure Ping, Download, and Upload speeds.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/subliminal-message-flasher-psych-tech.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Subliminal Message Flasher (Psych Tech)</h3>
+<p class="muted" style="margin:0 0 10px">Uses a transparent, always-on-top Electron window to flash a text message on the user's screen for 10ms every few seconds. Imperceptible but present.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/sudoku-solver-agent-logic.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Sudoku Solver Agent (Logic)</h3>
+<p class="muted" style="margin:0 0 10px">Solves any Sudoku puzzle instantly using a recursive backtracking algorithm. Useful for demonstrating constraint satisfaction.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/system-spec-agent-hardware-info.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">System Spec Agent (Hardware Info)</h3>
+<p class="muted" style="margin:0 0 10px">Pulls detailed hardware specifications including CPU brand, Cores, RAM speed, Battery level, and OS build. Uses the powerful systeminformation library.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/torrent-downloader-agent-p2p.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Torrent Downloader Agent (P2P)</h3>
+<p class="muted" style="margin:0 0 10px">Downloads files via the BitTorrent protocol using webtorrent. Supports magnet links.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/unit-converter-agent-utility.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Unit Converter Agent (Utility)</h3>
+<p class="muted" style="margin:0 0 10px">A robust conversion engine for Length, Weight, Temperature, and Volume.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/url-shortener-agent-utility.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">URL Shortener Agent (Utility)</h3>
+<p class="muted" style="margin:0 0 10px">Uses a public API (TinyURL) to shorten a long URL.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/usb-watchdog-hardware.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">USB Watchdog (Hardware)</h3>
+<p class="muted" style="margin:0 0 10px">Monitors the system for new USB devices plugged in or removed. Uses OS polling to avoid native dependency compilation issues.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/vcard-generator-networking.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">vCard Generator (Networking)</h3>
+<p class="muted" style="margin:0 0 10px">Generates a standard .vcf file for importing contacts into Outlook, iOS, or Android.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/wake-on-lan-agent-iot-magic.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Wake-on-LAN Agent (IoT Magic)</h3>
+<p class="muted" style="margin:0 0 10px">Sends a "Magic Packet" over the network to a specific MAC address. If the target PC has Wake-on-LAN enabled in BIOS, it will physically turn on.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/weather-agent-real-time-info.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Weather Agent (Real-time Info)</h3>
+<p class="muted" style="margin:0 0 10px">Fetches current weather data for a city using the Open-Meteo API (Free, no key required).</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/zip-bomb-generator-the-trap.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Zip Bomb Generator (The "Trap")</h3>
+<p class="muted" style="margin:0 0 10px">Creates a "Recursive Zip Bomb" — a tiny file (kilobytes) that expands into massive size (Gigabytes/Petabytes) if extracted.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+</div>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.4.1</div>
+</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

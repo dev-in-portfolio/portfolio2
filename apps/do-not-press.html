@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Interactive product builds in the Nexus suite." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Devin O’Rourke — Portfolio" property="og:title"/>
+<meta content="Interactive product builds in the Nexus suite." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/do-not-press.html" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Devin O’Rourke — Portfolio" name="twitter:title"/>
+<meta content="Interactive product builds in the Nexus suite." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>Devin O’Rourke — Portfolio</title>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<style>
+    /* Fullscreen black stage */
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #000;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Overlay covers entire page until clicked */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: grid;
+      place-items: center;
+      z-index: 9999;
+      user-select: none;
+    }
+
+    /* Center stack */
+    .stack {
+      display: grid;
+      gap: 18px;
+      text-align: center;
+      padding: 24px;
+    }
+
+    /* Big warning text */
+    .title {
+      color: #fff;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      line-height: 1.05;
+      font-size: clamp(32px, 6vw, 64px);
+    }
+
+    .sub {
+      color: rgba(255,255,255,0.75);
+      font-size: clamp(14px, 2.2vw, 18px);
+    }
+
+    /* "Door" button */
+    #startBtn {
+      cursor: pointer;
+      border: 2px solid #fff;
+      background: transparent;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 14px 22px;
+      border-radius: 14px;
+      font-size: 16px;
+      width: min(360px, 78vw);
+      margin: 0 auto;
+      transition: transform 120ms ease, background 120ms ease, color 120ms ease;
+    }
+    #startBtn:active { transform: scale(0.98); }
+    #startBtn:hover { background: #fff; color: #000; }
+
+    /* Video container fills the screen behind overlay */
+    #playerWrap {
+      position: fixed;
+      inset: 0;
+      display: none; /* hidden until start */
+      z-index: 1;
+      background: #000;
+    }
+    #player {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Dodging close button */
+    #closeBtn {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 10000;
+      border: 2px solid rgba(255,255,255,0.85);
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: none; /* show after video starts */
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+
+/* ===== Phase 4: Accessibility, Contrast, & Perception ===== */
+/* Kill default shiny-blue links globally (unless explicitly styled) */
+a:link, a:visited{
+  color: rgba(255,255,255,0.92);
+  text-decoration-color: rgba(255,255,255,0.35);
+}
+a:hover{
+  color: rgba(255,255,255,0.98);
+  text-decoration-color: rgba(155,209,255,0.70);
+}
+a:active{
+  color: rgba(255,255,255,1);
+}
+
+/* If something is intended to look like a button, it should feel like one */
+a.btn, a.buttonlike, .nxs-btn, .nxs-pill, .pillBtn, button, [role="button"]{
+  text-decoration: none !important;
+}
+
+/* Keyboard: always visible focus, never the default outline that disappears on dark backgrounds */
+:focus-visible{
+  outline: 2px solid rgba(155,209,255,0.85);
+  outline-offset: 4px;
+}
+
+/* Increase tap target comfort on mobile */
+a, button{
+  -webkit-tap-highlight-color: rgba(155,209,255,0.25);
+}
+
+
+/* ===== Phase 5: Performance, SEO, & Production Paranoia ===== */
+/* Reduce layout shift from images */
+img{ height:auto; }
+
+</style>
+<link href="/shared/tokens.css" rel="stylesheet"/><link href="https://dev-in-portfolio.netlify.app/" rel="canonical"/><link href="/icon-192.png" rel="icon"/><script src="/runtime-guard.js"></script>
+<link href="/shared/tile-polish.css" rel="stylesheet"/>
+<link href="/shared/phase-fixes.css?v=20260117" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<!-- Video layer -->
+<div id="playerWrap">
+<div id="player"></div>
+</div>
+<!-- Black overlay -->
+<div aria-label="Start video" id="overlay" role="button" tabindex="0"><div class="stack"><div class="title">DO NOT PRESS</div><p class="sub">To Press or Not To Press, that is the question.</p></div></div>
+<!-- Dodging close -->
+<button id="closeBtn" type="button">CLOSE</button>
+<script>
+    // === CONFIG ===
+    const VIDEO_ID = "eBGIQ7ZuuiU"; // Rick Roll
+    const DODGE_DISTANCE = 140;     // how close the cursor must get before it jumps
+    const JUMP_PAD = 18;            // keep it away from edges
+
+    // Load YouTube IFrame API
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+
+    let player = null;
+    let started = false;
+
+    const overlay = document.getElementById("overlay");
+    const startHint = overlay ? overlay.querySelector("p") : null;
+    const playerWrap = document.getElementById("playerWrap");
+    const closeBtn = document.getElementById("closeBtn");
+
+    // Called by the YouTube API when ready
+    window.onYouTubeIframeAPIReady = () => {
+      player = new YT.Player("player", {
+        videoId: VIDEO_ID,
+        playerVars: {
+          autoplay: 0,   // we will start manually on click (more reliable w/ sound)
+          controls: 1,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1
+          // NOTE: Do NOT set mute=1 if you want sound.
+        },
+        events: {
+          onReady: () => {
+            // player is ready; we still wait for user click
+          }
+        }
+      });
+    };
+
+    // Start video with sound on user gesture
+    function startVideoFromUserGesture() {
+      if (!player) {
+        if (startHint) startHint.textContent = "Loading video… tap again.";
+        return;
+      }
+      if (started) return;
+      started = true;
+
+      playerWrap.style.display = "block";
+
+      // Remove overlay first so video is visible
+      overlay.style.display = "none";
+      closeBtn.style.display = "block";
+
+      // Try to ensure volume up
+      try {
+        player.unMute();
+        player.setVolume(100);
+      } catch (e) {}
+
+      // This play call is triggered by the click -> qualifies for sound autoplay policies
+      try {
+        player.playVideo();
+      } catch (e) {
+        // If something weird happens, show a fallback message
+        alert("If the video didn’t start, your browser blocked it—tap again.");
+        started = false;
+        overlay.style.display = "grid";
+        closeBtn.style.display = "none";
+        playerWrap.style.display = "none";
+      }
+    }
+
+    overlay.addEventListener("click", startVideoFromUserGesture);
+
+    overlay.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " " ) {
+        e.preventDefault();
+        startVideoFromUserGesture();
+      }
+    });
+
+
+    // Close: stop and go back to overlay (so they can get rickrolled again)
+    closeBtn.addEventListener("click", () => {
+      try { player.stopVideo(); } catch (e) {}
+      started = false;
+      playerWrap.style.display = "none";
+      closeBtn.style.display = "none";
+      overlay.style.display = "grid";
+    });
+
+    // === DODGING CLOSE BUTTON ===
+    // When cursor gets close, teleport the close button somewhere else.
+    function moveCloseButtonRandomly() {
+      const bw = closeBtn.offsetWidth || 120;
+      const bh = closeBtn.offsetHeight || 44;
+
+      const maxX = window.innerWidth - bw - JUMP_PAD;
+      const maxY = window.innerHeight - bh - JUMP_PAD;
+
+      const x = Math.max(JUMP_PAD, Math.floor(Math.random() * maxX));
+      const y = Math.max(JUMP_PAD, Math.floor(Math.random() * maxY));
+
+      closeBtn.style.left = x + "px";
+      closeBtn.style.top = y + "px";
+      closeBtn.style.right = "auto";
+    }
+
+    // Start it in the top-right, then dodge
+    // (We switch to left/top positioning after first dodge)
+    document.addEventListener("mousemove", (e) => {
+      if (closeBtn.style.display !== "block") return;
+
+      const rect = closeBtn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+
+      if (dist < DODGE_DISTANCE) moveCloseButtonRandomly();
+    });
+
+    // Also dodge on touchstart near it (mobile)
+    closeBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      moveCloseButtonRandomly();
+    }, { passive: false });
+  </script>
+<script defer="" src="/shared/runtime-load-guard.js"></script>
+<script defer="" src="/shared/render-recovery-guard.js"></script>
+<script defer="" src="/shared/resize-dpr-guard.js"></script>
+<script defer="" src="/shared/error-boundary-guard.js"></script>
+<script defer="" src="/shared/state-init-guard.js"></script>
+<script defer="" src="/shared/scroll-focus-guard.js"></script>
+<script defer="" src="/shared/ui-physics-guard.js"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

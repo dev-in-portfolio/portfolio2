@@ -1,0 +1,83 @@
+/* shared/md-page.css
+   Lightweight styling for markdown-backed Help/Readme pages.
+*/
+:root{ --md-max: 980px; }
+
+.mdWrap{
+  max-width: var(--md-max);
+  margin: 0 auto;
+  padding: 18px 14px 40px;
+}
+
+.mdHead{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin: 18px 0 10px;
+}
+
+.mdHead h1{ margin:0; font-size: 22px; letter-spacing: .2px; }
+
+.small{
+  font-size: 12px;
+  opacity: .78;
+}
+
+.mdCard{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.25);
+}
+
+.mdCard h1, .mdCard h2, .mdCard h3, .mdCard h4{
+  margin: 12px 0 8px;
+}
+
+.mdCard p{ margin: 8px 0; line-height: 1.7; }
+
+.mdCard ul{ margin: 8px 0 12px 18px; line-height: 1.75; }
+
+.mdCard code{
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.mdCard pre{
+  overflow:auto;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.mdCard pre code{ background: transparent; border: none; padding: 0; }
+
+.mdMeta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  justify-content:space-between;
+  margin-top: 8px;
+}
+
+.mdPills{ display:flex; gap:8px; flex-wrap:wrap; }
+
+.mdPill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.06);
+  text-decoration:none;
+  color: #F5F7FF;
+}
+
+.mdPill:hover{ background: rgba(255,255,255,0.10); }

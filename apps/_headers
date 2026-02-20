@@ -1,0 +1,14 @@
+/*
+  Cache-Control: no-store
+
+/shared/*
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0
+
+/apps/*
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0
+
+/*.js
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0
+
+/*.css
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0

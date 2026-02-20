@@ -1,0 +1,25 @@
+/agents/*    /apps/agents/:splat    301
+
+/apps/agents    /apps/agents/    301
+/apps/agents/assets/*  /apps/agents/assets/:splat  200
+/apps/agents/assets/packs/*  /apps/agents/assets/packs/:splat  200
+/apps/agents/assets/data/*  /apps/agents/assets/data/:splat  200
+/apps/agents/*  /apps/agents/index.html  200
+/apps/alibi    /apps/alibi/    301
+/apps/alibi/*  /apps/alibi/index.html  200
+/apps/coverage-compass    /apps/coverage-compass/    301
+/apps/coverage-compass/*  /apps/coverage-compass/index.html  200
+/apps/helix    /apps/helix/    301
+/apps/helix/*  /apps/helix/index.html  200
+/apps/magma    /apps/magma/    301
+/apps/magma/*  /apps/magma/index.html  200
+/apps/string    /apps/string/    301
+/apps/string/*  /apps/string/index.html  200
+/apps/tectonic    /apps/tectonic/    301
+/apps/tectonic/*  /apps/tectonic/index.html  200
+/apps/transit    /apps/transit/    301
+/apps/transit/*  /apps/transit/index.html  200
+/apps/ubr    /apps/ubr/    301
+/apps/ubr/*  /apps/ubr/index.html  200
+/apps/vortex    /apps/vortex/    301
+/apps/vortex/*  /apps/vortex/index.html  200

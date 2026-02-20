@@ -1,0 +1,26 @@
+{
+  "app": "ubr",
+  "updated": "2026-01-08",
+  "qa": [
+    {
+      "q": "What is UBR?",
+      "a": "UBR (Ultimate Broker Routing) is a multi\u2011day routing/optimization tool for brokers and field agents. You feed it stops, constraints, and preferences \u2014 it outputs a practical route plan you can actually execute."
+    },
+    {
+      "q": "How do I use UBR in 30 seconds?",
+      "a": "Add stops \u2192 set start location + day rules (max stops/day, day start/end) \u2192 run Optimize/Build \u2192 choose a route from the scoreboard \u2192 export/save."
+    },
+    {
+      "q": "Why are my routes different each time?",
+      "a": "If the optimizer includes randomness (seed) or ties are broken by iteration order, results can vary. Try locking a seed or sorting stops deterministically before optimization."
+    },
+    {
+      "q": "What should I check first if optimization looks wrong?",
+      "a": "Verify the cost function and constraints: distance vs time, penalties for time windows, max stops/day, and how day breaks are enforced. Validate with a small 5\u201310 stop test case."
+    },
+    {
+      "q": "Does UBR work offline?",
+      "a": "If the app is fully static and relies on local storage, core UI can work offline \u2014 but map tiles/geocoding often need network unless cached or replaced with a no\u2011map mode."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "app": "global",
+  "messages": [
+    "404 — page not found.",
+    "This path isn’t in the tree-first registry.",
+    "Try / (root) or /health/."
+  ]
+}

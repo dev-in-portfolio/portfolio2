@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Temporary Maintenance</title>
+
+  <!-- Nexus Top Nav -->
+  <link rel="stylesheet" href="../../shared/nexus-topnav.css" />
+  <link rel="stylesheet" href="../../shared/nexus-topnav-v2.css" />
+
+  <style>
+    :root{ color-scheme: dark; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #0a0a0f;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Make room for the injected/positioned nav */
+    body { padding-top: 72px; }
+
+    .wrap {
+      min-height: calc(100% - 72px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .card {
+      max-width: 560px;
+      width: 100%;
+      padding: 40px 28px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+    }
+
+    h1 {
+      margin: 0 0 16px 0;
+      font-size: 28px;
+      letter-spacing: 0.2px;
+    }
+
+    p {
+      opacity: 0.86;
+      line-height: 1.6;
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    .timestamp {
+      margin-top: 18px;
+      font-size: 14px;
+      opacity: 0.55;
+    }
+
+    .tiny {
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: 0.55;
+    }
+
+    a { color: inherit; }
+  </style>
+</head>
+<body>
+  <!-- Nexus placeholder (v2 script will populate) -->
+  <nav class="nxTopNav"></nav>
+
+  <main class="wrap" role="main">
+    <section class="card" aria-label="Temporary maintenance">
+      <h1>🧪 Ran out of bug spray</h1>
+      <p>Went to the store to get some more.</p>
+      <p><strong>Check back in 12 hours.</strong></p>
+      <div class="timestamp">Posted 2/12 – 11:00 AM</div>
+      <div class="tiny">(Yes, this is a real maintenance page. No, the bugs did not pay rent.)</div>
+    </section>
+  </main>
+
+  <!-- Nexus Top Nav script -->
+  <script src="../../shared/nexus-topnav-v2.js?v=maint" defer></script>
+</body>
+</html>

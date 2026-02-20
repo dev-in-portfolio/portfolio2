@@ -1,0 +1,3128 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport"/>
+<title>MAGMA OMEGA — Enter Magma Chamber</title>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/lil-gui@0.19.1/dist/lil-gui.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root{
+      --bg-deep:#05040a;
+      --panel:rgba(255,255,255,0.06);
+      --panel2:rgba(0,0,0,0.28);
+      --border:rgba(255,255,255,0.12);
+      --text:#ffffff;
+      --muted:rgba(197,200,224,0.92);
+      --accent:#7fb3ff;
+      --shadow:0 30px 80px rgba(0,0,0,0.78);
+      --r-xl:26px;
+      --r-lg:18px;
+      --sb-w:420px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{
+      width:100%; height:100%; margin:0;
+      background:var(--bg-deep);
+      color:var(--text);
+      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      font-size:16px;
+      overflow:hidden;
+    }
+
+    /* ===== Main layout ===== */
+    .app{
+      position:relative;
+      width:100%;
+      height:100%;
+      padding:12px;
+      display:flex;
+      gap:12px;
+    }
+
+    /* ===== Scene ===== */
+    .scene{
+      position:relative;
+      flex:1;
+      height:100%;
+      border-radius:var(--r-xl);
+      border:1px solid rgba(255,255,255,0.08);
+      overflow:hidden;
+      background:#000;
+      box-shadow:var(--shadow);
+      isolation:isolate;
+    }
+
+    /* Keep the canvas clear of the fixed Nexus bar on mobile */
+    canvas#c{
+      position:fixed;
+      left:0; right:0;
+      top: calc(var(--labShellActualH, 60px) + env(safe-area-inset-top, 0px));
+      bottom:0;
+      width:100%;
+      /* With a fixed top offset, a raw 100% height can extend under the bar. */
+      height: calc(var(--svhpx, 100vh) - (var(--labShellActualH, 60px) + env(safe-area-inset-top, 0px)));
+      display:block;
+      background:#000;
+      touch-action:none;
+    }
+
+    /* ===== Toggleable Sidebar ===== */
+    .sidebar{
+      width:var(--sb-w);
+      max-width:min(var(--sb-w), 92vw);
+      height:calc(100% - 24px - var(--labShellActualH, 60px));
+      position:fixed;
+      left:12px;
+      top: calc(var(--labShellActualH, 60px) + 12px);
+      bottom:12px;
+      z-index:30;
+      border-radius:var(--r-xl);
+      border:1px solid rgba(255,255,255,0.12);
+      background:linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+
+      transform:translateX(0);
+      transition:transform .25s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .sidebar.closed{
+      transform:translateX(calc(-1 * (var(--sb-w) + 30px)));
+    }
+
+    .sb-head{
+      padding:14px 16px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      background:rgba(0,0,0,0.30);
+      border-bottom:1px solid rgba(255,255,255,0.10);
+    }
+    .sb-title{
+      margin:0;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.95);
+      line-height:1.1;
+    }
+    .sb-sub{
+      margin-top:6px;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.35;
+      max-width:320px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.06);
+      font-size:12px;
+      color:rgba(255,255,255,0.9);
+      user-select:none;
+      white-space:nowrap;
+    }
+    .chip b{ font-weight:900; letter-spacing:0.06em; }
+
+    .btn{
+      appearance:none;
+      border:1px solid rgba(255,255,255,0.14);
+      background:rgba(255,255,255,0.06);
+      color:rgba(255,255,255,0.95);
+      padding:10px 12px;
+      border-radius:16px;
+      font-weight:900;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+      transition:transform .08s ease, background .12s ease, border-color .12s ease;
+    }
+    .btn:hover{ background:rgba(255,255,255,0.10); border-color:rgba(255,255,255,0.20); }
+    .btn:active{ transform:translateY(1px) scale(0.99); }
+    .btn-blue{ background:rgba(79,138,217,0.18); border-color:rgba(127,179,255,0.30); }
+    .btn-blue:hover{ background:rgba(79,138,217,0.25); border-color:rgba(127,179,255,0.42); }
+
+    .sb-body{
+      height:calc(100% - 70px);
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      overflow:hidden;
+    }
+
+    .panel{
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:var(--r-xl);
+      background:rgba(0,0,0,0.22);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .panel-h{
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid rgba(255,255,255,0.10);
+      background:rgba(0,0,0,0.18);
+    }
+    .panel-h b{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.92);
+    }
+    .panel-b{
+      padding:12px 14px;
+      overflow:auto;
+      min-height:0;
+    }
+
+    .kv{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.04);
+      margin-bottom:10px;
+    }
+    .kv:last-child{ margin-bottom:0; }
+    .kv .k{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:rgba(197,200,224,0.95);
+    }
+    .kv .v{
+      font-size:16px;
+      font-weight:900;
+      color:rgba(255,255,255,0.95);
+      font-variant-numeric:tabular-nums;
+      text-align:right;
+      min-width:110px;
+    }
+
+    .advisor{
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.04);
+      padding:12px;
+      margin-bottom:10px;
+    }
+    .advisor:last-child{ margin-bottom:0; }
+    .advisor-top{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .advisor-id{ font-weight:900; color:rgba(255,255,255,0.92); }
+    .advisor-role{ font-size:12px; color:rgba(197,200,224,0.92); }
+    .advisor-msg{
+      margin-top:8px;
+      font-size:13px;
+      color:rgba(197,200,224,0.95);
+      line-height:1.5;
+    }
+
+    details.readme{
+      margin-top:10px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(0,0,0,0.18);
+      overflow:hidden;
+    }
+    details.readme > summary{
+      list-style:none;
+      cursor:pointer;
+      user-select:none;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:900;
+      letter-spacing:0.10em;
+      text-transform:uppercase;
+      font-size:12px;
+      color:rgba(255,255,255,0.92);
+      border-bottom:1px solid rgba(255,255,255,0.10);
+      background:rgba(0,0,0,0.14);
+    }
+    details.readme > summary::-webkit-details-marker{ display:none; }
+    .readme-body{
+      padding:12px 14px;
+      font-size:14px;
+      line-height:1.55;
+      color:rgba(197,200,224,0.95);
+    }
+    .readme-body p{ margin:0 0 10px; }
+    .readme-body p:last-child{ margin:0; }
+    .readme-body ul{ margin:10px 0 0; padding-left:18px; }
+
+    /* ===== SIDEBAR TOGGLE BUTTON (SKINNY COLUMN - FULL HEIGHT) ===== */
+    .sb-toggle {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 32px;
+      z-index: 40;
+
+      display: none;
+      background: rgba(5, 4, 10, 0.4);
+      border: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      pointer-events: auto;
+      touch-action: manipulation;
+
+      transition: width 0.2s, background 0.2s;
+    }
+    .sb-toggle.show { display: flex; }
+    .sb-toggle:hover {
+      background: rgba(79, 138, 217, 0.25);
+      border-right-color: rgba(127, 179, 255, 0.4);
+      width: 44px;
+    }
+    .sb-toggle span {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      pointer-events: none;
+      white-space: nowrap;
+      margin-bottom: 20px;
+    }
+    .sb-toggle:hover span { color: #fff; }
+
+    /* ===== TOP MENU TOGGLE HANDLE (CENTERED) ===== */
+    .hud-toggle {
+      position: fixed;
+      top: auto;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 24px;
+      z-index: 45;
+
+      display: none;
+      background: rgba(5, 4, 10, 0.6);
+      border: 0;
+      border-bottom: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px 12px 0 0;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+
+      align-items: center;
+      justify-content: center;
+
+      pointer-events: auto;
+      transition: background 0.2s;
+    }
+    .hud-toggle.show { display: flex; }
+    .hud-toggle:hover { background: rgba(79, 138, 217, 0.25); }
+    .hud-toggle span {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+    }
+    .hud-toggle:hover span { color: #fff; }
+
+    /* ===== HUD (Top Menu) ===== */
+    .hud-wrap{
+      position:absolute;
+      left:16px; top:16px;
+      z-index:35;
+      pointer-events:none;
+      user-select:none;
+      transition:opacity .22s ease;
+    }
+    .hud-wrap.closed{
+      opacity:0;
+      pointer-events:none;
+    }
+    .hud-card{
+      pointer-events:auto;
+      display:inline-block;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(0,0,0,0.38);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding:12px 14px;
+      box-shadow:0 12px 50px rgba(0,0,0,0.55);
+      max-width:min(820px, calc(100vw - 40px));
+    }
+    .hud-title{
+      color:rgba(255,255,255,0.92);
+      font-weight:700;
+      letter-spacing:.02em;
+    }
+    .hud-sub{
+      margin-top:2px;
+      font-size:11px;
+      color:rgba(255,255,255,0.55);
+      line-height:1.25;
+    }
+    .hud-row{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+    }
+    .hud-btn{
+      pointer-events:auto;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.10);
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:700;
+      color:rgba(255,255,255,0.90);
+      cursor:pointer;
+    }
+    .hud-btn:hover{ background:rgba(255,255,255,0.14); }
+    .hud-btn:active{ transform: translateY(1px); }
+    .hud-btn.blue{ background:rgba(79,138,217,0.18); border-color:rgba(127,179,255,0.25); color:rgba(210,235,255,0.95); }
+    .hud-btn.blue:hover{ background:rgba(79,138,217,0.26); }
+    .hud-select{
+      pointer-events:auto;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.10);
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:700;
+      color:rgba(255,255,255,0.90);
+      cursor:pointer;
+    }
+    .hud-close{
+      pointer-events:auto;
+      width:28px; height:28px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.08);
+      color:rgba(255,255,255,0.55);
+      cursor:pointer;
+    }
+    .hud-close:hover{ background:rgba(255,255,255,0.12); color:#fff; }
+
+    /* ===== Help overlay ===== */
+    .help{
+      position:absolute;
+      inset:0;
+      z-index:46;
+      display:none;
+      place-items:center;
+      background:rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .help.show{ display:grid; }
+    .help-card{
+      pointer-events:auto;
+      width:min(760px, 92vw);
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(0,0,0,0.60);
+      padding:18px;
+      box-shadow:0 18px 60px rgba(0,0,0,0.65);
+    }
+
+    /* ===== Double Splash ===== */
+    .splash{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:radial-gradient(1200px 700px at 50% 35%, rgba(127,179,255,0.22), rgba(5,4,10,0.92));
+    }
+    .splash-shell{
+      width:min(1100px, 96vw);
+      max-height:92vh;
+      border-radius:30px;
+      border:1px solid rgba(255,255,255,0.14);
+      background:linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03));
+      box-shadow:0 50px 140px rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    .splash-head{
+      padding:16px 18px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid rgba(255,255,255,0.10);
+      background:rgba(0,0,0,0.22);
+    }
+    .splash-title{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:0.04em;
+      margin:0;
+    }
+    .splash-sub{
+      margin-top:8px;
+      font-size:14px;
+      color:rgba(197,200,224,0.95);
+      line-height:1.45;
+      max-width:860px;
+    }
+    .splash-body{
+      padding:14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      overflow:hidden;
+    }
+    .splash-card{
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(0,0,0,0.22);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .splash-card-h{
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid rgba(255,255,255,0.10);
+      background:rgba(0,0,0,0.18);
+    }
+    .splash-card-h b{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.92);
+    }
+    .splash-card-b{
+      padding:14px;
+      overflow:auto;
+      min-height:0;
+    }
+    .splash-card-b p, .splash-card-b li{
+      font-size:14px;
+      line-height:1.55;
+      color:rgba(197,200,224,0.95);
+    }
+    .splash-card-b ul{ margin:10px 0 0; padding-left:18px; }
+
+    .splash-actions{
+      padding:14px 16px;
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+      border-top:1px solid rgba(255,255,255,0.10);
+      background:rgba(0,0,0,0.20);
+    }
+
+    /* ===== WebGL fallback ===== */
+    #fallback{
+      position:absolute;
+      inset:0;
+      z-index:60;
+      display:none;
+      place-items:center;
+      background:#000;
+      color:#fff;
+    }
+    #fallback.show{ display:grid; }
+
+    /* ===== Mobile adjustments ===== */
+    @media (max-width: 980px){
+      .sidebar{ --sb-w: min(420px, 92vw); }
+      .splash-body{ grid-template-columns:1fr; }
+    }
+  
+
+/* P18 SHELL_CLEANUP */
+/* Shell owns title/subtitle + docs */
+.splash-title, .splash-subtitle, .splash-text, .splash-credit{ display:none !important; }
+details.readme{ display:none !important; }
+
+    /* Nexus Back Bar */
+    .nexus-backbar{
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 14px;
+          margin-top: calc(var(--labShellH, 0px) + env(safe-area-inset-top, 0px));
+    }
+    .nexus-backlink{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .nexus-backlink:hover{ text-decoration: underline; }
+    
+
+    /* Magma: constrain the right-side adjustments panel (lil-gui) so it doesn't run full height */
+    .lil-gui{
+      max-height: calc(100vh - (var(--labShellH, 0px) + 120px) - env(safe-area-inset-bottom, 0px));
+      overflow: auto;
+    }
+    .lil-gui.root{
+      top: calc(var(--labShellH, 0px) + 70px) !important;
+      right: 10px !important;
+    }
+</style>
+<script>window.APP_ID="magma-omega-enter-magma-chamber";</script>
+<link href="../../shared/wyla.css" rel="stylesheet"/>
+<script defer="" src="../../shared/wyla.js"></script>
+</head>
+<body data-app="magma">
+  <nav class="nxTopNav"></nav>
+
+<div data-wyla=""></div>
+<!-- Nexus Boot Overlay (P08) -->
+<div aria-label="Loading Magma" aria-live="polite" id="nexusBootOverlay" role="status">
+<div class="nexusBootCard">
+<div class="nexusBootTitle">Loading <span class="nexusBootApp">Magma</span></div>
+<div class="nexusBootStage" id="nexusBootStage">Starting…</div>
+<div aria-hidden="true" class="nexusBootBar"><div></div></div>
+<div class="nexusBootTip">If this is a heavy lab on mobile, give it a moment — it's not frozen.</div>
+</div>
+</div>
+<style>
+  body.nexus-booting { overflow: hidden; }
+  #nexusBootOverlay {
+    position: fixed; inset: 0; z-index: 999999;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(2, 6, 23, 0.92);
+    color: #e5e7eb;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    backdrop-filter: blur(10px);
+    transition: opacity 220ms ease;
+  }
+  #nexusBootOverlay .nexusBootCard {
+    width: min(560px, calc(100vw - 32px));
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.72);
+    box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+    padding: 18px 18px 14px;
+  }
+  #nexusBootOverlay .nexusBootTitle {
+    font-size: 18px; font-weight: 750; letter-spacing: 0.2px;
+    display: flex; gap: 8px; align-items: baseline;
+  }
+  #nexusBootOverlay .nexusBootApp { color: #38bdf8; }
+  #nexusBootOverlay .nexusBootStage {
+    margin-top: 6px;
+    font-size: 13px;
+    opacity: 0.9;
+    min-height: 18px;
+  }
+  #nexusBootOverlay .nexusBootBar {
+    margin-top: 12px;
+    height: 7px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(148, 163, 184, 0.18);
+  }
+  #nexusBootOverlay .nexusBootBar > div {
+    height: 100%;
+    width: 38%;
+    background: rgba(56, 189, 248, 0.95);
+    transform: translateX(-120%);
+    animation: nexusBootBar 1.15s infinite ease-in-out;
+  }
+  #nexusBootOverlay .nexusBootTip {
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.7;
+    line-height: 1.35;
+  }
+  @keyframes nexusBootBar {
+    0%   { transform: translateX(-120%); }
+    50%  { transform: translateX(110%); }
+    100% { transform: translateX(260%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #nexusBootOverlay .nexusBootBar > div { animation: none; transform: translateX(0); width: 100%; opacity: 0.25; }
+  }
+</style>
+<script>
+(function() {
+  const overlay = document.getElementById('nexusBootOverlay');
+  const stageEl = document.getElementById('nexusBootStage');
+  if (!overlay) return;
+
+  document.body.classList.add('nexus-booting');
+
+  const stages = [
+    "Warming up the GPU…",
+    "Loading shaders…",
+    "Preparing simulation…",
+    "Building controls…",
+    "Calibrating chaos…",
+    "Finalizing scene…"
+  ];
+  let i = 0;
+  const tick = () => {
+    if (!stageEl) return;
+    stageEl.textContent = stages[i % stages.length];
+    i++;
+  };
+  tick();
+  const iv = setInterval(tick, 900);
+
+  const done = () => {
+    if (!document.getElementById('nexusBootOverlay')) return;
+    clearInterval(iv);
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    setTimeout(() => {
+      overlay.remove();
+      document.body.classList.remove('nexus-booting');
+    }, 260);
+  };
+
+  // Optional: labs may call this when fully ready.
+  window.__NEXUS_LAB_READY__ = done;
+
+  // Fallback heuristic: once a canvas exists and is sized, we allow a short grace window, then hide.
+  const start = Date.now();
+  const maxWait = 15000; // safety valve
+  const poll = () => {
+    if (Date.now() - start > maxWait) return done();
+    const canv = document.querySelector('canvas');
+    if (canv && canv.clientWidth > 0 && canv.clientHeight > 0) {
+      requestAnimationFrame(() => setTimeout(done, 220));
+      return;
+    }
+    requestAnimationFrame(poll);
+  };
+  requestAnimationFrame(poll);
+
+  // If the lab finishes fast, don't force a long overlay.
+  window.addEventListener('load', () => setTimeout(() => {
+    // If the canvas never appears, still remove after a while so the user can see any error UI.
+    if (Date.now() - start > 2500) done();
+  }, 50), { once: true });
+})();
+</script>
+<!-- ===== DOUBLE SPLASH ===== -->
+<div class="splash" id="splash">
+<div aria-label="MAGMA OMEGA briefings" aria-modal="true" class="splash-shell" role="dialog">
+<div class="splash-head">
+<div>
+<h1 class="splash-title">MAGMA OMEGA — Enter Magma Chamber</h1>
+<div class="splash-sub">Two briefings are visible at the same time. No timeouts. Enter must work.</div>
+</div>
+<div class="chip"><b>Boot</b> <span id="bootStatus">Ready</span></div>
+</div>
+<div class="splash-body">
+<section aria-label="Splash Panel 1" class="splash-card">
+<div class="splash-card-h">
+<b>Briefing 1</b>
+<span class="chip"><b>Input</b> Orbit / Zoom / Pan</span>
+</div>
+<div class="splash-card-b">
+<p><b>Goal:</b> stable camera + readable sidebar before you touch anything exotic.</p>
+<ul>
+<li><b>Orbit:</b> drag / touch</li>
+<li><b>Zoom:</b> wheel / pinch</li>
+<li><b>Pan:</b> right-drag / two-finger drag</li>
+</ul>
+<p style="margin-top:12px;">This shell intentionally keeps the canvas clean. HUD + AI live in the sidebar.</p>
+<div class="advisor" style="margin-top:12px;">
+<div class="advisor-top">
+<div class="advisor-id">AI-01</div>
+<div class="advisor-role">Chamber Brief</div>
+</div>
+<div class="advisor-msg" id="aiSplashCoach">Waiting…</div>
+</div>
+</div>
+</section>
+<section aria-label="Splash Panel 2" class="splash-card">
+<div class="splash-card-h">
+<b>Briefing 2</b>
+<span class="chip"><b>Rule</b> One knob at a time</span>
+</div>
+<div class="splash-card-b">
+<p><b>Operating rhythm:</b> change → observe → confirm → read advisors.</p>
+<ul>
+<li><b>Step 1:</b> confirm camera not clipped or locked.</li>
+<li><b>Step 2:</b> confirm sidebar is visible (toggle if hidden).</li>
+<li><b>Step 3:</b> only then wire controls + volcano sim.</li>
+<li><b>Step 4:</b> if “stuck on splash,” overlay is intercepting clicks or JS crashed before handlers.</li>
+</ul>
+<div class="advisor" style="margin-top:12px;">
+<div class="advisor-top">
+<div class="advisor-id">AI-02</div>
+<div class="advisor-role">Flow / Thermal</div>
+</div>
+<div class="advisor-msg" id="aiSplashAnalyst">Waiting…</div>
+</div>
+<div class="advisor" style="margin-top:10px;">
+<div class="advisor-top">
+<div class="advisor-id">AI-03</div>
+<div class="advisor-role">Containment</div>
+</div>
+<div class="advisor-msg" id="aiSplashRisk">Waiting…</div>
+</div>
+</div>
+</section>
+</div>
+<div class="splash-actions">
+<button class="btn" id="btnSplashTest" type="button">Test Button</button>
+<button class="btn btn-blue" id="btnEnter" type="button">Enter Magma Chamber</button>
+</div>
+</div>
+</div>
+<!-- ===== SIDEBAR OPEN HANDLE (FULL HEIGHT STRIP) ===== -->
+<button aria-label="Open Sidebar" class="sb-toggle" id="sidebarOpenBtn" type="button">
+<span>OPEN SIDEBAR</span>
+</button>
+<!-- ===== HUD OPEN HANDLE (TOP CENTER) ===== -->
+<button aria-label="Open Menu" class="hud-toggle" id="hudOpenBtn" type="button">
+<span>MENU</span>
+</button>
+<!-- ===== TOGGLEABLE SIDEBAR ===== -->
+<aside aria-label="Chamber Sidebar" class="sidebar" id="sidebar">
+<div class="sb-head">
+<div>
+<div class="sb-title">CHAMBER PANEL</div>
+<div class="sb-sub">HUD + AI live here. Canvas stays clean.</div>
+</div>
+<div style="display:flex; gap:10px; align-items:flex-start;">
+<div class="chip"><b>FPS</b> <span id="sbFps">–</span></div>
+<button class="btn" id="sidebarCloseBtn" title="Close Panel" type="button">✕</button>
+</div>
+</div>
+<div class="sb-body">
+<section aria-label="Chamber HUD" class="panel">
+<div class="panel-h">
+<b>Chamber HUD</b>
+<span class="chip"><b>Mode</b> <span id="hudMode">SHELL</span></span>
+</div>
+<div class="panel-b" id="hudScroll">
+<div class="kv"><div class="k">VEI</div><div class="v" id="hud_vei">–</div></div>
+<div class="kv"><div class="k">Eruption</div><div class="v" id="hud_eruption">–</div></div>
+<div class="kv"><div class="k">Flow Speed</div><div class="v" id="hud_flow">–</div></div>
+<div class="kv"><div class="k">Ash</div><div class="v" id="hud_ash">–</div></div>
+<div class="kv"><div class="k">Wind</div><div class="v" id="hud_wind">–</div></div>
+<div class="kv"><div class="k">Time</div><div class="v" id="hud_time">–</div></div>
+<div class="kv"><div class="k">Renderer</div><div class="v" id="hud_renderer">WebGL2</div></div>
+</div>
+</section>
+</div>
+</aside>
+<!-- ===== APP ===== -->
+<div class="app" id="app">
+<section aria-label="Magma Chamber Scene" class="scene">
+<canvas id="c"></canvas>
+<!-- HUD (Top Menu) -->
+<div class="hud-wrap" id="hud">
+<div class="hud-card">
+<div class="flex items-start justify-between gap-4">
+<div>
+<div class="hud-title">MAGMA <span style="opacity:.65; font-weight:600;">— Omega Planet</span></div>
+<div class="hud-sub">Drag orbit • Scroll/pinch zoom • R regenerate • Space lightning • P pause • H help • F post-FX</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="text-[11px] text-white/65">FPS <span class="text-white/85 tabular-nums" id="hudFps">--</span></div>
+<button class="hud-close" id="hudCloseBtn" title="Close Menu" type="button">✕</button>
+</div>
+</div>
+<div class="hud-row">
+<button class="hud-btn" id="btnRegenerate" type="button">Regenerate</button>
+<button class="hud-btn blue" id="btnLightning" type="button">Strike</button>
+<button class="hud-btn" id="btnPause" type="button">Pause</button>
+<button class="hud-btn" id="btnScreenshot" type="button">Screenshot</button>
+<button class="hud-btn" id="btnHelp" type="button">Help</button>
+<button class="hud-btn" id="btnToggleGUI" type="button">Controls</button>
+<button class="hud-btn" id="btnCameraHome" type="button">Home View</button>
+<select aria-label="Focus select" class="hud-select" id="focusSelect">
+<option value="-1">Planet Overview</option>
+<option value="0">Mesa (Main)</option>
+<option value="1">Stratovolcano</option>
+<option value="2">Cinder Cone</option>
+<option value="3">Shield</option>
+<option value="4">Caldera</option>
+<option value="5">Fissure</option>
+</select>
+<button class="hud-btn" id="btnFocus" type="button">Focus</button>
+</div>
+</div>
+</div>
+<!-- Help overlay -->
+<div aria-label="Help overlay" class="help" id="help">
+<div class="help-card">
+<div class="flex items-start justify-between gap-4">
+<div>
+<div class="text-lg font-semibold text-white/90 tracking-wide">Controls &amp; Tips</div>
+<div class="mt-1 text-xs text-white/60">All 6 volcanoes live on one spherical base. The 5 smaller vents are distributed around the globe.</div>
+</div>
+<button class="hud-btn" id="btnCloseHelp" type="button">Close</button>
+</div>
+<div class="mt-4 grid gap-3 text-sm text-white/80">
+<div class="grid grid-cols-[160px_1fr] gap-2">
+<div class="text-white/60">Orbit / Roll</div><div>Drag / one-finger drag</div>
+<div class="text-white/60">Zoom</div><div>Mouse wheel / pinch</div>
+<div class="text-white/60">Regenerate</div><div><span class="font-mono">R</span> — new seed</div>
+<div class="text-white/60">Lightning</div><div><span class="font-mono">Space</span> — strike now</div>
+<div class="text-white/60">Pause</div><div><span class="font-mono">P</span> — freeze time</div>
+<div class="text-white/60">Post FX</div><div><span class="font-mono">F</span> — toggle post-processing</div>
+<div class="text-white/60">Help</div><div><span class="font-mono">H</span> — toggle this panel</div>
+</div>
+<div class="rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white/70">
+              Tip: zoom out to see multiple vents on different hemispheres; then orbit around the planet.
+            </div>
+</div>
+</div>
+</div>
+<!-- WebGL fallback -->
+<div id="fallback">
+<div class="max-w-md p-6 text-center">
+<div class="text-xl font-semibold">WebGL2 is required</div>
+<p class="mt-2 text-white/70 text-sm">Your browser or device doesn’t support WebGL2. Try updating your browser, enabling hardware acceleration, or using a different device.</p>
+</div>
+</div>
+</section>
+</div>
+<script>
+(() => {
+  const PLANET_R = 900.0;
+  const DEBUG_GL = true;
+
+  let __fatalEl;
+  function showFatal(msg){
+    if (!__fatalEl){
+      __fatalEl = document.createElement("div");
+      __fatalEl.style.cssText = `
+        position:fixed; left:12px; right:12px; bottom:12px;
+        padding:12px 14px; border-radius:12px;
+        background:rgba(0,0,0,0.78); color:#fff; z-index:999999;
+        font:14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        border:1px solid rgba(255,255,255,0.14);
+        pointer-events:none;
+        white-space:pre-wrap;`;
+      document.body.appendChild(__fatalEl);
+    }
+    __fatalEl.textContent = msg || "";
+    __fatalEl.style.display = msg ? "block" : "none";
+  }
+
+  function glErr(gl, where){
+    const e = gl.getError();
+    if (e !== gl.NO_ERROR) console.error(`[glError @ ${where}]`, e);
+    return e;
+  }
+
+  function checkFBO(gl, fbo, label="fbo"){
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    const s = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    if (s !== gl.FRAMEBUFFER_COMPLETE) {
+      console.error(`[${label}] INCOMPLETE: 0x${s.toString(16)}`);
+      showFatal(`${label} incomplete: 0x${s.toString(16)}\n(disabling post-FX)`);
+      return false;
+    }
+    return true;
+  }
+
+  let rtW = 0, rtH = 0;
+  let postTargetsReady = false;
+
+  const GLSL_COMMON = `
+uniform float seed;
+uniform float planetR;
+
+float hash(vec3 p){p+=seed; p=fract(p*0.3183+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y*p.z));}
+float noise(vec3 x){
+  vec3 i=floor(x),f=fract(x);
+  f=f*f*(3.-2.*f);
+  return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);
+}
+float fbm(vec3 x){
+  float v=0.,a=0.5;
+  for(int i=0;i<4;i++){v+=a*noise(x);x*=2.05;a*=0.5;}
+  return v;
+}
+
+vec2 hash2(vec2 p) {
+  p += seed;
+  p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)));
+  return fract(sin(p)*43758.5453);
+}
+float voronoi(vec2 x) {
+  vec2 n = floor(x);
+  vec2 f = fract(x);
+  float md = 8.0;
+  for(int j=-1; j<=1; j++)
+  for(int i=-1; i<=1; i++) {
+    vec2 g = vec2(float(i),float(j));
+    vec2 o = hash2(n + g);
+    vec2 r = g + o - f;
+    float d = dot(r,r);
+    if( d<md ) md=d;
+  }
+  return sqrt(md);
+}
+
+vec3 curlNoise(vec3 p) {
+  float e = 0.1;
+  float n1 = noise(p + vec3(e, 0, 0));
+  float n2 = noise(p - vec3(e, 0, 0));
+  float n3 = noise(p + vec3(0, e, 0));
+  float n4 = noise(p - vec3(0, e, 0));
+  float n5 = noise(p + vec3(0, 0, e));
+  float n6 = noise(p - vec3(0, 0, e));
+  return vec3(n3 - n4, n5 - n6, n1 - n2);
+}
+
+float luma(vec3 c){return dot(c, vec3(0.2126,0.7152,0.0722));}
+`;
+
+  const GLSL_GEO = `
+uniform vec3 ventDir[6]; // 0 = mesa, 1..5 = other volcanoes
+
+vec2 rot2(vec2 p, float a){
+  float c = cos(a), s = sin(a);
+  return vec2(c*p.x - s*p.y, s*p.x + c*p.y);
+}
+
+float ringMask(float r, float r0, float w){
+  return smoothstep(r0 - w, r0, r) - smoothstep(r0, r0 + w, r);
+}
+
+float coneShape(vec2 q, float radius, float height, float k){
+  float d = length(q) / max(1e-6, radius);
+  float m = clamp(1.0 - pow(d, k), 0.0, 1.0);
+  return m*m * height;
+}
+
+float domeShape(vec2 q, float radius, float height, float k){
+  float d = length(q) / max(1e-6, radius);
+  float m = clamp(1.0 - pow(d, k), 0.0, 1.0);
+  return m * height;
+}
+
+float angDist(vec3 a, vec3 b){
+  return acos(clamp(dot(a,b), -1.0, 1.0));
+}
+
+int closestVentIndex(vec3 dir){
+  float md = 1e9;
+  int mi = 0;
+  for(int i=0;i<6;i++){
+    float d = angDist(dir, ventDir[i]);
+    if(d < md){ md = d; mi = i; }
+  }
+  return mi;
+}
+
+void basis(vec3 n, out vec3 b1, out vec3 b2){
+  vec3 up = (abs(n.y) < 0.99) ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0);
+  b1 = normalize(cross(up, n));
+  b2 = normalize(cross(n, b1));
+}
+
+vec2 localUV(vec3 dir, vec3 centerDir){
+  vec3 b1, b2;
+  basis(centerDir, b1, b2);
+  return vec2(dot(dir, b1), dot(dir, b2)) * planetR;
+}
+
+float getH(vec3 dir, float hs){
+  float ground = (fbm(dir * 2.2) - 0.5) * 3.2;
+
+  float r = angDist(dir, ventDir[0]) * planetR;
+
+  float w = 2.6;
+  float h = 0.0;
+
+  float s0 = 1.0 - smoothstep(640.0 - w, 640.0 + w, r);
+  float s1 = 1.0 - smoothstep(540.0 - w, 540.0 + w, r);
+  float s2 = 1.0 - smoothstep(440.0 - w, 440.0 + w, r);
+  float s3 = 1.0 - smoothstep(340.0 - w, 340.0 + w, r);
+  float s4 = 1.0 - smoothstep(250.0 - w, 250.0 + w, r);
+  float s5 = 1.0 - smoothstep(170.0 - w, 170.0 + w, r);
+  float s6 = 1.0 - smoothstep(100.0 - w, 100.0 + w, r);
+  float s7 = 1.0 - smoothstep(56.0  - w, 56.0  + w, r);
+
+  h += 8.0  * s0;
+  h += 12.0 * s1;
+  h += 14.0 * s2;
+  h += 16.0 * s3;
+  h += 18.0 * s4;
+  h += 20.0 * s5;
+  h += 22.0 * s6;
+  h += 24.0 * s7;
+
+  h += exp(-r*r*0.0012) * 2.0;
+
+  float craterR = 12.0;
+  float crater = 1.0 - smoothstep(craterR*0.78, craterR, r);
+  float bowl = crater * crater;
+  h -= bowl * 20.0;
+
+  float rim = smoothstep(craterR-1.0, craterR+1.0, r) - smoothstep(craterR+1.0, craterR+3.5, r);
+  h += rim * 6.5;
+
+  float cliff = 0.0;
+  cliff += 1.0 - smoothstep(0.0, 7.0, abs(r-640.0));
+  cliff += 1.0 - smoothstep(0.0, 7.0, abs(r-540.0));
+  cliff += 1.0 - smoothstep(0.0, 7.0, abs(r-440.0));
+  cliff += 1.0 - smoothstep(0.0, 7.0, abs(r-340.0));
+  cliff += 1.0 - smoothstep(0.0, 7.0, abs(r-250.0));
+  cliff += 1.0 - smoothstep(0.0, 7.0, abs(r-170.0));
+  cliff += 1.0 - smoothstep(0.0, 7.0, abs(r-100.0));
+  cliff = clamp(cliff, 0.0, 1.0);
+  float strata = sin(r*0.45 + seed*2.0) + 0.5*sin(r*0.92 + seed*1.3);
+  h += strata * 0.55 * cliff;
+
+  h += (fbm(dir*6.0) - 0.5) * 0.9;
+
+  float mesaMask = smoothstep(760.0, 600.0, r);
+  float g0 = mix(ground, ground*0.18, mesaMask);
+  float height = g0 + (h * mesaMask) * hs;
+
+  {
+    vec2 qs = localUV(dir, ventDir[1]);
+    float strat = coneShape(qs, 170.0, 92.0, 1.12);
+    float rs = length(qs);
+    float sBowl = (1.0 - smoothstep(16.0, 26.0, rs));
+    strat -= sBowl*sBowl * 12.0;
+    strat += ringMask(rs, 24.0, 4.5) * 7.0;
+    strat += (fbm(vec3(qs*0.05, 0.0)) - 0.5) * 1.0;
+    height += strat * hs;
+  }
+
+  {
+    vec2 qc = localUV(dir, ventDir[2]);
+    float cinder = coneShape(qc, 120.0, 64.0, 1.05);
+    float rc = length(qc);
+    float crR = 18.0;
+    float cBowl = (1.0 - smoothstep(crR*0.72, crR, rc));
+    cinder -= cBowl*cBowl * 22.0;
+    cinder += ringMask(rc, crR, 3.5) * 9.0;
+    cinder += (fbm(vec3(qc*0.06, 0.0)) - 0.5) * 0.9;
+    height += cinder * hs;
+  }
+
+  {
+    vec2 qsh = localUV(dir, ventDir[3]);
+    float shield = domeShape(qsh, 290.0, 40.0, 2.4);
+    shield += (fbm(vec3(qsh*0.04, 0.0)) - 0.5) * 0.8;
+    height += shield * hs;
+  }
+
+  {
+    vec2 qk = localUV(dir, ventDir[4]);
+    float calBase = domeShape(qk, 300.0, 48.0, 2.0);
+    float rk = length(qk);
+    float calR = 86.0;
+    float calBowl = (1.0 - smoothstep(calR*0.78, calR, rk));
+    float caldera = calBase - calBowl*calBowl * 34.0;
+    caldera += ringMask(rk, calR, 7.0) * 12.0;
+    caldera += (fbm(vec3(qk*0.05, 0.0)) - 0.5) * 0.9;
+    height += caldera * hs;
+  }
+
+  {
+    vec2 q = localUV(dir, ventDir[5]);
+    vec2 qf = rot2(q, 0.55);
+    float along = abs(qf.y);
+    float dLine = abs(qf.x);
+    float span = smoothstep(320.0, 40.0, along);
+    float fissRidge = exp(-dLine*dLine*0.010) * span * 20.0;
+    float fissShoulder = exp(-dLine*dLine*0.0025) * span * 12.0;
+    float fissCrack = exp(-dLine*dLine*0.18) * span;
+    float fissure = fissRidge + fissShoulder - fissCrack * 7.0;
+    fissure += (fbm(vec3(q*0.05, 0.0)) - 0.5) * 0.6;
+    height += fissure * hs;
+  }
+
+  return height;
+}
+
+float lavaVentLocal(vec2 q, float t, float fs, float ll, float coreR, float fallR){
+  float r = length(q);
+  if (r < coreR) return 1.0;
+  vec2 dir = normalize(q + vec2(1e-6));
+  vec2 flowUV = q * 0.1 - dir * t * fs;
+  float n = fbm(vec3(flowUV, 0.0));
+  float mask = smoothstep(0.55 - ll, 0.6 + ll, n);
+  mask *= smoothstep(fallR, fallR*0.75, r);
+  return mask;
+}
+
+float getLava(vec3 dir, float t, float fs, float ll) {
+  float ll2 = max(ll * 0.65, 0.08);
+  float m = 0.0;
+
+  const float SEA_R = 750.0;
+  const float FISSURE_SPAN = 520.0;
+
+  m = max(m, lavaVentLocal(localUV(dir, ventDir[0]), t, fs, ll, 10.0, SEA_R));
+  m = max(m, lavaVentLocal(localUV(dir, ventDir[1]), t, fs*0.85, ll2, 8.0, SEA_R));
+
+  {
+    vec2 qc = localUV(dir, ventDir[2]);
+    float mc = lavaVentLocal(qc, t, fs*0.75, ll2, 6.5, SEA_R);
+    float rc = length(qc);
+    mc = max(mc, ringMask(rc, 18.0, 3.0) * (0.35 + 0.35*ll2));
+    m = max(m, mc);
+  }
+
+  m = max(m, lavaVentLocal(localUV(dir, ventDir[3]), t, fs*0.65, ll2, 8.0, SEA_R));
+
+  {
+    vec2 qk = localUV(dir, ventDir[4]);
+    float rk = length(qk);
+    float mk = lavaVentLocal(qk, t, fs*0.7, ll2, 7.5, SEA_R);
+    mk = max(mk, ringMask(rk, 86.0, 7.0) * (0.30 + 0.40*ll2));
+    m = max(m, mk);
+  }
+
+  {
+    vec2 q = localUV(dir, ventDir[5]);
+    vec2 qf = rot2(q, 0.55);
+    float along = abs(qf.y);
+    float dLine = abs(qf.x);
+    float span = smoothstep(FISSURE_SPAN, 60.0, along);
+    float fissCore = exp(-dLine*dLine*0.35) * span;
+    vec2 flowUV = vec2(qf.y, qf.x) * 0.06 - vec2(t*fs*0.65, 0.0);
+    float n = fbm(vec3(flowUV, 0.0));
+    float fissMask = smoothstep(0.52 - ll2, 0.6 + ll2, n) * fissCore;
+    fissMask = max(fissMask, exp(-dLine*dLine*0.06) * span * 0.22);
+    m = max(m, fissMask);
+  }
+
+  return clamp(m, 0.0, 1.0);
+}
+
+float castShadow(vec3 ro, vec3 rd, float hs) {
+  float t = 12.0;
+  for(int i=0; i<22; i++) {
+    vec3 p = ro + rd * t;
+    vec3 d = normalize(p);
+    float surf = planetR + getH(d, hs);
+    float rad = length(p);
+    if (rad < surf + 2.0) return 0.22;
+    t += 42.0;
+    if (t > 6200.0) break;
+  }
+  return 1.0;
+}
+`;
+
+  const vsTer = `#version 300 es
+precision highp float;
+layout(location=0)in vec3 a;
+uniform mat4 vp;
+uniform float t, hs, fs, ll;
+out vec3 vPos;
+out vec3 vDir;
+out vec2 vUv;
+${GLSL_COMMON}
+${GLSL_GEO}
+void main(){
+  vec3 dir = normalize(a);
+
+  float h = getH(dir, hs);
+  h += fbm(dir * 6.0) * 1.2;
+
+  float lava = getLava(dir, t, fs, ll);
+  if(lava > 0.01) {
+    int vi = closestVentIndex(dir);
+    vec2 luv = localUV(dir, ventDir[vi]);
+    vec2 flowDir = normalize(luv + vec2(1e-6));
+    vec2 uv = luv * 0.3 - flowDir * t * fs * 0.5;
+    float v = voronoi(uv);
+    float crust = smoothstep(0.0, 0.2, v);
+    h += crust * 2.5 * lava;
+  }
+
+  float r = max(planetR * 0.55, planetR + h);
+  vec3 pos = dir * r;
+
+  vPos = pos;
+  vDir = dir;
+
+  float u = atan(dir.z, dir.x) * 0.15915494309 + 0.5;
+  float v = asin(clamp(dir.y, -1.0, 1.0)) * 0.31830988618 + 0.5;
+  vUv = vec2(u, v);
+
+  gl_Position = vp * vec4(pos, 1.0);
+}`;
+
+  const vsPart = `#version 300 es
+precision highp float;
+layout(location=0)in float id;
+uniform mat4 vp;
+uniform float t, hs, ws, wd, ps, es, spread, plumeScale, plumeBillow, plumeCap, dpi;
+uniform float smokeAmt, ashAmt;
+out float vLife;
+out float vTemp;
+out float vKind; // 0=smoke, 1=ash
+${GLSL_COMMON}
+${GLSL_GEO}
+void main(){
+  float r1 = hash(vec3(id, 1., 1.));
+  float r2 = hash(vec3(id, 2., 5.));
+  float r3 = hash(vec3(id, 7.1, 3.2));
+
+  float life = mod(t*0.25 + r1*12.0, 1.0);
+  vLife = life;
+  vTemp = 1.0 - life;
+
+  float kpick = hash(vec3(id, 13.7, 9.1));
+  float isAsh = step(0.62, kpick);
+  vKind = isAsh;
+
+  float activeAmount = mix(smokeAmt, ashAmt, isAsh);
+  if (activeAmount <= 0.0001 || es <= 0.0001) {
+    gl_Position = vec4(2.0,2.0,2.0,1.0);
+    gl_PointSize = 0.0;
+    return;
+  }
+
+  float pick = hash(vec3(id, 9.7, 2.1));
+  int vi = int(floor(pick * 6.0));
+  vi = clamp(vi, 0, 5);
+
+  vec3 vD = ventDir[vi];
+  vec3 b1, b2;
+  basis(vD, b1, b2);
+
+  float angle = r2 * 6.28318;
+  float rad = r3 * 22.0 * spread * (1.0 + 0.8*isAsh);
+  vec3 offset = b1 * (cos(angle)*rad) + b2 * (sin(angle)*rad);
+
+  if (vi == 5) {
+    float along = (hash(vec3(id, 4.2, 7.1)) * 2.0 - 1.0) * 190.0;
+    float side  = (hash(vec3(id, 6.6, 1.3)) * 2.0 - 1.0) * 16.0;
+    vec2 q = rot2(vec2(side, along), 0.55);
+    offset = b1 * q.x + b2 * q.y;
+  }
+
+  float baseH = getH(vD, hs);
+  vec3 basePos = vD * (planetR + baseH);
+
+  float pulse = 0.7 + 0.3*sin((t + r1*6.0) * 2.2);
+  vec3 pos = basePos + vD * (18.0*hs) + offset * (0.65 + 0.35*pulse);
+
+  float ventBoost = 1.0;
+  if (vi == 1) ventBoost = 1.2;
+  if (vi == 2) ventBoost = 1.05;
+  if (vi == 3) ventBoost = 0.95;
+  if (vi == 4) ventBoost = 1.10;
+
+  float rise = mix(1.0, 0.72, isAsh);
+  float lift = (60.0 * es * plumeScale * ventBoost) * rise;
+
+  float upT = pow(life, 0.55);
+  vec3 vel = vD * (lift * upT);
+
+  float wr = radians(wd);
+  vec3 wind = vec3(cos(wr), 0.15, sin(wr)) * ws;
+
+  vec3 currPos = pos + vel + wind * (life*life) * 5.5;
+
+  float cap = smoothstep(0.58, 1.0, life) * plumeCap;
+  float capR = (140.0 + 220.0*r2) * plumeScale * cap * (1.0 + 0.6*isAsh);
+  vec3 capOff = (b1 * cos(angle) + b2 * sin(angle)) * capR * cap;
+  currPos += capOff;
+
+  vec3 turb = curlNoise(currPos * 0.045 - vec3(0, t*0.55, 0))
+            * (18.0 * plumeBillow) * (0.2 + 0.8*life) * (1.0 + 0.7*isAsh);
+  currPos += turb;
+
+  float size = (14.0 * ps * dpi) * (1.0 + life * 5.0) * (1.0 + 0.25*plumeScale);
+  size *= mix(1.0, 0.85, isAsh);
+  gl_PointSize = clamp(size, 1.0, 180.0);
+
+  gl_Position = vp * vec4(currPos, 1.0);
+}`;
+
+  const vsBolt = `#version 300 es
+precision highp float;
+layout(location=0)in vec3 pos;
+uniform mat4 vp;
+void main(){
+  gl_Position = vp * vec4(pos, 1.0);
+}`;
+
+  const vsQuad = `#version 300 es
+precision highp float;
+layout(location=0)in vec2 p;
+out vec2 vUv;
+void main(){
+  vUv = p*0.5+0.5;
+  gl_Position = vec4(p, 0.0, 1.0);
+}`;
+
+  const fsTer = `#version 300 es
+precision highp float;
+in vec3 vPos;
+in vec3 vDir;
+in vec2 vUv;
+uniform vec3 eye, skyTop, skyBot, lavaHot, lavaCool;
+uniform float t, hs, fs, glow, ll, day, wd, lightning;
+uniform vec2 sunPos;
+uniform vec3 lavaHotPartyShifted[6];
+uniform float partyMode;
+out vec4 c;
+${GLSL_COMMON}
+${GLSL_GEO}
+
+vec3 displacedPos(vec3 dir){
+  float h = getH(dir, hs) + fbm(dir*6.0)*1.2;
+  float r = max(planetR * 0.55, planetR + h);
+  return dir * r;
+}
+
+void main(){
+  vec3 up = (abs(vDir.y) < 0.99) ? vec3(0.0,1.0,0.0) : vec3(1.0,0.0,0.0);
+  vec3 t1 = normalize(cross(up, vDir));
+  vec3 t2 = normalize(cross(vDir, t1));
+
+  float e = 0.0018;
+  vec3 d1 = normalize(vDir * cos(e) + t1 * sin(e));
+  vec3 d2 = normalize(vDir * cos(e) + t2 * sin(e));
+
+  vec3 p0 = vPos;
+  vec3 p1 = displacedPos(d1);
+  vec3 p2 = displacedPos(d2);
+  vec3 n = normalize(cross(p1 - p0, p2 - p0));
+
+  vec3 sunDir = normalize(vec3(sunPos.x, sunPos.y + 0.5, 0.5));
+  float diff = max(dot(n, sunDir), 0.0);
+
+  float sh = castShadow(p0 + n*1.5, sunDir, hs);
+
+  vec3 viewDir = normalize(eye - p0);
+  vec3 halfDir = normalize(sunDir + viewDir);
+
+  float slope = clamp(1.0 - abs(dot(n, vDir)), 0.0, 1.0);
+  float alN = fbm(vec3(vDir*8.0));
+  vec3 basalt = vec3(0.06, 0.055, 0.06);
+  vec3 ash    = vec3(0.045, 0.045, 0.05);
+  vec3 rock   = mix(basalt, ash, smoothstep(0.10, 0.85, slope));
+  rock *= 0.85 + 0.35*alN;
+
+  float occ = 0.0;
+  float s = 0.004;
+  vec3 dn1 = normalize(vDir * cos(s) + t1 * sin(s));
+  vec3 dn2 = normalize(vDir * cos(s) - t1 * sin(s));
+  vec3 dn3 = normalize(vDir * cos(s) + t2 * sin(s));
+  vec3 dn4 = normalize(vDir * cos(s) - t2 * sin(s));
+  float h0 = getH(vDir, hs);
+  occ += max(0.0, getH(dn1, hs) - h0);
+  occ += max(0.0, getH(dn2, hs) - h0);
+  occ += max(0.0, getH(dn3, hs) - h0);
+  occ += max(0.0, getH(dn4, hs) - h0);
+  float ao = clamp(exp(-occ * 0.16), 0.35, 1.0);
+
+  vec3 amb = mix(skyBot, skyTop, n.y*0.5+0.5) * (0.18 + 0.08*day);
+  vec3 dirL = vec3(1.0, 0.92, 0.78) * diff * 1.6 * sh;
+
+  float lava = getLava(vDir, t, fs, ll);
+  float specPow = mix(48.0, 96.0, lava);
+  float spec = pow(max(dot(n, halfDir), 0.0), specPow) * (0.04 + 0.25*lava) * sh;
+
+  float rim = pow(1.0 - max(dot(n, viewDir), 0.0), 3.0);
+
+  vec3 col = rock;
+  col *= (amb + dirL);
+  col *= ao;
+  col += vec3(0.35, 0.32, 0.28) * rim * (0.08 + 0.08*day);
+  col += vec3(1.0, 0.95, 0.9) * spec;
+
+  col += vec3(0.25, 0.3, 0.45) * lightning * 0.55;
+  col += vec3(0.8, 0.9, 1.0) * spec * lightning * 1.2;
+
+  if(lava > 0.01) {
+    int ventIdx = closestVentIndex(vDir);
+
+    vec3 currentLavaHot = lavaHot;
+    if (partyMode > 0.5) currentLavaHot = lavaHotPartyShifted[ventIdx];
+
+    vec2 luv = localUV(vDir, ventDir[ventIdx]);
+    vec2 flowDir = normalize(luv + vec2(1e-6));
+    vec2 uv = luv * 0.3 - flowDir * t * fs * 0.5;
+
+    float v = voronoi(uv);
+    float cracks = 1.0 - smoothstep(0.0, 0.1, v);
+    float heat = fbm(vec3(vDir*10.0 - t*0.12));
+    float finalHeat = mix(heat*0.5, 1.0, cracks) * lava;
+
+    vec3 emit = mix(lavaCool, currentLavaHot * 2.8, finalHeat);
+    col = mix(col, emit, lava);
+    col += emit * glow * 0.45;
+  }
+
+  float dist = length(p0 - eye);
+  vec3 fogCol = mix(skyBot, skyTop, 0.35);
+  col = mix(col, fogCol, 1.0 - exp(-dist * 0.00055));
+
+  c = vec4(col, 1.0);
+}`;
+
+  const fsPart = `#version 300 es
+precision mediump float;
+in float vLife, vTemp;
+in float vKind;
+uniform vec3 lavaHot;
+uniform float lightning;
+uniform highp float smokeAmt, ashAmt;
+out vec4 c;
+
+void main(){
+  vec2 coord = gl_PointCoord - 0.5;
+  float r = length(coord);
+  if(r > 0.5) discard;
+
+  float amt = mix(smokeAmt, ashAmt, vKind);
+
+  float soft = smoothstep(0.5, 0.0, r);
+  float core = smoothstep(0.22, 0.0, r);
+  float alpha = soft * (0.35 + 0.65*core);
+  alpha *= smoothstep(0.0, 0.10, vLife) * smoothstep(1.0, 0.55, vLife);
+  alpha *= amt;
+
+  vec3 smokeCol = vec3(0.10, 0.11, 0.13);
+  vec3 ashCol   = vec3(0.18, 0.14, 0.10);
+
+  float heat = smoothstep(0.95, 0.55, vTemp) * smoothstep(0.0, 0.18, vLife);
+  vec3 hot = lavaHot * (0.9 + 0.6*heat);
+
+  vec3 col = mix(smokeCol, ashCol, vKind);
+  col = mix(col, hot, heat * (1.0 - vKind*0.35));
+
+  col += vec3(0.8, 0.9, 1.0) * lightning * 0.45;
+
+  c = vec4(col, alpha * 0.80);
+}`;
+
+  const fsBolt = `#version 300 es
+precision mediump float;
+out vec4 c;
+void main(){
+  c = vec4(0.85, 0.92, 1.0, 1.0);
+}`;
+
+  const fsSky = `#version 300 es
+precision mediump float;
+in vec2 vUv;
+uniform vec3 skyTop, skyBot;
+uniform float t, lightning;
+uniform vec2 sunPos;
+uniform float day;
+out vec4 c;
+${GLSL_COMMON}
+void main(){
+  vec3 col = mix(skyBot, skyTop, vUv.y);
+
+  vec2 sunUV = vec2(0.5, 0.58) + vec2(sunPos.x, sunPos.y) * 0.22;
+  float sd = length(vUv - sunUV);
+  float sun = smoothstep(0.045, 0.0, sd);
+  float glow = smoothstep(0.28, 0.0, sd);
+  col += vec3(1.1, 0.85, 0.6) * sun * (0.65 + 0.55*day);
+  col += vec3(1.0, 0.55, 0.25) * glow * (0.09 + 0.16*day);
+
+  vec2 center = sunUV;
+  vec2 p = vUv - center;
+  float angle = atan(p.y, p.x);
+  float rays = fbm(vec3(angle * 6.0, t * 0.05, 0.0));
+  float mask = smoothstep(0.0, 0.5, length(p));
+  float beam = rays * (1.0 - mask) * 0.12 * (0.2 + 0.8*day);
+  col += vec3(1.0, 0.6, 0.3) * beam;
+
+  float night = smoothstep(0.35, 0.05, day);
+  vec2 suv = vUv * vec2(900.0, 450.0);
+  vec2 cell = floor(suv);
+  float star = step(0.996, hash(vec3(cell, 12.3)));
+  float tw = 0.6 + 0.4*sin(t*2.0 + hash(vec3(cell, 8.1))*6.28318);
+  col += vec3(0.9, 0.95, 1.0) * star * tw * night * 0.65;
+
+  float v = smoothstep(1.25, 0.65, length(vUv - 0.5));
+  col *= mix(0.78, 1.0, v);
+
+  col += vec3(0.5, 0.62, 0.85) * lightning * 0.35;
+
+  c = vec4(col, 1.0);
+}`;
+
+  const fsPost = `#version 300 es
+precision highp float;
+in vec2 vUv;
+uniform sampler2D uTex;
+uniform vec2 res;
+uniform float t;
+uniform float exposure;
+uniform float bloomStrength;
+uniform float bloomThreshold;
+uniform float vignette;
+uniform float grain;
+uniform float chromAb;
+uniform float sharpen;
+uniform float gamma;
+uniform vec2 sunNdc;
+uniform float lensFlare;
+out vec4 c;
+${GLSL_COMMON}
+
+vec3 aces(vec3 x){
+  float a = 2.51;
+  float b = 0.03;
+  float cc = 2.43;
+  float d = 0.59;
+  float e = 0.14;
+  return clamp((x*(a*x+b))/(x*(cc*x+d)+e), 0.0, 1.0);
+}
+
+void main(){
+  vec2 px = 1.0 / max(res, vec2(1.0));
+  vec2 uv = vUv;
+
+  vec2 ca = (uv - 0.5) * (chromAb * 0.002);
+  float r = texture(uTex, uv + ca).r;
+  float g = texture(uTex, uv).g;
+  float b = texture(uTex, uv - ca).b;
+  vec3 col = vec3(r,g,b);
+
+  vec3 sum = vec3(0.0);
+  float w0 = 0.227027;
+  float w1 = 0.1945946;
+  float w2 = 0.1216216;
+  float w3 = 0.054054;
+  vec2 o1 = vec2(1.0, 0.0);
+  vec2 o2 = vec2(2.0, 0.0);
+  vec2 o3 = vec2(3.0, 0.0);
+  vec2 p1 = vec2(0.0, 1.0);
+  vec2 p2 = vec2(0.0, 2.0);
+  vec2 p3 = vec2(0.0, 3.0);
+
+  vec3 c0 = texture(uTex, uv).rgb;
+  float l0 = luma(c0);
+  vec3 b0 = c0 * smoothstep(bloomThreshold, 1.2, l0);
+  sum += b0 * w0;
+
+  vec3 cx1 = texture(uTex, uv + o1*px).rgb;
+  vec3 cx2 = texture(uTex, uv - o1*px).rgb;
+  sum += (cx1*smoothstep(bloomThreshold, 1.2, luma(cx1)) + cx2*smoothstep(bloomThreshold, 1.2, luma(cx2))) * w1;
+
+  vec3 cx3 = texture(uTex, uv + o2*px).rgb;
+  vec3 cx4 = texture(uTex, uv - o2*px).rgb;
+  sum += (cx3*smoothstep(bloomThreshold, 1.2, luma(cx3)) + cx4*smoothstep(bloomThreshold, 1.2, luma(cx4))) * w2;
+
+  vec3 cx5 = texture(uTex, uv + o3*px).rgb;
+  vec3 cx6 = texture(uTex, uv - o3*px).rgb;
+  sum += (cx5*smoothstep(bloomThreshold, 1.2, luma(cx5)) + cx6*smoothstep(bloomThreshold, 1.2, luma(cx6))) * w3;
+
+  vec3 cy1 = texture(uTex, uv + p1*px).rgb;
+  vec3 cy2 = texture(uTex, uv - p1*px).rgb;
+  sum += (cy1*smoothstep(bloomThreshold, 1.2, luma(cy1)) + cy2*smoothstep(bloomThreshold, 1.2, luma(cy2))) * w1;
+
+  vec3 cy3 = texture(uTex, uv + p2*px).rgb;
+  vec3 cy4 = texture(uTex, uv - p2*px).rgb;
+  sum += (cy3*smoothstep(bloomThreshold, 1.2, luma(cy3)) + cy4*smoothstep(bloomThreshold, 1.2, luma(cy4))) * w2;
+
+  vec3 cy5 = texture(uTex, uv + p3*px).rgb;
+  vec3 cy6 = texture(uTex, uv - p3*px).rgb;
+  sum += (cy5*smoothstep(bloomThreshold, 1.2, luma(cy5)) + cy6*smoothstep(bloomThreshold, 1.2, luma(cy6))) * w3;
+
+  vec3 blur = (texture(uTex, uv + vec2(px.x,0.0)).rgb + texture(uTex, uv - vec2(px.x,0.0)).rgb + texture(uTex, uv + vec2(0.0,px.y)).rgb + texture(uTex, uv - vec2(0.0,px.y)).rgb) * 0.25;
+  col = col + (col - blur) * sharpen;
+
+  col += sum * bloomStrength;
+
+  vec2 sunUV = sunNdc * 0.5 + 0.5;
+  float inBounds = step(0.0, sunUV.x)*step(0.0, sunUV.y)*step(sunUV.x,1.0)*step(sunUV.y,1.0);
+  vec2 d = uv - sunUV;
+  float dd = dot(d,d);
+  float g1 = exp(-dd * 18.0);
+  float g2 = exp(-dd * 3.0);
+  float streak = exp(-abs(d.x) * 28.0) * exp(-dd * 4.0);
+  col += (vec3(1.0, 0.7, 0.4) * (g1*0.22 + g2*0.05) + vec3(1.0, 0.85, 0.6) * streak * 0.06) * lensFlare * inBounds;
+
+  col *= exposure;
+  col = aces(col);
+
+  float vig = smoothstep(0.95, 0.35, length(uv - 0.5));
+  col *= mix(1.0, vig, vignette);
+
+  float n = hash(vec3(uv*vec2(1920.0,1080.0), t*60.0));
+  col += (n - 0.5) * grain;
+
+  col = pow(max(col, 0.0), vec3(1.0 / max(0.0001, gamma)));
+
+  c = vec4(col, 1.0);
+}`;
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  const HOME_YAW = 0.65;
+  const HOME_PITCH = 0.52;
+  const HOME_DIST = 2400;
+  const HOME_ROLL = 0.0;
+  const MIN_DIST = 900;
+
+  const params = {
+    skyTop: '#101520', skyBot: '#000000',
+    lavaHot: '#ffaa00', lavaCool: '#4a0000',
+
+    heightScale: 1.0,
+
+    windSpeed: 2.0, windDir: 90,
+    lavaLevel: 0.0,
+    flowSpeed: 0.5,
+
+    smoke: 0.0,
+    ash: 0.0,
+    plumeScale: 1.35,
+    plumeBillow: 1.0,
+    plumeCap: 1.0,
+
+    partSize: 1.5,
+    eject: 1.0,
+    spread: 1.0,
+
+    seed: Math.random() * 1000,
+
+    autoSun: true,
+    autoSky: true,
+    timeOfDay: 19.5,
+    daySpeed: 0.25,
+
+    quality: 1.25,
+    dragQuality: 0.55,
+    fpsCap: 60,
+    autoQuality: true,
+    particleDensity: 1.0,
+    maxDist: 9000,
+
+    thunder: true,
+    thunderVolume: 0.25,
+
+    postFX: false,
+    exposure: 1.15,
+    gamma: 2.2,
+    bloomStrength: 0.55,
+    bloomThreshold: 0.65,
+    vignette: 0.35,
+    grain: 0.06,
+    chromAb: 0.15,
+    sharpen: 0.15,
+    lensFlare: 0.35,
+
+    partyMode: false,
+    lavaColor1: '#ff0000',
+    lavaColor2: '#00ff00',
+    lavaColor3: '#0000ff',
+    lavaColor4: '#ffff00',
+    lavaColor5: '#ff00ff',
+    lavaColor6: '#00ffff',
+    colorShiftSpeed: 0.5,
+
+    regenerate: () => {}
+  };
+
+  // Nexus performance hook (Lite/Balanced/Ultra)
+  try {
+    const qp = (window.NexusPrefs && window.NexusPrefs.qualityProfile) ? window.NexusPrefs.qualityProfile() : null;
+    const p = (window.NexusPrefs && window.NexusPrefs.get) ? window.NexusPrefs.get() : null;
+    if (qp && params) {
+      params.quality = Math.max(0.4, Math.min(1.35, Number(qp.renderScale) || 1.0));
+      // If user chose explicit mode, don't auto-adjust away from it.
+      if (p && p.perf && p.perf !== 'auto') params.autoQuality = false;
+    }
+  } catch (_) {}
+
+
+  const cam = {
+    current: { yaw: HOME_YAW, pitch: HOME_PITCH, dist: HOME_DIST, roll: HOME_ROLL },
+    target:  { yaw: HOME_YAW, pitch: HOME_PITCH, dist: HOME_DIST, roll: HOME_ROLL }
+  };
+  const clampCamDist = () => { cam.target.dist = clamp(cam.target.dist, MIN_DIST, params.maxDist); };
+
+  function resetCameraToHome() {
+    velYaw = velPitch = velRoll = 0;
+    cam.target.yaw = HOME_YAW;
+    cam.target.pitch = HOME_PITCH;
+    cam.target.dist = HOME_DIST;
+    cam.target.roll = HOME_ROLL;
+    clampCamDist();
+  }
+
+  let lightningTimer = 0;
+  let lightningIntensity = 0;
+  let boltVerts = new Float32Array(60);
+  let showBolt = false;
+
+  function resetLightningSchedule(hard=false){
+    const base = 2.0, varr = 4.0;
+    lightningTimer = base + Math.random() * varr;
+    if (hard) {
+      lightningIntensity = 0;
+      showBolt = false;
+    }
+  }
+
+  let paused = false;
+  let simTime = 0;
+
+  let gl, progTer, progSky, progPart, progBolt, progPost;
+  let vaoTer, vaoQuad, vaoPart, vaoBolt;
+  const countPart = 5000;
+
+  let fbo = null;
+  let sceneTex = null;
+  let depthRb = null;
+  let hdr = false;
+  let floatLinear = false;
+
+  let gui = null;
+  let ctrlTime = null;
+  let ctrlQuality = null;
+  let ctrlPost = null;
+
+  let ventDirs = new Float32Array(18);
+  const lavaPartyHexNames = ['lavaColor1', 'lavaColor2', 'lavaColor3', 'lavaColor4', 'lavaColor5', 'lavaColor6'];
+  const lavaHotPartyShifted = new Float32Array(18);
+
+  const normalize3 = (v) => {
+    const l = Math.hypot(v[0], v[1], v[2]) || 1;
+    return [v[0]/l, v[1]/l, v[2]/l];
+  };
+  const cross3 = (a,b)=>[a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+  const mul3s = (a,s)=>[a[0]*s,a[1]*s,a[2]*s];
+  const add3 = (a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+
+  function seededRng(seedFloat){
+    let s = (Math.floor(seedFloat * 1e6) >>> 0) || 1;
+    return () => {
+      s = (s * 1664525 + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  }
+
+  function basisFromN(n){
+    const up = Math.abs(n[1]) < 0.99 ? [0,1,0] : [1,0,0];
+    const b1 = normalize3(cross3(up, n));
+    const b2 = normalize3(cross3(n, b1));
+    return {b1, b2};
+  }
+
+  function rebuildVents(){
+    const eyeDir = normalize3([
+      Math.cos(cam.current.yaw) * Math.cos(cam.current.pitch),
+      Math.sin(cam.current.pitch),
+      Math.sin(cam.current.yaw) * Math.cos(cam.current.pitch)
+    ]);
+    const mesa = normalize3([-eyeDir[0], -eyeDir[1], -eyeDir[2]]);
+
+    const rng = seededRng(params.seed);
+    const spin = rng() * Math.PI * 2;
+    const golden = Math.PI * (3 - Math.sqrt(5));
+
+    const { b1, b2 } = basisFromN(mesa);
+
+    ventDirs.set(mesa, 0);
+
+    const n = 5;
+    for (let i = 0; i < n; i++) {
+      const t = (i + 1) / (n + 1);
+      const w = 1 - 2*t;
+      const phi = i * golden + spin;
+      const r = Math.sqrt(Math.max(0, 1 - w*w));
+
+      const around = add3(mul3s(b1, Math.cos(phi)*r), mul3s(b2, Math.sin(phi)*r));
+      const dir = normalize3(add3(mul3s(mesa, w), around));
+      ventDirs.set(dir, (i + 1) * 3);
+    }
+  }
+
+  function yawPitchFromDir(dir){
+    const d = normalize3(dir);
+    const yaw = Math.atan2(d[2], d[0]);
+    const pitch = Math.asin(clamp(d[1], -1, 1));
+    return { yaw, pitch };
+  }
+
+  function focusVent(idx){
+    if (idx < 0) {
+      resetCameraToHome();
+      return;
+    }
+    idx = clamp(idx|0, 0, 5);
+    const dir = [ventDirs[idx*3], ventDirs[idx*3+1], ventDirs[idx*3+2]];
+    const { yaw, pitch } = yawPitchFromDir([-dir[0], -dir[1], -dir[2]]); // look toward it
+    cam.target.yaw = yaw;
+    cam.target.pitch = pitch * 0.85;
+    cam.target.dist = 1600;
+    clampCamDist();
+  }
+
+  let audio = null;
+  const ensureAudio = async () => {
+    if (audio) return audio;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    audio = new AC();
+    if (audio.state === 'suspended') { try { await audio.resume(); } catch (_) {} }
+    return audio;
+  };
+
+  function playThunder() {
+    if (!params.thunder) return;
+    ensureAudio().then(ctx => {
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(45, now);
+      osc.frequency.exponentialRampToValueAtTime(18, now + 0.8);
+
+      const noiseBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 1.2), ctx.sampleRate);
+      const data = noiseBuf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuf;
+
+      const hp = ctx.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.setValueAtTime(120, now);
+
+      const lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.setValueAtTime(900, now);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.001, params.thunderVolume), now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+      osc.connect(lp);
+      noise.connect(hp);
+      hp.connect(lp);
+      lp.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      noise.start(now);
+      osc.stop(now + 1.25);
+      noise.stop(now + 1.25);
+    });
+  }
+
+  const canvas = document.getElementById('c');
+
+  function _getGL2(){
+    const tries = [
+      { alpha:false, antialias:true,  premultipliedAlpha:false, preserveDrawingBuffer:false, powerPreference:"high-performance" },
+      { alpha:false, antialias:false, premultipliedAlpha:false, preserveDrawingBuffer:false, powerPreference:"high-performance" },
+      { alpha:false, antialias:false, premultipliedAlpha:false, preserveDrawingBuffer:false, powerPreference:"low-power" }
+    ];
+    for (const opts of tries){
+      try{
+        const g = canvas.getContext('webgl2', opts);
+        if (g) return g;
+      }catch(_e){}
+    }
+    return null;
+  }
+
+  gl = _getGL2();
+  if(!gl) {
+    document.getElementById('fallback').classList.add('show');
+    return;
+  }
+
+  canvas.addEventListener("webglcontextlost", (e) => {
+    e.preventDefault();
+    postTargetsReady = false;
+    showFatal("WebGL context lost (mobile memory).\nTap Regenerate (or reload).");
+  }, false);
+
+  canvas.addEventListener("webglcontextrestored", () => {
+    showFatal("");
+    location.reload();
+  }, false);
+
+  hdr = !!gl.getExtension('EXT_color_buffer_float');
+  floatLinear = !!gl.getExtension('OES_texture_float_linear');
+
+  function createProg(vs, fs){
+    const p = gl.createProgram();
+    const add = (src, type) => {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        const log = gl.getShaderInfoLog(s) || "(no shader log)";
+        console.error(log);
+        console.error('---- shader source ----\n' + src);
+        showFatal(`Shader compile failed:\n${log}`);
+        gl.deleteShader(s);
+        return false;
+      }
+      gl.attachShader(p, s);
+      gl.deleteShader(s);
+      return true;
+    };
+    if (!add(vs, gl.VERTEX_SHADER) || !add(fs, gl.FRAGMENT_SHADER)) {
+      gl.deleteProgram(p);
+      return null;
+    }
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+      const log = gl.getProgramInfoLog(p) || "(no program log)";
+      console.error(log);
+      showFatal(`Program link failed:\n${log}`);
+      gl.deleteProgram(p);
+      return null;
+    }
+    return p;
+  }
+
+  progTer = createProg(vsTer, fsTer);
+  progSky = createProg(vsQuad, fsSky);
+  progPart = createProg(vsPart, fsPart);
+  progBolt = createProg(vsBolt, fsBolt);
+  progPost = createProg(vsQuad, fsPost);
+
+  if (!progTer || !progSky || !progPart || !progBolt || !progPost) {
+    showFatal("Program creation failed. Check console for GLSL errors.");
+    return;
+  }
+
+  // Quad VAO
+  vaoQuad = gl.createVertexArray();
+  gl.bindVertexArray(vaoQuad);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  // Sphere mesh
+  const verts = [];
+  const idx = [];
+  const LAT = 180;
+  const LON = 240;
+
+  for (let y = 0; y <= LAT; y++) {
+    const v = y / LAT;
+    const theta = v * Math.PI;
+    const st = Math.sin(theta);
+    const ct = Math.cos(theta);
+    for (let x = 0; x <= LON; x++) {
+      const u = x / LON;
+      const phi = u * Math.PI * 2;
+      const sp = Math.sin(phi);
+      const cp = Math.cos(phi);
+      verts.push(cp * st, ct, sp * st);
+    }
+  }
+
+  const stride = LON + 1;
+  for (let y = 0; y < LAT; y++) {
+    for (let x = 0; x < LON; x++) {
+      const i0 = y * stride + x;
+      const i1 = i0 + 1;
+      const i2 = i0 + stride;
+      const i3 = i2 + 1;
+      idx.push(i0, i2, i1);
+      idx.push(i1, i2, i3);
+    }
+  }
+
+  const idxArr = new Uint32Array(idx);
+  const idxType = gl.UNSIGNED_INT;
+
+  vaoTer = gl.createVertexArray();
+  gl.bindVertexArray(vaoTer);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idxArr, gl.STATIC_DRAW);
+
+  // Particles IDs
+  const pIds = new Float32Array(countPart);
+  for (let i = 0; i < countPart; i++) pIds[i] = i;
+
+  vaoPart = gl.createVertexArray();
+  gl.bindVertexArray(vaoPart);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, pIds, gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 1, gl.FLOAT, false, 0, 0);
+
+  // Bolt
+  vaoBolt = gl.createVertexArray();
+  gl.bindVertexArray(vaoBolt);
+  const bufBolt = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, bufBolt);
+  gl.bufferData(gl.ARRAY_BUFFER, boltVerts, gl.DYNAMIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+
+  function hex(s){
+    let c = parseInt(s.substring(1), 16);
+    return [(c>>16&255)/255, (c>>8&255)/255, (c&255)/255];
+  }
+
+  function skyFromDay(d){
+    const nightTop = [0.03, 0.05, 0.10];
+    const nightBot = [0.00, 0.00, 0.02];
+    const duskTop  = [0.35, 0.16, 0.12];
+    const duskBot  = [0.05, 0.01, 0.02];
+    const dayTop   = [0.10, 0.20, 0.35];
+    const dayBot   = [0.02, 0.03, 0.06];
+
+    const edge = Math.abs(d - 0.5) * 2.0;
+    const dusk = Math.exp(-Math.pow((d - 0.75) * 6.0, 2.0)) + Math.exp(-Math.pow((d - 0.25) * 6.0, 2.0));
+
+    const lerp3 = (a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+    let top = lerp3(nightTop, dayTop, 1.0 - edge);
+    let bot = lerp3(nightBot, dayBot, 1.0 - edge);
+    top = lerp3(top, duskTop, clamp(dusk,0,1)*0.7);
+    bot = lerp3(bot, duskBot, clamp(dusk,0,1)*0.7);
+    return { top, bot };
+  }
+
+  function sunFromTimeHours(h){
+    const ang = (h / 24) * Math.PI * 2 - Math.PI / 2;
+    return [Math.cos(ang), Math.sin(ang)];
+  }
+
+  const sub = (a,b) => [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+  const cross = (a,b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+  const normalize = v => { let l = Math.hypot(v[0], v[1], v[2]); return l>0 ? [v[0]/l, v[1]/l, v[2]/l] : [0,0,0]; };
+  const dot = (a,b) => a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+
+  const m4 = {
+    persp: (fov, asp, n, f) => {
+      let t = Math.tan(Math.PI*0.5 - 0.5*fov), a = 1/t;
+      return [
+        a/asp, 0,     0,                      0,
+        0,     a,     0,                      0,
+        0,     0,     (f+n)/(n-f),           -1,
+        0,     0,     (2*f*n)/(n-f),          0
+      ];
+    },
+    lookAtRoll: (eye, tar, roll) => {
+      let f = normalize(sub(tar, eye));
+      let up = [0,1,0];
+      if (Math.abs(f[1]) > 0.98) up = [1,0,0];
+
+      let r = normalize(cross(f, up));
+      let u = cross(r, f);
+
+      const cr = Math.cos(roll), sr = Math.sin(roll);
+      const r2 = [r[0]*cr + u[0]*sr, r[1]*cr + u[1]*sr, r[2]*cr + u[2]*sr];
+      const u2 = [u[0]*cr - r[0]*sr, u[1]*cr - r[1]*sr, u[2]*cr - r[2]*sr];
+
+      return [
+        r2[0], r2[1], r2[2], 0,
+        u2[0], u2[1], u2[2], 0,
+        -f[0], -f[1], -f[2], 0,
+        -dot(r2, eye), -dot(u2, eye), dot(f, eye), 1
+      ];
+    },
+    mul: (a, b) => {
+      const o = new Array(16);
+      for (let c = 0; c < 4; c++) {
+        for (let r = 0; r < 4; r++) {
+          o[c*4 + r] =
+            a[0*4 + r] * b[c*4 + 0] +
+            a[1*4 + r] * b[c*4 + 1] +
+            a[2*4 + r] * b[c*4 + 2] +
+            a[3*4 + r] * b[c*4 + 3];
+        }
+      }
+      return o;
+    }
+  };
+
+  function projectNDC(vp, p3){
+    const x = p3[0], y = p3[1], z = p3[2];
+    const m = vp;
+    const cx = m[0]*x + m[4]*y + m[8]*z + m[12];
+    const cy = m[1]*x + m[5]*y + m[9]*z + m[13];
+    const cw = m[3]*x + m[7]*y + m[11]*z + m[15];
+    if (Math.abs(cw) < 1e-6) return [2,2];
+    return [cx/cw, cy/cw];
+  }
+
+  const _uLoc = new WeakMap();
+  function uLoc(prog, name){
+    let m = _uLoc.get(prog);
+    if (!m) { m = new Map(); _uLoc.set(prog, m); }
+    if (m.has(name)) return m.get(name);
+    const loc = gl.getUniformLocation(prog, name);
+    m.set(name, loc);
+    return loc;
+  }
+  function setU(p, name, v) {
+    const loc = uLoc(p, name);
+    if (loc === null) return;
+    if (typeof v === 'number') { gl.uniform1f(loc, v); return; }
+    if (Array.isArray(v) || (v && typeof v.length === 'number')) {
+      if (v.length === 2) gl.uniform2fv(loc, v);
+      else if (v.length === 3) gl.uniform3fv(loc, v);
+      else if (v.length === 16) gl.uniformMatrix4fv(loc, false, v);
+    }
+  }
+  function setI(p, name, i) {
+    const loc = uLoc(p, name);
+    if (loc === null) return;
+    gl.uniform1i(loc, i|0);
+  }
+  function setU3Array(p, name, arr18) {
+    const loc = uLoc(p, name + '[0]');
+    if (loc === null) return;
+    gl.uniform3fv(loc, arr18);
+  }
+
+  function destroyPost(){
+    if (depthRb) gl.deleteRenderbuffer(depthRb);
+    if (sceneTex) gl.deleteTexture(sceneTex);
+    if (fbo) gl.deleteFramebuffer(fbo);
+    depthRb = null; sceneTex = null; fbo = null;
+    postTargetsReady = false;
+    rtW = rtH = 0;
+  }
+
+  function ensurePostTargets(w, h){
+    if (!params.postFX) { destroyPost(); return; }
+
+    const nw = w|0, nh = h|0;
+    if (postTargetsReady && fbo && sceneTex && depthRb && rtW === nw && rtH === nh) return;
+
+    if (!fbo) {
+      fbo = gl.createFramebuffer();
+      sceneTex = gl.createTexture();
+      depthRb = gl.createRenderbuffer();
+    }
+
+    rtW = nw;
+    rtH = nh;
+
+    gl.bindTexture(gl.TEXTURE_2D, sceneTex);
+
+    const filter = (hdr && !floatLinear) ? gl.NEAREST : gl.LINEAR;
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    if (hdr) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, rtW, rtH, 0, gl.RGBA, gl.HALF_FLOAT, null);
+    else     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8,  rtW, rtH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depthRb);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, rtW, rtH);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, sceneTex, 0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRb);
+
+    postTargetsReady = checkFBO(gl, fbo, "postFBO");
+    if (!postTargetsReady) {
+      params.postFX = false;
+      if (ctrlPost) ctrlPost.updateDisplay();
+      destroyPost();
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    if (DEBUG_GL) glErr(gl, "ensurePostTargets");
+  }
+
+  function takeScreenshotNow() {
+    // Lightweight fallback: browser screenshot tools are better; this is a safe hook
+    // (kept here so your UI button never "does nothing")
+    showFatal("Screenshot: use your browser screenshot / OS screenshot.\n(If you want GPU readback again, say so and I'll wire the FBO capture back in.)");
+    setTimeout(()=>showFatal(""), 2200);
+  }
+
+  // ===== Input handling (pointer orbit + pinch zoom + roll) =====
+  const zone = canvas;
+  let primaryPointer = null;
+  let lastX = 0, lastY = 0;
+  let lastMoveTs = 0;
+
+  let initialPinchDist = 0;
+  let initialZoom = 0;
+
+  let initialTwist = 0;
+  let lastTwist = 0;
+  let startRoll = 0;
+
+  let interacting = false;
+
+// Drag boost: when interacting, temporarily reduce GPU cost (lower resolution + disable Post FX)
+let dragBoostActive = false;
+let postFXBeforeDrag = null;
+function setDragBoost(on){
+  if (on === dragBoostActive) return;
+  dragBoostActive = on;
+
+  // If Post FX is enabled, disable it while dragging for lower latency.
+  if (on) {
+    if (params && params.postFX) {
+      postFXBeforeDrag = true;
+      params.postFX = false;
+      if (ctrlPost) ctrlPost.updateDisplay();
+    } else {
+      postFXBeforeDrag = null;
+    }
+    requestAnimationFrame(resize);
+  } else {
+    if (postFXBeforeDrag) {
+      params.postFX = true;
+      postFXBeforeDrag = null;
+      if (ctrlPost) ctrlPost.updateDisplay();
+    }
+    requestAnimationFrame(resize);
+  }
+}
+  let velYaw = 0, velPitch = 0, velRoll = 0;
+
+  function getPinchDist(cache) {
+    const pts = Array.from(cache.values());
+    if (pts.length < 2) return 0;
+    return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+  }
+  function getTwist(cache){
+    const pts = Array.from(cache.values());
+    if (pts.length < 2) return 0;
+    return Math.atan2(pts[1].y - pts[0].y, pts[1].x - pts[0].x);
+  }
+
+  const evCache = new Map();
+
+  function isUIHit(target){
+    return !!(target.closest('#hud') || target.closest('#help') || target.closest('.lil-gui') || target.closest('#sidebar'));
+  }
+
+  zone.addEventListener('pointerdown', e => {
+    if (isUIHit(e.target)) return;
+
+    const wasInteracting = interacting;
+
+    evCache.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    zone.setPointerCapture(e.pointerId);
+
+    interacting = true;
+    if (!wasInteracting) setDragBoost(true);
+    lastMoveTs = performance.now();
+
+    if (evCache.size === 1) {
+      primaryPointer = e.pointerId;
+      lastX = e.clientX; lastY = e.clientY;
+    }
+
+    if (evCache.size === 2) {
+      initialPinchDist = getPinchDist(evCache);
+      initialZoom = cam.target.dist;
+
+      initialTwist = getTwist(evCache);
+      lastTwist = initialTwist;
+      startRoll = cam.target.roll;
+
+      primaryPointer = null;
+    }
+  });
+
+  zone.addEventListener('pointermove', e => {
+    if (!evCache.has(e.pointerId)) return;
+
+    const now = performance.now();
+    const dtp = Math.max(1e-3, (now - lastMoveTs) / 1000);
+    lastMoveTs = now;
+
+    evCache.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (evCache.size === 2) {
+      const dist = getPinchDist(evCache);
+      if (initialPinchDist > 0) {
+        const scale = initialPinchDist / Math.max(1e-6, dist);
+        cam.target.dist = initialZoom * scale;
+        clampCamDist();
+      }
+
+      const tw = getTwist(evCache);
+      const dTw = tw - lastTwist;
+      lastTwist = tw;
+
+      cam.target.roll = startRoll + (tw - initialTwist);
+      velRoll = dTw / dtp;
+      return;
+    }
+
+    if (evCache.size === 1 && e.pointerId === primaryPointer) {
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+
+      cam.target.yaw -= dx * 0.005;
+      cam.target.pitch += dy * 0.005;
+      cam.target.pitch = clamp(cam.target.pitch, -Math.PI/2 + 0.01, Math.PI/2 - 0.01);
+
+      velYaw = (-dx * 0.005) / dtp;
+      velPitch = (dy * 0.005) / dtp;
+
+      const dRoll = dx * 0.0005;
+      cam.target.roll += dRoll;
+      velRoll = dRoll / dtp;
+    }
+  });
+
+  function removePointer(e) {
+    if (e && typeof e.pointerId === 'number') evCache.delete(e.pointerId);
+    if (evCache.size < 2) initialPinchDist = 0;
+
+    if (evCache.size === 0) {
+      primaryPointer = null;
+      interacting = false;
+      setDragBoost(false);
+    }
+
+    if (evCache.size === 1) {
+      const p = evCache.values().next().value;
+      primaryPointer = evCache.keys().next().value;
+      lastX = p.x; lastY = p.y;
+    }
+
+    if (evCache.size === 2) {
+      initialPinchDist = getPinchDist(evCache);
+      initialZoom = cam.target.dist;
+      initialTwist = getTwist(evCache);
+      lastTwist = initialTwist;
+      startRoll = cam.target.roll;
+    }
+  }
+
+  zone.addEventListener('pointerup', removePointer);
+  zone.addEventListener('pointercancel', removePointer);
+  zone.addEventListener('lostpointercapture', removePointer);
+
+  zone.addEventListener('wheel', e => {
+    e.preventDefault();
+    cam.target.dist += e.deltaY * 0.9;
+    clampCamDist();
+  }, {passive: false});
+
+  // ===== Lightning =====
+  function strikeNow() { lightningTimer = -1; }
+
+  function updateLightning(dtSim) {
+    lightningTimer -= dtSim;
+
+    if (lightningTimer < 0) {
+      resetLightningSchedule(false);
+      lightningIntensity = 1.0;
+
+      const u = Math.random() * 2 - 1;
+      const a = Math.random() * Math.PI * 2;
+      const rr = Math.sqrt(Math.max(0, 1 - u*u));
+      const strikeDir = [Math.cos(a)*rr, u, Math.sin(a)*rr];
+
+      const up = Math.abs(strikeDir[1]) < 0.99 ? [0,1,0] : [1,0,0];
+      let b1 = normalize(cross(up, strikeDir));
+      let b2 = normalize(cross(strikeDir, b1));
+
+      const start = [strikeDir[0]*(PLANET_R + 1600), strikeDir[1]*(PLANET_R + 1600), strikeDir[2]*(PLANET_R + 1600)];
+      const end   = [strikeDir[0]*(PLANET_R + 40),   strikeDir[1]*(PLANET_R + 40),   strikeDir[2]*(PLANET_R + 40)];
+
+      for (let i = 0; i < 20; i++) {
+        const tt = i / 19;
+        let x = start[0] + (end[0] - start[0]) * tt;
+        let y = start[1] + (end[1] - start[1]) * tt;
+        let z = start[2] + (end[2] - start[2]) * tt;
+
+        const j = (1.0 - Math.abs(tt - 0.5) * 2.0);
+        const jA = (Math.random() - 0.5) * 120.0 * j;
+        const jB = (Math.random() - 0.5) * 120.0 * j;
+        x += b1[0]*jA + b2[0]*jB;
+        y += b1[1]*jA + b2[1]*jB;
+        z += b1[2]*jA + b2[2]*jB;
+
+        boltVerts[i*3] = x;
+        boltVerts[i*3+1] = y;
+        boltVerts[i*3+2] = z;
+      }
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, bufBolt);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, boltVerts);
+
+      setTimeout(() => playThunder(), 120 + Math.random()*180);
+    }
+
+    lightningIntensity = Math.max(0, lightningIntensity - dtSim * 4.0);
+    showBolt = lightningIntensity > 0.08;
+  }
+
+  // ===== Resize / DPI =====
+  function resize(){
+    const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+    const w = Math.max(1, canvas.clientWidth|0);
+    const h = Math.max(1, canvas.clientHeight|0);
+    const scaleBase = params.quality;
+    const dragQ = (typeof params.dragQuality === 'number') ? params.dragQuality : scaleBase;
+    const scale = (interacting ? Math.min(scaleBase, dragQ) : scaleBase);
+
+    const cw = Math.max(1, (w * dpr * scale) | 0);
+    const ch = Math.max(1, (h * dpr * scale) | 0);
+
+    if (canvas.width !== cw || canvas.height !== ch) {
+      canvas.width = cw;
+      canvas.height = ch;
+    }
+    ensurePostTargets(canvas.width, canvas.height);
+  }
+  window.addEventListener('resize', resize);
+
+  // ===== GUI =====
+  function initGUI(){
+    gui = new lil.GUI({ title: 'MAGMA Controls' });
+    gui.domElement.style.zIndex = 70;
+
+    gui.add(params, 'heightScale', 0.4, 2.0, 0.01).name('Height Scale');
+    gui.add(params, 'flowSpeed', 0.0, 2.0, 0.01).name('Flow Speed');
+    gui.add(params, 'lavaLevel', 0.0, 1.0, 0.01).name('Lava Level');
+    gui.add(params, 'windSpeed', 0.0, 12.0, 0.01).name('Wind Speed');
+    gui.add(params, 'windDir', 0, 360, 1).name('Wind Dir');
+    gui.add(params, 'smoke', 0.0, 1.0, 0.01).name('Smoke');
+    gui.add(params, 'ash', 0.0, 1.0, 0.01).name('Ash');
+    gui.add(params, 'plumeScale', 0.2, 2.5, 0.01).name('Plume Scale');
+    gui.add(params, 'plumeBillow', 0.0, 2.0, 0.01).name('Plume Billow');
+    gui.add(params, 'plumeCap', 0.0, 2.0, 0.01).name('Plume Cap');
+    gui.add(params, 'partSize', 0.3, 3.0, 0.01).name('Particle Size');
+    gui.add(params, 'spread', 0.2, 2.0, 0.01).name('Spread');
+    gui.add(params, 'eject', 0.0, 2.0, 0.01).name('Eject');
+
+    ctrlTime = gui.add(params, 'timeOfDay', 0, 24, 0.01).name('Time of Day');
+    gui.add(params, 'autoSun').name('Auto Sun');
+    gui.add(params, 'daySpeed', 0.0, 2.0, 0.01).name('Day Speed');
+
+    ctrlQuality = gui.add(params, 'quality', 0.4, 2.0, 0.01).name('Quality').onChange(resize);
+    gui.add(params, 'autoQuality').name('Auto Quality');
+
+    
+
+    gui.add(params, 'dragQuality', 0.25, 1.25, 0.01).name('Drag Quality');
+    gui.add(params, 'fpsCap', { 'Unlimited': 0, '60': 60, '45': 45, '30': 30 }).name('FPS Cap');
+ctrlPost = gui.add(params, 'postFX').name('Post FX').onChange(()=>ensurePostTargets(canvas.width, canvas.height));
+    gui.add(params, 'exposure', 0.5, 2.0, 0.01).name('Exposure');
+    gui.add(params, 'gamma', 1.2, 3.0, 0.01).name('Gamma');
+    gui.add(params, 'bloomStrength', 0.0, 1.5, 0.01).name('Bloom');
+    gui.add(params, 'bloomThreshold', 0.0, 1.5, 0.01).name('Bloom Thresh');
+    gui.add(params, 'vignette', 0.0, 1.0, 0.01).name('Vignette');
+    gui.add(params, 'grain', 0.0, 0.2, 0.001).name('Grain');
+    gui.add(params, 'chromAb', 0.0, 1.0, 0.01).name('Chrom Ab');
+    gui.add(params, 'sharpen', 0.0, 0.5, 0.01).name('Sharpen');
+    gui.add(params, 'lensFlare', 0.0, 1.0, 0.01).name('Lens Flare');
+
+    gui.add(params, 'partyMode').name('Party Mode');
+    gui.addColor(params, 'lavaColor1').name('Lava C1');
+    gui.addColor(params, 'lavaColor2').name('Lava C2');
+    gui.addColor(params, 'lavaColor3').name('Lava C3');
+    gui.addColor(params, 'lavaColor4').name('Lava C4');
+    gui.addColor(params, 'lavaColor5').name('Lava C5');
+    gui.addColor(params, 'lavaColor6').name('Lava C6');
+    gui.add(params, 'colorShiftSpeed', 0.1, 2.0, 0.01).name('Shift Speed');
+
+    gui.add(params, 'thunder').name('Thunder');
+    gui.add(params, 'thunderVolume', 0.0, 1.0, 0.01).name('Thunder Vol');
+
+    gui.add({ FocusMesa: ()=>focusVent(0), Focus1: ()=>focusVent(1), Focus2: ()=>focusVent(2), Focus3: ()=>focusVent(3), Focus4: ()=>focusVent(4), Focus5: ()=>focusVent(5) }, 'FocusMesa');
+    gui.add({ Strike: strikeNow }, 'Strike');
+    gui.add({ Home: resetCameraToHome }, 'Home');
+  }
+
+  // ===== Render loop =====
+  function clearFrame(){
+    gl.clearColor(0.03, 0.03, 0.05, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  }
+
+  // Program uniforms binders
+  function bindCommon(prog){
+    setU(prog, 'seed', params.seed);
+    setU(prog, 'planetR', PLANET_R);
+    setU3Array(prog, 'ventDir', ventDirs);
+  }
+
+  // FPS
+  const hudFpsEl = document.getElementById('hudFps');
+  const sbFpsEl = document.getElementById('sbFps');
+  let fpsAcc = 0;
+  let fpsFrames = 0;
+  let fpsLast = performance.now();
+  let qualityCooldown = 0;
+
+  let lastFrameT = performance.now();
+  let lastRenderT = lastFrameT;
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  function loop(now){
+    now = (typeof now === 'number') ? now : performance.now();
+
+    const cap = Number(params.fpsCap) || 0;
+    const minInterval = cap > 0 ? (1000 / cap) : 0;
+    if (minInterval && (now - lastRenderT) < (minInterval - 0.5)) {
+      requestAnimationFrame(loop);
+      return;
+    }
+
+    const dt = (now - lastFrameT) / 1000.0;
+    lastFrameT = now;
+    lastRenderT = now;
+    fpsAcc += dt;
+    fpsFrames++;
+    if (now - fpsLast > 400) {
+      const fps = Math.round(fpsFrames / Math.max(1e-6, fpsAcc));
+      hudFpsEl.textContent = String(fps);
+      sbFpsEl.textContent = String(fps);
+      fpsAcc = 0;
+      fpsFrames = 0;
+      fpsLast = now;
+
+      if (params.autoQuality) {
+        qualityCooldown -= 0.4;
+        if (qualityCooldown <= 0) {
+          let q = params.quality;
+          if (fps < 42) q = Math.max(0.4, q - 0.08);
+          else if (fps > 58) q = Math.min(2.0, q + 0.04);
+          if (Math.abs(q - params.quality) > 1e-6) {
+            params.quality = q;
+            resize();
+            if (ctrlQuality) ctrlQuality.updateDisplay();
+          }
+          qualityCooldown = 1.2;
+        }
+      }
+    }
+
+    const dtSim = paused ? 0 : dt;
+    simTime += dtSim;
+
+    if (!interacting && dtSim > 0) {
+      cam.target.yaw += velYaw * dtSim;
+      cam.target.pitch += velPitch * dtSim;
+      cam.target.roll += velRoll * dtSim;
+
+      cam.target.pitch = clamp(cam.target.pitch, -Math.PI/2 + 0.01, Math.PI/2 - 0.01);
+
+      const decay = Math.exp(-3.5 * dtSim);
+      velYaw *= decay;
+      velPitch *= decay;
+      velRoll *= Math.exp(-6.0 * dtSim);
+    }
+
+    if (!paused && params.autoSun) {
+      params.timeOfDay = (params.timeOfDay + params.daySpeed * dtSim) % 24;
+      if (ctrlTime) ctrlTime.updateDisplay();
+    }
+
+    updateLightning(dtSim);
+
+    const damper = 1.0 - Math.exp(-8.0 * dt);
+    cam.current.yaw   = lerp(cam.current.yaw,   cam.target.yaw,   damper);
+    cam.current.pitch = lerp(cam.current.pitch, cam.target.pitch, damper);
+    cam.current.dist  = lerp(cam.current.dist,  cam.target.dist,  damper);
+    cam.current.roll  = lerp(cam.current.roll,  cam.target.roll,  damper);
+
+    const eye = [
+      Math.cos(cam.current.yaw) * Math.cos(cam.current.pitch) * cam.current.dist,
+      Math.sin(cam.current.pitch) * cam.current.dist,
+      Math.sin(cam.current.yaw) * Math.cos(cam.current.pitch) * cam.current.dist
+    ];
+
+    const target = [0,0,0];
+    const vp = m4.mul(
+      m4.persp(0.8, canvas.width / canvas.height, 3, 14000),
+      m4.lookAtRoll(eye, target, cam.current.roll)
+    );
+
+    const sun = sunFromTimeHours(params.timeOfDay);
+    const day01 = clamp((sun[1] * 0.5 + 0.5), 0, 1);
+    const sky = params.autoSky ? skyFromDay(day01) : { top: hex(params.skyTop), bot: hex(params.skyBot) };
+
+    const sunDir = normalize([sun[0], sun[1] + 0.5, 0.5]);
+    const sunWorld = [target[0] + sunDir[0]*1400, target[1] + sunDir[1]*1400, target[2] + sunDir[2]*1400];
+    const sunNdc = projectNDC(vp, sunWorld);
+
+    const canPost = !!(params.postFX && !dragBoostActive && fbo && sceneTex && postTargetsReady && rtW > 0 && rtH > 0);
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, canPost ? fbo : null);
+    gl.viewport(0, 0, canPost ? rtW : canvas.width, canPost ? rtH : canvas.height);
+    clearFrame();
+
+    // PARTY MODE SHIFT
+    if (params.partyMode) {
+      const timeShift = Math.floor(simTime * params.colorShiftSpeed) % 6;
+      for (let i = 0; i < 6; i++) {
+        const sourceIndex = (i + timeShift) % 6;
+        const color = hex(params[lavaPartyHexNames[sourceIndex]]);
+        lavaHotPartyShifted.set(color, i * 3);
+      }
+    }
+
+    // SKY
+    gl.disable(gl.DEPTH_TEST);
+    gl.useProgram(progSky);
+    gl.bindVertexArray(vaoQuad);
+    bindCommon(progSky);
+    setU(progSky, 'skyTop', sky.top);
+    setU(progSky, 'skyBot', sky.bot);
+    setU(progSky, 't', simTime);
+    setU(progSky, 'sunPos', sun);
+    setU(progSky, 'day', day01);
+    setU(progSky, 'lightning', lightningIntensity);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+    // TERRAIN
+    gl.enable(gl.DEPTH_TEST);
+    gl.useProgram(progTer);
+    gl.bindVertexArray(vaoTer);
+    bindCommon(progTer);
+
+    setU(progTer, 'vp', vp);
+    setU(progTer, 't', simTime);
+    setU(progTer, 'hs', params.heightScale);
+    setU(progTer, 'fs', params.flowSpeed);
+    setU(progTer, 'll', params.lavaLevel);
+    setU(progTer, 'glow', 1.0);
+    setU(progTer, 'day', day01);
+    setU(progTer, 'wd', params.windDir);
+    setU(progTer, 'lightning', lightningIntensity);
+
+    setU(progTer, 'eye', eye);
+    setU(progTer, 'skyTop', sky.top);
+    setU(progTer, 'skyBot', sky.bot);
+    setU(progTer, 'lavaHot', hex(params.lavaHot));
+    setU(progTer, 'lavaCool', hex(params.lavaCool));
+    setU(progTer, 'sunPos', sun);
+
+    setU(progTer, 'partyMode', params.partyMode ? 1.0 : 0.0);
+    setU3Array(progTer, 'lavaHotPartyShifted', lavaHotPartyShifted);
+
+    gl.drawElements(gl.TRIANGLES, idxArr.length, idxType, 0);
+
+    // PARTICLES
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(false);
+
+    gl.useProgram(progPart);
+    gl.bindVertexArray(vaoPart);
+    bindCommon(progPart);
+
+    setU(progPart, 'vp', vp);
+    setU(progPart, 't', simTime);
+    setU(progPart, 'hs', params.heightScale);
+    setU(progPart, 'ws', params.windSpeed);
+    setU(progPart, 'wd', params.windDir);
+    setU(progPart, 'ps', params.partSize);
+    setU(progPart, 'es', params.eject);
+    setU(progPart, 'spread', params.spread);
+    setU(progPart, 'plumeScale', params.plumeScale);
+    setU(progPart, 'plumeBillow', params.plumeBillow);
+    setU(progPart, 'plumeCap', params.plumeCap);
+    setU(progPart, 'dpi', Math.max(1, window.devicePixelRatio || 1));
+    setU(progPart, 'smokeAmt', params.smoke);
+    setU(progPart, 'ashAmt', params.ash);
+    setU(progPart, 'seed', params.seed);
+    setU(progPart, 'planetR', PLANET_R);
+
+    setU(progPart, 'lavaHot', hex(params.lavaHot));
+    setU(progPart, 'lightning', lightningIntensity);
+
+    const partCount = Math.max(0, Math.min(countPart, Math.floor(countPart * params.particleDensity)));
+    gl.drawArrays(gl.POINTS, 0, partCount);
+
+    gl.depthMask(true);
+    gl.disable(gl.BLEND);
+
+    // BOLT
+    if (showBolt) {
+      gl.useProgram(progBolt);
+      gl.bindVertexArray(vaoBolt);
+      setU(progBolt, 'vp', vp);
+      gl.drawArrays(gl.LINE_STRIP, 0, 20);
+    }
+
+    // POST
+    if (canPost) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.disable(gl.DEPTH_TEST);
+
+      gl.useProgram(progPost);
+      gl.bindVertexArray(vaoQuad);
+      bindCommon(progPost);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, sceneTex);
+      setI(progPost, 'uTex', 0);
+
+      setU(progPost, 'res', [rtW, rtH]);
+      setU(progPost, 't', simTime);
+      setU(progPost, 'exposure', params.exposure);
+      setU(progPost, 'bloomStrength', params.bloomStrength);
+      setU(progPost, 'bloomThreshold', params.bloomThreshold);
+      setU(progPost, 'vignette', params.vignette);
+      setU(progPost, 'grain', params.grain);
+      setU(progPost, 'chromAb', params.chromAb);
+      setU(progPost, 'sharpen', params.sharpen);
+      setU(progPost, 'gamma', params.gamma);
+      setU(progPost, 'sunNdc', sunNdc);
+      setU(progPost, 'lensFlare', params.lensFlare);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    // HUD metrics
+    document.getElementById('hud_flow').textContent = params.flowSpeed.toFixed(2);
+    document.getElementById('hud_ash').textContent = params.ash.toFixed(2);
+    document.getElementById('hud_wind').textContent = `${params.windSpeed.toFixed(1)} @ ${Math.round(params.windDir)}°`;
+    document.getElementById('hud_time').textContent = params.timeOfDay.toFixed(2);
+    document.getElementById('hud_vei').textContent = (Math.round(params.lavaLevel * 8)).toString();
+    document.getElementById('hud_eruption').textContent = (params.lavaLevel > 0.1 ? "Active" : "Dormant");
+
+    requestAnimationFrame(loop);
+  }
+
+  // ===== Regenerate hook =====
+  params.regenerate = () => {
+    simTime = 0;
+    params.lavaLevel = 0.0;
+    params.smoke = 0.0;
+    params.ash = 0.0;
+    params.seed = Math.random() * 1000;
+
+    resetLightningSchedule(true);
+    rebuildVents();
+    focusVent(0);
+
+    if (gui && typeof gui.controllersRecursive === 'function') {
+      gui.controllersRecursive().forEach(c => c.updateDisplay());
+    }
+  };
+
+  // ===== UI Toggles (THE FIX) =====
+  const sidebar = document.getElementById('sidebar');
+  const sidebarOpenBtn = document.getElementById('sidebarOpenBtn');
+  const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+
+  const hud = document.getElementById('hud');
+  const hudOpenBtn = document.getElementById('hudOpenBtn');
+  const hudCloseBtn = document.getElementById('hudCloseBtn');
+
+  function setSidebarClosed(closed){
+    sidebar.classList.toggle('closed', !!closed);
+    sidebarOpenBtn.classList.toggle('show', !!closed);
+  }
+  function setHudClosed(closed){
+    hud.classList.toggle('closed', !!closed);
+    hudOpenBtn.classList.toggle('show', !!closed);
+  }
+
+  sidebarCloseBtn.addEventListener('click', () => setSidebarClosed(true));
+  sidebarOpenBtn.addEventListener('click', () => setSidebarClosed(false));
+  hudCloseBtn.addEventListener('click', () => setHudClosed(true));
+  hudOpenBtn.addEventListener('click', () => setHudClosed(false));
+
+  // Start: sidebar open, HUD open (handles hidden)
+  setSidebarClosed(true);
+  setHudClosed(true);
+
+  // Help overlay
+  const help = document.getElementById('help');
+  const btnHelp = document.getElementById('btnHelp');
+  const btnCloseHelp = document.getElementById('btnCloseHelp');
+  function toggleHelp(force){
+    const on = (typeof force === 'boolean') ? force : !help.classList.contains('show');
+    help.classList.toggle('show', on);
+  }
+  btnHelp.addEventListener('click', () => toggleHelp());
+  btnCloseHelp.addEventListener('click', () => toggleHelp(false));
+  help.addEventListener('click', (e)=>{ if(e.target === help) toggleHelp(false); });
+
+  // HUD buttons
+  const btnRegenerate = document.getElementById('btnRegenerate');
+  const btnLightning = document.getElementById('btnLightning');
+  const btnPause = document.getElementById('btnPause');
+  const btnScreenshot = document.getElementById('btnScreenshot');
+  const btnToggleGUI = document.getElementById('btnToggleGUI');
+  const btnCameraHome = document.getElementById('btnCameraHome');
+  const btnFocus = document.getElementById('btnFocus');
+  const focusSelect = document.getElementById('focusSelect');
+
+  btnRegenerate.addEventListener('click', () => params.regenerate());
+  btnLightning.addEventListener('click', () => strikeNow());
+  btnPause.addEventListener('click', () => { paused = !paused; btnPause.textContent = paused ? 'Resume' : 'Pause'; });
+  btnScreenshot.addEventListener('click', () => takeScreenshotNow());
+  btnCameraHome.addEventListener('click', () => resetCameraToHome());
+  btnFocus.addEventListener('click', () => focusVent(parseInt(focusSelect.value,10)));
+
+  btnToggleGUI.addEventListener('click', () => {
+    if (!gui) return;
+    const el = gui.domElement;
+    el.style.display = (el.style.display === 'none') ? '' : 'none';
+  });
+
+  // Keyboard shortcuts
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'r' || e.key === 'R') params.regenerate();
+    if (e.code === 'Space') { e.preventDefault(); strikeNow(); }
+    if (e.key === 'p' || e.key === 'P') { paused = !paused; btnPause.textContent = paused ? 'Resume' : 'Pause'; }
+    if (e.key === 'h' || e.key === 'H') toggleHelp();
+    if (e.key === 'f' || e.key === 'F') { params.postFX = !params.postFX; if (ctrlPost) ctrlPost.updateDisplay(); ensurePostTargets(canvas.width, canvas.height); }
+    if (e.key === 'Escape') { toggleHelp(false); }
+  }, { passive:false });
+
+  // Splash
+  const splash = document.getElementById('splash');
+  const btnEnter = document.getElementById('btnEnter');
+  const btnSplashTest = document.getElementById('btnSplashTest');
+
+  btnSplashTest.addEventListener('click', () => {
+    document.getElementById('aiSplashCoach').textContent = "Test button works. Overlay is not intercepting clicks.";
+    document.getElementById('aiSplashAnalyst').textContent = "JS handlers are live. Proceed to Enter.";
+    document.getElementById('aiSplashRisk').textContent = "Containment: green. No stuck overlays detected.";
+  });
+
+  btnEnter.addEventListener('click', async () => {
+    splash.style.display = 'none';
+    document.getElementById('hudMode').textContent = "LIVE";
+    document.getElementById('aiCoach').textContent = "Orbit slowly, confirm you can close/open panels. Then regen.";
+    document.getElementById('aiAnalyst').textContent = "If FPS dips, lower Quality or enable Auto Quality.";
+    document.getElementById('aiRisk').textContent = "If a panel ever blocks input: close it, or hit Regenerate.";
+    try { await ensureAudio(); } catch (_) {}
+  });
+
+  // Final init + boot
+  rebuildVents();
+  resetLightningSchedule(true);
+  initGUI();
+  resize();
+  params.regenerate();
+
+  requestAnimationFrame(loop);
+})();
+</script>
+<script id="phase4-cleanup">
+/* PHASE4_CLEANUP: remove legacy splash/boot overlays + in-app advisor panels (Ask Althea stays) */
+(function(){
+  function isKeep(el){
+    const id=(el.id||"").toLowerCase();
+    const cls=(el.className||"").toString().toLowerCase();
+    // Keep Ask Althea / nexus shell bits
+    if (id.includes("althea") || id.includes("ask") || id.includes("nexus")) return true;
+    if (cls.includes("nexus") || cls.includes("althea")) return true;
+    return false;
+  }
+
+  function nukeSplash(){
+    const ids = [
+      "nexusBootOverlay","nexusBootTip","dsSplash","dsSplashOverlay","splashOverlay",
+      "splash","splashScreen","splashModal"
+    ];
+    ids.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.remove();
+    });
+    // common class patterns
+    document.querySelectorAll(
+      ".ds-splash, .ds-splash-overlay, .splash, .splash-overlay, .splash-screen, [data-splash]"
+    ).forEach(el=>{
+      // Don't remove normal stepper components that are not splash: guard by ancestor splash-ish
+      const looksSplash = (el.className||"").toString().toLowerCase().includes("splash") ||
+                          (el.id||"").toLowerCase().includes("splash") ||
+                          el.hasAttribute("data-splash");
+      if(looksSplash && !isKeep(el)) el.remove();
+    });
+
+    document.body.classList.remove("nexus-booting","booting","no-scroll","locked","modal-open");
+    document.documentElement.classList.remove("nexus-booting","booting","no-scroll","locked","modal-open");
+    document.body.style.overflow="";
+    document.documentElement.style.overflow="";
+  }
+
+  function nukeAdvisors(){
+    // remove/hide any AI advisor docks or panels, but keep Ask Althea
+    const sel = [
+      ".ai-advisors",".ai-advisor",".ai-panel",".ai-panels",".ai-tabs",".ai-tab",".ai-tabbar",
+      ".advisor",".advisors",".advisor-panel",".advisor-tabs",".advisor-dock",".advisorDock",
+      "[data-advisor]","[data-role='coach']","[data-role='critic']","[data-role='architect']",
+      "[data-advisor-panel]","[data-advisor-role]"
+    ].join(",");
+    document.querySelectorAll(sel).forEach(el=>{
+      if (isKeep(el)) return;
+      // If it contains Ask Althea controls, keep
+      const text=(el.textContent||"").toLowerCase();
+      if (text.includes("ask althea")) return;
+      el.remove();
+    });
+  }
+
+  function run(){
+    try{ nukeSplash(); }catch(e){}
+    try{ nukeAdvisors(); }catch(e){}
+  }
+
+  // run multiple times to catch late-inserted UI
+  window.addEventListener("DOMContentLoaded", run);
+  window.addEventListener("load", function(){
+    run();
+    setTimeout(run, 250);
+    setTimeout(run, 800);
+    setTimeout(run, 1500);
+  });
+})();
+</script>
+<!-- PHASE8_UI_CLEANUP (hard-disable all splash screens + hide any remaining advisor UI) -->
+<style id="phase8-ui-cleanup">
+  /* Hide any splash/intro overlays that can steal focus or slide the layout */
+  [id*="splash" i], [class*="splash" i], [data-splash], [data-stepper="splash"],
+  .ds-splash-root, .ds-splash-overlay, .ds-splash-shell, .ds-splash-panel,
+  .helix-splash, .helix-splash-root, .helix-splash-shell {
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+
+  /* Hide any legacy in-app advisors. Ask Althea remains as its own button/modal. */
+  .ai-advisors, .ai-advisor, .ai-panel, .ai-panels, .ai-tabs, .ai-tab, .ai-tabbar,
+  .advisor, .advisors, .advisor-panel, .advisor-tabs, .advisor-dock, .advisorDock,
+  .advisor-tab, #aiAdvisorPanel, #aiAdvisorDock, #aiAdvisorModal, #aiAdvisor, #advisorPanel,
+  #advisorHeader, #advisorTabs, #advisorContent, #advisorLogs, #advisorInputRow,
+  [data-advisor], [data-advisor-panel], [data-advisor-role], [data-role="coach"], [data-role="critic"], [data-role="architect"] {
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+</style>
+<script>
+(() => {
+  const safeRemove = (el) => {
+    if (!el) return;
+    const id = (el.id || '').toLowerCase();
+    const cls = (el.className || '').toString().toLowerCase();
+    // Keep Ask Althea
+    if (id.includes('askalthea') || cls.includes('askalthea')) return;
+    if (el.closest && el.closest('#askAltheaModal')) return;
+    try { el.remove(); } catch(e) { try { el.parentNode && el.parentNode.removeChild(el); } catch(_) {} }
+  };
+
+  const removeSelectors = [
+    // Splash overlays
+    '[id*="splash" i]','[class*="splash" i]','[data-splash]','[data-stepper="splash"]',
+    '.ds-splash-root','.ds-splash-overlay','.ds-splash-shell','.ds-splash-panel',
+    '.helix-splash','.helix-splash-root','.helix-splash-shell',
+    '#splashOverlay','#ds-splash-overlay','#splash1','#splash2',
+    // Legacy advisor UI
+    '[id*="advisor" i]','[class*="advisor" i]','[data-advisor]','[data-advisor-panel]','[data-advisor-role]',
+    '.ai-advisors','.ai-advisor','.ai-panel','.ai-panels','.ai-tabs','.ai-tab','.ai-tabbar'
+  ];
+
+  try { removeSelectors.forEach(sel => document.querySelectorAll(sel).forEach(safeRemove)); } catch(e) {}
+
+  // Always unlock scroll even if earlier code tried to freeze the page.
+  try {
+    document.documentElement.classList.remove('no-scroll','modal-open','ds-splash-open','splash-open');
+    document.body.classList.remove('no-scroll','modal-open','ds-splash-open','splash-open');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  } catch(e) {}
+
+  // Neutralize common open/toggle globals if they exist.
+  const no = () => {};
+  [
+    'toggleSplashOverlay','openSplash','showSplash','openSplashFlow','openSplashModal','openSplashScreen','showIntro',
+    'openAdvisor','toggleAdvisor','showAdvisor','openAdvisors','toggleAdvisors','AIAdvisorsOpen'
+  ].forEach(k => { try { if (typeof window[k] === 'function') window[k] = no; } catch(e) {} });
+
+  // Mark known splash flags as seen so other code paths short-circuit.
+  try {
+    const keys = [
+      'aeon_splashes_seen','anvil_splash_seen_v1','event_splash_seen_v1','helix_splash_seen_v1',
+      'string_splash_seen_v1','tectonic_splash_seen_v1','transit_splash_seen_v1','vortex_splash_seen_v1','magma_splash_seen_v1'
+    ];
+    keys.forEach(k => { try { localStorage.setItem(k,'1'); } catch(_) {} });
+  } catch(e) {}
+})();
+</script>
+<script src="/shared/state-store.js?v=20251230"></script>
+<script src="/shared/telemetry-hub.js?v=20251230"></script>
+<script src="/shared/ai-router.js?v=20251230" type="module"></script>
+<script src="/shared/app-settings.js?v=20260101"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

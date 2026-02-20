@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Pack E — DevOps + System Tools</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="wrap">
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Pack E — DevOps + System Tools</h1>
+<p class="muted">A curated set of agents with a shared permission &amp; risk profile.</p>
+<div class="kv">
+<a class="btn primary" download="" href="/apps/agents/assets/packs/pack-e.agentpack.zip">Download pack-e.agentpack.zip</a>
+</div>
+<div class="sep"></div>
+<h3>Pack permissions</h3>
+<div class="kv"><span class="tag">No special permissions</span></div>
+<div class="sep"></div>
+<h3>Quickstart</h3>
+<ul class="muted" style="margin-top:8px">
+<li>Download the pack bundle.</li>
+<li>Unzip it locally and review <code>pack.json</code> + each agent stub.</li>
+<li>Use the Local Runner to install (demo) packs, then run agents against demo targets.</li>
+</ul>
+<div class="sep"></div>
+<h3>Agents in this pack</h3>
+<div class="grid">
+<a class="card" href="/apps/agents/store/api-load-tester-agent.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">API Load Tester Agent</h3>
+<p class="muted" style="margin:0 0 10px">Performs a stress test on a target URL by firing concurrent requests and measuring average latency and success rates.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/disk-cleanup-agent.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Disk Cleanup Agent</h3>
+<p class="muted" style="margin:0 0 10px">Scans a target directory and deletes files older than a specified number of days. Essential for log rotation or temp file hygiene.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/docker-manager-agent.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Docker Manager Agent</h3>
+<p class="muted" style="margin:0 0 10px">Interacts with the Docker daemon to list running containers or restart a specific container.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/fuzz-stress-agent-the-chaos-monkey.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Fuzz Stress Agent (The "Chaos Monkey")</h3>
+<p class="muted" style="margin:0 0 10px">Generates random, potentially dangerous inputs to test the robustness of a CLI command or API. It loops until it triggers a crash or timeout.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/git-operations-agent.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Git Operations Agent</h3>
+<p class="muted" style="margin:0 0 10px">Automate source control tasks. This agent can clone repositories, check status, or commit changes automatically (e.g., after a "Secret Redaction" run).</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/port-killer-agent-devops-utility.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Port Killer Agent (DevOps Utility)</h3>
+<p class="muted" style="margin:0 0 10px">Finds the process ID (PID) listening on a specific TCP port and terminates it. Extremely useful when a previous server instance hangs and blocks a port.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/process-monitor-agent-system-control.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Process Monitor Agent (System Control)</h3>
+<p class="muted" style="margin:0 0 10px">Lists the top consuming processes by CPU or Memory usage. A lightweight "top" or "Task Manager" alternative.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/release-orchestrator-agent-the-manager.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Release Orchestrator Agent (The "Manager")</h3>
+<p class="muted" style="margin:0 0 10px">This agent doesn't just "do" a task; it manages a sequence of other tasks. It simulates a CI/CD pipeline by running Git checks, Tests, and Archival in order.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/system-health-monitor.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">System Health Monitor</h3>
+<p class="muted" style="margin:0 0 10px">Captures a snapshot of the machine's vital signs (CPU, RAM, Uptime). Useful for creating a "Baseline Run" before executing heavy load tests.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/zip-archiver-agent.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Zip Archiver Agent</h3>
+<p class="muted" style="margin:0 0 10px">Compresses a target directory into a .zip file. Useful for backups or preparing artifacts for deployment.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+</div>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.4.1</div>
+</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

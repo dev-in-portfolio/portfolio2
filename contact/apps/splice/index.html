@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Splice — Clip Sequencer & Polisher</title>
+
+  <!-- Tailwind (as in original Splice) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Nexus -->
+  <link rel="stylesheet" href="../../shared/nexus-topnav.css" />
+  <link rel="stylesheet" href="../../shared/nexus-topnav-v2.css" />
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #f4f4f5; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #18181b; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+    [hidden]{ display:none !important; }
+  
+    .nxGlowBg{
+      background:
+        radial-gradient(900px circle at 10% 10%, rgba(57,255,20,0.10), transparent 55%),
+        radial-gradient(900px circle at 85% 20%, rgba(255,27,141,0.10), transparent 60%),
+        radial-gradient(700px circle at 40% 90%, rgba(99,102,241,0.10), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0));
+    }
+    .nxGrid{
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,0.85) 40%, transparent 75%);
+      opacity: 0.55;
+      pointer-events: none;
+    }
+    .nxCard{ position: relative; overflow: hidden; }
+    .nxCard::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(420px circle at 20% 10%, rgba(57,255,20,0.10), transparent 55%),
+                  radial-gradient(420px circle at 80% 20%, rgba(255,27,141,0.10), transparent 55%);
+      filter: blur(12px);
+      opacity: 0.65;
+      pointer-events:none;
+    }
+    .nxCard > *{ position: relative; }
+    .nxPill{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.25) inset;
+    }
+    .nxBtnPrimary{
+      background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.80));
+    }
+    .nxBtnPrimary:hover{ filter: brightness(0.98); }
+    .nxBtnGhost{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.05);
+    }
+    .nxBtnGhost:hover{ background: rgba(255,255,255,0.09); }
+    .nxAccent{ background: linear-gradient(90deg, rgba(57,255,20,0.28), rgba(255,27,141,0.28)); height: 1px; }
+    .nxProgressOuter{ border: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.35); }
+    .nxProgressInner{
+      height: 10px; width: 0%;
+      background: linear-gradient(90deg, #39FF14, #FF1B8D);
+      transition: width 220ms ease;
+    }
+    @media (max-width: 1023px){
+      .nxStickyExport{ position: sticky; top: 10px; }
+    }
+    
+
+/* --- Design Hardening Overrides --- */
+html, body { background-color:#050611 !important; color:#eaf0ff !important; }
+body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+.nxGlowBg{ opacity:1 !important; }
+.nxGrid{ opacity:0.18 !important; }
+.nxShell{ max-width: 1240px; margin: 0 auto; padding: 28px 18px 42px; position: relative; z-index: 1; }
+.nxCard, .nxStickyExport{
+  background: rgba(10,12,24,0.70) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35) !important;
+  backdrop-filter: blur(14px);
+}
+.nxCard h3, .nxCard h2, .nxCard h1 { color: #f0f5ff !important; }
+.nxCard p, .nxCard label, .nxCard .text-zinc-500, .nxCard .text-zinc-400 {
+  color: rgba(220,230,255,0.65) !important;
+}
+.nxCard input, .nxCard textarea, .nxCard select{
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  color: #eef3ff !important;
+}
+.nxCard input::placeholder, .nxCard textarea::placeholder{ color: rgba(220,230,255,0.40) !important; }
+.nxBtnPrimary{
+  background: linear-gradient(90deg, rgba(57,255,20,0.18), rgba(255,27,141,0.18)) !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  color: #f6f8ff !important;
+}
+.nxBtnPrimary:hover{ filter: brightness(1.05); }
+.presetBtn{
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  color:#eef3ff !important;
+}
+.presetBtn[data-active="true"]{
+  background: rgba(255,255,255,0.12) !important;
+  border-color: rgba(255,255,255,0.22) !important;
+}
+</style>
+</head>
+
+<body class="min-h-screen nxGlowBg">
+  <div class="fixed inset-0 nxGrid"></div>
+  <nav class="nxTopNav"></nav>
+
+  <div class="mx-auto max-w-[1300px] px-4 pb-10 pt-6">
+    <header class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div>
+        <div class="text-[11px] uppercase tracking-[0.35em] text-zinc-500 font-semibold">Video Sequencer</div>
+        <h1 class="text-3xl font-bold tracking-tight">Splice</h1>
+        <p class="mt-2 text-sm text-zinc-400 max-w-[70ch]">
+          Combine short AI video clips into a polished sequence — timeline, trims, preview, and a demo “render” pipeline.
+          <span class="text-zinc-500">(Static / Vanilla / Drag‑Drop Safe)</span>
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-zinc-300"></div>
+        <button id="resetBtn" class="rounded-xl nxBtnGhost px-3 py-2 text-[11px] font-semibold transition">
+          Reset Project
+        </button>
+      </div>
+    </header>
+
+    <main class="mt-6 grid grid-cols-1 lg:grid-cols-[340px_1fr_360px] gap-4">
+      <!-- Asset Library -->
+      <section class="rounded-2xl border border-white/10 bg-white/5 shadow-xl overflow-hidden nxCard">
+        <div class="p-4 border-b border-white/10 flex items-center justify-between gap-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Asset Library</div>
+            <div class="text-sm font-semibold">Clips</div>
+          </div>
+          <label class="cursor-pointer rounded-xl nxBtnPrimary text-black text-[11px] font-black uppercase tracking-[0.2em] px-3 py-2 transition">
+            Add Clips
+            <input id="fileInput" type="file" accept="video/*" multiple class="hidden" />
+          </label>
+        </div>
+
+        <div class="p-4">
+          <div id="assetEmpty" class="text-sm text-zinc-500">No clips yet. Add a few short AI videos.</div>
+          <div id="assetGrid" class="grid grid-cols-2 gap-3" hidden></div>
+        </div>
+      </section>
+
+      <!-- Player + Timeline -->
+      <section class="rounded-2xl border border-white/10 bg-white/5 shadow-xl overflow-hidden nxCard">
+        <div class="p-4 border-b border-white/10 flex items-center justify-between gap-3">
+          <div>
+            <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Preview</div>
+            <div class="text-sm font-semibold">Player</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="playSeqBtn" class="rounded-xl nxBtnGhost px-3 py-2 text-[11px] font-semibold transition">
+              Play Sequence
+            </button>
+            <button id="stopBtn" class="rounded-xl nxBtnGhost px-3 py-2 text-[11px] font-semibold transition">
+              Stop
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4">
+          <div class="rounded-2xl border border-white/10 bg-black/40 overflow-hidden">
+            <video id="player" class="w-full aspect-video bg-black" playsinline muted controls></video>
+          </div>
+
+          <div class="mt-3 flex items-center justify-between text-[11px] text-zinc-400">
+            <div id="nowPlaying">No clip selected.</div>
+            <div id="clipMeta"></div>
+          </div>
+
+          <div class="mt-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Timeline</div>
+                <div class="text-sm font-semibold">Sequence</div>
+              </div>
+              <button id="clearTimelineBtn" class="text-[11px] text-zinc-400 hover:text-zinc-200">Clear timeline</button>
+            </div>
+
+            <div id="timelineEmpty" class="mt-3 text-sm text-zinc-500">Timeline is empty. Add clips from the library.</div>
+            <div id="timelineList" class="mt-3 space-y-2" hidden></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Export -->
+      <aside class="rounded-2xl border border-white/10 bg-white/5 shadow-xl overflow-hidden nxCard nxStickyExport">
+        <div class="p-4 border-b border-white/10">
+          <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Export</div>
+          <div class="text-sm font-semibold">Render & Polish (Demo)</div>
+        </div>
+
+        <div class="p-4 space-y-4">
+          <div class="space-y-2">
+            <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Quality Presets</label>
+            <div class="grid grid-cols-3 gap-1 p-1 bg-[#0a0a0a] rounded-xl border border-white/5">
+              <button data-preset="Standard" class="presetBtn py-2 rounded-lg text-[9px] font-black uppercase transition-all duration-300 bg-white/10 text-white shadow-sm">Standard</button>
+              <button data-preset="High" class="presetBtn py-2 rounded-lg text-[9px] font-black uppercase transition-all duration-300 text-zinc-600 hover:text-zinc-400">High</button>
+              <button data-preset="Lossless" class="presetBtn py-2 rounded-lg text-[9px] font-black uppercase transition-all duration-300 text-zinc-600 hover:text-zinc-400">Lossless</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-2">
+              <label class="text-[10px] text-zinc-500 font-bold uppercase">Res</label>
+              <select id="resSel" class="w-full bg-[#0a0a0a] border border-white/5 rounded-lg py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50 transition-colors cursor-pointer">
+                <option value="720p">720p</option>
+                <option value="1080p">1080p</option>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] text-zinc-500 font-bold uppercase">Format</label>
+              <select id="fmtSel" class="w-full bg-[#0a0a0a] border border-white/5 rounded-lg py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50 transition-colors cursor-pointer">
+                <option value="WEBM">WEBM (recommended)</option>
+                <option value="MP4">MP4 (experimental)</option>
+                <option value="MOV">MOV (experimental)</option>
+              </select>
+            </div>
+          </div>
+
+                    <div class="space-y-3 rounded-2xl border border-white/10 bg-black/30 p-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Intro / Outro</div>
+                <div class="text-[11px] text-zinc-300 font-semibold">Optional screens</div>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Intro text</label>
+              <input id="introText" type="text" placeholder="e.g., Devin O'Rourke — Splice Demo" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-3 text-[11px] font-semibold outline-none focus:border-indigo-500/50" />
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Intro seconds</label>
+                  <input id="introSec" type="number" min="0" step="0.1" value="1.5" class="w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[11px] font-bold outline-none focus:border-indigo-500/50" />
+                </div>
+                <div>
+                  <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Outro seconds</label>
+                  <input id="outroSec" type="number" min="0" step="0.1" value="1.5" class="w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[11px] font-bold outline-none focus:border-indigo-500/50" />
+                </div>
+              </div>
+              <label class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Outro text</label>
+              <input id="outroText" type="text" placeholder="e.g., Thanks for watching" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-3 text-[11px] font-semibold outline-none focus:border-indigo-500/50" />
+            </div>
+          </div>
+
+          <div class="space-y-3 rounded-2xl border border-white/10 bg-black/30 p-3">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Music (Bonus)</div>
+              <div class="text-[11px] text-zinc-300 font-semibold">Optional audio bed</div>
+            </div>
+            <input id="musicInput" type="file" accept="audio/*" class="w-full text-[11px] text-zinc-400" />
+
+            <div class="text-[10px] text-zinc-500 leading-relaxed">
+              Or pick a <b>public‑domain</b> track:
+            </div>
+            <select id="musicLibrary" class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50 transition-colors cursor-pointer">
+              <option value="">— None —</option>
+              <option value="fur_elise">Für Elise (CC0)</option>
+              <option value="gymnopedie">Gymnopédie No. 1 (PD/CC0)</option>
+              <option value="clair_de_lune">Clair de Lune (USAF Band, PD)</option>
+              <option value="moonlight">Moonlight Sonata (Musopen, PD)</option>
+              <option value="maple_leaf">Maple Leaf Rag (1916, PD)</option>
+              <option value="entertainer">The Entertainer (1902, PD)</option>
+              <option value="blue_danube">Blue Danube (Vienna Phil, CC0)</option>
+              <option value="valkyries">Ride of the Valkyries (1921, PD)</option>
+              <option value="hall_mountain_king">Hall of the Mountain King (PD)
+              </option>
+            </select>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Audio mode</label>
+                <select id="audioMode" class="w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50 transition-colors cursor-pointer">
+                  <option value="original">Original (keep clip audio)</option>
+                  <option value="music">Music only (replace audio)</option>
+                  <option value="mix">Mix (beta)</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Music volume</label>
+                <input id="musicVol" type="number" min="0" step="0.1" value="0.6" class="w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[11px] font-bold outline-none focus:border-indigo-500/50" />
+              </div>
+            </div>
+            <div class="text-[10px] text-zinc-500 leading-relaxed">
+              Tip: “Music only” is the most reliable on mobile. “Mix” requires your clips to actually contain audio.
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Real Render</div>
+            <div class="text-[11px] text-zinc-400">Uses FFmpeg WASM in-browser to generate a real MP4.</div>
+            <div id="ffmpegStatus" class="rounded-xl nxPill px-3 py-2 text-[11px] text-zinc-200">
+              FFmpeg: not loaded yet
+            </div>
+          </div>
+          <div id="renderProgressOuter" class="nxProgressOuter rounded-xl mt-2 p-[2px]">
+            <div id="renderProgressInner" class="nxProgressInner rounded-lg"></div>
+          </div>
+
+          <button id="renderBtn" class="w-full py-4 rounded-xl nxBtnPrimary text-black font-black text-[11px] uppercase tracking-[0.2em] transition-all disabled:opacity-20 flex items-center justify-center gap-3">
+        
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Render & Polish
+          </button>
+
+          <div id="toast" class="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-[11px] text-zinc-300" hidden></div>
+<a id="downloadMp4" class="mt-2 hidden w-full text-center rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-[11px] font-semibold hover:bg-white/10 transition" href="#" download>Download MP4 (Production Render)</a>
+
+          <div class="text-[11px] text-zinc-500 leading-relaxed">
+            This is a render pipeline (real local export). It applies polish steps so the UX stays intact
+            without shipping FFmpeg WASM.
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="../../shared/nexus-topnav-v2.js?v=splice_vanilla_video" defer></script>
+  <script src="/shared/appdata-client.js" defer></script>
+  <script src="./splice.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Devin O’Rourke — operator-trained builder shipping tool apps and UI systems." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Devin O’Rourke — Docs" property="og:title"/>
+<meta content="Operator-trained builder shipping tool apps and UI systems." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/docs/" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Devin O’Rourke — Docs" name="twitter:title"/>
+<meta content="Operator-trained builder shipping tool apps and UI systems." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>Docs</title>
+<link href="/shared/tokens.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+<!-- Speed: preload hero image (WebP) -->
+<link as="image" fetchpriority="high" href="/assets/docs-hero.webp" rel="preload" type="image/webp"/>
+<link href="https://dev-in-portfolio.netlify.app/docs/" rel="canonical"/>
+<link href="/icon-192.png" rel="icon"/>
+<script src="/runtime-guard.js"></script>
+<style>
+    :root{
+      --bg:#05060b;
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.72);
+      --hair:rgba(255,255,255,.14);
+      --glow:rgba(150,220,255,.18);
+      --serif: ui-serif, Iowan Old Style, Palatino, Georgia, serif;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    html, body{height:100%;}
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      letter-spacing: .2px;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      overflow-x:hidden;
+    }
+
+    /* Keep nav above everything */
+    nav.nxTopNav{ position: relative; z-index: 9000; }
+
+    /* ===== HERO ===== */
+    .hero{
+      position: relative;
+      min-height: calc(100svh - 68px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 64px 18px 54px;
+      isolation:isolate;
+    }
+    .heroBg{
+      position:absolute; inset:0;
+      overflow:hidden;
+      background:
+        url('/assets/docs-hero-blur.webp') center/cover no-repeat;
+      z-index:-3;
+    }
+
+    .heroBg::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(900px 520px at 50% 45%, rgba(255,255,255,.10), transparent 60%);
+      pointer-events:none;
+    }
+
+    .heroBgMedia{
+      position:absolute; inset:0;
+    }
+
+    .heroBgMedia img{
+      width:100%; height:100%;
+      object-fit: cover;
+      display:block;
+      filter: saturate(1.08) contrast(1.05);
+      transform: scale(1.03);
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+
+    .heroBg.isLoaded .heroBgMedia img{
+      opacity: 1;
+    }
+
+    .heroVignette{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1200px 700px at 50% 40%, rgba(0,0,0,.12), rgba(0,0,0,.72) 62%, rgba(0,0,0,.92) 100%),
+        linear-gradient(to bottom, rgba(0,0,0,.40), rgba(0,0,0,.92));
+      z-index:-2;
+    }
+
+    /* super subtle grain so it feels cinematic, not “teen novel cover” */
+    .heroGrain{
+      position:absolute; inset:-40px;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 6px);
+      mix-blend-mode: overlay;
+      opacity:.08;
+      pointer-events:none;
+      z-index:-1;
+    }
+
+    .heroInner{
+      width: min(1120px, 100%);
+      display:grid;
+      gap: 18px;
+      padding: 0;
+    }
+
+    .kicker{
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .24em;
+      opacity: .78;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .title{
+      font-family: var(--serif);
+      font-size: clamp(40px, 6.2vw, 88px);
+      line-height: 1.02;
+      letter-spacing: .01em;
+      margin: 0;
+      text-shadow: 0 16px 40px rgba(0,0,0,.45);
+    }
+
+    .sub{
+      max-width: 72ch;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .ctaRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.94);
+      text-decoration:none;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: 12px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.38);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); border-color: rgba(150,220,255,.38); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.ghost{
+      background: rgba(0,0,0,.25);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .scrollCue{
+      margin-top: 16px;
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.72);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      width: fit-content;
+      opacity: .9;
+    }
+    .scrollCue::before{
+      content:"";
+      width: 22px;
+      height: 1px;
+      background: rgba(255,255,255,.35);
+    }
+
+    /* ===== STORY BEATS ===== */
+    main{
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 0 18px 96px;
+    }
+
+    .beat{
+      padding: 64px 0;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+
+    .beatLine{
+      font-family: var(--serif);
+      font-size: clamp(26px, 3.2vw, 44px);
+      line-height: 1.10;
+      margin: 0 0 10px;
+      letter-spacing: .01em;
+    }
+
+    .beatText{
+      margin: 0;
+      max-width: 78ch;
+      color: rgba(255,255,255,.78);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .proofRow{
+      margin-top: 22px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+    }
+
+    .proof{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.92);
+      text-decoration:none;
+      font-weight: 850;
+      letter-spacing: .06em;
+      font-size: 12px;
+    }
+    .proof:hover{ background: rgba(255,255,255,.09); border-color: rgba(150,220,255,.38); }
+
+    .micro{
+      margin-top: 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.60);
+      letter-spacing: .06em;
+    }
+
+    /* reveal (slower + deliberate) */
+    .reveal{
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 1.05s cubic-bezier(.2,.8,.2,1),
+        transform 1.05s cubic-bezier(.2,.8,.2,1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    .reveal.on{ opacity: 1; transform: translateY(0); }
+
+    /* smaller screens */
+    @media (max-width: 720px){
+      .hero{ padding-top: 54px; }
+      .sub{ font-size: 14px; }
+      .beat{ padding: 46px 0; }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .reveal{ opacity: 1 !important; transform: none !important; transition: none !important; }
+      .btn:active{ transform:none; }
+      .heroBg{ transform:none; }
+    }
+  
+
+/* ---- Docs Landing: embedded README + Help ---- */
+.docSections{max-width:1100px;margin:28px auto 60px;padding:0 18px;display:grid;gap:18px;}
+.docSection{border-radius:20px;background:rgba(10,12,20,.55);border:1px solid rgba(255,255,255,.08);box-shadow:0 18px 60px rgba(0,0,0,.45);overflow:hidden;}
+.docHeader{padding:18px 18px 10px;}
+.docHeader h2{margin:0 0 6px;font-size:20px;letter-spacing:.06em;text-transform:uppercase;}
+.docHeader p{margin:0;opacity:.85}
+.docCard{padding:14px 18px 18px;border-top:1px solid rgba(255,255,255,.08);}
+.docCard ul{margin:10px 0 0;padding-left:20px;line-height:1.8}
+.docCard a{color:rgba(220,238,255,.92);text-decoration:none}
+.docCard a:hover{text-decoration:underline}
+@media (min-width: 980px){
+  .docSections{grid-template-columns:1fr 1fr;align-items:start;}
+}
+
+
+
+</style>
+</head>
+<body class="page-landing" data-app="docs">
+<nav class="nxTopNav"></nav>
+<!-- Nav placeholder (hydrated by /shared/nexus-topnav-v2.js) -->
+<header aria-label="Docs hero" class="hero">
+<div aria-hidden="true" class="heroBg">
+<picture class="heroBgMedia">
+<source srcset="/assets/docs-hero.webp" type="image/webp"/>
+<img alt="" decoding="async" fetchpriority="high" loading="eager" src="/assets/docs-hero.webp"/>
+</picture>
+</div>
+<div aria-hidden="true" class="heroVignette"></div>
+<div aria-hidden="true" class="heroGrain"></div>
+<div class="heroInner">
+<p class="kicker">Nexus — Docs</p>
+<h1 class="title">Docs</h1>
+<p class="sub">Docs is organized into Help and Readme. Pick a file.</p>
+<div aria-label="Jump to sections" class="jumpRow">
+<a class="jumpBtn" href="#docs-help">Help</a>
+<a class="jumpBtn" href="#docs-readme">Readme</a>
+<a class="jumpBtn" href="#docs-case">Case Reports</a>
+</div>
+<div aria-hidden="true" class="scrollCue">Scroll</div>
+</div>
+</header>
+<main>
+<section class="beat reveal" id="docs-help">
+<h2 class="beatLine">Help</h2>
+<div aria-label="Help files" class="docStack">
+<a class="docBtn btn buttonlike" href="/help/aeon/">Aeon</a>
+<a class="docBtn btn buttonlike" href="/help/agents/">Agents</a>
+<a class="docBtn btn buttonlike" href="/help/alibi/">Alibi</a>
+<a class="docBtn btn buttonlike" href="/help/coverage-compass/">Coverage Compass</a>
+<a class="docBtn btn buttonlike" href="/help/helios/">Helios</a>
+<a class="docBtn btn buttonlike" href="/help/helix/">Helix</a>
+<a class="docBtn btn buttonlike" href="/help/magma/">Magma</a>
+<a class="docBtn btn buttonlike" href="/help/string/">String</a>
+<a class="docBtn btn buttonlike" href="/help/tectonic/">Tectonic</a>
+<a class="docBtn btn buttonlike" href="/help/transit/">Transit</a>
+<a class="docBtn btn buttonlike" href="/help/ubr/">Ubr</a>
+<a class="docBtn btn buttonlike" href="/help/vortex/">Vortex</a>
+</div>
+</section>
+<section class="beat reveal" id="docs-readme">
+<h2 class="beatLine">Readme</h2>
+<div aria-label="Readme files" class="docStack">
+<a class="docBtn btn buttonlike" href="/readme/aeon/">Aeon</a>
+<a class="docBtn btn buttonlike" href="/readme/agents/">Agents</a>
+<a class="docBtn btn buttonlike" href="/readme/alibi/">Alibi</a>
+<a class="docBtn btn buttonlike" href="/readme/coverage-compass/">Coverage Compass</a>
+<a class="docBtn btn buttonlike" href="/readme/helios/">Helios</a>
+<a class="docBtn btn buttonlike" href="/readme/helix/">Helix</a>
+<a class="docBtn btn buttonlike" href="/readme/magma/">Magma</a>
+<a class="docBtn btn buttonlike" href="/readme/string/">String</a>
+<a class="docBtn btn buttonlike" href="/readme/tectonic/">Tectonic</a>
+<a class="docBtn btn buttonlike" href="/readme/transit/">Transit</a>
+<a class="docBtn btn buttonlike" href="/readme/ubr/">Ubr</a>
+<a class="docBtn btn buttonlike" href="/readme/vortex/">Vortex</a>
+</div>
+</section>
+<section class="beat reveal" id="docs-case-reports">
+<h2 class="beatLine">Case Reports</h2>
+<div aria-label="Case report files" class="docStack">
+<a class="docBtn btn buttonlike" href="/case-reports/agents-platform-ecosystem/">Agents Platform &amp; Ecosystem</a>
+<a class="docBtn btn buttonlike" href="/case-reports/the-decentralized-sales-stack-a-technical-and-operational-audit-of-ultimate-broker-route-ubr/">The Decentralized Sales Stack: A Technical and Operational Audit of Ultimate Broker Route (UBR)</a>
+<a class="docBtn btn buttonlike" href="/case-reports/coverage-compass-comprehensive-architectural-case-study-and-technical-report/">Coverage Compass: Comprehensive Architectural Case Study and Technical Report</a>
+<a class="docBtn btn buttonlike" href="/case-reports/alibi-logged-verified-architectural-case-study/">Alibi — Logged &amp; Verified: Architectural Case Study</a>
+<a class="docBtn btn buttonlike" href="/case-reports/the-aeon-compendium-a-multi-domain-technical-analysis-of-ai-augmented-security-real-estate-analytics-and-decentralized-settlement-protocols/">The Aeon Compendium: A Multi-Domain Technical Analysis of AI-Augmented Security, Real Estate Analytics, and Decentralized Settlement Protocols</a>
+<a class="docBtn btn buttonlike" href="/case-reports/string-a-deep-dive-case-report/">String: A Deep-Dive Case Report</a>
+<a class="docBtn btn buttonlike" href="/case-reports/tectonic-the-convergence-of-ai-accelerated-development-and-high-fidelity-geospatial-visualization/">TECTONIC: The Convergence of AI-Accelerated Development and High-Fidelity Geospatial Visualization</a>
+<a class="docBtn btn buttonlike" href="/case-reports/orbital-dynamics-and-photometric-reduction-an-exhaustive-technical-analysis-of-the-transit-deep-space-application/">Orbital Dynamics and Photometric Reduction: An Exhaustive Technical Analysis of the 'Transit' Deep Space Application</a>
+<a class="docBtn btn buttonlike" href="/case-reports/helios-a-comprehensive-architectural-and-domain-analysis-of-a-react-based-heliophysics-visualization-platform/">HELIOS: A Comprehensive ARCHITECTURAL AND DOMAIN ANALYSIS OF A REACT-BASED HELIOPHYSICS VISUALIZATION PLATFORM</a>
+</div>
+</section>
+<style>
+    main{max-width:1100px;margin:0 auto;padding:0 14px 40px;}
+    .docStack{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+    .docBtn{display:block;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);}
+    .docBtn:active{transform: translateY(1px);}
+  </style>
+</main>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+<script>
+    (function(){
+      const els = Array.from(document.querySelectorAll('.reveal'));
+      els.forEach((el,i) => el.style.setProperty('--reveal-delay', `${Math.min(i*120, 420)}ms`));
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(el => el.classList.add('on'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) e.target.classList.add('on');
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
+      els.forEach(el => io.observe(el));
+    })();
+  </script>
+<script>
+    (function(){
+      const bg = document.querySelector('.heroBg');
+      const img = bg && bg.querySelector('img');
+      if (!bg || !img) return;
+      const done = () => bg.classList.add('isLoaded');
+      if (img.complete) { done(); }
+      else {
+        img.addEventListener('load', done, { once:true });
+        img.addEventListener('error', done, { once:true });
+      }
+    })();
+  </script>
+</body>
+</html>

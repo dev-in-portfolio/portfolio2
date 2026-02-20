@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Interactive product builds in the Nexus suite." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Coverage Compass — Devin O’Rourke" property="og:title"/>
+<meta content="Interactive product builds in the Nexus suite." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/apps/coverage-compass/" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Coverage Compass — Devin O’Rourke" name="twitter:title"/>
+<meta content="Interactive product builds in the Nexus suite." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>Coverage Compass — Devin O’Rourke</title>
+<link href="/manifest.webmanifest" rel="manifest"/>
+<link href="../../shared/tokens.css" rel="stylesheet"/><link href="styles.css" rel="stylesheet"/>
+<!-- iOS home screen (best-effort; still works without) -->
+<link href="icon-192.png" rel="apple-touch-icon"/><link href="https://dev-in-portfolio.netlify.app/apps/coverage-compass/" rel="canonical"/><link href="/icon-192.png" rel="icon"/><script src="../../runtime-guard.js"></script>
+<link href="../../shared/tile-polish.css" rel="stylesheet"/>
+<style>
+
+/* ===== Phase 4: Accessibility, Contrast, & Perception ===== */
+/* Kill default shiny-blue links globally (unless explicitly styled) */
+a:link, a:visited{
+ color: rgba(255,255,255,0.92);
+ text-decoration-color: rgba(255,255,255,0.35);
+}
+a:hover{
+ color: rgba(255,255,255,0.98);
+ text-decoration-color: rgba(155,209,255,0.70);
+}
+a:active{
+ color: rgba(255,255,255,1);
+}
+
+/* If something is intended to look like a button, it should feel like one */
+a.btn, a.buttonlike,.nxs-btn,.nxs-pill,.pillBtn, button, [role="button"]{
+ text-decoration: none !important;
+}
+
+/* Keyboard: always visible focus, never the default outline that disappears on dark backgrounds */
+:focus-visible{
+ outline: 2px solid rgba(155,209,255,0.85);
+ outline-offset: 4px;
+}
+
+/* Increase tap target comfort on mobile */
+a, button{
+ -webkit-tap-highlight-color: rgba(155,209,255,0.25);
+}
+
+
+/* ===== Phase 5: Performance, SEO, & Production Paranoia ===== */
+/* Reduce layout shift from images */
+img{ height:auto; }
+
+</style>
+<link href="../../shared/tap-physics.css" rel="stylesheet"/>
+<link href="../../shared/ui-physics.css" rel="stylesheet"/>
+ <link rel="stylesheet" href="../../shared/nexus-topnav-v2.css"/>
+ <link rel="stylesheet" href="../../shared/nexus-topnav.css"/>
+</head>
+<body>
+ <nav class="nxTopNav"></nav>
+
+<a class="skip-link" href="#main" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to content</a>
+<div class="app">
+<header class="top">
+<div class="left">
+<div class="logo"><img alt="Coverage Compass logo" class="logoImg" decoding="async" loading="lazy" src="512.png"/></div>
+<div class="">
+<div class="h1">Coverage Compass</div>
+<div class="sub">Medigap vs Medicare Advantage — decision support</div>
+</div>
+</div>
+<div class="right">
+<span class="pill" id="stagePill">Welcome</span>
+<span class="sync" id="saveStatus">Local</span>
+<button class="btn tiny ghost" id="btnHelpOpen" type="button">Help</button>
+<button class="btn tiny ghost" id="btnGlossaryOpen" type="button">Glossary</button>
+<button class="btn tiny ghost" id="btnLegalOpen" type="button">Legal</button>
+</div>
+</header>
+<main class="main" id="main">
+<!-- FRONT -->
+<section class="content" id="screenFront">
+<div class="card">
+<h2>Pick the right structure (not a sales pitch).</h2>
+<p class="muted">This tool scores your preferences, risk tolerance, provider needs, and switching friction. It also warns you about irreversible choices.</p>
+<div class="btnrow">
+<button class="btn primary" id="btnStart" type="button">Start</button>
+<button class="btn" id="btnResume" style="display:none" type="button">Resume</button>
+<button class="btn ghost" id="btnResetAll" type="button">Reset</button>
+</div>
+<div class="btnrow" style="margin-top:4px">
+<button class="btn ghost" id="btnInstall" style="display:none" type="button">Install to Home Screen</button>
+</div>
+<div class="callout">
+<div class="calloutTitle">What you’ll get</div>
+<ul>
+<li>A recommendation (Medigap vs MA PPO vs MA HMO)</li>
+<li>Lockout warnings + switching friction modeling (state-aware heuristics)</li>
+<li>Assistance modeling (LIS / MSP / Medicaid) when relevant</li>
+<li>Scenario simulator + churn risk modeling</li>
+<li>Explanation trace + audit log (how the engine reasoned)</li>
+</ul>
+</div>
+<div class="callout" style="margin-top:12px">
+<div class="calloutTitle">Privacy</div>
+<p class="muted" style="margin:0">Local-only by default. Nothing is sent to a server. Your answers live in your browser unless you export/share them.</p>
+</div>
+</div>
+</section>
+<!-- CONSENT + KEY DISCLOSURES -->
+<section class="content hidden" id="screenDisclaimer">
+<div class="card">
+<h2>Before you use this</h2>
+<div class="scrollbox" id="discBox">
+<h3 style="margin-top:0">Not advice</h3>
+<p><strong>This is a decision-support tool — not medical, legal, financial, or benefits advice.</strong> It produces an educational comparison based on the information you provide and simplified rule heuristics.</p>
+<h3>Not enrollment. Not sales.</h3>
+<p>This app does not sell plans, does not take commissions, does not recommend specific carriers, and does not enroll you in Medicare, Medicare Advantage, Part D, or Medigap.</p>
+<h3>Verify with official sources</h3>
+<p>Medicare rules, state Medigap protections, provider networks, formularies, and premiums change. Always confirm enrollment periods, eligibility, and plan details with Medicare, your state SHIP office, and/or the plan itself.</p>
+<h3>Privacy &amp; sharing</h3>
+<p>By default, this app stores progress in <strong>your device’s browser storage</strong> so you can resume. If you export or share a link, you may be copying sensitive personal information (including health-related answers). Use the <strong>"Safe"</strong> export/share option if you want redaction.</p>
+<h3>What the engine does</h3>
+<ul>
+<li>Scores three structures: <strong>Medigap</strong>, <strong>MA PPO</strong>, <strong>MA HMO</strong></li>
+<li>Models cost predictability vs. worst-case risk</li>
+<li>Models provider/network dependency</li>
+<li>Models administrative friction (authorizations, referrals, denials)</li>
+<li>Warns about potential Medigap underwriting lockouts</li>
+</ul>
+<p class="muted">Scroll to the bottom to enable “Continue”.</p>
+<div style="height: 380px"></div>
+<p><strong>End of key disclosures.</strong> Full Terms + Privacy are available under <strong>Legal</strong>.</p>
+</div>
+<label class="checkbox"><input checked="" id="agree" type="checkbox"/> I understand and want to continue</label>
+<div class="btnrow">
+<button class="btn" id="btnBackFromDisclaimer" type="button">Back</button>
+<button class="btn" id="btnViewLegalFromDisclaimer" type="button">View Full Legal</button>
+<button class="btn primary" id="btnEnter" type="button">Continue</button>
+</div>
+</div>
+</section>
+<!-- QUESTIONS -->
+<section class="content hidden" id="screenQuiz">
+<div class="card">
+<div class="toprow">
+<div class="tag" id="secTag">Section</div>
+<div class="progress">
+<div class="bar"><div class="fill" id="barFill"></div></div>
+<div class="pct" id="barText">0%</div>
+</div>
+</div>
+<h2 id="qText">Question text</h2>
+<div class="note" id="qNote"></div>
+<div class="opts" id="opts"></div>
+<div class="btnrow">
+<button class="btn" id="btnPrev" type="button">Prev</button>
+<button class="btn primary" id="btnNext" type="button">Next</button>
+<button class="btn ghost" id="btnSkip" type="button">Skip / Prefer not to answer</button>
+</div>
+<div class="muted" style="margin-top:10px">
+ Tip: You can always go back. Skipping reduces confidence.
+ </div>
+</div>
+</section>
+<!-- RESULTS -->
+<section class="content hidden" id="screenResult">
+<div class="grid2">
+<div class="card">
+<h2 id="resTitle">Recommendation</h2>
+<div class="muted" id="resSubtitle"></div>
+<div class="scoregrid" id="scoreGrid"></div>
+<div class="split">
+<div>
+<h3>Why</h3>
+<div class="box" id="whyBox"></div>
+</div>
+<div>
+<h3>Tradeoffs</h3>
+<div class="box" id="tradeBox"></div>
+</div>
+</div>
+<h3>What could change this later</h3>
+<div class="box" id="changeBox"></div>
+<h3>Lockouts &amp; Warnings</h3>
+<div class="warnbox" id="warnBox"></div>
+<div class="warnbox" id="locksBox"></div>
+<div class="btnrow">
+<button class="btn" id="btnBackToQuiz" type="button">Back to Questions</button>
+<button class="btn primary" id="btnExport" type="button">Export</button>
+<button class="btn ghost" id="btnReset" type="button">Restart</button>
+</div>
+</div>
+<div class="stack">
+<div class="card">
+<h3>Priority Profile</h3>
+<div id="radarContainer"></div>
+</div>
+<div class="card">
+<h3>Comparison Snapshot</h3>
+<div id="compTableContainer"></div>
+</div>
+<div class="card">
+<div class="row">
+<h3 style="margin:0">Explanation Trace</h3>
+<button class="btn tiny" id="btnToggleTrace" type="button">Toggle</button>
+</div>
+<div class="trace hidden" id="tracePanel"></div>
+</div>
+<div class="card">
+<div class="row">
+<h3 style="margin:0">Decision Audit Log</h3>
+<button class="btn tiny" id="btnCopyAudit" type="button">Copy</button>
+</div>
+<textarea class="audit" id="auditLog" readonly=""></textarea>
+</div>
+</div>
+</div>
+</section>
+<!-- LEGAL -->
+<section class="content hidden" id="screenLegal">
+<div class="card">
+<div class="row" style="align-items:flex-end">
+<div>
+<h2 style="margin:0">Legal</h2>
+<div class="muted">Terms, Privacy, Disclosures (local-only app)</div>
+</div>
+<div class="btnrow" style="margin:0">
+<button class="btn" id="btnBackFromLegal" type="button">Back</button>
+</div>
+</div>
+<div class="tabs" id="legalTabs">
+<button class="tab active" data-tab="terms" type="button">Terms</button>
+<button class="tab" data-tab="glossary" type="button">Glossary</button>
+<button class="tab" data-tab="privacy" type="button">Privacy</button>
+<button class="tab" data-tab="disclaimer" type="button">Disclaimer</button>
+<button class="tab" data-tab="cookies" type="button">Cookies</button>
+<button class="tab" data-tab="method" type="button">Methodology</button>
+<button class="tab" data-tab="security" type="button">Security</button>
+<button class="tab" data-tab="thirdparty" type="button">Third-Party</button>
+<button class="tab" data-tab="access" type="button">Accessibility</button>
+<button class="tab" data-tab="state" type="button">State Templates</button>
+<button class="tab" data-tab="changelog" type="button">Changelog</button>
+<button class="tab" data-tab="setup" type="button">Setup</button>
+</div>
+<div class="scrollbox" id="legalBox">
+<div class="legalPane" data-pane="terms">
+<h3 style="margin:0 0 8px">Terms of Service</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># Terms of Service — [EFFECTIVE DATE]
+
+These Terms of Service (“Terms”) govern your access to and use of **[APP NAME]** (the “App”), including any related websites, features, content, and services (collectively, the “Services”), operated by **[COMPANY NAME]** (“we,” “us,” “our”).
+
+By accessing or using the Services, you agree to these Terms. If you do not agree, do not use the Services.
+
+## 1) Definitions
+“Content” means text, graphics, data, software, designs, and other materials made available through the Services.
+
+“User Content” means information you submit or generate through the Services (for example, the answers you provide to questions, preferences, and any notes you enter).
+
+“Decision Output” means any summary, comparison, scenario estimate, score, ranking, confidence label, or other output produced by the Services.
+
+## 2) Eligibility
+You must be at least 18 years old to use the Services. By using the Services, you represent that you are legally able to enter into a binding agreement and that you will comply with these Terms.
+
+## 3) Scope of the Services; non‑marketing decision support
+The Services provide consumer education and decision‑support regarding Medicare coverage choices, including Original Medicare, Medigap (Medicare Supplement), Medicare Advantage, Part D, Medicaid interactions, and related topics.
+
+The Services are not marketing or lead generation by default. We do not provide enrollment services, do not sell insurance, and do not act as your agent or broker through the Services.
+
+## 4) Not professional advice; no reliance
+The Services are not a substitute for professional advice. Decision Outputs are generated based on assumptions and your inputs; they can be wrong, incomplete, or inapplicable to your circumstances.
+
+You agree that you will not rely solely on any Decision Output to make coverage decisions. You will verify key details through authoritative sources (e.g., plan documents, Medicare.gov, official notices, and licensed professionals).
+
+## 5) No Blue Button / Medicare.gov account integration (current scope)
+The Services do **not** connect to Medicare.gov accounts and do **not** retrieve claims data via Blue Button or any Medicare claims API in the current version. Any references to “claims,” “spending,” or “utilization” within Decision Outputs are estimates or user‑provided summaries unless explicitly labeled otherwise.
+
+If we add claims import or account connections in the future, we will provide updated terms and request additional permissions as needed.
+
+## 6) User accounts; security
+Some features may require an account. You are responsible for maintaining the confidentiality of your credentials and for all activity under your account. You agree to notify us promptly of any unauthorized use.
+
+## 7) User Content; permissions; responsibilities
+You retain ownership of your User Content. You grant us a limited, non‑exclusive, worldwide license to host, process, display, and use your User Content solely to provide and improve the Services, comply with law, and enforce these Terms.
+
+You agree not to submit false, misleading, or fraudulent information, content that violates another person’s rights, content that contains malware or attempts to interfere with the Services, or sensitive identifiers you do not want stored (for example, Medicare Beneficiary Identifier or Social Security number) unless a feature explicitly requests it and clearly explains why.
+
+## 8) Acceptable use; prohibited conduct
+You agree not to reverse engineer, scrape, or disrupt the Services; probe, scan, or test vulnerabilities except as authorized in writing; use the Services to violate any law or third‑party right; or use automated systems to access the Services in a way that materially degrades performance.
+
+We may suspend or terminate access for violations.
+
+## 9) Content and intellectual property
+The Services, including our software, UI, designs, and Content, are owned by or licensed to us and protected by intellectual property laws. Except as expressly permitted, you may not copy, modify, distribute, sell, or create derivative works from the Services.
+
+## 10) Third‑party services and links
+The Services may reference or link to third‑party resources (including government resources) for convenience. We do not control those resources and are not responsible for their content, availability, or practices. Your use of third‑party services is at your own risk and subject to their terms.
+
+## 11) Disclaimers of warranties
+THE SERVICES ARE PROVIDED “AS IS” AND “AS AVAILABLE.” TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON‑INFRINGEMENT.
+
+WE DO NOT WARRANT THAT THE SERVICES WILL BE ACCURATE, COMPLETE, RELIABLE, SECURE, OR UNINTERRUPTED.
+
+## 12) Limitation of liability
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT WILL [COMPANY NAME] OR ITS AFFILIATES, OFFICERS, DIRECTORS, EMPLOYEES, CONTRACTORS, OR AGENTS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, DATA, OR GOODWILL, ARISING OUT OF OR RELATED TO YOUR USE OF (OR INABILITY TO USE) THE SERVICES.
+
+OUR TOTAL LIABILITY FOR ALL CLAIMS ARISING OUT OF OR RELATED TO THE SERVICES WILL NOT EXCEED THE GREATER OF (A) $100 OR (B) THE AMOUNT YOU PAID US FOR THE SERVICES IN THE 12 MONTHS BEFORE THE EVENT GIVING RISE TO THE CLAIM.
+
+Some jurisdictions do not allow certain limitations, so some provisions may not apply to you.
+
+## 13) Indemnification
+You agree to indemnify and hold harmless [COMPANY NAME] and its affiliates, officers, directors, employees, contractors, and agents from and against any claims, liabilities, damages, losses, and expenses (including reasonable attorneys’ fees) arising out of or related to your use of the Services, your User Content, or your violation of these Terms.
+
+## 14) Arbitration and class action waiver (OPTIONAL — REVIEW WITH COUNSEL)
+This section is optional and may not be appropriate for your jurisdiction or business model.
+
+Any dispute arising out of or relating to these Terms or the Services will be resolved by binding arbitration administered by **[ARBITRATION PROVIDER (e.g., AAA/JAMS) OR REMOVE SECTION]**, rather than in court, except that either party may seek injunctive or equitable relief in a court of competent jurisdiction to prevent actual or threatened infringement, misappropriation, or violation of intellectual property or confidentiality rights.
+
+You and we agree that any dispute will be brought in an individual capacity and not as a plaintiff or class member in any purported class or representative proceeding.
+
+## 15) Termination
+We may suspend or terminate your access to the Services at any time for any reason, including suspected violations or risk to the Services. You may stop using the Services at any time.
+
+Sections intended to survive termination (including IP, disclaimers, limitation of liability, indemnification, and dispute resolution) will survive.
+
+## 16) Changes to the Services and Terms
+We may modify the Services or these Terms from time to time. If changes are material, we will provide reasonable notice (for example, by updating the “Last Updated” date and/or providing an in‑app notice). Your continued use after changes become effective constitutes acceptance.
+
+## 17) Governing law; venue
+These Terms are governed by the laws of **[GOVERNING LAW STATE]**, without regard to conflict of laws principles. If arbitration is not used or is unenforceable, the parties agree to exclusive jurisdiction and venue in the applicable state or federal courts located in **[GOVERNING LAW STATE]**.
+
+## 18) Contact
+Questions about these Terms: **[CONTACT EMAIL]**.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="privacy">
+<h3 style="margin:0 0 8px">Privacy Policy</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># Privacy Policy — [EFFECTIVE DATE]
+
+This Privacy Policy explains how **[COMPANY NAME]** (“we,” “us,” “our”) collects, uses, shares, and protects information when you use **[APP NAME]** (the “App”) and related services (collectively, the “Services”).
+
+## 1) What we do (and don’t do)
+The Services are designed as a consumer decision‑support tool. We do not sell insurance and we do not run marketing/lead‑gen funnels by default.
+
+**Important scope note:** The current version of the Services does **not** connect to Medicare.gov accounts and does **not** import claims data through Blue Button or any other Medicare claims API. If we add such features in the future, we will update this Policy and present additional notices and choices.
+
+## 2) Information we collect
+We may collect the following categories of information:
+
+### (a) Information you provide
+You may provide information such as age or age range, ZIP code or county/state, preferred doctors/hospitals (names you enter), health preferences and constraints, general health indicators or chronic conditions you choose to share (optional), budget ranges and financial preferences, and notes you type into the App.
+
+You should **not** enter sensitive identifiers such as a Medicare Beneficiary Identifier (MBI) or Social Security number unless a specific feature explicitly asks for it and explains the purpose.
+
+### (b) Device and usage data
+We may collect information about how you use the Services, such as device type, OS version, app version, log data (timestamps, pages/screens, crashes), approximate location derived from IP address, and performance metrics and diagnostics.
+
+### (c) Cookies and similar technologies 
+If you use a website version of the Services, we may use cookies/local storage for functionality, security, and analytics. See our Cookie Policy.
+
+## 3) How we use information
+We use information to provide Decision Outputs and personalized comparisons, operate, maintain, and improve the Services, secure the Services and prevent fraud, communicate with you (support, updates, important notices), and comply with legal obligations and enforce our Terms.
+
+## 4) How we share information
+We may share information with service providers that help us operate the Services (hosting, analytics, customer support, security). They are permitted to use the information only to provide services to us.
+
+We may disclose information if we believe in good faith that disclosure is necessary to comply with law, protect rights and safety, prevent fraud, or respond to lawful requests.
+
+If we are involved in a merger, acquisition, financing, or sale of assets, information may be transferred as part of that transaction, subject to reasonable confidentiality protections.
+
+## 5) Retention
+We retain information only as long as reasonably necessary to provide the Services, comply with legal obligations, resolve disputes, and enforce our agreements. We may retain de‑identified or aggregated information longer.
+
+## 6) Security
+We use administrative, technical, and organizational measures designed to protect information. No system is perfectly secure. You are responsible for protecting your account credentials and device.
+
+## 7) Your choices and rights
+Depending on where you live, you may have rights to access, correct, delete, or port certain information, and to opt out of certain processing. You can contact us at **[CONTACT EMAIL]**. We may need to verify your identity before fulfilling a request.
+
+## 8) Children
+The Services are not directed to children under 13 (or under 16 where applicable). We do not knowingly collect personal information from children. If you believe a child has provided information, contact us.
+
+## 9) International users
+If you access the Services from outside the United States, your information may be processed in the United States or other locations where our service providers operate, and may be subject to those laws.
+
+## 10) Updates to this Policy
+We may update this Policy from time to time. We will update the “Effective Date” and provide notice if changes are material.
+
+## 11) Contact
+Privacy questions: **[CONTACT EMAIL]**.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="disclaimer">
+<h3 style="margin:0 0 8px">Disclaimer</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># General Disclaimer (Decision‑Support Tool) — [EFFECTIVE DATE]
+
+This General Disclaimer (“Disclaimer”) applies to your use of **[APP NAME]** (the “App”), operated by **[COMPANY NAME]** (“we,” “us,” or “our”). By using the App, you acknowledge and agree to the terms in this Disclaimer.
+
+## 1) Not government; not Medicare; not CMS
+The App is an independent consumer tool. It is **not** operated by, endorsed by, sponsored by, or affiliated with the U.S. government, **Medicare**, the Centers for Medicare &amp; Medicaid Services (“CMS”), or any state Department of Insurance. References to Medicare, Medigap, Medicare Advantage, Medicaid, Part D, or other programs are for informational purposes only.
+
+## 2) Not insurance, legal, tax, or medical advice
+The App provides general educational information and decision‑support outputs based on user‑provided inputs and model assumptions. The App does **not** provide insurance advice, legal advice, tax advice, or medical advice.
+
+You should consult qualified professionals (licensed insurance professionals, attorneys, tax advisors, and clinicians) for advice tailored to your situation.
+
+## 3) No enrollment, sales, marketing, or lead generation
+The App is designed as a decision‑support tool. It does not sell insurance, does not enroll you in Medicare, Medigap, or Medicare Advantage plans, and does not connect you to agents or carriers as part of the core experience (unless you independently choose to contact someone outside the App).
+
+## 4) No claims‑data connection; no “Blue Button” integration
+The current version of the App does **not** connect to Medicare.gov accounts and does **not** retrieve your claims data through Blue Button or any other Medicare claims API. Any cost estimates or comparisons shown are derived from public information sources, generalized benefit structures, user inputs, and/or modeling assumptions.
+
+If this changes in the future, we will update our legal and privacy materials and may request additional permissions.
+
+## 5) Accuracy; timeliness; changes in rules and pricing
+Medicare rules, plan designs, premiums, cost‑sharing, formularies, networks, and eligibility rules can change. The App may reference public sources that can be updated without notice. While we aim to keep information accurate, we do not guarantee that any content is complete, current, or error‑free.
+
+You are responsible for verifying critical information through authoritative sources, such as Medicare.gov, your plan documents, and official communications.
+
+## 6) Health and financial risk is personal; outcomes vary
+The App may describe tradeoffs between premium predictability, access, and out‑of‑pocket risk. Outcomes depend on your health events, utilization, provider choices, geography, plan availability, and your own decisions. Past experience and modeled scenarios do not predict future results.
+
+## 7) Emergency disclaimer
+If you believe you are experiencing a medical emergency, call 911 (or your local emergency number) immediately. Do not rely on the App for emergency guidance.
+
+## 8) Contact
+Questions about this Disclaimer can be sent to: **[CONTACT EMAIL]**.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="cookies">
+<h3 style="margin:0 0 8px">Cookie Policy</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># Cookie Policy — [EFFECTIVE DATE]
+
+This Cookie Policy explains how **[COMPANY NAME]** uses cookies and similar technologies in connection with **[APP NAME]** when the Services are accessed through a website.
+
+## 1) What are cookies?
+Cookies are small text files stored on your device that help websites function and remember preferences.
+
+## 2) Categories of cookies we may use
+Strictly necessary cookies for session management and security; preference cookies to remember settings; and analytics cookies to understand usage and improve the Services.
+
+The Services are designed to be non‑marketing by default. If we enable advertising or cross‑site tracking, we will update this Policy and provide appropriate choices.
+
+## 3) Your controls
+Most browsers allow you to block or delete cookies. Some features may not work if you disable cookies.
+
+## 4) Contact
+Questions: **[CONTACT EMAIL]**.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="method">
+<h3 style="margin:0 0 8px">Methodology &amp; Risk Disclosure</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># Methodology &amp; Risk Disclosure — [EFFECTIVE DATE]
+
+This document describes, at a high level, how **[APP NAME]** produces Decision Outputs and what limitations apply.
+
+## 1) What the App does
+The App helps users think through tradeoffs between Original Medicare + Medigap (Medicare Supplement), Medicare Advantage, and related choices such as Part D and interaction with Medicaid/LIS (where relevant). The App focuses on risk management tradeoffs: premium predictability, provider flexibility, administrative friction, and potential out‑of‑pocket exposure.
+
+## 2) What the App does NOT do
+The App does not enroll users, recommend a specific insurer/carrier, guarantee eligibility, pricing, underwriting outcomes, or plan availability, provide medical advice, or connect to Medicare.gov accounts or retrieve claims data (no Blue Button integration in the current version).
+
+## 3) Inputs
+Decision Outputs are driven by user‑supplied inputs and may use defaults where inputs are incomplete. The App may display “low confidence” where uncertainty is high.
+
+## 4) Scoring and scenario modeling (conceptual)
+The App may compute comparative scores based on weighted factors such as utilization scenarios, financial risk exposure, switching/underwriting asymmetry risk, network dependence, prescription risk, and benefit volatility. It may also simulate “best/median/worst” scenarios for sensitivity.
+
+## 5) Known limitations
+The App may use public sources and generalized assumptions. Plan details and rules change. Real‑world decisions involve personal values and circumstances that no model fully captures. Users should verify important details through authoritative sources.
+
+## 6) Contact
+Questions about methodology: **[CONTACT EMAIL]**.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="security">
+<h3 style="margin:0 0 8px">Security Practices Summary</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># Security Practices Summary (Non‑Binding) — [EFFECTIVE DATE]
+
+This summary describes typical safeguards we may use to protect information in **[APP NAME]**. It is informational only.
+
+We aim to follow least privilege, defense‑in‑depth, and data minimization. Controls may include encryption in transit and at rest (where applicable), access controls and audit logging, secure secrets management, vulnerability management, monitoring, backups, and incident response processes.
+
+This version of the Services does not connect to Medicare.gov accounts and does not retrieve claims data via Blue Button. If that scope changes, additional controls may be required.
+
+Security questions: **[CONTACT EMAIL]**.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="thirdparty">
+<h3 style="margin:0 0 8px">Third-Party Notices</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># Third‑Party Notices — [EFFECTIVE DATE]
+
+The Services may incorporate third‑party software, services, or content. Use of third‑party components may be governed by separate terms and licenses.
+
+The Services may reference public information sources (for example, Medicare.gov, CMS publications, state DOI resources). Those sources may change without notice and may have their own terms.
+
+References to third‑party services do not imply endorsement.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="access">
+<h3 style="margin:0 0 8px">Accessibility Statement</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># Accessibility Statement — [EFFECTIVE DATE]
+
+**[COMPANY NAME]** is committed to making **[APP NAME]** accessible to people with disabilities.
+
+If you encounter an accessibility barrier, contact **[CONTACT EMAIL]** and include the page/screen, device/OS, assistive technology (if any), and a short description.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="state">
+<h3 style="margin:0 0 8px">State Disclosure Templates</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># State Disclosure Templates (Insert as needed) — [EFFECTIVE DATE]
+
+This file contains OPTIONAL templates you can adapt based on where you operate and what your app actually does. This is not legal advice.
+
+Template — Not a licensed insurance producer (if true):
+[APP NAME] is a consumer education and decision‑support tool. [COMPANY NAME] is not acting as a licensed insurance agent or broker through the App and does not sell insurance through the App.
+
+Template — Underwriting and eligibility warning:
+Availability, pricing, underwriting, enrollment windows, and eligibility depend on your circumstances and may vary by state and carrier. Verify details with authoritative sources and/or licensed professionals.
+
+Template — Do not enter sensitive identifiers:
+Do not enter Medicare numbers, Social Security numbers, or other sensitive identifiers unless the App explicitly requests them for a clearly explained purpose.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="changelog">
+<h3 style="margin:0 0 8px">Changelog</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># Changelog — Legal Pack
+
+## v1.1 — 2026‑01‑10
+- Removed all references and assumptions related to **CMS Blue Button / Blue Button 2.0 / Medicare claims API** integration.
+- Updated Disclaimer, Terms, Privacy, and Security Summary to reflect **no Medicare.gov account connection** and **no claims import** in the current app scope.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="setup">
+<h3 style="margin:0 0 8px">Legal Pack Setup — Fill Me First</h3>
+<pre class="mono" style="margin:0; padding:12px; border:1px solid #1f2937; border-radius:12px; background:#0b1220; overflow:auto"># FILL ME FIRST — Legal Pack Setup (v1.1 — Blue Button removed)
+
+This folder contains a comprehensive, **non‑marketing / non‑lead‑gen** legal and disclosure pack for a consumer decision‑support app that helps people compare **Original Medicare + Medigap** tradeoffs.
+
+## What changed in v1.1 (this build)
+This version **removes all Blue Button / Blue Button 2.0 / CMS claims‑API assumptions**.
+- The documents now assume **no connection to Medicare.gov accounts** and **no claims data pull**.
+- If you later add claims import (or any OAuth connection to Medicare.gov), you will need a new addendum set: authorization language, data minimization rules, security controls, and an updated privacy notice.
+
+## How to use these documents
+1. Replace bracketed placeholders like **[APP NAME]** and **[COMPANY NAME]**.
+2. Delete any sections you don’t want (e.g., arbitration, class action waiver) and have counsel review.
+3. Publish these documents in‑app (Settings → Legal) and on your website.
+
+## Placeholder keys to search/replace
+- [APP NAME]
+- [COMPANY NAME]
+- [WEBSITE / APP URL]
+- [CONTACT EMAIL]
+- [MAILING ADDRESS]
+- [GOVERNING LAW STATE]
+- [ARBITRATION PROVIDER (e.g., AAA/JAMS) OR REMOVE SECTION]
+- [EFFECTIVE DATE] / [LAST UPDATED]
+
+## Files in this pack
+- 01_Disclaimer.md
+- 02_Terms_of_Service.md
+- 03_Privacy_Policy.md
+- 04_Cookie_Policy.md
+- 05_Methodology_and_Risk_Disclosure.md
+- 06_Security_Practices_Summary.md
+- 07_Accessibility_Statement.md
+- 08_Third_Party_Notices.md
+- 09_State_Disclosure_Templates.md
+- 10_Changelog.md
+
+&gt; Not legal advice. Treat this as a strong starting template and have it reviewed for your business model and jurisdiction.
+</pre>
+</div>
+<div class="legalPane hidden" data-pane="glossary">
+<h3>Glossary</h3>
+<p class="muted">Search quick definitions for Medicare / MA / Medigap / Medicaid terms used throughout this app.</p>
+<div class="glossaryTop">
+<div class="gField">
+<label for="glossSearch">Search</label>
+<input autocomplete="off" id="glossSearch" placeholder="Type a term or acronym (e.g., MOOP, LIS, Medigap, AEP)" type="search"/>
+</div>
+<div class="gField">
+<label for="glossCategory">Category</label>
+<select id="glossCategory"></select>
+</div>
+</div>
+<div class="glossaryGrid">
+<div class="glossaryList" id="glossList" role="list"></div>
+<div class="glossaryDetail" id="glossDetail">
+<div class="muted">Select a term to view details.</div>
+</div>
+</div>
+<details class="gloss">
+<summary>Key facts &amp; sources</summary>
+<div class="glossBody">
+<div id="glossFacts"></div>
+<div id="glossSources"></div>
+</div>
+</details>
+</div>
+</div>
+</div>
+</section>
+<!-- EXPORT MODAL -->
+<div class="modal" id="exportModal">
+<div class="modalCard">
+<div class="row">
+<h3 style="margin:0">Export Summary</h3>
+<button class="btn tiny" id="btnCloseExport" type="button">Close</button>
+</div>
+<div class="muted" style="margin-top:6px">
+ Use “Safe” to redact sensitive answers. “Full” includes everything.
+ </div>
+<div class="tabs" id="exportTabs" style="margin-top:10px">
+<button class="tab active" data-tab="safe" type="button">Safe</button>
+<button class="tab" data-tab="full" type="button">Full</button>
+</div>
+<textarea class="audit" id="exportText" style="height:240px"></textarea>
+<div class="btnrow">
+<button class="btn" id="btnCopyExport" type="button">Copy</button>
+<button class="btn" id="btnDownloadExport" type="button">Download.txt</button>
+<button class="btn" id="btnCopyLink" type="button">Copy Share Link</button>
+</div>
+<div class="muted" style="margin-top:10px">
+ Share links put data in the URL fragment. Don’t post publicly.
+ </div>
+</div>
+</div>
+<!-- HELP MODAL -->
+<div class="modal" id="helpModal">
+<div class="modalCard">
+<div class="row">
+<h3 style="margin:0">Help</h3>
+<button class="btn tiny" id="btnCloseHelp" type="button">Close</button>
+</div>
+<div class="scrollbox" style="max-height:60vh">
+<h3 style="margin-top:0">What this app is</h3>
+<p>
+ A structured decision-support tool. It s your preferences (risk, doctors, travel, paperwork tolerance) into a score across three structures:
+ Medigap + Part D, MA PPO, and MA HMO.
+ </p>
+<h3>What this app is not</h3>
+<p>
+ Not enrollment, not sales, not plan shopping, and not a substitute for Medicare.gov, your SHIP counselor, or licensed professional advice.
+ </p>
+<h3>How to answer</h3>
+<ul>
+<li>If you’re unsure, pick the closest option and keep going.</li>
+<li>Use Skip if the question feels too sensitive — confidence will drop (on purpose).</li>
+<li>If you have complex providers or travel, answer those questions carefully — they matter a lot.</li>
+</ul>
+<h3>About confidence</h3>
+<p>
+ Confidence is based on how separated the top two scores are and how many high-impact questions were answered.
+ Low confidence usually means: “your priorities are mixed” or “missing data”.
+ </p>
+<h3>Privacy</h3>
+<p>
+ This build is local-only. If you want to use it with clients, consider running it offline and using “Safe Export”.
+ </p>
+</div>
+</div>
+</div>
+<section id="case-study" style="padding: 18px 16px; max-width: 980px; margin: 0 auto;">
+<h2 style="margin:0 0 8px;">Case Study — Coverage Compass</h2>
+<p style="margin:0; opacity:0.9; line-height:1.6;">
+ Short skim first. Then the medium story. Deep dive if you want the mechanics.
+ </p>
+<div style="border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:14px; margin-top:12px;">
+<h3 style="margin:0 0 6px;">Skim (30–45 sec)</h3>
+<ul style="margin:0; padding-left:18px; line-height:1.75; opacity:0.93;">
+<li><strong>Broken frame:</strong> Most tools treat Medicare choice like shopping.</li>
+<li><strong>Why it fails:</strong> This is risk navigation across time with asymmetric consequences.</li>
+<li><strong>Reframe:</strong> "What happens if I'm wrong?" beats "what looks best today?"</li>
+<li><strong>System:</strong> A decision environment that surfaces tradeoffs + uncertainty + top drivers.</li>
+<li><strong>Signal:</strong> I build explainable, failure-aware systems that don’t pretend certainty.</li>
+</ul>
+</div>
+<div style="border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:14px; margin-top:12px;">
+<h3 style="margin:0 0 6px;">Medium (2–3 min)</h3>
+<p style="margin:10px 0 0; opacity:0.92; line-height:1.65;">Most Medicare decision tools simplify the wrong thing. They optimize for what’s easy to compare (premium, perks) and hide what’s expensive to misunderstand (lock-in, switching asymmetry, downside risk).</p>
+<p style="margin:10px 0 0; opacity:0.92; line-height:1.65;">Coverage Compass reframes the decision as constrained transitions under uncertainty. The UI is designed to show consequences, not just options — including what would change the recommendation and why.</p>
+<p style="margin:10px 0 0; opacity:0.92; line-height:1.65;">The core design principle: treat failure modes as first-class UX. If the model can be wrong, the user should see where and how.</p>
+<div style="margin-top:12px;">
+<a href="../../case-studies/coverage-compass.html" style="text-decoration:none; border:1px solid rgba(255,255,255,0.22); padding:8px 10px; border-radius:10px; display:inline-block;">Deep dive →</a>
+</div>
+</div>
+</section>
+</main>
+<footer class="foot">
+<div class="muted">
+ Local-only. Saves progress in your browser. v1.0.2
+ <span class="sep">•</span>
+<a id="footLegal">Legal</a>
+<span class="sep">•</span>
+<a id="footHelp">Help</a>
+</div></footer>
+</div>
+<script defer="" src="../../shared/global-polyfill.js?v=7"></script>
+<script defer="" src="../../shared/appdata-client.js?v=1"></script>
+<script defer="defer" src="engine.js"></script>
+<script defer="defer" src="glossary.js"></script>
+<script defer="defer" src="app.js"></script>
+<script defer="" src="../../shared/runtime-load-guard.js"></script>
+<script defer="" src="../../shared/render-recovery-guard.js"></script>
+<script defer="" src="../../shared/resize-dpr-guard.js"></script>
+<script defer="" src="../../shared/error-boundary-guard.js"></script>
+<script defer="" src="../../shared/state-init-guard.js"></script>
+<script defer="" src="../../shared/scroll-focus-guard.js"></script>
+<script defer="" src="../../shared/ui-physics-guard.js"></script> <script src="../../shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

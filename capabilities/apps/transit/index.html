@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>TRANSIT 3D // PRESTIGE EDITION</title>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
+<meta content="dark" name="color-scheme"/>
+<link href="/assets/icon/transit/transit-3d-orb.svg" rel="icon" type="image/svg+xml"/>
+<link href="/icon-512.png" rel="apple-touch-icon"/>
+<!-- Three.js CDN (Primary) -->
+<script onerror="window.threeError=true" src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<!-- Three.js CDN (Backup) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+<style>
+    :root {
+      --bg: #020617;
+      --panel: rgba(15, 23, 42, 0.96);
+      --border: rgba(148, 163, 184, 0.3);
+      --accent: #38bdf8;
+      --accent2: #22c55e;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0; padding: 0; min-height: 100%;
+      background: radial-gradient(circle at 0% 0%, #020617 0, #000 100%);
+      color: var(--text); font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body { display: flex; flex-direction: column; overflow: hidden; }
+    @media (max-width: 1024px) { body { overflow-y: auto; } }
+
+    .app { display: flex; flex-direction: column;
+      height: 100vh; height: 100svh; height: 100dvh;
+      min-height: 100vh; min-height: 100svh; min-height: 100dvh;
+      width: 100%; padding: 10px; gap: 10px; opacity: 0; transition: opacity 0.5s ease;
+    }
+    @media (max-width: 1024px) { .app { height: auto; overflow: visible; } }
+
+    /* HEADER */
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 16px; border-radius: 99px; background: rgba(15,23,42,0.9);
+      border: 1px solid var(--border); backdrop-filter: blur(12px);
+      flex-shrink: 0; z-index: 20;
+    }
+    .title { font-weight: 800; letter-spacing: 0.15em; color: #fff; font-size: 0.9rem; }
+    .tag { font-size: 0.65rem; color: var(--accent); border: 1px solid var(--accent); padding: 2px 6px; border-radius: 4px; margin-left: 8px; letter-spacing: 0.05em; }
+    .status-pill {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: monospace;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.18), transparent);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+    }
+    .status-pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148,163,184,0.9);
+      box-shadow: 0 0 0 0 rgba(56,189,248,0.0);
+    }
+    .status-pill[data-state="idle"] .status-pill-dot {
+      background: rgba(148,163,184,0.9);
+    }
+    .status-pill[data-state="active"] {
+      border-color: rgba(56,189,248,0.9);
+      color: var(--accent);
+      box-shadow: 0 0 12px rgba(56,189,248,0.35);
+    }
+    .status-pill[data-state="active"] .status-pill-dot {
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(56,189,248,0.9);
+    }
+    .status-pill[data-state="showtime"] {
+      border-color: rgba(244,63,94,0.9);
+      color: #fecaca;
+      box-shadow: 0 0 16px rgba(248,113,113,0.6);
+    }
+    .status-pill[data-state="showtime"] .status-pill-dot {
+      background: #fb7185;
+      box-shadow: 0 0 10px rgba(248,113,113,0.9);
+    }
+
+    /* LAYOUT */
+    .workspace { display: flex; flex: 1; gap: 10px; overflow: hidden; min-height: 0; }
+    @media (max-width: 1024px) { .workspace { flex-direction: column; overflow: visible; } }
+
+    /* 3D VIEWPORT */
+    .view-shell {
+      flex: 1.4; border-radius: 20px; border: 1px solid var(--border);
+      background: #000; position: relative; overflow: hidden;
+      min-height: 0; order: 1;
+    }
+    @media (max-width: 1024px) { .view-shell { flex: none; min-height: clamp(260px, 48vh, 440px); max-height: 60vh; } }
+    @media (max-width: 520px) { .view-shell { max-height: 52vh; } }
+
+    #threeRoot { width: 100%; height: 100%; touch-action: none; }
+    canvas { display: block; width: 100%; height: 100%; }
+
+    /* HUD overlay inside viewport (NOT the full-screen overlays) */
+    .hud-overlay {
+      position: absolute; inset: 0; pointer-events: none; padding: 20px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .badge-row { display: flex; gap: 8px; align-items: flex-start; }
+    .badge {
+      background: rgba(0,0,0,0.75); border: 1px solid var(--border);
+      padding: 6px 12px; border-radius: 99px; font-size: 0.75rem; 
+      backdrop-filter: blur(6px); color: #fff; display: flex; align-items: center; gap: 6px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+    .sys-meta { font-size: 0.7rem; color: var(--muted); margin-left: auto; text-align: right; max-width: 200px; text-shadow: 0 2px 4px #000; }
+
+    /* RIGHT PANEL */
+    .data-view {
+      flex: 1; background: var(--panel); border-radius: 20px; border: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 14px; gap: 14px; overflow-y: auto; order: 2;
+      backdrop-filter: blur(24px); min-width: 320px;
+      container-type: inline-size;
+    }
+
+    @media (max-width: 1024px) { .data-view { min-width: 0; } }
+
+    /* GRAPH */
+    .graph-card {
+      background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .graph-header { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    #fluxCanvas { width: 100%; height: 140px; background: #020617; border-radius: 8px; }
+    .flux-val { color: var(--accent); font-family: monospace; font-weight: bold; }
+
+    /* CONTROLS */
+    .panel-section { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; border: 1px solid var(--border); }
+    .panel-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+
+    .control-group { margin-bottom: 10px; }
+    .control-label { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 4px; color: var(--muted); }
+    .control-val { color: var(--accent); }
+    
+    input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+    .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn {
+      flex: 1; padding: 8px; border-radius: 99px; font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; cursor: pointer; border: 1px solid var(--border);
+      background: rgba(56, 189, 248, 0.1); color: var(--accent); transition: 0.2s;
+      white-space: nowrap; text-align: center;
+    }
+    .btn:hover { background: rgba(56, 189, 248, 0.25); }
+    .btn.active { background: rgba(56, 189, 248, 0.3); color: #fff; border-color: var(--accent); }
+    
+    .sys-btn-row { display: flex; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 99px; margin-bottom: 10px; }
+    .sys-btn { flex: 1; background: transparent; border: none; color: var(--muted); font-size: 0.65rem; padding: 6px; cursor: pointer; border-radius: 99px; }
+    .sys-btn.active { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* AI CHAT */
+    .ai-card { margin-top: auto; background: rgba(56, 189, 248, 0.05); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .ai-tabs { display: flex; gap: 4px; margin-bottom: 8px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .ai-tab { scroll-snap-align: center; flex: 0 0 auto; min-width: 72px; padding: 6px; font-size: 0.65rem; background: rgba(0,0,0,0.4); border: 1px solid var(--border); color: var(--muted); border-radius: 6px; cursor: pointer; text-align: center; }
+    .ai-tab.active { background: rgba(56, 189, 248, 0.2); color: #fff; border-color: var(--accent); }
+    
+    .ai-input { width: 100%; background: #000; border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 6px; font-size: 0.75rem; resize: vertical; font-family: inherit; }
+    .ai-output { margin-top: 8px; font-size: 0.75rem; color: #cbd5f5; line-height: 1.4; max-height: 150px; overflow-y: auto; white-space: pre-wrap; }
+    .ai-status { font-size: 0.65rem; color: var(--muted); margin-top: 4px; text-align: right; font-family: monospace; }
+
+    /* BOOT */
+    #bootOverlay {
+      position: fixed; inset: 0; background: #020617; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    .spinner { width: 40px; height: 40px; border: 3px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .force-start { margin-top: 20px; background: #333; border: 1px solid #555; color: #fff; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; display: none; }
+    
+    /* SCROLLBARS */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  
+    /* Premium header layout + AI orb */
+    .header-left {
+      display:flex;
+      align-items:baseline;
+      gap:6px;
+    }
+    .header-right {
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .header-btn {
+      padding:4px 10px;
+      font-size:0.65rem;
+    }
+    .ai-orb {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 30%, rgba(56,189,248,0.35), rgba(15,23,42,1));
+      box-shadow: 0 0 12px rgba(15,23,42,1);
+      position: relative;
+    }
+    .ai-orb-core {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #38bdf8;
+      box-shadow: 0 0 12px rgba(56,189,248,0.9);
+      transform: scale(1);
+      transition: transform 0.2s ease-out, background 0.2s ease-out, box-shadow 0.2s ease-out;
+    }
+    .ai-orb-ring {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148,163,184,0.5);
+      box-shadow: 0 0 16px rgba(56,189,248,0.5);
+      opacity: 0.4;
+      animation: orb-spin 4s linear infinite;
+    }
+    @keyframes orb-spin {
+      to { transform: rotate(360deg); }
+    }
+    .ai-orb[data-mode="thinking"] .ai-orb-core {
+      transform: scale(1.3);
+      background: #f97316;
+      box-shadow: 0 0 13px rgba(249,115,22,0.9);
+    }
+    .ai-orb[data-mode="answering"] .ai-orb-core {
+      transform: scale(1.15);
+      background: #22c55e;
+      box-shadow: 0 0 14px rgba(34,197,94,0.9);
+    }
+
+    /* Custom cursor glow */
+    body {
+      cursor: crosshair;
+    }
+    #cursorGlow {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 30% 30%, rgba(148,163,255,0.85), transparent 70%);
+      box-shadow: 0 0 18px rgba(56,189,248,0.55);
+      opacity: 0;
+      transition: opacity 0.25s ease-out, transform 0.08s ease-out;
+      z-index: 9998;
+    }
+    body[data-no-cursor-glow="true"] #cursorGlow {
+      display: none;
+    }
+
+    /* Premium hover feels */
+    .btn,
+    .sys-btn,
+    .ai-tab {
+      transition: background 0.18s ease-out, transform 0.12s ease-out, box-shadow 0.18s ease-out, color 0.18s ease-out, border-color 0.18s ease-out;
+    }
+    .btn:hover,
+    .sys-btn:hover,
+    .ai-tab:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(15,23,42,0.9);
+    }
+
+    /* Modern CSS :has() highlight on focused control groups */
+    .control-group:has(input:focus-visible),
+    .control-group:has(select:focus-visible) {
+      box-shadow: 0 0 0 1px rgba(148,163,184,0.7);
+      border-radius: 8px;
+    }
+
+    @container (max-width: 380px) {
+      .graph-card {
+        padding: 8px;
+      }
+      .ai-card {
+        margin-top: 10px;
+      }
+    }
+
+    /* Overlays: about, docs, credits, 404 */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(3,7,18,0.98));
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .overlay[aria-hidden="false"] {
+      display: flex;
+    }
+    .overlay-card {
+      width: min(680px, 100%);
+      max-height: min(560px, 100%);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(15,23,42,0.98);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .overlay-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .overlay-title {
+      font-size: 0.9rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+    .overlay-body {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+      overflow-y: auto;
+    }
+    .chip-row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      font-size:0.7rem;
+    }
+    .chip {
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.4);
+      color:#e5e7eb;
+      background:rgba(15,23,42,0.9);
+    }
+
+    /* Presentation mode tweak */
+    .app.presentation-mode .data-view {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Responsive typography & layout with clamp / min / max */
+    :root {
+      --fs-base: clamp(0.78rem, 1.3vw, 0.95rem);
+      --fs-small: clamp(0.7rem, 1.1vw, 0.85rem);
+      --fs-title: clamp(0.95rem, 1.8vw, 1.25rem);
+      --pad-card: clamp(10px, 1.8vw, 16px);
+    }
+    body {
+      font-size: var(--fs-base);
+    }
+    .title {
+      font-size: var(--fs-title);
+    }
+    .card, .graph-card, .ai-card {
+      padding: var(--pad-card);
+    }
+    .app-shell,
+    .app {
+      max-width: min(1120px, 100vw - 16px);
+    }
+
+    /* Touch-friendly controls */
+    .btn,
+    .sys-btn {
+      min-height: clamp(32px, 6vh, 40px);
+      padding-inline: clamp(8px, 2vw, 14px);
+    }
+    input[type="range"] {
+      min-height: 24px;
+    }
+
+    @media (pointer: coarse) {
+      .btn,
+      .sys-btn {
+        min-height: clamp(36px, 7vh, 46px);
+      }
+    }
+
+    /* VISUAL MODES (Calm / Extreme / Insane) */
+    body[data-visual-mode="calm"] .view-shell {
+      box-shadow: 0 0 18px rgba(15,23,42,0.9);
+    }
+    body[data-visual-mode="extreme"] .view-shell {
+      box-shadow: 0 0 28px rgba(56,189,248,0.7);
+    }
+    body[data-visual-mode="extreme"] #threeRoot canvas {
+      filter: saturate(1.4) contrast(1.2);
+    }
+    @keyframes insanePulse {
+      0% { box-shadow: 0 0 22px rgba(239,68,68,0.7); }
+      50% { box-shadow: 0 0 34px rgba(56,189,248,0.9); }
+      100% { box-shadow: 0 0 28px rgba(34,197,94,0.9); }
+    }
+    body[data-visual-mode="insane"] .view-shell {
+      animation: insanePulse 0.7s infinite alternate;
+    }
+    body[data-visual-mode="insane"] #threeRoot canvas {
+      filter: saturate(1.8) contrast(1.3) hue-rotate(18deg);
+    }
+
+    /* Double splash overlay */
+    #splashOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(3,7,18,0.98));
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    #splashOverlay[aria-hidden="false"] {
+      display: flex;
+    }
+    .splash-shell {
+      display: flex;
+      gap: 18px;
+      width: min(1120px, 100%);
+      max-height: min(560px, 100%);
+    }
+    .splash-card {
+      flex: 1;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, rgba(15,23,42,0.98), rgba(2,6,23,0.98));
+      box-shadow: 0 24px 80px rgba(0,0,0,0.95);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+    .splash-card h2 {
+      font-size: 0.8rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 4px 0;
+    }
+    .splash-card h3 {
+      font-size: 0.95rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+      margin: 0 0 10px 0;
+    }
+    .splash-body {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+      overflow-y: auto;
+      padding-right: 4px;
+      flex: 1;
+    }
+    .splash-chips {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:10px;
+    }
+    .splash-chip {
+      font-size:0.7rem;
+      padding:3px 10px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.5);
+      background:rgba(15,23,42,0.96);
+      color:#e5e7eb;
+    }
+    .splash-footer {
+      margin-top: 10px;
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .splash-footer-right {
+      display:flex;
+      gap:8px;
+    }
+    #splashOverlay .btn {
+      flex: 0 0 auto;
+    }
+    /* Stage transitions: stage 1 = only left card "live", stage 2 = both */
+    #splashOverlay .splash-card-2 {
+      opacity: 0;
+      transform: translateX(40px);
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    #splashOverlay .splash-card-1 {
+      transition: transform 0.25s ease;
+    }
+    #splashOverlay.splash-stage-2 .splash-card-2 {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    #splashOverlay.splash-stage-2 .splash-card-1 {
+      transform: translateX(-8px);
+    }
+    @media (max-width: 960px) {
+      .splash-shell {
+        flex-direction: column;
+        max-height: none;
+      }
+      .splash-card {
+        max-height: min(320px, 50vh);
+      }
+      #splashOverlay.splash-stage-2 .splash-card-1 {
+        transform: translateY(-4px);
+      }
+      #splashOverlay .splash-card-2 {
+        transform: translateY(8px);
+      }
+    }
+  
+
+    @media (max-width: 520px) { #fluxCanvas { height: 120px; } }
+
+
+/* P18 SHELL_CLEANUP */
+/* Shell owns title/subtitle + docs; keep app-specific controls */
+.header-left{ display:none !important; }
+#aiOrb{ display:none !important; }
+.header-btn[onclick*="__showTransitAbout"],
+.header-btn[onclick*="__showTransitReadme"]{ display:none !important; }
+
+    /* Nexus Back Bar */
+    .nexus-backbar{
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 14px;
+    }
+    .nexus-backlink{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .nexus-backlink:hover{ text-decoration: underline; }
+    </style>
+<script>window.APP_ID="transit-3d-prestige-edition";</script>
+<style>
+/* A20 scroll baseline */
+html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+</style>
+<link href="../../shared/wyla.css" rel="stylesheet">
+<script defer="" src="../../shared/wyla.js"></script>
+</link></head>
+<body data-app="transit">
+  <nav class="nxTopNav"></nav>
+
+<div data-wyla=""></div>
+<!-- Nexus Boot Overlay (P08) -->
+<div aria-label="Loading Transit" aria-live="polite" id="nexusBootOverlay" role="status">
+<div class="nexusBootCard">
+<div class="nexusBootTitle">Loading <span class="nexusBootApp">Transit</span></div>
+<div class="nexusBootStage" id="nexusBootStage">Starting…</div>
+<div aria-hidden="true" class="nexusBootBar"><div></div></div>
+<div class="nexusBootTip">If this is a heavy lab on mobile, give it a moment — it's not frozen.</div>
+</div>
+</div>
+<style>
+  body.nexus-booting { overflow: hidden; }
+  #nexusBootOverlay {
+    position: fixed; inset: 0; z-index: 999999;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(2, 6, 23, 0.92);
+    color: #e5e7eb;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    backdrop-filter: blur(10px);
+    transition: opacity 220ms ease;
+  }
+  #nexusBootOverlay .nexusBootCard {
+    width: min(560px, calc(100vw - 32px));
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.72);
+    box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+    padding: 18px 18px 14px;
+  }
+  #nexusBootOverlay .nexusBootTitle {
+    font-size: 18px; font-weight: 750; letter-spacing: 0.2px;
+    display: flex; gap: 8px; align-items: baseline;
+  }
+  #nexusBootOverlay .nexusBootApp { color: #38bdf8; }
+  #nexusBootOverlay .nexusBootStage {
+    margin-top: 6px;
+    font-size: 13px;
+    opacity: 0.9;
+    min-height: 18px;
+  }
+  #nexusBootOverlay .nexusBootBar {
+    margin-top: 12px;
+    height: 7px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(148, 163, 184, 0.18);
+  }
+  #nexusBootOverlay .nexusBootBar > div {
+    height: 100%;
+    width: 38%;
+    background: rgba(56, 189, 248, 0.95);
+    transform: translateX(-120%);
+    animation: nexusBootBar 1.15s infinite ease-in-out;
+  }
+  #nexusBootOverlay .nexusBootTip {
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.7;
+    line-height: 1.35;
+  }
+  @keyframes nexusBootBar {
+    0%   { transform: translateX(-120%); }
+    50%  { transform: translateX(110%); }
+    100% { transform: translateX(260%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #nexusBootOverlay .nexusBootBar > div { animation: none; transform: translateX(0); width: 100%; opacity: 0.25; }
+  }
+</style>
+<script>
+(function() {
+  const overlay = document.getElementById('nexusBootOverlay');
+  const stageEl = document.getElementById('nexusBootStage');
+  if (!overlay) return;
+
+  document.body.classList.add('nexus-booting');
+
+  const stages = [
+    "Warming up the GPU…",
+    "Loading shaders…",
+    "Preparing simulation…",
+    "Building controls…",
+    "Calibrating chaos…",
+    "Finalizing scene…"
+  ];
+  let i = 0;
+  const tick = () => {
+    if (!stageEl) return;
+    stageEl.textContent = stages[i % stages.length];
+    i++;
+  };
+  tick();
+  const iv = setInterval(tick, 900);
+
+  const done = () => {
+    if (!document.getElementById('nexusBootOverlay')) return;
+    clearInterval(iv);
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    setTimeout(() => {
+      overlay.remove();
+      document.body.classList.remove('nexus-booting');
+    }, 260);
+  };
+
+  // Optional: labs may call this when fully ready.
+  window.__NEXUS_LAB_READY__ = done;
+
+  // Fallback heuristic: once a canvas exists and is sized, we allow a short grace window, then hide.
+  const start = Date.now();
+  const maxWait = 15000; // safety valve
+  const poll = () => {
+    if (Date.now() - start > maxWait) return done();
+    const canv = document.querySelector('canvas');
+    if (canv && canv.clientWidth > 0 && canv.clientHeight > 0) {
+      requestAnimationFrame(() => setTimeout(done, 220));
+      return;
+    }
+    requestAnimationFrame(poll);
+  };
+  requestAnimationFrame(poll);
+
+  // If the lab finishes fast, don't force a long overlay.
+  window.addEventListener('load', () => setTimeout(() => {
+    // If the canvas never appears, still remove after a while so the user can see any error UI.
+    if (Date.now() - start > 2500) done();
+  }, 50), { once: true });
+})();
+</script>
+<div style="margin-top:16px; color:#9ca3af; font-size:0.8rem;">CALIBRATING PHOTOMETERS...</div>
+<button class="force-start" id="forceStartBtn" onclick="forceBoot()">FORCE START</button>
+<!-- DOUBLE SPLASH: STUDIO TITLE CARD + DETAILED FLIGHT CHECK -->
+<div aria-hidden="true" id="splashOverlay">
+<div class="splash-shell">
+<!-- Card 1: Studio Title Card -->
+<section class="splash-card splash-card-1">
+<div>
+<h2>TRANSIT STUDIO // TITLE CARD</h2>
+<h3>TRANSIT 3D // PRESTIGE EDITION</h3>
+</div>
+<div class="splash-body">
+<p>This lab boots like a tiny product: a cold open, a systems card, then the live viewport. You’re looking at the studio <strong>title card</strong> — a quick framing pass before we drop into the instruments.</p>
+<p>The camera, star, and planet rig are already online in the background. When you enter the lab, the viewport simply fades up and you’re “inside the shot” instantly.</p>
+<div aria-label="Feature highlights" class="splash-chips">
+<span class="splash-chip">Single-file WebGL lab</span>
+<span class="splash-chip">Real-time light curve</span>
+<span class="splash-chip">AI advisor surface</span>
+</div>
+</div>
+<div class="splash-footer">
+<span>Step 1 of 2 · Studio framing pass</span>
+<div class="splash-footer-right">
+<button class="btn" onclick="window.__transitSplashNext &amp;&amp; window.__transitSplashNext()" type="button">NEXT</button>
+</div>
+</div>
+</section>
+<!-- Card 2: Detailed Flight Check -->
+<section class="splash-card splash-card-2">
+<div>
+<h2>LAB BOOT // DETAILED FLIGHT CHECK</h2>
+<h3>ORBIT, FLUX, MODES &amp; SHOWTIME</h3>
+</div>
+<div class="splash-body">
+<p><strong>What this lab is doing</strong></p>
+<p><strong>TRANSIT 3D // PRESTIGE</strong> is simulating a simplified exoplanet transit: a planet orbits a star, and every time it crosses the stellar disk, the apparent brightness drops. The 3D viewport shows the orbit and alignment geometry. The light-curve panel on the right converts that geometry into a live flux value F(t), drawing the dip in real time as the planet passes in front of the star.</p>
+<p>The lab is wired like a miniature product: there is a resilient boot path, a presentation mode, an AI advisor surface, and a small automation API (<code>window.transitBot</code>) so you can script a demo or have another app drive the camera.</p>
+<p><strong>Step-by-step: how to drive the demo</strong></p>
+<ol>
+<li><strong>Pick a system:</strong> use the KEPLER / TRAPPIST / HD 209 chips in the sidebar. Each preset adjusts star color, planet size, and default orbital speed to match a famous exoplanet configuration.</li>
+<li><strong>Shape the transit:</strong> use <em>Noise</em>, <em>Orbit Speed</em>, <em>Planet Size</em>, and <em>Impact (b)</em> to change the geometry. As you drag, the 3D rig and the light curve update together.</li>
+<li><strong>Flip visual modes:</strong> CALM is clean and analytic, EXTREME adds cinematic punch, and INSANE leans into scanlines, color punch, and audio texture. Modes are purely presentational; the underlying math stays stable.</li>
+<li><strong>Ask the advisor:</strong> type into the AI panel on the right and switch tabs between COACH / CRITIC / IDEA. Even offline, the lab returns canned explanations so the surface never feels dead.</li>
+<li><strong>Showtime:</strong> the SHOWTIME button in the header runs a tiny scripted sequence that flips systems, modes, and an AI line to act like a 20-second portfolio tour.</li>
+</ol>
+<p>When you click <strong>ENTER LAB</strong>, this overlay fades away, but the layout and boot logic stay in place. Reloading the page always brings you back through this double-splash sequence so it feels like a deliberate cold open, not a raw demo.</p>
+</div>
+<div class="splash-footer">
+<span>Step 2 of 2 · Flight check &amp; controls</span>
+<div class="splash-footer-right">
+<button class="btn" onclick="window.__transitEnterLab &amp;&amp; window.__transitEnterLab()" type="button">ENTER LAB</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div class="app" id="appShell">
+<header>
+<div class="header-left">
+<span class="title" id="appTitle">TRANSIT 3D // PRESTIGE</span>
+<span class="tag">NASA LAB</span>
+</div>
+<div class="header-right">
+<div aria-hidden="true" class="ai-orb" id="aiOrb">
+<div class="ai-orb-core"></div>
+<div class="ai-orb-ring"></div>
+</div>
+<button class="btn header-btn" onclick="window.transitBot &amp;&amp; window.transitBot.togglePresentation()" type="button">PRESENT</button>
+<button class="btn header-btn" onclick="window.transitBot &amp;&amp; window.transitBot.showtime &amp;&amp; window.transitBot.showtime()" type="button">SHOWTIME</button>
+<button class="btn header-btn" onclick="window.__showTransitAbout &amp;&amp; window.__showTransitAbout()" type="button">ABOUT</button>
+<button class="btn header-btn" onclick="window.__showTransitReadme &amp;&amp; window.__showTransitReadme()" type="button">DOCS</button>
+<div class="status-pill" data-state="idle" id="statusPill">
+<span aria-hidden="true" class="status-pill-dot"></span>
+<span class="status-pill-label">LIVE SENSOR FEED</span>
+</div>
+</div>
+</header>
+<div class="workspace">
+<div class="view-shell" id="threeRoot">
+<!-- Canvas injected here -->
+<div class="hud-overlay">
+<div class="badge-row">
+<div class="badge"><div class="dot"></div><span id="sysName">KEPLER-186</span></div>
+</div>
+<div class="sys-meta" id="sysMeta">M-dwarf · Earth-size planet</div>
+</div>
+</div>
+<aside class="data-view">
+<!-- FLUX GRAPH -->
+<div class="graph-card">
+<div class="graph-header">
+<span>LIGHT CURVE (ΔF)</span>
+<span class="flux-val" id="fluxReadout">1.00000</span>
+</div>
+<canvas id="fluxCanvas"></canvas>
+</div>
+<!-- CONTROLS -->
+<div class="panel-section">
+<div class="panel-title">Target System</div>
+<div class="sys-btn-row">
+<button class="sys-btn active" onclick="app.setSystem('Kepler-186')">KEPLER</button>
+<button class="sys-btn" onclick="app.setSystem('TRAPPIST-1')">TRAPPIST</button>
+<button class="sys-btn" onclick="app.setSystem('HD 209458')">HD 209</button>
+</div>
+<div class="control-group">
+<div class="control-label"><span>Noise</span><span class="control-val" id="noiseVal">10%</span></div>
+<input id="noiseSlider" max="50" min="0" type="range" value="10"/>
+</div>
+<div class="control-group">
+<div class="control-label"><span>Orbit Speed</span><span class="control-val" id="speedVal">1.0x</span></div>
+<input id="speedSlider" max="40" min="5" type="range" value="20"/>
+</div>
+<div class="control-group">
+<div class="control-label"><span>Planet Size</span><span class="control-val" id="radVal">1.0x</span></div>
+<input id="radiusSlider" max="220" min="50" type="range" value="100"/>
+</div>
+<div class="control-group">
+<div class="control-label"><span>Impact (b)</span><span class="control-val" id="impVal">0.10</span></div>
+<input id="impactSlider" max="95" min="0" type="range" value="10"/>
+</div>
+<div class="control-group">
+<div class="control-label"><span>Visual Mode</span><span class="control-val" id="modeLabel">Calm</span></div>
+<div class="btn-row">
+<button class="btn mode-btn active" data-mode="calm" onclick="app.setVisualMode('calm')">CALM</button>
+<button class="btn mode-btn" data-mode="extreme" onclick="app.setVisualMode('extreme')">EXTREME</button>
+<button class="btn mode-btn" data-mode="insane" onclick="app.setVisualMode('insane')">INSANE</button>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn" onclick="app.togglePause()">⏯ PAUSE</button>
+<button class="btn" onclick="app.toggleDemo()">▶ DEMO</button>
+<button class="btn" onclick="app.toggleAuto()">AUTO CAM</button>
+</div>
+<!-- Real Data Nav -->
+<div style="display:flex; justify-content:center; margin-top:10px; font-size:0.7rem;">
+<button class="btn" onclick="app.cycleReal(-1)" style="width:auto;">◀</button>
+<span id="realTargetLabel" style="padding:6px; color:#888;">NASA Data: Loading...</span>
+<button class="btn" onclick="app.cycleReal(1)" style="width:auto;">▶</button>
+</div>
+</div>
+</aside></div>
+</div>
+<div aria-hidden="true" aria-modal="true" class="overlay" id="aboutOverlay" role="dialog">
+<div class="overlay-card">
+<div class="overlay-header">
+<div class="overlay-title">ABOUT // TRANSIT 3D LAB</div>
+<button class="btn header-btn" onclick="window.__hideTransitAbout &amp;&amp; window.__hideTransitAbout()" type="button">CLOSE</button>
+</div>
+<div class="overlay-body">
+<p><strong>TRANSIT 3D // PRESTIGE</strong> is a single-file WebGL lab for exploring exoplanet transits. It is built to show real engineering craft: resilience, a11y, and just enough cinematic drama to impress a recruiter.</p>
+<p>Use the <strong>system chips</strong> to jump between curated star systems, then tune <strong>noise, speed, orbit radius, and impact parameter</strong> to watch how the light curve responds. The right-hand panel stays in sync with the simulation.</p>
+<div aria-label="Feature highlights" class="chip-row">
+<span class="chip">Single-file WebGL lab</span>
+<span class="chip">WebGL + 2D canvas</span>
+<span class="chip">Accessible controls</span>
+<span class="chip">Keyboard-first UI</span>
+<span class="chip">Konami dev console</span>
+<span class="chip">State persistence</span>
+</div>
+<p>The app is structured like a tiny product: boot screen, live viewport, instrumentation, AI advisor, and a debug backdoor. It’s opinionated, but everything lives in one portable HTML file.</p>
+</div>
+</div>
+</div>
+<div aria-hidden="true" aria-modal="true" class="overlay" id="readmeOverlay" role="dialog">
+<div class="overlay-card">
+<div class="overlay-header">
+<div class="overlay-title">README // HOW TO DRIVE</div>
+<button class="btn header-btn" onclick="window.__hideTransitReadme &amp;&amp; window.__hideTransitReadme()" type="button">CLOSE</button>
+</div>
+<div class="overlay-body">
+<h3>Controls</h3>
+<ul>
+<li><strong>OrbitControls:</strong> drag to rotate, scroll to zoom, right-drag to pan.</li>
+<li><strong>Noise / Speed / Radius / Impact sliders:</strong> update the transit geometry and sampling in real time.</li>
+<li><strong>PRESENT button:</strong> toggles presentation mode (fullscreen 3D focus; sidebar fades out).</li>
+<li><strong>AI tabs:</strong> switch between Coach / Critic / Idea advisors.</li>
+</ul>
+<h3>Persistence &amp; State Hygiene</h3>
+<ul>
+<li>Key knobs (system, sliders, persona, theme, demo flag, visual mode) are saved to <code>localStorage</code> under a single namespaced key.</li>
+<li>On load, we restore state, re-apply the theme, and call <code>setSystem()</code> so the viewport and HUD are consistent.</li>
+<li>Helper <code>persistState()</code> is called only from user-driven paths (sliders, buttons, persona changes).</li>
+</ul>
+<h3>Automation Hook</h3>
+<p>A tiny automation surface is exposed as <code>window.transitBot</code> with helpers like <code>setSystem()</code>, <code>togglePresentation()</code>, <code>setVisualMode()</code> and <code>sendRobotPrompt()</code> for scripted demos.</p>
+<h3>Robots &amp; 404</h3>
+<ul>
+<li>A sample <code>robots.txt</code> lives in the dev console for deployments.</li>
+<li>Visiting a deployed <code>/404</code> route (or using <code>#404</code> in the URL) will trip a tiny “Lost in transit” page overlay.</li>
+</ul>
+</div>
+</div>
+</div>
+<div aria-hidden="true" aria-modal="true" class="overlay" id="creditsOverlay" role="dialog">
+<div class="overlay-card">
+<div class="overlay-header">
+<div class="overlay-title">CREW // CREDITS</div>
+<button class="btn header-btn" onclick="window.__hideTransitCredits &amp;&amp; window.__hideTransitCredits()" type="button">CLOSE</button>
+</div>
+<div class="overlay-body">
+<p><strong>Concept &amp; direction:</strong> Devin O'Rourke — building an AI-first portfolio of single-file labs that behave like real products, not demos.</p>
+<p><strong>Engineering:</strong> Layout, WebGL shell, telemetry stubs, state store, and automation hooks live side-by-side to show how a production codebase might be organized in miniature.</p>
+<p><strong>Easter eggs:</strong> Konami code dev panel, chaos button, insult mode, and a small 404 overlay. Try poking at the header and keyboard to find them.</p>
+<p>This page is meant to feel like the film credits at the end of a short — the app knows it’s a portfolio piece and owns it.</p>
+</div>
+</div>
+</div>
+<div aria-hidden="true" aria-modal="true" class="overlay" id="notfoundOverlay" role="dialog">
+<div class="overlay-card">
+<div class="overlay-header">
+<div class="overlay-title">404 // LOST IN TRANSIT</div>
+<button class="btn header-btn" onclick="window.__hideTransit404 &amp;&amp; window.__hideTransit404()" type="button">CLOSE</button>
+</div>
+<div class="overlay-body">
+<p>The planet you were looking for isn't transiting this star.</p>
+<p>Double-check the URL, or drop back to the main lab and pick a new configuration. The instruments are still humming.</p>
+</div>
+</div>
+</div>
+<div aria-hidden="true" id="cursorGlow"></div>
+<!-- 1. LIBRARIES (Inlined) -->
+<script>
+let _booted = false;
+// StateStore
+(function(g){const K="TRANSIT_STATE";g.StateStore={save:(k,v)=>localStorage.setItem(K+k,JSON.stringify(v)),load:(k)=>JSON.parse(localStorage.getItem(K+k))||null}})(window);
+
+// Telemetry
+(function(g){const L=[];g.TelemetryHub={log:(a,c,m)=>L.push({t:Date.now(),m})}})(window);
+
+// AI Personas
+(function(g){
+ const p={
+  "transit-prestige-lab": {
+    coach: "You are the Transit Coach. Explain light curves and orbital mechanics.",
+    critic: "You are the Data Critic. Point out noise artifacts and alignment errors.",
+    idea: "You are the Idea Scout. Suggest new planet configurations."
+  }
+ };
+ g.AIPersonas={getPersona:(id,r)=>p[id][r]||p[id].coach};
+})(window);
+
+// AI Router (Mock with Offline Fallback)
+(function(g){
+  
+})(window);
+</script>
+<!-- 2. MAIN LOGIC -->
+<script>
+window.forceBoot = function() { 
+  const _boot=document.getElementById('bootOverlay'); if(_boot) _boot.style.display='none';
+  document.getElementById('appShell').style.opacity = 1;
+};
+
+const app = (function(){
+  // --- CONFIG & STATE ---
+  const SYSTEMS = {
+    "Kepler-186": { color:0x38bdf8, starType:"M-dwarf", desc:"Earth-size habitable zone", rpRs:0.1, baseSpeed:1 },
+    "TRAPPIST-1": { color:0xf97316, starType:"Ultra-cool", desc:"7 Earth-sized planets", rpRs:0.12, baseSpeed:1.4 },
+    "HD 209458":  { color:0xfde68a, starType:"Sun-like", desc:"Hot Jupiter + Rings", rpRs:0.15, baseSpeed:0.7 }
+  };
+  
+  const state = {
+    sys: "Kepler-186",
+    params: { noise:10, speed:20, rad:100, imp:10 },
+    paused: false, autoOrbit: true, demo: false, presentationMode: false,
+    fluxHistory: [],
+    nasa: { catalog:[], idx:0, loaded:false },
+    activePersona: 'coach',
+    theme: 'cosmic',
+    visualMode: 'calm',
+    log: []
+  };
+  const STORAGE_KEY = 'transit3d.lab.v1';
+
+  let demoTimer = null;
+  let _insultMode = false;
+
+  const THEMES = {
+    cosmic: {
+      accent: '#38bdf8',
+      accent2: '#22c55e',
+      bg: '#020617',
+      panel: 'rgba(15, 23, 42, 0.96)'
+    },
+    magma: {
+      accent: '#f97316',
+      accent2: '#facc15',
+      bg: '#111827',
+      panel: 'rgba(17, 24, 39, 0.96)'
+    },
+    aurora: {
+      accent: '#22c55e',
+      accent2: '#a855f7',
+      bg: '#020617',
+      panel: 'rgba(15, 23, 42, 0.96)'
+    }
+  };
+
+  const INSULT_LINES = [
+    "Telemetry suggests your last prompt was... statistically suboptimal.",
+    "Even the noise slider has more signal than that request.",
+    "Recalculating. Strongly. Very strongly.",
+    "That idea just triggered the anomaly detector.",
+    "Results may vary. Your mileage definitely did."
+  ];
+
+  function persistState() {
+    try {
+      const payload = {
+        sys: state.sys,
+        params: state.params,
+        autoOrbit: state.autoOrbit,
+        demo: state.demo,
+        presentationMode: !!state.presentationMode,
+        theme: state.theme || 'cosmic',
+        activePersona: state.activePersona,
+        visualMode: state.visualMode || 'calm'
+      };
+      window.localStorage && localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch (e) {
+      // fail silent; never crash render loop
+    }
+  }
+
+  function loadPersistedState() {
+    try {
+      if (!window.localStorage) return;
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved.sys && SYSTEMS[saved.sys]) state.sys = saved.sys;
+      if (saved.params) Object.assign(state.params, saved.params);
+      if (typeof saved.autoOrbit === 'boolean') state.autoOrbit = saved.autoOrbit;
+      if (typeof saved.demo === 'boolean') state.demo = saved.demo;
+      if (typeof saved.presentationMode === 'boolean') state.presentationMode = saved.presentationMode;
+      if (saved.theme) state.theme = saved.theme;
+      if (saved.activePersona) state.activePersona = saved.activePersona;
+      if (saved.visualMode) state.visualMode = saved.visualMode;
+    } catch(e) {
+      // ignore
+    }
+  }
+
+  function applyTheme(nextTheme) {
+    const themeKey = nextTheme || state.theme || 'cosmic';
+    const theme = THEMES[themeKey] || THEMES.cosmic;
+    state.theme = themeKey;
+    const root = document.documentElement;
+    try {
+      root.style.setProperty('--accent', theme.accent);
+      root.style.setProperty('--accent2', theme.accent2);
+      root.style.setProperty('--bg', theme.bg);
+      root.style.setProperty('--panel', theme.panel);
+      persistState();
+    } catch(e) {}
+  }
+
+  function cycleTheme() {
+    const order = ['cosmic','magma','aurora'];
+    const idx = order.indexOf(state.theme || 'cosmic');
+    const next = order[(idx + 1) % order.length];
+    applyTheme(next);
+  }
+
+  function aiOrbSetState(mode) {
+    try {
+      const orb = document.getElementById('aiOrb');
+      if (!orb) return;
+      if (!mode) mode = 'idle';
+      orb.setAttribute('data-mode', mode);
+    } catch(e){}
+  }
+
+  function playAdvisorChime() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 680;
+      gain.gain.value = 0.12;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      setTimeout(() => {
+        osc.stop();
+        ctx.close();
+      }, 260);
+    } catch(e){}
+  }
+
+  function triggerChaosPulse() {
+    const keys = Object.keys(SYSTEMS);
+    const randomKey = keys[Math.floor(Math.random()*keys.length)];
+    setSystem(randomKey);
+    const n = document.getElementById('noiseSlider');
+    const s = document.getElementById('speedSlider');
+    if (n) { state.params.noise = 5 + Math.random()*25; n.value = state.params.noise; }
+    if (s) { state.params.speed = 10 + Math.random()*40; s.value = state.params.speed; }
+    const nv = document.getElementById('noiseVal');
+    const sv = document.getElementById('speedVal');
+    if (nv) nv.textContent = state.params.noise.toFixed(0)+'%';
+    if (sv) sv.textContent = (state.params.speed/10).toFixed(1)+'x';
+    try { persistState(); } catch(e){}
+  }
+
+
+  // --- THREE.JS ---
+  let scene, camera, renderer, controls;
+  let star, planetGroup, planet;
+  
+  function initThree() {
+    const container = document.getElementById('threeRoot');
+    
+    // Safety Check
+    if(!window.THREE) {
+       const _boot=document.getElementById('bootOverlay'); if(_boot) _boot.innerHTML='<div style="color:#f87171">Three.js Failed to Load.<br>Check Internet Connection.</div>';
+       return;
+    }
+    
+    scene = new THREE.Scene();
+    
+    const aspect = container.clientWidth / container.clientHeight;
+    camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 100);
+    camera.position.set(0, 2, 12);
+    
+    renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("transit") : (window.devicePixelRatio||1)), 2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    container.appendChild(renderer.domElement);
+    
+    
+
+    // Ensure touch gestures control the 3D viewport (avoid page scroll hijack on mobile)
+    try {
+      if (renderer && renderer.domElement) {
+        renderer.domElement.style.touchAction = "none";
+        renderer.domElement.addEventListener("touchmove", (e) => { try { e.preventDefault(); } catch(_){} }, { passive: false });
+      }
+    } catch (_e) {}
+// Lighting
+    const amb = new THREE.AmbientLight(0xffffff, 0.1);
+    const sun = new THREE.PointLight(0xffffff, 1.5, 100);
+    scene.add(amb, sun);
+    
+    // Star Background
+    const starsGeo = new THREE.BufferGeometry();
+    const pts = [];
+    for(let i=0;i<500;i++) {
+       pts.push((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*80);
+    }
+    starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    const stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({color:0x888888, size:0.1}));
+    scene.add(stars);
+
+    // Star Mesh
+    const starGeo = new THREE.SphereGeometry(1.5, 64, 64);
+    const starMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+    star = new THREE.Mesh(starGeo, starMat);
+    scene.add(star);
+    
+    // Star Glow
+    const glow = new THREE.Mesh(
+       new THREE.SphereGeometry(1.7, 32, 32),
+       new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent:true, opacity:0.15 })
+    );
+    scene.add(glow);
+
+    // Planet Rig
+    planetGroup = new THREE.Group();
+    scene.add(planetGroup);
+    
+    const pGeo = new THREE.SphereGeometry(0.4, 32, 32);
+    const pMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, roughness:0.8 });
+    planet = new THREE.Mesh(pGeo, pMat);
+    planet.position.x = 6;
+    planetGroup.add(planet);
+
+    // Controls
+    if(THREE.OrbitControls) {
+       controls = new THREE.OrbitControls(camera, renderer.domElement);
+       controls.enableDamping = true;
+       controls.autoRotate = state.autoOrbit;
+       controls.enablePan = true;
+    }
+    
+    animate();
+
+    // Gyroscope Parallax (mobile tilt → subtle camera target shift)
+    if (window.DeviceOrientationEvent && 'ontouchstart' in window) {
+      window.addEventListener('deviceorientation', (e) => {
+        if (!controls || state.paused) return;
+        const beta = (e.beta || 0);   // front/back tilt
+        const gamma = (e.gamma || 0); // left/right tilt
+
+        const tiltX = Math.max(-30, Math.min(30, beta));
+        const tiltY = Math.max(-30, Math.min(30, gamma));
+
+        const factor = 0.02;
+        const targetX = tiltY * factor;
+        const targetY = 0.5 + tiltX * factor;
+
+        controls.target.x += (targetX - controls.target.x) * 0.08;
+        controls.target.y += (targetY - controls.target.y) * 0.08;
+      });
+    }
+
+    // Boot: after a short delay, fade spinner and show splash overlay
+    setTimeout(()=>{
+      const boot = document.getElementById('bootOverlay');
+      const shell = document.getElementById('appShell');
+      if (shell) shell.style.opacity = 1;
+      if (boot) {
+        boot.style.opacity = 0;
+        setTimeout(()=>{
+          boot.style.display = 'none';
+          const splash = document.getElementById('splashOverlay');
+          if (splash) {
+            splash.setAttribute('aria-hidden','false');
+            splash.classList.remove('splash-stage-2');
+          }
+        },500);
+      } else {
+        const splash = document.getElementById('splashOverlay');
+        if (splash) {
+          splash.setAttribute('aria-hidden','false');
+          splash.classList.remove('splash-stage-2');
+        }
+      }
+    },1500);
+    
+    // BOOT WATCHDOG
+    setTimeout(() => {
+       const boot = document.getElementById('bootOverlay');
+       if(boot && boot.style.display !== 'none') {
+          const btn = document.getElementById('forceStartBtn');
+          if (btn) btn.style.display = 'block';
+       }
+    }, 2500);
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    
+    if(!state.paused) {
+       const spd = state.params.speed / 2000;
+       planetGroup.rotation.y += spd;
+       
+       // Flux Calc
+       const angle = planetGroup.rotation.y % (Math.PI*2);
+       let flux = 1.0;
+       const x = Math.sin(angle) * 6; // orbit radius
+       const z = Math.cos(angle) * 6;
+       
+       if(z > 0 && Math.abs(x) < 2.0) { // In front of star
+          const imp = state.params.imp / 100;
+          const depth = (state.params.rad/1000) * 0.1;
+          const dip = depth * Math.exp(-Math.pow(x, 2) / (0.5 + imp));
+          flux -= dip;
+       }
+       
+       const noise = (state.params.noise / 5000) * (Math.random()-0.5);
+       flux += noise;
+       
+       updateFluxGraph(flux);
+       updateFluxAudio(flux);
+    }
+
+    if(state.autoOrbit && controls) controls.update();
+    if(renderer && camera) renderer.render(scene, camera);
+  }
+
+  // --- FLUX GRAPH ---
+  const fCanvas = document.getElementById('fluxCanvas');
+  const fCtx = fCanvas.getContext('2d');
+  fCanvas.width = fCanvas.clientWidth * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("transit") : (window.devicePixelRatio||1));
+  fCanvas.height = fCanvas.clientHeight * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("transit") : (window.devicePixelRatio||1));
+  let fData = new Array(100).fill(1.0);
+  
+  function fluxPalette(t) {
+    const a = [0.5, 0.5, 0.5];
+    const b = [0.5, 0.5, 0.5];
+    const c = [1.0, 1.0, 1.0];
+    const d = [0.263, 0.416, 0.557];
+    const r = a[0] + b[0] * Math.cos(2*Math.PI*(c[0]*t + d[0]));
+    const g = a[1] + b[1] * Math.cos(2*Math.PI*(c[1]*t + d[1]));
+    const bC = a[2] + b[2] * Math.cos(2*Math.PI*(c[2]*t + d[2]));
+    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+    const to255 = (x) => Math.round(255 * clamp01(x));
+    return `rgb(${to255(r)},${to255(g)},${to255(bC)})`;
+  }
+  
+  function updateFluxGraph(val) {
+      fData.push(val);
+      fData.shift();
+
+      const readout = document.getElementById('fluxReadout');
+      if (readout) readout.textContent = val.toFixed(5);
+
+      const w = fCanvas.width;
+      const h = fCanvas.height;
+      fCtx.clearRect(0,0,w,h);
+
+      const min = 0.98, max = 1.01;
+
+      const grad = fCtx.createLinearGradient(0, 0, w, 0);
+      grad.addColorStop(0.0, fluxPalette(0.0));
+      grad.addColorStop(0.5, fluxPalette(0.5));
+      grad.addColorStop(1.0, fluxPalette(1.0));
+      fCtx.strokeStyle = grad;
+      const mode = state.visualMode || 'calm';
+      fCtx.lineWidth = mode === 'calm' ? 2 : (mode === 'extreme' ? 2.6 : 3.2);
+      fCtx.beginPath();
+
+      for (let i = 0; i < fData.length; i++) {
+         const x = (i / (fData.length - 1)) * w;
+         const y = h - ((fData[i] - min) / (max - min)) * h;
+         if (i === 0) fCtx.moveTo(x, y); else fCtx.lineTo(x, y);
+      }
+      fCtx.stroke();
+  } 
+  
+  // --- AUDIO ENGINE (Pink Noise Rumble + Bytebeat) ---
+  function ensureTransitAudio() {
+    if (window.__transitAudio) {
+      const ctx = window.__transitAudio.ctx;
+      if (ctx && ctx.state === 'suspended' && typeof ctx.resume === 'function') {
+        ctx.resume();
+      }
+      return window.__transitAudio;
+    }
+    const ACtx = window.AudioContext || window.webkitAudioContext;
+    if (!ACtx) return null;
+    const ctx = new ACtx();
+
+    // Pink/low rumble noise (approximated using low-passed white)
+    const bufferSize = 2 * ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const output = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+    const whiteNoise = ctx.createBufferSource();
+    whiteNoise.buffer = buffer;
+    whiteNoise.loop = true;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 80;
+
+    const pinkGain = ctx.createGain();
+    pinkGain.gain.value = 0.02; // calm default
+
+    whiteNoise.connect(filter);
+    filter.connect(pinkGain);
+
+    // Bytebeat music engine (muted until INSANE / SHOWTIME)
+    const scriptNode = ctx.createScriptProcessor(4096, 1, 1);
+    let t = 0;
+    scriptNode.onaudioprocess = function(e) {
+      const out = e.outputBuffer.getChannelData(0);
+      for (let i = 0; i < out.length; i++) {
+        const byte = (t * (42 & (t >> 10)) | t * 3 >> ((t >> 13) & 3));
+        out[i] = ((byte & 255) / 128) - 1;
+        t++;
+      }
+    };
+
+    const byteGain = ctx.createGain();
+    byteGain.gain.value = 0.0; // off by default
+
+    // Master gain
+    const master = ctx.createGain();
+    master.gain.value = 0.4;
+
+    pinkGain.connect(master);
+    scriptNode.connect(byteGain);
+    byteGain.connect(master);
+    master.connect(ctx.destination);
+
+    whiteNoise.start();
+    scriptNode.connect(byteGain);
+
+    window.__transitAudio = { ctx, filter, pinkGain, scriptNode, byteGain, master };
+    return window.__transitAudio;
+  }
+
+  function updateFluxAudio(flux) {
+    const audio = window.__transitAudio;
+    if (!audio) return;
+    const { ctx, filter, pinkGain } = audio;
+    const depth = Math.max(0, Math.min(1, 1.0 - flux));
+    const baseFreq = 40;
+    const targetFreq = baseFreq + depth * 200;
+    const mode = state.visualMode || 'calm';
+    const baseGain = mode === 'calm' ? 0.02 : (mode === 'extreme' ? 0.06 : 0.1);
+    const targetGain = baseGain + depth * 0.25;
+
+    try {
+      const now = ctx.currentTime;
+      filter.frequency.linearRampToValueAtTime(targetFreq, now + 0.1);
+      pinkGain.gain.linearRampToValueAtTime(targetGain, now + 0.1);
+    } catch (e) {
+      filter.frequency.value = targetFreq;
+      pinkGain.gain.value = targetGain;
+    }
+  }
+
+  // --- NASA DATA (Async) ---
+  async function loadNasaData() {
+     const lbl = document.getElementById('realTargetLabel');
+     if (lbl) lbl.textContent = "NASA: Connecting...";
+     setTimeout(() => {
+        state.nasa.catalog = [
+           { name: "Kepler-186f", depth: "0.1%", period: "130d" },
+           { name: "TRAPPIST-1e", depth: "0.5%", period: "6d" },
+           { name: "HD 209458 b", depth: "1.5%", period: "3.5d" }
+        ];
+        state.nasa.loaded = true;
+        updateNasaUI();
+     }, 2000);
+  }
+
+  function updateNasaUI() {
+     const t = state.nasa.catalog[state.nasa.idx];
+     const lbl = document.getElementById('realTargetLabel');
+     if (lbl && t) lbl.textContent = `NASA: ${t.name} (${t.period})`;
+  }
+
+  function cycleReal(dir) {
+     if(!state.nasa.loaded) return;
+     const len = state.nasa.catalog.length;
+     state.nasa.idx = (state.nasa.idx + dir + len) % len;
+     updateNasaUI();
+  }
+
+  // --- UI ACTIONS ---
+  function setSystem(key) {
+     state.sys = key;
+     const sys = SYSTEMS[key];
+     const nEl = document.getElementById('sysName');
+     const mEl = document.getElementById('sysMeta');
+     if (nEl) nEl.textContent = key.toUpperCase();
+     if (mEl) mEl.textContent = sys.desc;
+
+     if(star) star.material.color.setHex(sys.color);
+
+     document.querySelectorAll('.sys-btn').forEach(b => {
+        b.classList.toggle('active', b.innerText.includes(key.split(' ')[0].toUpperCase()));
+     });
+     try { logEvent('system', key); persistState(); } catch(e){}
+  }
+
+  function togglePause() {
+     state.paused = !state.paused;
+     try { persistState(); } catch(e){}
+  }
+
+  function toggleAuto() {
+     state.autoOrbit = !state.autoOrbit;
+     if(controls) controls.autoRotate = state.autoOrbit;
+     try { persistState(); } catch(e){}
+  }
+
+  function toggleDemo() {
+     state.demo = !state.demo;
+     if(state.demo) {
+        state.autoOrbit = true;
+        state.paused = false;
+        if(demoTimer) clearInterval(demoTimer);
+        const keys = Object.keys(SYSTEMS);
+        demoTimer = setInterval(() => {
+           if(!state.demo) return;
+           setSystem(keys[Math.floor(Math.random()*keys.length)]);
+        }, 5000);
+     } else {
+        if(demoTimer) {
+           clearInterval(demoTimer);
+           demoTimer = null;
+        }
+     }
+     try { persistState(); } catch(e){}
+  }
+
+  // --- AI ---
+  function setPersona(role) {
+    if (!document.querySelector('.ai-card') && !document.querySelector('.ai-tabs')) { return; }
+     state.activePersona = role;
+     document.querySelectorAll('.ai-tab').forEach(b => {
+        const isActive = b.textContent.trim().toLowerCase().includes(role);
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+     try { logEvent('persona', role); persistState(); } catch(e){}
+  }
+
+  function sendAI() {
+    const inp = document.getElementById('aiInput');
+    if (!inp) { return; }
+     if(!inp) return;
+     const raw = inp.value || "";
+     const text = raw.trim();
+     if(!text) return;
+
+     const out = document.getElementById('aiOutput');
+     const status = document.getElementById('aiStatus');
+
+     aiOrbSetState('thinking');
+     if(status) status.textContent = 'Routing to advisor…';
+     if(out) out.textContent = `YOU: ${text.slice(0, 420)}`;
+
+     inp.value = "";
+
+     if(_insultMode && out) {
+       const line = INSULT_LINES[Math.floor(Math.random()*INSULT_LINES.length)];
+       out.textContent += `\n\nLAB (ROAST MODE): ${line}`;
+     }
+
+     try { logEvent('ai', text.slice(0,120)); } catch(e){}
+
+     AIAdvisorRouter.runAdvisor({
+        role: state.activePersona,
+        userPrompt: text,
+        ui: {
+           setStatus: (s) => { if(status) status.textContent = s; },
+           setText: (t) => {
+             if(!out) return;
+             out.textContent += `\n\nAI: ${t}`;
+           },
+           onDone: () => {
+             aiOrbSetState('answering');
+             playAdvisorChime();
+             setTimeout(() => aiOrbSetState('idle'), 600);
+           }
+        }
+     });
+  }
+
+  // --- VISUAL MODES ---
+  function setVisualMode(mode) {
+    if (!['calm','extreme','insane'].includes(mode)) mode = 'calm';
+    state.visualMode = mode;
+    document.body.setAttribute('data-visual-mode', mode);
+    const label = document.getElementById('modeLabel');
+    if (label) {
+      const nice = mode.charAt(0).toUpperCase() + mode.slice(1);
+      label.textContent = nice;
+    }
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      const m = btn.getAttribute('data-mode');
+      btn.classList.toggle('active', m === mode);
+    });
+
+    let audio = null;
+    try { audio = ensureTransitAudio(); } catch(e){}
+    if (audio) {
+      const now = audio.ctx.currentTime;
+      const targetPink = mode === 'calm' ? 0.02 : (mode === 'extreme' ? 0.08 : 0.14);
+      audio.pinkGain.gain.cancelScheduledValues(now);
+      audio.pinkGain.gain.setValueAtTime(audio.pinkGain.gain.value, now);
+      audio.pinkGain.gain.linearRampToValueAtTime(targetPink, now + 0.3);
+
+      const targetByte = mode === 'insane' ? 0.12 : 0.0;
+      audio.byteGain.gain.cancelScheduledValues(now);
+      audio.byteGain.gain.setValueAtTime(audio.byteGain.gain.value, now);
+      audio.byteGain.gain.linearRampToValueAtTime(targetByte, now + 0.4);
+    }
+
+    try { logEvent('visualMode', mode); persistState(); } catch(e){}
+  }
+
+  // --- INPUT WIRING ---
+  function logEvent(type, detail) {
+     try {
+       if(!state.log) state.log = [];
+       const entry = { t: Date.now(), type, detail };
+       state.log.push(entry);
+       if(state.log.length > 60) state.log.shift();
+       if(typeof setStatusPill === 'function') {
+         setStatusPill(type === 'showtime' ? 'showtime' : 'active', 'LIVE SENSOR FEED');
+         if(_statusTimer) clearTimeout(_statusTimer);
+         _statusTimer = setTimeout(() => setStatusPill('idle'), 1600);
+       }
+     } catch(e){}
+  }
+
+  let _statusTimer = null;
+  function setStatusPill(mode, label) {
+     try {
+       const pill = document.getElementById('statusPill');
+       if(!pill) return;
+       if(mode) pill.setAttribute('data-state', mode);
+       const span = pill.querySelector('.status-pill-label');
+       if(span && label) span.textContent = label;
+     } catch(e){}
+  }
+
+  function togglePresentation() {
+     const root = document.getElementById('appShell');
+     state.presentationMode = !state.presentationMode;
+     if(state.presentationMode) {
+        try { ensureTransitAudio(); } catch(e){}
+        state.autoOrbit = true;
+        state.paused = false;
+        if(state.params.speed < 26) {
+          state.params.speed = 26;
+          const s = document.getElementById('speedSlider');
+          const sv = document.getElementById('speedVal');
+          if(s) s.value = state.params.speed;
+          if(sv) sv.textContent = (state.params.speed/10).toFixed(1)+'x';
+        }
+        if(root) root.classList.add('presentation-mode');
+        try {
+          const threeRoot = document.getElementById('threeRoot');
+          if(threeRoot && threeRoot.requestFullscreen) threeRoot.requestFullscreen();
+        } catch(e){}
+     } else {
+        if(root) root.classList.remove('presentation-mode');
+        try {
+          if(document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+        } catch(e){}
+     }
+     try { logEvent('presentation', state.presentationMode ? 'on' : 'off'); persistState(); } catch(e){}
+  }
+
+  function resetLab() {
+     state.params = { noise:10, speed:20, rad:100, imp:10 };
+     const bindings = [
+       ['noiseSlider','noiseVal','noise', v=>v+'%'],
+       ['speedSlider','speedVal','speed', v=>(v/10).toFixed(1)+'x'],
+       ['radiusSlider','radVal','rad', v=>(v/100).toFixed(2)+'x'],
+       ['impactSlider','impVal','imp', v=>(v/100).toFixed(2)]
+     ];
+     bindings.forEach(([id, labId, key, fmt]) => {
+        const el = document.getElementById(id);
+        const lab = document.getElementById(labId);
+        const val = state.params[key];
+        if(el) el.value = val;
+        if(lab) lab.textContent = fmt(val);
+     });
+     try { logEvent('reset', 'lab'); persistState(); } catch(e){}
+  }
+
+  function sendRobotPrompt(text) {
+     const input = document.getElementById('aiInput');
+     if(input) {
+       input.value = text;
+       sendAI();
+     }
+  }
+
+  function setOverlayVisible(id, visible) {
+     const el = document.getElementById(id);
+     if(!el) return;
+     el.setAttribute('aria-hidden', visible ? 'false' : 'true');
+  }
+
+  function showAbout() { setOverlayVisible('aboutOverlay', true); }
+  function hideAbout() { setOverlayVisible('aboutOverlay', false); }
+  function showReadme() { setOverlayVisible('readmeOverlay', true); }
+  function hideReadme() { setOverlayVisible('readmeOverlay', false); }
+  function showCredits() { setOverlayVisible('creditsOverlay', true); }
+  function hideCredits() { setOverlayVisible('creditsOverlay', false); }
+  function show404() { setOverlayVisible('notfoundOverlay', true); }
+  function hide404() { setOverlayVisible('notfoundOverlay', false); }
+
+  function setupCursorGlow() {
+     try {
+       const glow = document.getElementById('cursorGlow');
+       if(!glow) return;
+       const mq = window.matchMedia && window.matchMedia('(pointer: coarse)');
+       if(mq && mq.matches) {
+         document.body.setAttribute('data-no-cursor-glow','true');
+         return;
+       }
+       window.addEventListener('mousemove', (e) => {
+         glow.style.opacity = '1';
+         glow.style.left = e.clientX + 'px';
+         glow.style.top = e.clientY + 'px';
+       });
+       window.addEventListener('mouseleave', () => {
+         glow.style.opacity = '0';
+       });
+     } catch(e){}
+  }
+
+  const _KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let _konamiIdx = 0;
+
+  function setupKonami() {
+     window.addEventListener('keydown', (e) => {
+       const key = e.key;
+       if(!key) return;
+       const expected = _KONAMI[_konamiIdx];
+       if(key === expected || key.toLowerCase() === expected) {
+         _konamiIdx++;
+         if(_konamiIdx === _KONAMI.length) {
+           _konamiIdx = 0;
+           revealDevPanel();
+         }
+       } else {
+         _konamiIdx = 0;
+       }
+     });
+  }
+
+  function revealDevPanel() {
+     try {
+       let panel = document.getElementById('devPanel');
+       if(!panel) {
+         panel = document.createElement('div');
+         panel.id = 'devPanel';
+         panel.style.position = 'fixed';
+         panel.style.right = '16px';
+         panel.style.bottom = '16px';
+         panel.style.width = 'min(360px, 90vw)';
+         panel.style.maxHeight = '50vh';
+         panel.style.borderRadius = '12px';
+         panel.style.border = '1px solid rgba(148,163,184,0.8)';
+         panel.style.background = 'rgba(15,23,42,0.98)';
+         panel.style.boxShadow = '0 24px 80px rgba(0,0,0,0.95)';
+         panel.style.padding = '10px 12px';
+         panel.style.zIndex = '80';
+         panel.style.fontSize = '12px';
+         panel.style.color = '#e5e7eb';
+         panel.style.display = 'flex';
+         panel.style.flexDirection = 'column';
+         panel.style.gap = '6px';
+         panel.innerHTML = `
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+    <div style="letter-spacing:0.16em;font-size:10px;text-transform:uppercase;opacity:0.8;">DEV CONSOLE // TRANSIT</div>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <button id="devThemeBtn" class="btn" style="padding:2px 6px;font-size:10px;">Theme</button>
+      <button id="devChaosBtn" class="btn" style="padding:2px 6px;font-size:10px;">Chaos</button>
+      <button id="devInsultBtn" class="btn" style="padding:2px 6px;font-size:10px;">Insult</button>
+      <button id="devCloseBtn" class="btn" style="padding:2px 6px;font-size:10px;">×</button>
+    </div>
+  </div>
+  <pre id="dev-panel-body" style="margin:0;padding:4px 6px;background:rgba(15,23,42,0.9);border-radius:8px;overflow:auto;white-space:pre-wrap;"></pre>
+         `;
+         document.body.appendChild(panel);
+
+         document.getElementById('devCloseBtn').onclick = () => panel.remove();
+         document.getElementById('devThemeBtn').onclick = () => cycleTheme();
+         document.getElementById('devChaosBtn').onclick = () => triggerChaosPulse();
+         document.getElementById('devInsultBtn').onclick = () => { _insultMode = !_insultMode; };
+       }
+       const body = document.getElementById('dev-panel-body');
+       if(body) {
+         const snap = {
+           sys: state.sys,
+           params: state.params,
+           autoOrbit: state.autoOrbit,
+           paused: state.paused,
+           demo: state.demo,
+           presentationMode: !!state.presentationMode,
+           theme: state.theme || 'cosmic',
+           activePersona: state.activePersona,
+           visualMode: state.visualMode,
+           nasaLoaded: state.nasa.loaded,
+           fluxPoints: state.fluxHistory.length,
+           logCount: (state.log || []).length
+         };
+         body.textContent = JSON.stringify(snap, null, 2) +
+           '\n\n# sample robots.txt\nUser-agent: *\nDisallow: /dev\nAllow: /\n';
+         const log = (state.log || []).slice().reverse().slice(0, 15);
+         if(log.length) {
+           body.textContent += '\n\n# telemetry (latest first)\n';
+           log.forEach((entry, idx) => {
+             const ts = new Date(entry.t).toISOString();
+             const detail = typeof entry.detail === 'string' ? entry.detail : JSON.stringify(entry.detail);
+             body.textContent += `[${idx+1}] ${ts} :: ${entry.type} :: ${detail}\n`;
+           });
+         }
+       }
+     } catch(e){}
+  }
+
+  function wireUI() {
+     const bindSlider = (id, paramKey, dispId, fmt) => {
+        const el = document.getElementById(id);
+        const lab = document.getElementById(dispId);
+        if(!el) return;
+        const apply = (val) => {
+          const num = parseFloat(val);
+          state.params[paramKey] = num;
+          if(lab) lab.textContent = fmt(num);
+        };
+        el.addEventListener('input', (e) => {
+          apply(e.target.value);
+          try { persistState(); } catch(e){}
+        });
+        const initial = state.params[paramKey] ?? parseFloat(el.value);
+        if(initial != null) {
+          el.value = initial;
+          apply(initial);
+        }
+     };
+
+     bindSlider('noiseSlider', 'noise', 'noiseVal', v=>v+'%');
+     bindSlider('speedSlider', 'speed', 'speedVal', v=>(v/10).toFixed(1)+'x');
+     bindSlider('radiusSlider', 'rad', 'radVal', v=>(v/100).toFixed(2)+'x');
+     bindSlider('impactSlider', 'imp', 'impVal', v=>(v/100).toFixed(2));
+
+     document.querySelectorAll('.ai-tab').forEach(btn => {
+       btn.addEventListener('click', () => {
+         const role = btn.textContent.trim().toLowerCase();
+         setPersona(role);
+       });
+       btn.addEventListener('keydown', (e) => {
+         if(e.key === 'Enter' || e.key === ' ') {
+           e.preventDefault();
+           btn.click();
+         }
+       });
+     });
+
+     const titleEl = document.getElementById('appTitle');
+     if(titleEl) {
+       titleEl.addEventListener('dblclick', () => cycleTheme());
+     }
+
+     document.addEventListener('keydown', (e) => {
+       if(e.key === 'Escape') {
+         hideAbout();
+         hideReadme();
+         hideCredits();
+         hide404();
+       }
+     });
+
+     setupCursorGlow();
+     setupKonami();
+  }
+
+  // Splash helpers
+  function showSplashStage2() {
+    const ov = document.getElementById('splashOverlay');
+    if (!ov) return;
+    ov.classList.add('splash-stage-2');
+  }
+  function enterLabFromSplash() {
+    const ov = document.getElementById('splashOverlay');
+    if (ov) {
+      ov.setAttribute('aria-hidden','true');
+      ov.classList.remove('splash-stage-2');
+    }
+    const boot = document.getElementById('bootOverlay');
+    const shell = document.getElementById('appShell');
+    if (boot) {
+      boot.style.opacity = 0;
+      boot.style.display = 'none';
+    }
+    if (shell) shell.style.opacity = 1;
+    try { logEvent('splash', 'enterLab'); } catch(e){}
+  }
+
+  let _showtimeRunning = false;
+  function runShowtime() {
+    if(_showtimeRunning) return;
+    _showtimeRunning = true;
+
+    let audio = null;
+    try { audio = ensureTransitAudio(); } catch(e){}
+    if (audio && audio.byteGain) {
+      try {
+        const now = audio.ctx.currentTime;
+        audio.byteGain.gain.cancelScheduledValues(now);
+        audio.byteGain.gain.setValueAtTime(audio.byteGain.gain.value, now);
+        audio.byteGain.gain.linearRampToValueAtTime(0.15, now + 0.5);
+      } catch(e){}
+    }
+
+    try { logEvent('showtime', 'start'); } catch(e){}
+    try { setStatusPill && setStatusPill('showtime', 'SHOWTIME SCRIPT'); } catch(e){}
+
+    resetLab();
+    const seq = [
+      () => { setSystem('TRAPPIST-1'); setVisualMode('extreme'); },
+      () => { togglePresentation(); },
+      () => {
+        const n = document.getElementById('noiseSlider');
+        const s = document.getElementById('speedSlider');
+        const r = document.getElementById('radiusSlider');
+        const i = document.getElementById('impactSlider');
+        if(n) n.value = 26;
+        if(s) s.value = 32;
+        if(r) r.value = 140;
+        if(i) i.value = 22;
+        state.params = { noise:26, speed:32, rad:140, imp:22 };
+        try { persistState(); } catch(e){}
+      },
+      () => {
+        setPersona('idea');
+        sendRobotPrompt('Give me a one-line cinematic description of this transit.');
+      },
+      () => {
+        setSystem('Kepler-186');
+        setPersona('coach');
+        setVisualMode('calm');
+      }
+    ];
+
+    let idx = 0;
+    function next() {
+      if(idx < seq.length) {
+        try { seq[idx++](); } catch(e){}
+        setTimeout(next, 1800);
+      } else {
+        try { logEvent('showtime', 'end'); } catch(e){}
+        try { setStatusPill && setStatusPill('idle', 'LIVE SENSOR FEED'); } catch(e){}
+        _showtimeRunning = false;
+
+        if (audio && audio.byteGain) {
+          try {
+            const now2 = audio.ctx.currentTime;
+            audio.byteGain.gain.cancelScheduledValues(now2);
+            audio.byteGain.gain.setValueAtTime(audio.byteGain.gain.value, now2);
+            audio.byteGain.gain.linearRampToValueAtTime(0.0, now2 + 1.0);
+          } catch(e){}
+        }
+      }
+    }
+    next();
+  }
+
+  // Dev-console boot banner
+  try {
+    console.clear();
+    const _bootStyle = 'background:#020617;color:#e5e7eb;font-size:13px;padding:4px 8px;border-radius:4px;';
+    console.log('%c TRANSIT 3D // PRESTIGE ', 'background:#0f172a;color:#38bdf8;font-size:16px;padding:8px 12px;border-radius:999px;');
+    console.log('%c[GPU] Three.js scene online', _bootStyle);
+    console.log('%c[LAB] Flux engine synced to orbit', _bootStyle);
+    console.log('%c[AI] Advisor stack idle; awaiting query', _bootStyle);
+  } catch (e) {}
+
+  // Boot
+  function bootLab() {
+    if (_booted) return;
+    _booted = true;
+    try { loadPersistedState(); } catch(e){}
+    try { applyTheme(); } catch(e){}
+    try { initThree(); } catch(e){}
+    try { wireUI(); } catch(e){}
+    try {
+      const sysKey = state.sys && SYSTEMS[state.sys] ? state.sys : 'Kepler-186';
+      setSystem(sysKey);
+    } catch(e){}
+    try {
+      const persona = state.activePersona || 'coach';
+      setPersona(persona);
+    } catch(e){}
+    try { loadNasaData(); } catch(e){}
+    try { setStatusPill('idle', 'LIVE SENSOR FEED'); } catch(e){}
+    try { setVisualMode(state.visualMode || 'calm'); } catch(e){}
+
+    // Fallback: if Three.js failed, still remove boot and show splash
+    try {
+      const boot = document.getElementById('bootOverlay');
+      const shell = document.getElementById('appShell');
+      const splash = document.getElementById('splashOverlay');
+      if (!window.THREE || window.threeError) {
+        if (shell) shell.style.opacity = 1;
+        if (boot) {
+          boot.style.opacity = 0;
+          setTimeout(()=>{ boot.style.display = 'none'; }, 500);
+        }
+        if (splash) splash.setAttribute('aria-hidden','false');
+      }
+    } catch(e){}
+  }
+
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        state.paused = true;
+        try { setStatusPill && setStatusPill('idle', 'PAUSED (tab hidden)'); } catch (e) {}
+      }
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootLab);
+    } else {
+      bootLab();
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    window.transitBot = {
+      setSystem,
+      togglePause,
+      toggleAuto,
+      toggleDemo,
+      cycleReal,
+      setPersona,
+      sendAI,
+      togglePresentation,
+      resetLab,
+      sendRobotPrompt,
+      setVisualMode,
+      showtime: runShowtime
+    };
+    window.__showTransitAbout = showAbout;
+    window.__hideTransitAbout = hideAbout;
+    window.__showTransitReadme = showReadme;
+    window.__hideTransitReadme = hideReadme;
+    window.__showTransitCredits = showCredits;
+    window.__hideTransitCredits = hideCredits;
+    window.__showTransit404 = show404;
+    window.__hideTransit404 = hide404;
+
+    window.__transitSplashNext = showSplashStage2;
+    window.__transitEnterLab = enterLabFromSplash;
+
+    const path = window.location && window.location.pathname || '';
+    const hash = window.location && window.location.hash || '';
+    if(path.endsWith('/404') || hash === '#404') {
+      show404();
+    }
+  }
+
+  const api = { 
+    setSystem,
+    togglePause,
+    toggleAuto,
+    toggleDemo,
+    cycleReal,
+    setPersona,
+    sendAI,
+    togglePresentation,
+    resetLab,
+    sendRobotPrompt,
+    setVisualMode
+  };
+  return api;
+})()
+;
+</script>
+<!-- Shared helpers (kept alongside apps for single-folder deployment) -->
+<script src="/shared/global-polyfill.js?v=20251230"></script>
+<script src="/shared/ui-helpers.js?v=20251219"></script>
+<script src="/shared/ai-personas.js?v=20251219"></script>
+<script src="/shared/ai-diagnostics.js?v=20251219"></script>
+<script src="/shared/ai-engines.js?v=20251219" type="module"></script>
+<script src="/shared/forge-sdk.llm.js?v=20251219"></script>
+<script src="/shared/forge-llm-drivers.js?v=20251219" type="module"></script>
+<!-- removed legacy overlay wiring -->
+<script id="phase4-cleanup">
+/* PHASE4_CLEANUP: remove legacy splash/boot overlays + in-app advisor panels (Ask Althea stays) */
+(function(){
+  function isKeep(el){
+    const id=(el.id||"").toLowerCase();
+    const cls=(el.className||"").toString().toLowerCase();
+    // Keep Ask Althea / nexus shell bits
+    if (id.includes("althea") || id.includes("ask") || id.includes("nexus")) return true;
+    if (cls.includes("nexus") || cls.includes("althea")) return true;
+    return false;
+  }
+
+  function nukeSplash(){
+    const ids = [
+      "nexusBootOverlay","nexusBootTip","dsSplash","dsSplashOverlay","splashOverlay",
+      "splash","splashScreen","splashModal"
+    ];
+    ids.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.remove();
+    });
+    // common class patterns
+    document.querySelectorAll(
+      ".ds-splash, .ds-splash-overlay, .splash, .splash-overlay, .splash-screen, [data-splash]"
+    ).forEach(el=>{
+      // Don't remove normal stepper components that are not splash: guard by ancestor splash-ish
+      const looksSplash = (el.className||"").toString().toLowerCase().includes("splash") ||
+                          (el.id||"").toLowerCase().includes("splash") ||
+                          el.hasAttribute("data-splash");
+      if(looksSplash && !isKeep(el)) el.remove();
+    });
+
+    document.body.classList.remove("nexus-booting","booting","no-scroll","locked","modal-open");
+    document.documentElement.classList.remove("nexus-booting","booting","no-scroll","locked","modal-open");
+    document.body.style.overflow="";
+    document.documentElement.style.overflow="";
+  }
+
+  function nukeAdvisors(){
+    // remove/hide any AI advisor docks or panels, but keep Ask Althea
+    const sel = [
+      ".ai-advisors",".ai-advisor",".ai-panel",".ai-panels",".ai-tabs",".ai-tab",".ai-tabbar",
+      ".advisor",".advisors",".advisor-panel",".advisor-tabs",".advisor-dock",".advisorDock",
+      "[data-advisor]","[data-role='coach']","[data-role='critic']","[data-role='architect']",
+      "[data-advisor-panel]","[data-advisor-role]"
+    ].join(",");
+    document.querySelectorAll(sel).forEach(el=>{
+      if (isKeep(el)) return;
+      // If it contains Ask Althea controls, keep
+      const text=(el.textContent||"").toLowerCase();
+      if (text.includes("ask althea")) return;
+      el.remove();
+    });
+  }
+
+  function run(){
+    try{ nukeSplash(); }catch(e){}
+    try{ nukeAdvisors(); }catch(e){}
+  }
+
+  // run multiple times to catch late-inserted UI
+  window.addEventListener("DOMContentLoaded", run);
+  window.addEventListener("load", function(){
+    run();
+    setTimeout(run, 250);
+    setTimeout(run, 800);
+    setTimeout(run, 1500);
+  });
+})();
+</script>
+<!-- PHASE8_UI_CLEANUP (hard-disable all splash screens + hide any remaining advisor UI) -->
+<style id="phase8-ui-cleanup">
+  /* Hide any splash/intro overlays that can steal focus or slide the layout */
+  [id*="splash" i], [class*="splash" i], [data-splash], [data-stepper="splash"],
+  .ds-splash-root, .ds-splash-overlay, .ds-splash-shell, .ds-splash-panel,
+  .helix-splash, .helix-splash-root, .helix-splash-shell {
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+
+  /* Hide any legacy in-app advisors. Ask Althea remains as its own button/modal. */
+  .ai-advisors, .ai-advisor, .ai-panel, .ai-panels, .ai-tabs, .ai-tab, .ai-tabbar,
+  .advisor, .advisors, .advisor-panel, .advisor-tabs, .advisor-dock, .advisorDock,
+  .advisor-tab, #aiAdvisorPanel, #aiAdvisorDock, #aiAdvisorModal, #aiAdvisor, #advisorPanel,
+  #advisorHeader, #advisorTabs, #advisorContent, #advisorLogs, #advisorInputRow,
+  [data-advisor], [data-advisor-panel], [data-advisor-role], [data-role="coach"], [data-role="critic"], [data-role="architect"] {
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+</style>
+<script>
+(() => {
+  const safeRemove = (el) => {
+    if (!el) return;
+    const id = (el.id || '').toLowerCase();
+    const cls = (el.className || '').toString().toLowerCase();
+    // Keep Ask Althea
+    if (id.includes('askalthea') || cls.includes('askalthea')) return;
+    if (el.closest && el.closest('#askAltheaModal')) return;
+    try { el.remove(); } catch(e) { try { el.parentNode && el.parentNode.removeChild(el); } catch(_) {} }
+  };
+
+  const removeSelectors = [
+    // Splash overlays
+    '[id*="splash" i]','[class*="splash" i]','[data-splash]','[data-stepper="splash"]',
+    '.ds-splash-root','.ds-splash-overlay','.ds-splash-shell','.ds-splash-panel',
+    '.helix-splash','.helix-splash-root','.helix-splash-shell',
+    '#splashOverlay','#ds-splash-overlay','#splash1','#splash2',
+    // Legacy advisor UI
+    '[id*="advisor" i]','[class*="advisor" i]','[data-advisor]','[data-advisor-panel]','[data-advisor-role]',
+    '.ai-advisors','.ai-advisor','.ai-panel','.ai-panels','.ai-tabs','.ai-tab','.ai-tabbar'
+  ];
+
+  try { removeSelectors.forEach(sel => document.querySelectorAll(sel).forEach(safeRemove)); } catch(e) {}
+
+  // Always unlock scroll even if earlier code tried to freeze the page.
+  try {
+    document.documentElement.classList.remove('no-scroll','modal-open','ds-splash-open','splash-open');
+    document.body.classList.remove('no-scroll','modal-open','ds-splash-open','splash-open');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  } catch(e) {}
+
+  // Neutralize common open/toggle globals if they exist.
+  const no = () => {};
+  [
+    'toggleSplashOverlay','openSplash','showSplash','openSplashFlow','openSplashModal','openSplashScreen','showIntro',
+    'openAdvisor','toggleAdvisor','showAdvisor','openAdvisors','toggleAdvisors','AIAdvisorsOpen'
+  ].forEach(k => { try { if (typeof window[k] === 'function') window[k] = no; } catch(e) {} });
+
+  // Mark known splash flags as seen so other code paths short-circuit.
+  try {
+    const keys = [
+      'aeon_splashes_seen','anvil_splash_seen_v1','event_splash_seen_v1','helix_splash_seen_v1',
+      'string_splash_seen_v1','tectonic_splash_seen_v1','transit_splash_seen_v1','vortex_splash_seen_v1','magma_splash_seen_v1'
+    ];
+    keys.forEach(k => { try { localStorage.setItem(k,'1'); } catch(_) {} });
+  } catch(e) {}
+})();
+</script>
+<script src="/shared/state-store.js?v=20251230"></script>
+<script src="/shared/telemetry-hub.js?v=20251230"></script>
+<script src="/shared/ai-router.js?v=20251230" type="module"></script>
+<script src="/shared/force-catch-clear.js?v=20251230"></script><script>
+/* Per-app Nexus routing: guarantees Readme/Help/404/Althea aren’t dead ends. */
+(() => {
+  const app = document.body.getAttribute("data-app") || window.APP_ID || "";
+  if(!app) return;
+  const map = {
+    home: "/index.html",
+    readme: `/readme/${app}/`,
+    help: `/help/${app}/`,
+    nf: `/404/${app}/`,
+    althea: `/althea/?app=${app}`
+  };
+  document.querySelectorAll('[data-nexus]').forEach(a => {
+    const k = a.getAttribute('data-nexus');
+    if(map[k]) a.setAttribute('href', map[k]);
+  });
+})();
+</script>
+<script src="/shared/app-settings.js?v=20260101"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

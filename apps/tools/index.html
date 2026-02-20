@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Devin O’Rourke — operator-trained builder shipping tool apps and UI systems." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Devin O’Rourke — Utilities" property="og:title"/>
+<meta content="Operator-trained builder shipping tool apps and UI systems." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/tools/" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Devin O’Rourke — Utilities" name="twitter:title"/>
+<meta content="Operator-trained builder shipping tool apps and UI systems." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>Utilities</title>
+<link href="/shared/tokens.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+<!-- Speed: preload hero image (WebP) -->
+<link as="image" fetchpriority="high" href="/assets/tools-hero.webp" rel="preload" type="image/webp"/>
+<link href="https://dev-in-portfolio.netlify.app/tools/" rel="canonical"/>
+<link href="/icon-192.png" rel="icon"/>
+<script src="/runtime-guard.js"></script>
+<style>
+    :root{
+      --bg:#05060b;
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.72);
+      --hair:rgba(255,255,255,.14);
+      --glow:rgba(150,220,255,.18);
+      --serif: ui-serif, Iowan Old Style, Palatino, Georgia, serif;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    html, body{height:100%;}
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      letter-spacing: .2px;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      overflow-x:hidden;
+    }
+
+    /* Keep nav above everything */
+    nav.nxTopNav{ position: relative; z-index: 9000; }
+
+    /* ===== HERO ===== */
+    .hero{
+      position: relative;
+      min-height: calc(100svh - 68px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 64px 18px 54px;
+      isolation:isolate;
+    }
+    .heroBg{
+      position:absolute; inset:0;
+      overflow:hidden;
+      background:
+        url('/assets/tools-hero-blur.webp') center/cover no-repeat;
+      z-index:-3;
+    }
+
+    .heroBg::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(900px 520px at 50% 45%, rgba(255,255,255,.10), transparent 60%);
+      pointer-events:none;
+    }
+
+    .heroBgMedia{
+      position:absolute; inset:0;
+    }
+
+    .heroBgMedia img{
+      width:100%; height:100%;
+      object-fit: cover;
+      display:block;
+      filter: saturate(1.08) contrast(1.05);
+      transform: scale(1.03);
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+
+    .heroBg.isLoaded .heroBgMedia img{
+      opacity: 1;
+    }
+
+    .heroVignette{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1200px 700px at 50% 40%, rgba(0,0,0,.12), rgba(0,0,0,.72) 62%, rgba(0,0,0,.92) 100%),
+        linear-gradient(to bottom, rgba(0,0,0,.40), rgba(0,0,0,.92));
+      z-index:-2;
+    }
+
+    /* super subtle grain so it feels cinematic, not “teen novel cover” */
+    .heroGrain{
+      position:absolute; inset:-40px;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 6px);
+      mix-blend-mode: overlay;
+      opacity:.08;
+      pointer-events:none;
+      z-index:-1;
+    }
+
+    .heroInner{
+      width: min(1120px, 100%);
+      display:grid;
+      gap: 18px;
+      padding: 0;
+    }
+
+    .kicker{
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .24em;
+      opacity: .78;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .title{
+      font-family: var(--serif);
+      font-size: clamp(40px, 6.2vw, 88px);
+      line-height: 1.02;
+      letter-spacing: .01em;
+      margin: 0;
+      text-shadow: 0 16px 40px rgba(0,0,0,.45);
+    }
+
+    .sub{
+      max-width: 72ch;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .ctaRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.94);
+      text-decoration:none;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: 12px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.38);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:hover{ background: rgba(255,255,255,.12); border-color: rgba(150,220,255,.38); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.ghost{
+      background: rgba(0,0,0,.25);
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .scrollCue{
+      margin-top: 16px;
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.72);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      width: fit-content;
+      opacity: .9;
+    }
+    .scrollCue::before{
+      content:"";
+      width: 22px;
+      height: 1px;
+      background: rgba(255,255,255,.35);
+    }
+
+    /* ===== STORY BEATS ===== */
+    main{
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 0 18px 96px;
+    }
+
+    .beat{
+      padding: 64px 0;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+
+    .beatLine{
+      font-family: var(--serif);
+      font-size: clamp(26px, 3.2vw, 44px);
+      line-height: 1.10;
+      margin: 0 0 10px;
+      letter-spacing: .01em;
+    }
+
+    .beatText{
+      margin: 0;
+      max-width: 78ch;
+      color: rgba(255,255,255,.78);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .proofRow{
+      margin-top: 22px;
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+    }
+
+    .proof{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.92);
+      text-decoration:none;
+      font-weight: 850;
+      letter-spacing: .06em;
+      font-size: 12px;
+    }
+    .proof:hover{ background: rgba(255,255,255,.09); border-color: rgba(150,220,255,.38); }
+
+    .micro{
+      margin-top: 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.60);
+      letter-spacing: .06em;
+    }
+
+    /* reveal (slower + deliberate) */
+    .reveal{
+      opacity: 0;
+      transform: translateY(14px);
+      transition:
+        opacity 1.05s cubic-bezier(.2,.8,.2,1),
+        transform 1.05s cubic-bezier(.2,.8,.2,1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    .reveal.on{ opacity: 1; transform: translateY(0); }
+
+    /* smaller screens */
+    @media (max-width: 720px){
+      .hero{ padding-top: 54px; }
+      .sub{ font-size: 14px; }
+      .beat{ padding: 46px 0; }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .reveal{ opacity: 1 !important; transform: none !important; transition: none !important; }
+      .btn:active{ transform:none; }
+      .heroBg{ transform:none; }
+    }
+  
+
+.jumpRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.jumpBtn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(10,12,20,.55);color:rgba(255,255,255,.9);text-decoration:none;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.jumpBtn:hover{background:rgba(10,12,20,.72);border-color:rgba(255,255,255,.28)}
+/* === Docs UI v2 (Utilities subcategory) === */
+.docsGridV2V2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+@media(max-width:980px){.docsGridV2V2{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.docsGridV2V2{grid-template-columns:1fr}}
+
+.docsColV2V2{background:linear-gradient(180deg, rgba(14,16,26,.78), rgba(10,12,20,.62));border:1px solid rgba(255,255,255,.14);border-radius:22px;box-shadow:0 16px 54px rgba(0,0,0,.55);padding:14px 14px 16px;position:relative;overflow:hidden}
+.docsColV2V2:before{content:'';position:absolute;inset:-1px;pointer-events:none;background:
+  radial-gradient(700px 320px at 30% 0%, rgba(140,220,255,.10), transparent 60%),
+  radial-gradient(600px 260px at 90% 30%, rgba(255,255,255,.06), transparent 55%);
+}
+.docsColV2V2 > *{position:relative;z-index:1}
+
+.docsColV2Head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.docsColV2Title{margin:0;font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.78)}
+.docsBadge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.30);font-size:12px;color:rgba(255,255,255,.78)}
+.docsDot{width:8px;height:8px;border-radius:50%;background:rgba(150,220,255,.65);box-shadow:0 0 14px rgba(150,220,255,.32)}
+
+.docsToolsRow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
+.docsSearch{flex:1 1 240px;min-width:220px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.30)}
+.docsSearch input{flex:1;background:transparent;border:0;outline:0;color:rgba(255,255,255,.92);font-size:14px}
+.docsSearch input::placeholder{color:rgba(255,255,255,.55)}
+.docsSearchIcon{opacity:.8}
+
+.docsPills{display:flex;gap:10px;flex-wrap:wrap}
+.docsPill{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(10,12,20,.55);color:rgba(255,255,255,.90);text-decoration:none;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.docsPill[aria-current="true"]{border-color:rgba(150,220,255,.45);box-shadow:0 0 0 2px rgba(150,220,255,.12) inset;background:rgba(0,0,0,.42)}
+.docsPill:hover{background:rgba(10,12,20,.72);border-color:rgba(255,255,255,.28)}
+
+.docStackV2V2{margin-top:10px;display:flex;flex-direction:column;gap:10px;max-height:58vh;overflow:auto;padding-right:6px}
+.docStackV2V2::-webkit-scrollbar{width:8px}
+.docStackV2V2::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:999px}
+
+.docBtnV2V2{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:18px;padding:12px 14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.30);text-decoration:none;color:rgba(255,255,255,.92)}
+.docBtnV2V2:hover{background:rgba(0,0,0,.42);border-color:rgba(255,255,255,.26)}
+.docBtnV2V2:active{transform:translateY(1px)}
+.docBtnV2Label{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.04em}
+.docBtnV2Label small{display:block;font-weight:500;opacity:.68;letter-spacing:0;font-size:12px;margin-top:2px}
+.docChevron{opacity:.7}
+.docMiniTag{font-size:12px;color:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.14);background:rgba(10,12,20,.42);padding:4px 10px;border-radius:999px;white-space:nowrap}
+
+@media(max-width:640px){
+  .docStackV2V2{max-height:none}
+}
+
+html{scroll-behavior:smooth}
+
+#docs-help,#docs-readmes,#docs-case{scroll-margin-top:110px}
+</style>
+</head>
+<body class="page-landing" data-app="tools">
+<nav class="nxTopNav"></nav>
+<!-- Nav placeholder (hydrated by /shared/nexus-topnav-v2.js) -->
+<header aria-label="Utilities hero" class="hero">
+<div aria-hidden="true" class="heroBg">
+<picture class="heroBgMedia">
+<source srcset="/assets/tools-hero.webp" type="image/webp"/>
+<img alt="" decoding="async" fetchpriority="high" loading="eager" src="/assets/tools-hero.webp"/>
+</picture>
+</div>
+<div aria-hidden="true" class="heroVignette"></div>
+<div aria-hidden="true" class="heroGrain"></div>
+<div class="heroInner">
+<p class="kicker">Nexus — Utilities</p>
+<h1 class="title">Utilities</h1>
+<p class="sub">Choose a destination. These are grouped to match the constellation map key — same buckets, same mental model.</p>
+<div aria-label="Docs jump" class="jumpRow"><a aria-current="true" class="jumpBtn" href="#docs-help">HELP</a><a class="jumpBtn" href="#docs-readmes">READMES</a><a class="jumpBtn" href="#docs-case">CASE STUDIES</a></div>
+<div aria-hidden="true" class="scrollCue">Scroll</div>
+</div>
+</header>
+<main>
+<section class="beat reveal" id="docs">
+<h2 class="beatLine">Docs</h2>
+<p class="beatText">Docs/Tools/Policy now map to Help, Readmes, and Case Studies for faster navigation.</p>
+<div aria-label="Docs sections" class="docsGridV2">
+<div aria-label="Help files" class="docsColV2" id="docs-help"><div class="docsColHead"><h3 class="docsColTitle">HELP</h3><span class="docsBadge"><span class="docsDot"></span>21</span></div>
+<div class="docStackV2">
+<a class="docBtnV2 btn buttonlike" href="/help/aeon/">Aeon</a>
+<a class="docBtnV2 btn buttonlike" href="/help/agents/">Agents</a>
+<a class="docBtnV2 btn buttonlike" href="/help/alibi/">Alibi</a>
+<a class="docBtnV2 btn buttonlike" href="/help/coverage-compass/">Coverage Compass</a>
+<a class="docBtnV2 btn buttonlike" href="/help/helios/">Helios</a>
+<a class="docBtnV2 btn buttonlike" href="/help/helix/">Helix</a>
+<a class="docBtnV2 btn buttonlike" href="/help/magma/">Magma</a>
+<a class="docBtnV2 btn buttonlike" href="/help/string/">String</a>
+<a class="docBtnV2 btn buttonlike" href="/help/tectonic/">Tectonic</a>
+<a class="docBtnV2 btn buttonlike" href="/help/transit/">Transit</a>
+<a class="docBtnV2 btn buttonlike" href="/help/ubr/">Ubr</a>
+<a class="docBtnV2 btn buttonlike" href="/help/vortex/">Vortex</a>
+<a class="docBtnV2 btn buttonlike" href="/help/splice/">Splice</a>
+<a class="docBtnV2 btn buttonlike" href="/help/crossword-arena/">Crossword Arena</a>
+<a class="docBtnV2 btn buttonlike" href="/help/evening-epic-sudoku/">Evening Epic Sudoku</a>
+<a class="docBtnV2 btn buttonlike" href="/help/floraguide-ai/">FloraGuide AI</a>
+<a class="docBtnV2 btn buttonlike" href="/help/lingolive-ai/">LingoLive AI</a>
+<a class="docBtnV2 btn buttonlike" href="/help/oracle-pit/">Oracle Pit</a>
+<a class="docBtnV2 btn buttonlike" href="/help/prompt-vault/">Prompt Vault</a>
+<a class="docBtnV2 btn buttonlike" href="/help/sleepystory/">SleepyStory</a>
+<a class="docBtnV2 btn buttonlike" href="/help/toonstudio/">ToonStudio</a>
+</div>
+</div>
+<div aria-label="Readme files" class="docsColV2" id="docs-readmes"><div class="docsColHead"><h3 class="docsColTitle">READMES</h3><span class="docsBadge"><span class="docsDot"></span>21</span></div>
+<div class="docStackV2">
+<a class="docBtnV2 btn buttonlike" href="/readme/aeon/">Aeon</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/agents/">Agents</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/alibi/">Alibi</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/coverage-compass/">Coverage Compass</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/helios/">Helios</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/helix/">Helix</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/magma/">Magma</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/string/">String</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/tectonic/">Tectonic</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/transit/">Transit</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/ubr/">Ubr</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/vortex/">Vortex</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/splice/">Splice</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/crossword-arena/">Crossword Arena</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/evening-epic-sudoku/">Evening Epic Sudoku</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/floraguide-ai/">FloraGuide AI</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/lingolive-ai/">LingoLive AI</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/oracle-pit/">Oracle Pit</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/prompt-vault/">Prompt Vault</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/sleepystory/">SleepyStory</a>
+<a class="docBtnV2 btn buttonlike" href="/readme/toonstudio/">ToonStudio</a>
+</div>
+</div>
+<div aria-label="Case report files" class="docsColV2" id="docs-case"><div class="docsColHead"><h3 class="docsColTitle">CASE STUDIES</h3><span class="docsBadge"><span class="docsDot"></span>9</span></div>
+<div class="docStackV2">
+<a class="docBtnV2 btn buttonlike" href="/case-reports/agents-platform-ecosystem/">Agents Platform &amp; Ecosystem</a>
+<a class="docBtnV2 btn buttonlike" href="/case-reports/alibi-logged-verified-architectural-case-study/">Alibi — Logged &amp; Verified: Architectural Case Study</a>
+<a class="docBtnV2 btn buttonlike" href="/case-reports/coverage-compass-comprehensive-architectural-case-study-and-technical-report/">Coverage Compass: Comprehensive Architectural Case Study and Technical Report</a>
+<a class="docBtnV2 btn buttonlike" href="/case-reports/helios-a-comprehensive-architectural-and-domain-analysis-of-a-react-based-heliophysics-visualization-platform/">HELIOS: A Comprehensive ARCHITECTURAL AND DOMAIN ANALYSIS OF A REACT-BASED HELIOPHYSICS VISUALIZATION PLATFORM</a>
+<a class="docBtnV2 btn buttonlike" href="/case-reports/orbital-dynamics-and-photometric-reduction-an-exhaustive-technical-analysis-of-the-transit-deep-space-application/">Orbital Dynamics and Photometric Reduction: An Exhaustive Technical Analysis of the 'Transit' Deep Space Application</a>
+<a class="docBtnV2 btn buttonlike" href="/case-reports/string-a-deep-dive-case-report/">String: A Deep-Dive Case Report</a>
+<a class="docBtnV2 btn buttonlike" href="/case-reports/tectonic-the-convergence-of-ai-accelerated-development-and-high-fidelity-geospatial-visualization/">TECTONIC: The Convergence of AI-Accelerated Development and High-Fidelity Geospatial Visualization</a>
+<a class="docBtnV2 btn buttonlike" href="/case-reports/the-aeon-compendium-a-multi-domain-technical-analysis-of-ai-augmented-security-real-estate-analytics-and-decentralized-settlement-protocols/">The Aeon Compendium: A Multi-Domain Technical Analysis of AI-Augmented Security, Real Estate Analytics, and Decentralized Settlement Protocols</a>
+<a class="docBtnV2 btn buttonlike" href="/case-reports/the-decentralized-sales-stack-a-technical-and-operational-audit-of-ultimate-broker-route-ubr/">The Decentralized Sales Stack: A Technical and Operational Audit of Ultimate Broker Route (UBR)</a>
+</div>
+</div>
+</div>
+</section>
+<style>
+    .docsGridV2{max-width:1100px;margin:14px auto 0;padding:0 14px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;}
+    .docsColV2{grid-column: span 12;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px;}
+    @media(min-width:900px){.docsColV2{grid-column: span 6;}}
+    .docsColTitle{margin:0 0 10px 0;font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.85;}
+    .docStackV2{display:flex;flex-direction:column;gap:10px;}
+    .docBtnV2{display:block;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);}
+    .docBtnV2:active{transform: translateY(1px);}
+  </style>
+</main>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+<script>
+    (function(){
+      const els = Array.from(document.querySelectorAll('.reveal'));
+      els.forEach((el,i) => el.style.setProperty('--reveal-delay', `${Math.min(i*120, 420)}ms`));
+      if (!('IntersectionObserver' in window)) {
+        els.forEach(el => el.classList.add('on'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) e.target.classList.add('on');
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
+      els.forEach(el => io.observe(el));
+    })();
+  </script>
+<script>
+    (function(){
+      const bg = document.querySelector('.heroBg');
+      const img = bg && bg.querySelector('img');
+      if (!bg || !img) return;
+      const done = () => bg.classList.add('isLoaded');
+      if (img.complete) { done(); }
+      else {
+        img.addEventListener('load', done, { once:true });
+        img.addEventListener('error', done, { once:true });
+      }
+    })();
+  </script>
+</body>
+</html>

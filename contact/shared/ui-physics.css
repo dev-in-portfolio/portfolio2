@@ -1,0 +1,49 @@
+/* Phase 4 — UI Physics (4A–4E) */
+:root{
+  --z-base: 0;
+  --z-content: 10;
+  --z-header: 300;
+  --z-overlay: 600;
+  --z-modal: 900;
+  --safe-top: 0px;
+}
+
+/* predictable stacking roots */
+body{ position: relative; z-index: var(--z-base); }
+main, #main, .main, .page, .wrap{ position: relative; z-index: var(--z-content); }
+
+/* headers/bars */
+.nexus-bar, header, .header, .topbar, .nav, .navbar{
+  z-index: var(--z-header);
+}
+
+/* overlays/modals */
+.overlay, .backdrop, .scrim, .mask{ z-index: var(--z-overlay); }
+.modal, .dialog, [role="dialog"], [aria-modal="true"]{ z-index: var(--z-modal); }
+
+/* collisions: anchor jump protection */
+main, #main, .main, section, [data-section], :target{
+  scroll-margin-top: calc(var(--safe-top) + 12px);
+}
+
+/* 4C canvas overflow & clipping */
+canvas{ max-width: 100%; height: auto; }
+.canvas-wrap, .stage, .viewport, .gl-canvas, .webgl, .canvas-container{
+  overflow: visible;
+  max-width: 100%;
+}
+
+/* 4D backdrop filter & masking safety */
+.backdrop, .scrim, .mask{
+  pointer-events: none; /* prevents tap interception */
+}
+*[style*="backdrop-filter"], *[style*="-webkit-backdrop-filter"]{
+  backface-visibility: hidden;
+}
+
+/* 4E text crushing & wrapping */
+.tile, .card, .panel, .nxs-tile{ line-height: 1.45; }
+h1,h2,h3,p,li{
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

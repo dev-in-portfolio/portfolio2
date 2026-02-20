@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<title>Tectonic</title>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="tectonic.css" rel="stylesheet"/>
+<link href="../../shared/wyla.css" rel="stylesheet"/>
+<script defer="" src="../../shared/wyla.js"></script>
+</head>
+<body data-app="tectonic">
+  <nav class="nxTopNav"></nav>
+
+<div data-wyla=""></div>
+<header aria-label="Seismic ticker" class="ticker">
+<div class="ticker__brand">TECTONIC</div>
+<div aria-hidden="true" class="ticker__dots"></div>
+<div class="ticker__items">
+<span><b id="tkMag">M5.8</b> last sample</span>
+<span>Activity <b id="tkAct">0.55</b></span>
+<span>Spin <b id="tkSpin">0.40</b></span>
+<span>Status <b id="tkStatus">SIM</b></span>
+</div>
+</header>
+<main class="layout">
+<aside aria-label="Controls panel" class="panel">
+<div class="panelTitle">Controls</div>
+<label class="row">
+<span>Activity</span>
+<input id="ctlActivity" max="1" min="0" step="0.01" type="range" value="0.55"/>
+<span class="val" id="valActivity">0.55</span>
+</label>
+<label class="row">
+<span>Magnitude</span>
+<input id="ctlMag" max="9.5" min="3" step="0.1" type="range" value="5.8"/>
+<span class="val" id="valMag">5.8</span>
+</label>
+<label class="row">
+<span>Spin</span>
+<input id="ctlSpin" max="1" min="0" step="0.01" type="range" value="0.40"/>
+<span class="val" id="valSpin">0.40</span>
+</label>
+<!-- Distinct change #2: extra control + mini history strip (not in Helios) -->
+<label class="row">
+<span>Depth Bias</span>
+<input id="ctlDepth" max="1" min="0" step="0.01" type="range" value="0.35"/>
+<span class="val" id="valDepth">0.35</span>
+</label>
+<div class="miniCard">
+<div class="miniTitle">Recent Activity (sim)</div>
+<div class="miniCard" style="margin-top:12px;">
+<div class="miniTitle">Live Quake Feed</div>
+<div class="feedNote" id="feedNote">Loading USGS feed…</div>
+<div aria-label="Quake feed list" class="feed" id="quakeFeed"></div>
+</div>
+<canvas aria-label="Mini activity chart" height="90" id="miniChart" width="320"></canvas>
+</div>
+<div class="note">
+</div>
+</aside>
+<section aria-label="Visualization stage" class="stage">
+<iframe class="canvasFrame" id="canvasFrame" loading="eager" src="canvas.html" title="Tectonic Canvas"></iframe>
+</section>
+</main><script>
+    // per-app routing (same pattern as A69)
+    (() => {
+      const app = "tectonic";
+      const map = { home:"/index.html", readme:`/readme/${app}/`, help:`/help/${app}/`, nf:`/404/${app}/`, althea:`/althea/?app=${app}` };
+      document.querySelectorAll('[data-nexus]').forEach(a=>{ const k=a.getAttribute('data-nexus'); if(map[k]) a.href=map[k]; });
+    })();
+  </script>
+<script src="tectonic.js"></script>
+<script src="/shared/app-settings.js?v=20260101"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

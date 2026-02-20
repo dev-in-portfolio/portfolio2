@@ -1,0 +1,3641 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>VORTEX // MULTI-ASSET // VORTEX FIELD</title>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
+<!-- Tier-1 polish: theme-color + favicon -->
+<meta content="#050509" media="(prefers-color-scheme: dark)" name="theme-color"/>
+<meta content="#f0f4ff" media="(prefers-color-scheme: light)" name="theme-color"/>
+<link href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23050509'/%3E%3Cpath d='M16 40c4 8 16 10 24 4s10-16 4-24-16-10-24-4' fill='none' stroke='%2300ff9d' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" rel="icon"/>
+<style>
+    :root {
+      /* palette tuned from Colors.html (hsl(… 80% 70%) sweep) */
+      --bg: #05070f;
+      --panel: #111525;
+      --border: #7e88a8;
+      --text: #f7f8ff;
+      --text-muted: #c2c7dd;
+      --text-bright: #ffffff;
+      --primary: hsl(180 80% 70%); /* Default BTC green */
+      --danger: hsl(350 80% 70%);
+      --accent-eth: hsl(210 80% 70%);
+      --accent-sol: hsl(270 80% 70%);
+      --good: hsl(135 80% 70%);
+      --warn: hsl(45 80% 70%);
+      --bad: hsl(350 80% 70%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #10121b 0, #050509 55%, #020205 100%);
+      color: var(--text);
+      font-family: "JetBrains Mono", "Courier New", monospace;
+      min-height: 100vh;
+      display: flex;
+      justify-content: stretch;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body {
+      width: 100%;
+    }
+
+    /* 3D BACKDROP */
+    #vortex3d {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* MAIN LAYOUT */
+    #app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 12px 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-title {
+      font-size: 1rem;
+      letter-spacing: 0.21em;
+      text-transform: uppercase;
+      color: var(--text-bright);
+    }
+
+    .app-subtitle {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .status-pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 255, 157, 0.6);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: radial-gradient(circle at top, #0f1f17 0, #05080a 55%, #020306 100%);
+      color: var(--text-bright);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--good);
+      box-shadow: 0 0 10px rgba(0, 255, 157, 0.8);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.3fr);
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 1400px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .panel {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top, #141824 0, #05060b 52%, #010309 100%);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.65);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 8px 10px 2px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--text-muted);
+    }
+
+    .panel-head strong {
+      color: var(--text-bright);
+    }
+
+    .panel-body {
+      padding: 6px 10px 10px;
+    }
+
+    .panel-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: right;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    /* NAV BAR */
+    .asset-nav {
+      display: flex;
+      gap: 6px;
+      padding: 4px 10px 7px;
+      border-top: 1px solid rgba(60, 70, 90, 0.8);
+      border-bottom: 1px solid rgba(60, 70, 90, 0.9);
+      background: radial-gradient(circle at top, #151824 0, #060811 55%, #020307 100%);
+    }
+
+    .asset-btn {
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(60, 80, 110, 0.9);
+      background: radial-gradient(circle at top, #111520 0, #05060c 60%, #010307 100%);
+      color: var(--text);
+      font-size: 0.7rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.12s ease-out;
+    }
+
+    .asset-btn span {
+      opacity: 0.8;
+    }
+
+    .asset-btn.active {
+      border-color: rgba(0, 255, 157, 0.8);
+      box-shadow: 0 0 12px rgba(0, 255, 157, 0.5);
+      color: var(--text-bright);
+      background: radial-gradient(circle at top, var(--primary) 0, #02130c 55%, #010706 100%);
+    }
+
+    .asset-btn.active span {
+      opacity: 1;
+    }
+
+    .asset-tag {
+      font-size: 0.64rem;
+      padding: 1px 5px;
+      border-radius: 999px;
+      background: rgba(5, 8, 16, 0.9);
+      border: 1px solid rgba(120, 130, 160, 0.7);
+    }
+
+    /* MAIN CHART PANEL */
+    .chart-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chart-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    .price-row-main {
+      color: var(--text-bright);
+      font-size: 1.05rem;
+    }
+
+    .price-row-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .vol-badges {
+      display: flex;
+      gap: 4px;
+      font-size: 0.62rem;
+    }
+
+    .pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(90, 100, 130, 0.9);
+      background: radial-gradient(circle at top, #171b27 0, #060812 55%, #020307 100%);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill.good {
+      border-color: rgba(0, 255, 157, 0.8);
+      color: var(--good);
+    }
+
+    .pill.warn {
+      border-color: rgba(255, 209, 102, 0.8);
+      color: var(--warn);
+    }
+
+    .pill.bad {
+      border-color: rgba(255, 75, 106, 0.8);
+      color: var(--bad);
+    }
+
+    .chart-canvas-shell {
+      border-radius: 10px;
+      border: 1px solid rgba(60, 70, 90, 0.9);
+      overflow: hidden;
+      background: radial-gradient(circle at top, #101221 0, #050712 55%, #020307 100%);
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      height: clamp(260px, 40vh, 420px);
+    }
+
+    .chart-2d-shell {
+      position: relative;
+      flex: 0 0 50%;
+      min-width: 0;
+      border-right: 1px solid rgba(32, 44, 82, 0.9);
+    }
+
+    #chartCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+
+    .chart-3d-shell {
+      flex: 0 0 50%;
+      min-width: 0;
+      background: radial-gradient(circle at top, rgba(60, 90, 150, 0.35), rgba(3, 5, 12, 0.98));
+    }
+
+    #chart3dCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .chart-grid-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(
+          to right,
+          rgba(80, 90, 120, 0.16) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          to bottom,
+          rgba(80, 90, 120, 0.16) 1px,
+          transparent 1px
+        );
+      background-size: 40px 40px;
+      opacity: 0.9;
+    }
+
+    /* METRICS ROW */
+    .metrics-row {
+      margin-top: 6px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      font-size: 0.7rem;
+    }
+
+    .metric-card {
+      border-radius: 8px;
+      border: 1px solid rgba(70, 80, 105, 0.9);
+      background: radial-gradient(circle at top, #181c2a 0, #060811 55%, #020307 100%);
+      padding: 5px 7px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.68rem;
+    }
+
+    .metric-value {
+      color: var(--text-bright);
+      font-size: 0.8rem;
+    }
+
+    .metric-sub {
+      font-size: 0.64rem;
+      color: var(--text-muted);
+    }
+
+    /* RIGHT COLUMN / LOG PANEL */
+    .session-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr);
+      gap: 6px;
+    }
+
+    @media (max-width: 1400px) {
+      /* Stack MISSION OPS layout earlier so tablets don't feel cramped */
+      .session-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .session-pills {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.68rem;
+    }
+
+    .session-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 2px 6px;
+      border: 1px solid rgba(80, 90, 120, 0.9);
+      background: radial-gradient(circle at top, #171b28 0, #070913 60%, #020308 100%);
+      font-size: 0.64rem;
+    }
+
+    .sim-toggle {
+      cursor: pointer;
+      border-color: rgba(255, 209, 102, 0.9);
+      color: var(--warn);
+    }
+
+    .sim-toggle.on {
+      border-color: rgba(0, 255, 157, 0.9);
+      color: var(--good);
+    }
+
+    /* LOG PANEL */
+    .log-shell {
+      border-radius: 8px;
+      border: 1px solid rgba(70, 80, 105, 0.9);
+      background: radial-gradient(circle at top, #10131f 0, #05070f 60%, #020307 100%);
+      padding: 6px 7px 7px;
+      font-size: 0.7rem;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.66rem;
+      color: var(--text-muted);
+    }
+
+    .log-stream {
+      flex: 1;
+      margin-top: 4px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .log-entry {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 2px;
+      font-size: 0.66rem;
+      color: var(--text-muted);
+    }
+
+    .log-prefix {
+      color: rgba(160, 170, 210, 0.9);
+      min-width: 50px;
+    }
+
+    .log-entry.sys .log-prefix {
+      color: var(--good);
+    }
+
+    .log-entry.warn .log-prefix {
+      color: var(--warn);
+    }
+
+    .log-entry.err .log-prefix {
+      color: var(--danger);
+    }
+
+    .log-entry-ai .log-prefix {
+      color: var(--accent-sol);
+    }
+
+    .log-entry span.log-msg {
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .log-stream::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .log-stream::-webkit-scrollbar-thumb {
+      background: rgba(120, 132, 152, 0.6);
+      border-radius: 99px;
+    }
+
+    /* INLINE AI LAUNCHER (ALWAYS VISIBLE) */
+    .ai-inline-launch {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 2px 0 4px;
+      border-bottom: 1px dashed rgba(80, 90, 120, 0.7);
+      margin-bottom: 4px;
+    }
+
+    .ai-inline-label {
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .ai-inline-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .ai-inline-btn {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 255, 157, 0.6);
+      background: radial-gradient(circle at top, #101822 0, #05070c 60%, #020307 100%);
+      color: var(--text-bright);
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    /* AI MODAL + ADVISORS HUD */
+    .ai-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(10, 16, 30, 0.96) 0, rgba(1, 3, 8, 0.98) 60%);
+      z-index: 40;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .ai-modal-backdrop.show {
+      display: flex;
+    }
+
+    .ai-modal-shell {
+      width: 100%;
+      max-width: 1040px;
+      max-height: 100%;
+      overflow: auto;
+    }
+
+    .ai-panel {
+      margin-top: 0;
+    }
+
+    .ai-body {
+      padding: 8px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ai-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .ai-tab {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 255, 157, 0.35);
+      background: radial-gradient(circle at top, #101822 0, #05070c 60%, #020307 100%);
+      color: var(--text);
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 140ms ease-out;
+    }
+
+    .ai-tab span {
+      opacity: 0.75;
+    }
+
+    .ai-tab.active {
+      background: radial-gradient(circle at top, var(--primary) 0, #02130c 55%, #010706 100%);
+      color: var(--text-bright);
+      box-shadow: 0 0 16px rgba(0, 255, 157, 0.35);
+    }
+
+    .ai-tab.active span {
+      opacity: 1;
+    }
+
+    .ai-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(0, 1.3fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 960px) {
+      .ai-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .ai-panes {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ai-pane {
+      border-radius: 10px;
+      border: 1px solid rgba(60, 70, 90, 0.9);
+      background: radial-gradient(circle at top, #141824 0, #05060b 52%, #010309 100%);
+      padding: 8px 10px 9px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ai-pane.active {
+      display: flex;
+    }
+
+    .ai-pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .ai-pane-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-bright);
+    }
+
+    .ai-pane-desc {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin: 0 0 4px 0;
+    }
+
+    .ai-input {
+      width: 100%;
+      min-height: 52px;
+      max-height: 90px;
+      resize: vertical;
+      background: rgba(3, 6, 12, 0.95);
+      border-radius: 6px;
+      border: 1px solid rgba(80, 90, 110, 0.8);
+      color: var(--text-bright);
+      font-family: inherit;
+      font-size: 0.75rem;
+      padding: 6px 7px;
+      outline: none;
+    }
+
+    .ai-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(0, 255, 157, 0.3);
+    }
+
+    .ai-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .ai-controls-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-ask-btn {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 255, 157, 0.65);
+      background: radial-gradient(circle at top, #0af5b4 0, #051920 55%, #020608 100%);
+      color: #02140b;
+      font-size: 0.7rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 120ms ease-out;
+      white-space: nowrap;
+    }
+
+    .ai-ask-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .ai-ask-btn:not(:disabled):hover {
+      box-shadow: 0 0 14px rgba(0, 255, 157, 0.45);
+      transform: translateY(-0.5px);
+    }
+
+    .ai-stop-btn {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(150, 160, 190, 0.8);
+      background: radial-gradient(circle at top, #161826 0, #050610 60%, #020307 100%);
+      color: var(--text-muted);
+      font-size: 0.64rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .ai-status {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      flex: 1;
+      text-align: right;
+      opacity: 0.9;
+    }
+
+    .ai-output {
+      margin-top: 6px;
+      border-radius: 6px;
+      background: radial-gradient(circle at top, #0c0f19 0, #05060b 55%, #020307 100%);
+      border: 1px solid rgba(50, 60, 84, 0.9);
+      padding: 6px 7px;
+      font-size: 0.72rem;
+      line-height: 1.5;
+      max-height: 170px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .ai-output::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .ai-output::-webkit-scrollbar-thumb {
+      background: rgba(120, 132, 152, 0.6);
+      border-radius: 99px;
+    }
+
+    .ai-side-card {
+      border-radius: 10px;
+      border: 1px dashed rgba(80, 90, 112, 0.9);
+      background: radial-gradient(circle at top, #161b27 0, #070910 60%, #020308 100%);
+      padding: 8px 9px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 80px;
+    }
+
+    .ai-side-card strong {
+      color: var(--text-bright);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+    }
+
+    .ai-diag-slot {
+      margin-top: 4px;
+      min-height: 60px;
+      font-size: 0.66rem;
+    }
+
+    .ai-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .ai-meta span {
+      display: block;
+    }
+
+    .ai-close-btn {
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(120, 130, 160, 0.9);
+      background: radial-gradient(circle at top, #151826 0, #05070f 60%, #020307 100%);
+      color: var(--text-muted);
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      cursor: pointer;
+    }
+
+    .ai-raw-toggle {
+      border-radius: 999px;
+      border: 1px solid rgba(80, 90, 120, 0.9);
+      background: none;
+      color: var(--text-muted);
+      font-size: 0.6rem;
+      padding: 2px 6px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .ai-raw-prompt {
+      margin-top: 4px;
+      background: rgba(4, 6, 12, 0.95);
+      border-radius: 6px;
+      border: 1px dashed rgba(90, 100, 130, 0.9);
+      padding: 4px 6px;
+      font-size: 0.64rem;
+      max-height: 140px;
+      overflow: auto;
+      display: none;
+      white-space: pre-wrap;
+    }
+
+    .ai-raw-prompt.open {
+      display: block;
+    }
+
+    /* README PANEL */
+    .readme-content {
+      font-size: 0.72rem;
+      padding: 6px 10px 10px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .readme-content h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-bright);
+      margin: 4px 0 4px;
+    }
+
+    .readme-content p {
+      margin: 0 0 4px;
+    }
+
+    .readme-content ul {
+      margin: 0 0 4px 14px;
+      padding: 0;
+    }
+
+    .readme-content li {
+      margin-bottom: 2px;
+    }
+
+    /* UTILS */
+    .muted {
+      color: var(--text-muted);
+    }
+
+    .mono {
+      font-family: "JetBrains Mono", "Courier New", monospace;
+    }
+
+    /* Presentation mode: hide dev-ish panels */
+    body.presentation-mode [data-dev="readme"],
+    body.presentation-mode [data-dev="diag"] {
+      display: none !important;
+    }
+  
+    /* === DARK READABLE MODE (min 18px, brighter text) === */
+    body {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    body * {
+      font-size: max(18px, 1em) !important;
+    }
+
+    /* === Strong region-based palette wiring (so differences are obvious) === */
+
+    /* Asset buttons: each asset gets its own accent color */
+    .asset-btn[data-asset="BTC"].active {
+      border-color: var(--primary);
+      box-shadow: 0 0 16px rgba(0, 255, 210, 0.7);
+      background: radial-gradient(circle at top, var(--primary) 0, #02151a 55%, #010708 100%);
+      color: var(--text-bright);
+    }
+
+    .asset-btn[data-asset="ETH"].active {
+      border-color: var(--accent-eth);
+      box-shadow: 0 0 16px rgba(80, 180, 255, 0.7);
+      background: radial-gradient(circle at top, var(--accent-eth) 0, #02152a 55%, #01060b 100%);
+      color: var(--text-bright);
+    }
+
+    .asset-btn[data-asset="SOL"].active {
+      border-color: var(--accent-sol);
+      box-shadow: 0 0 16px rgba(180, 120, 255, 0.7);
+      background: radial-gradient(circle at top, var(--accent-sol) 0, #140b2a 55%, #050211 100%);
+      color: var(--text-bright);
+    }
+
+    /* AI advisor tabs: roles mapped to different palette colors */
+    .ai-tab[data-role="coach"].active {
+      border-color: var(--good);
+      background: radial-gradient(circle at top, var(--good) 0, #031b12 55%, #010806 100%);
+      box-shadow: 0 0 18px rgba(80, 255, 190, 0.7);
+      color: var(--text-bright);
+    }
+
+    .ai-tab[data-role="critic"].active {
+      border-color: var(--bad);
+      background: radial-gradient(circle at top, var(--bad) 0, #260714 55%, #070108 100%);
+      box-shadow: 0 0 18px rgba(255, 90, 160, 0.7);
+      color: var(--text-bright);
+    }
+
+    .ai-tab[data-role="scout"].active {
+      border-color: var(--accent-sol);
+      background: radial-gradient(circle at top, var(--accent-sol) 0, #1a0c2a 55%, #060212 100%);
+      box-shadow: 0 0 18px rgba(180, 120, 255, 0.7);
+      color: var(--text-bright);
+    }
+
+    /* Make log prefixes brighter so status colors are easy to read */
+    .log-entry.sys .log-prefix,
+    .log-entry.warn .log-prefix,
+    .log-entry.err .log-prefix,
+    .log-entry-ai .log-prefix {
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    /* === README ULTRA-LEGIBLE OVERRIDE === */
+    .readme-content {
+      font-size: 1rem !important;           /* ~18px base */
+      line-height: 1.8 !important;
+      color: #fff8e8 !important;
+      padding: 10px 14px 14px !important;
+    }
+
+    .readme-content h3 {
+      font-size: 1.05rem !important;
+      letter-spacing: 0.16em !important;
+      color: #ffffff !important;
+      margin: 6px 0 8px !important;
+    }
+
+    .readme-content p,
+    .readme-content li {
+      font-size: 1rem !important;
+      max-width: 72ch;
+    }
+
+    .readme-content ul {
+      margin: 0 0 6px 18px !important;
+    }
+
+    .readme-content li::marker {
+      color: hsl(180 80% 70%);
+    }
+
+    [data-dev="readme"] {
+      background: #090e1c !important;
+      border-color: #949ec4 !important;
+    }
+
+    /* === Mission Ops layout tweak ===
+       - More gap between columns
+       - Ensure items align to top to avoid awkward vertical centering
+    */
+    .session-row {
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    /* === Mission Ops layout: always stacked for clarity ===
+       - Session pills on top
+       - Field log (AI strip + log) full-width below
+    */
+    .session-row {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 8px !important;
+      align-items: stretch !important;
+    }
+
+    .session-pills,
+    .log-shell {
+      width: 100%;
+    }
+
+    /* === Mission Ops pill layout refresh ===
+       - Pills arranged in a clean grid instead of one long run
+       - Easier to scan sim / audio / probe / volatility / console states
+    */
+    .session-pills {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .session-top {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-start;
+    }
+
+    .session-top .badge-row {
+      width: 100%;
+      justify-content: flex-start;
+    }
+
+    .badge-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px 8px;
+    }
+
+    @media (max-width: 900px) {
+      .badge-row {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .badge-row .badge,
+    .badge-row .sim-toggle {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    /* === FINAL MISSION OPS LAYOUT ===
+       - Pills in a neat 2-column grid on wide screens
+       - Stack to 1-column on smaller screens
+       - Log always full-width beneath pills
+    */
+    .session-row {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+      align-items: stretch !important;
+    }
+
+    .session-pills {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px !important;
+    }
+
+    /* Merge the two badge rows into one grid flow */
+    .session-pills .session-top {
+      display: contents !important;
+    }
+
+    .session-pills .badge-row {
+      display: contents !important;
+      flex-wrap: unset !important;
+      gap: 0 !important;
+    }
+
+    .session-pills .badge,
+    .session-pills .sim-toggle {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .session-pills {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .log-shell {
+      width: 100%;
+    }
+
+    /* === FORCE VERTICAL SCROLL (portfolio env override) === */
+    html, body {
+      overflow-y: auto !important;
+    }
+
+    
+    /* === TWO-STEP SPLASH OVERLAY (PORTFOLIO VARIANT) === */
+    .splash-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px 32px;
+      background:
+        radial-gradient(circle at top, rgba(111, 234, 255, 0.16), transparent 55%),
+        radial-gradient(circle at bottom, rgba(255, 94, 58, 0.12), transparent 60%),
+        rgba(2, 4, 10, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      overflow-y: auto;
+      transition: opacity 220ms ease-out;
+    }
+
+    .splash-overlay.is-dismissing {
+      opacity: 0;
+    }
+
+    .splash-card {
+      max-width: 860px;
+      width: 100%;
+      margin-top: 28px;
+      padding: 22px 20px 18px;
+      border-radius: 18px;
+      background:
+        linear-gradient(145deg, rgba(8, 14, 30, 0.98), rgba(5, 8, 18, 0.96)),
+        radial-gradient(circle at top left, rgba(111, 234, 255, 0.12), transparent 60%);
+      border: 1px solid rgba(118, 142, 210, 0.9);
+      box-shadow:
+        0 28px 70px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(40, 60, 120, 0.9);
+      display: block;
+    }
+
+    .splash-step {
+      display: none;
+    }
+
+    .splash-step.is-active {
+      display: block;
+    }
+
+    .splash-title {
+      font-size: 0.9rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #ffffff;
+      margin: 0 0 6px;
+    }
+
+    .splash-subtitle {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0 0 10px;
+      color: #ffffff;
+    }
+
+    .splash-text {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: #ffffff;
+      margin: 6px 0;
+    }
+
+    .splash-credit {
+      margin: 12px 0 4px;
+      font-size: 0.8rem;
+      color: #ffffff;
+    }
+
+    .splash-name {
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .splash-nav-row {
+      margin-top: 14px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .splash-button,
+    .splash-subbutton {
+      border-radius: 999px;
+      border-width: 1px;
+      border-style: solid;
+      font-size: 0.9rem;
+      padding: 7px 16px;
+      cursor: pointer;
+      font-family: inherit;
+      transition:
+        background-color 160ms ease-out,
+        color 160ms ease-out,
+        box-shadow 160ms ease-out,
+        transform 120ms ease-out,
+        border-color 160ms ease-out;
+    }
+
+    .splash-button {
+      border-color: rgba(159, 227, 255, 0.9);
+      background: radial-gradient(circle at top, rgba(159, 227, 255, 0.24), transparent 60%),
+                  linear-gradient(135deg, #1e88ff, #12c2e9);
+      color: #050713;
+      box-shadow:
+        0 0 0 1px rgba(20, 40, 90, 0.7),
+        0 10px 24px rgba(0, 0, 0, 0.85);
+    }
+
+    .splash-button:hover,
+    .splash-button:focus-visible {
+      outline: none;
+      box-shadow:
+        0 0 0 1px rgba(164, 236, 255, 1),
+        0 14px 32px rgba(0, 0, 0, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .splash-subbutton {
+      border-color: rgba(133, 153, 201, 0.9);
+      background: rgba(10, 16, 30, 0.95);
+      color: #ffffff;
+      box-shadow: 0 0 0 1px rgba(24, 36, 76, 0.9);
+    }
+
+    .splash-subbutton:hover,
+    .splash-subbutton:focus-visible {
+      outline: none;
+      border-color: rgba(164, 236, 255, 0.9);
+      box-shadow:
+        0 0 0 1px rgba(164, 236, 255, 0.9),
+        0 8px 20px rgba(0, 0, 0, 0.9);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 600px) {
+      .splash-card {
+        margin-top: 20px;
+        padding: 18px 14px 14px;
+      }
+      .splash-title {
+        font-size: 0.82rem;
+      }
+      .splash-subtitle {
+        font-size: 1.02rem;
+      }
+      .splash-text {
+        font-size: 0.88rem;
+      }
+    }
+/* === README DROPDOWN === */
+    .readme-dropdown {
+      border-radius: 14px;
+      background: radial-gradient(circle at top left, rgba(111, 234, 255, 0.08), transparent 60%),
+                  rgba(6, 10, 20, 0.96);
+      border: 1px solid rgba(104, 130, 190, 0.65);
+      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.75);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .readme-dropdown summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 8px 10px;
+    }
+
+    .readme-dropdown summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .readme-dropdown .panel-head {
+      margin: 0;
+    }
+
+    .readme-dropdown .panel-head-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .readme-caret {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(149, 217, 255, 0.8);
+      box-shadow: 0 0 8px rgba(149, 217, 255, 0.9);
+      flex-shrink: 0;
+    }
+
+    .readme-dropdown[open] .readme-caret {
+      box-shadow: 0 0 12px rgba(149, 217, 255, 1);
+    }
+
+    .readme-dropdown .readme-content {
+      border-top: 1px solid rgba(75, 98, 158, 0.8);
+    }
+
+    /* === VORTEX – Minimum font-size pass (~16px baseline) === */
+    :root {
+      font-size: 16px;
+    }
+
+    /* Core HUD + labels */
+    .app-title,
+    .app-subtitle,
+    .asset-tag,
+    .metric-label,
+    .metric-value,
+    .metric-sub,
+    .status-line,
+    .badge,
+    .pill,
+    .console-line,
+    .console-line span,
+    .ai-header,
+    .ai-body,
+    .readme-title,
+    .readme-text,
+    .splash-title,
+    .splash-subtitle,
+    .splash-text,
+    .splash-credit,
+    .splash-button,
+    .splash-subbutton {
+      font-size: 1rem;
+    }
+
+    .splash-title {
+      font-size: 1.15rem;
+    }
+
+
+/* P18 SHELL_CLEANUP */
+/* Shell owns title/subtitle + docs */
+.splash-title, .splash-subtitle, .splash-text, .splash-credit{ display:none !important; }
+.readme-content, #readmePanel, #readmeModal{ display:none !important; }
+
+    /* Nexus Back Bar */
+    .nexus-backbar{
+      
+      top: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 14px;
+    }
+    .nexus-backlink{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .nexus-backlink:hover{ text-decoration: underline; }
+    </style>
+<!-- Shared HUD theme from Portfolio2 kit -->
+<link href="/shared/lab-core.css?v=20251219" rel="stylesheet"/>
+<script>window.APP_ID="vortex-v3-3-multi-asset-vortex-field";</script>
+<style>
+/* A20 scroll baseline */
+html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+</style>
+<style>
+/* A71: prevent Nexus bar from becoming a layout column (e.g., Vortex). */
+.nexusbar{
+  position: fixed !important;
+  top: 10px; left: 10px; right: 10px;
+  z-index: 9999;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+/* Add a little top padding so content doesn't hide under bar */
+body{ padding-top: 56px; }
+</style>
+<style>
+/* A74: Vortex — Nexus bar must be FIXED overlay (never sticky, never a column). */
+.nexusbar, .nexusbar.inline{
+  position: fixed !important;
+  top: 12px !important;
+  left: 12px !important;
+  right: auto !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+  z-index: 2147483000 !important;
+}
+/* Make sure no page container can "trap" fixed positioning via transform */
+html, body, body *{
+  transform: none !important;
+}
+/* Do NOT reserve space in the layout */
+.nexusbar, .nexusbar.inline{ float:none !important; clear:none !important; }
+</style>
+<style id="hotfix-nexusbar">
+/* ===== HOTFIX: VORTEX LAYOUT (NEXUS BAR HEIGHT) ===== */
+body{
+  flex-direction: column;           /* was row → made nav take full page height */
+  align-items: stretch;
+}
+.nxTopNav{ flex: 0 0 auto; }
+#app{ flex: 1 1 auto; }
+canvas#vortex3d{ flex: 0 0 auto; }
+</style>
+<link href="../../shared/wyla.css" rel="stylesheet">
+<script defer="" src="../../shared/wyla.js"></script>
+</link></head>
+<body data-app="vortex">
+  <nav class="nxTopNav"></nav>
+
+<div data-wyla=""></div>
+<div aria-modal="true" class="splash-overlay" data-step="1" id="splashOverlay" role="dialog">
+<div class="splash-card" data-step="1">
+<!-- STEP 1 – Quick overview -->
+<div class="splash-step is-active" id="splashStep1">
+<h1 class="splash-title">VORTEX – VOLATILITY FIELD LAB</h1>
+<p class="splash-subtitle">
+          A multi-asset crypto volatility cockpit for BTC, ETH, and SOL.
+        </p>
+<p class="splash-text">
+          VORTEX pairs a clean 2D price track with a full 3D particle field that reacts to
+          volatility. The idea is that “how wild is it right now?” should be obvious at a glance,
+          not buried in tiny numbers.
+        </p>
+<p class="splash-text">
+          Use it like a small control room: pick an asset, choose SIM or LIVE, and watch how the
+          chart, the 3D field, and the mission console move together while you steer.
+        </p>
+<p class="splash-credit">
+          Built as a portfolio lab by <span class="splash-name">Devin O’Rourke</span> to show
+          how design, data wiring, and WebGL can live together on a single page with room
+          for AI advisors to plug in.
+        </p>
+<div class="splash-nav-row">
+<button class="splash-button" id="splashNext" type="button">Next</button>
+</div>
+</div>
+<!-- STEP 2 – Plain English “how to fly it” -->
+<div aria-hidden="true" class="splash-step" id="splashStep2">
+<h2 class="splash-subtitle">How to read the cockpit</h2>
+<p class="splash-text">
+          When you enter the app, you land in a tablet-style cockpit. The left side holds the
+          title bar and quick controls. The middle is your main field: the price chart and
+          the 3D particle field. The right side is the mission console with status pills,
+          a small AI advisor strip, and a scrolling event log.
+        </p>
+<p class="splash-text">
+          Start by choosing an asset at the top: BTC, ETH, or SOL. The entire HUD snaps to that
+          asset. The chart line, labels, and the 3D field color all follow the current selection
+          so you always know what you are looking at.
+        </p>
+<p class="splash-text">
+          The SIM / LIVE toggle controls where ticks come from. SIM mode runs a safe,
+          offline orbit of synthetic data so you can explore the interface without depending
+          on a real exchange. LIVE mode attempts to bind to an actual feed so you can see
+          the field react to real-world movement.
+        </p>
+<p class="splash-text">
+          The 2D chart shows recent price plus a subtle band to hint at the current range.
+          The idea is not to drown you in indicators, but to give you a clean strip where you
+          can see direction, intensity, and how noisy the last window of time has been.
+        </p>
+<p class="splash-text">
+          The 3D field is the “vortex” part. Particles cluster around a vertical column and
+          react to volatility: calm conditions look tight and stable, while spicy conditions
+          push more motion, spread, and glow. You can watch it out of the corner of your eye
+          while focusing on the numbers.
+        </p>
+<p class="splash-text">
+          On the right, the mission console keeps you oriented. Status pills show which mode
+          you are in, how many ticks have arrived, and what the current volatility band is.
+          The scrolling log reads like a flight recorder: asset changes, mode flips, warnings,
+          and internal alerts all show up there in plain language.
+        </p>
+<p class="splash-text">
+          The AI advisor strip is intentionally small. Instead of replacing the interface with
+          a giant chat box, it gives you a reserved lane where one or more AI agents can comment
+          on what the market is doing while you stay on the cockpit view. Under the hood the
+          app exposes a clean hook so a model can be wired in without rewriting the UI.
+        </p>
+<p class="splash-text">
+          Best way to use it: pick an asset, leave SIM on for a minute to get used to the layout,
+          then flip to LIVE and watch how the chart, the field, and the console evolve together.
+          When you are ready, close this overlay and treat the app like a tiny volatility lab.
+        </p>
+<div class="splash-nav-row">
+<button class="splash-subbutton" id="splashBack" type="button">Back</button>
+<button class="splash-button" id="splashEnter" type="button">Enter App</button>
+</div>
+</div>
+</div>
+</div>
+<canvas aria-hidden="true" id="vortex3d"></canvas>
+<main id="app" role="main">
+<header>
+<div class="title-block">
+<div class="app-title">VORTEX // MULTI-ASSET</div>
+<div class="app-subtitle">
+          volatility field lab • BTC / ETH / SOL cockpit • portfolio demo build
+        </div>
+</div>
+<div class="status-pill">
+<div class="status-dot"></div>
+<span>VORTEX FIELD // ONLINE</span>
+</div>
+</header>
+<nav aria-label="asset selector" class="asset-nav">
+<button class="asset-btn active" data-asset="BTC" type="button">
+<span>BTC / USD</span>
+<span class="asset-tag">primary</span>
+</button>
+<button class="asset-btn" data-asset="ETH" type="button">
+<span>ETH / USD</span>
+<span class="asset-tag">alt</span>
+</button>
+<button class="asset-btn" data-asset="SOL" type="button">
+<span>SOL / USD</span>
+<span class="asset-tag">field test</span>
+</button>
+</nav>
+<section aria-label="main cockpit layout" class="grid">
+<!-- LEFT: chart + metrics -->
+<section aria-label="price and volatility chart" class="panel">
+<div class="panel-head">
+<div>
+<strong>VORTEX FIELD</strong> // LIVE SIGNAL
+          </div>
+<div class="panel-meta">
+<span id="sessionLabel">session: cold boot</span>
+<span id="tickLabel">ticks: 0</span>
+</div>
+</div>
+<div class="panel-body">
+<div class="chart-shell">
+<div class="chart-header-row">
+<div class="price-row">
+<span class="price-row-main" id="priceMain">$0.00</span>
+<span class="price-row-sub" id="priceSub">Δ 0.00 (0.00%)</span>
+</div>
+<div class="vol-badges">
+<div class="pill" id="volPill">
+<span>VOL</span>
+<span id="volLabel">booting…</span>
+</div>
+<div class="pill" id="modePill">
+<span>MODE</span>
+<span id="modeLabel">live (auto)</span>
+</div>
+</div>
+</div>
+<div class="chart-canvas-shell">
+<div class="chart-2d-shell">
+<canvas aria-label="Price chart for selected asset" id="chartCanvas" role="img"></canvas>
+<div class="chart-grid-overlay"></div>
+</div>
+<div aria-hidden="true" class="chart-3d-shell">
+<canvas aria-hidden="true" id="chart3dCanvas"></canvas>
+</div>
+</div>
+<div aria-label="session metrics" class="metrics-row">
+<div class="metric-card">
+<div class="metric-label">rolling volatility</div>
+<div class="metric-value" id="volMetric">0.00%</div>
+<div class="metric-sub">window: 40 ticks</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">session ticks</div>
+<div class="metric-value" id="tickMetric">0</div>
+<div class="metric-sub">field runtime (live + sim)</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">3D vortex field</div>
+<div class="metric-value" id="vortexMetric">booting…</div>
+<div class="metric-sub">3D engine status</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- RIGHT: session + log + AI launcher -->
+<section aria-label="mission ops and log" class="panel">
+<div class="panel-head">
+<div>
+<strong>MISSION OPS</strong> // SESSION &amp; LOG
+          </div>
+<div class="panel-meta">
+<span id="sessionModeLabel">mode: live feed (sim off)</span>
+<span id="assetLabel">asset: BTC / USD</span>
+</div>
+</div>
+<div class="panel-body">
+<div class="session-row">
+<div class="session-pills">
+<div class="session-top">
+<div class="badge-row">
+<div class="badge" id="simBadge">
+                    sim: <span id="simFlag">off</span>
+</div>
+<div class="badge">
+                    error streak: <span id="errorStreak">0</span>
+</div>
+<button aria-pressed="false" class="badge sim-toggle" id="simToggle" type="button">
+                    toggle sim mode
+                  </button>
+<button aria-pressed="true" class="badge sim-toggle" id="audioToggle" type="button">
+                    audio click: on
+                  </button>
+</div>
+</div>
+<div class="badge-row">
+<div class="badge">
+                  probe index: <span id="probeIndex">0</span>
+</div>
+<div class="badge">
+                  volatility band: <span id="volBand">neutral</span>
+</div>
+<div class="badge">
+                  console: <span id="consoleStatus">listening</span>
+</div>
+<div class="badge" id="audioBadge">
+                  audio: <span id="audioFlag">on</span>
+</div>
+</div>
+</div>
+<div class="log-shell">
+</div>
+</div></div></section>
+</section>
+</main>
+<!-- Embedded AI Advisors removed (centralized in Nexus bar: Ask Althea) -->
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<!-- Shared AI lab kit (Portfolio2) -->
+<script defer="" src="/shared/ui-helpers.js?v=20251219"></script>
+<script defer="" src="/shared/ai-personas.js?v=20251219"></script>
+<script defer="" src="/shared/ai-diagnostics.js?v=20251219"></script>
+<script defer="" src="/shared/forge-sdk.llm.js?v=20251219"></script>
+<script src="/shared/global-polyfill.js?v=20251230"></script>
+<script src="/shared/forge-llm-drivers.js?v=20251219" type="module"></script>
+<script src="/shared/ai-engines.js?v=20251219" type="module"></script>
+<script>
+    (function () {
+      const STORAGE_KEY = "vortex-v3-settings";
+
+      const state = {
+        asset: "BTC",
+        themeColor: "#00ff9d",
+        chartData: [],
+        simMode: false,
+        errorStreak: 0,
+        tickCount: 0,
+        volatility: { score: 0, label: "booting" },
+        probeIndex: 0,
+        liveModeAvailable: false,
+        feeds: {},
+        audioEnabled: true
+      };
+
+      const BINANCE_SYMBOLS = {
+        BTC: "btcusdt",
+        ETH: "ethusdt",
+        SOL: "solusdt"
+      };
+
+      let storage = null;
+      try {
+        storage = window.localStorage;
+      } catch (e) {
+        storage = null;
+      }
+
+      const assetColors = {
+        BTC: "#00ff9d",
+        ETH: "#4da6ff",
+        SOL: "#9c6bff"
+      };
+
+      const chartCanvas = document.getElementById("chartCanvas");
+      const logStream = document.getElementById("log-stream");
+      const sessionLabelEl = document.getElementById("sessionLabel");
+      const tickLabelEl = document.getElementById("tickLabel");
+      const tickMetricEl = document.getElementById("tickMetric");
+      const priceMainEl = document.getElementById("priceMain");
+      const priceSubEl = document.getElementById("priceSub");
+      const volPillEl = document.getElementById("volPill");
+      const volLabelEl = document.getElementById("volLabel");
+      const volMetricEl = document.getElementById("volMetric");
+      const modePillEl = document.getElementById("modePill");
+      const modeLabelEl = document.getElementById("modeLabel");
+      const vortexMetricEl = document.getElementById("vortexMetric");
+      const simBadgeEl = document.getElementById("simBadge");
+      const simFlagEl = document.getElementById("simFlag");
+      const simToggleEl = document.getElementById("simToggle");
+      const errorStreakEl = document.getElementById("errorStreak");
+      const probeIndexEl = document.getElementById("probeIndex");
+      const volBandEl = document.getElementById("volBand");
+      const consoleStatusEl = document.getElementById("consoleStatus");
+      const sessionModeLabelEl = document.getElementById("sessionModeLabel");
+      const assetLabelEl = document.getElementById("assetLabel");
+      const clearLogBtn = document.getElementById("clearLogBtn");
+      const audioBadgeEl = document.getElementById("audioBadge");
+      const audioFlagEl = document.getElementById("audioFlag");
+      const audioToggleEl = document.getElementById("audioToggle");
+
+      const aiModalBackdrop = document.getElementById("aiModalBackdrop");
+      const aiModalClose = document.getElementById("aiModalClose");
+
+      const coachRawEl = document.getElementById("aiCoachRaw");
+      const criticRawEl = document.getElementById("aiCriticRaw");
+      const ideaRawEl = document.getElementById("aiIdeaRaw");
+      const rawPromptEls = {
+        coach: coachRawEl,
+        critic: criticRawEl,
+        "idea-scout": ideaRawEl
+      };
+
+      let chartCtx = null;
+      let vortex3D = null;
+      let chart3D = null;
+      let audioCtx = null;
+
+      const APP_ID = "vortex-field";
+      const typewriterStates = {};
+
+      /* ---------- LOGGING ---------- */
+      function log(message, kind) {
+        const entry = document.createElement("div");
+        entry.className =
+          "log-entry " +
+          (kind === "sys"
+            ? "sys"
+            : kind === "warn"
+            ? "warn"
+            : kind === "err"
+            ? "err"
+            : kind === "ai"
+            ? "log-entry-ai"
+            : "");
+        const prefix = document.createElement("span");
+        prefix.className = "log-prefix";
+        prefix.textContent =
+          kind === "sys"
+            ? "SYS"
+            : kind === "warn"
+            ? "WARN"
+            : kind === "err"
+            ? "ERR"
+            : kind === "ai"
+            ? "AI"
+            : "LOG";
+        const msgSpan = document.createElement("span");
+        msgSpan.className = "log-msg";
+        msgSpan.textContent = message;
+        entry.appendChild(prefix);
+        entry.appendChild(msgSpan);
+        logStream.appendChild(entry);
+        logStream.scrollTop = logStream.scrollHeight;
+
+        if (window.TelemetryHub && TelemetryHub.log) {
+          TelemetryHub.log("vortex-field", "LOG", kind + ": " + message);
+        }
+      }
+
+      /* ---------- STATE PERSISTENCE ---------- */
+      function loadState() {
+        if (!storage) return;
+        try {
+          const raw = storage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          Object.assign(state, parsed);
+        } catch (e) {
+          log("failed to load state: " + e.message, "warn");
+        }
+      }
+
+      function saveState() {
+        if (!storage) return;
+        try {
+          const snapshot = {
+            asset: state.asset,
+            themeColor: state.themeColor,
+            simMode: state.simMode,
+            audioEnabled: state.audioEnabled
+          };
+          storage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      /* ---------- THEME & UI ---------- */
+      function updateTheme() {
+        const root = document.documentElement;
+        root.style.setProperty("--primary", state.themeColor);
+      }
+
+      function updateLabels() {
+        sessionLabelEl.textContent = "session: vortex field";
+        tickLabelEl.textContent = "ticks: " + state.tickCount;
+        tickMetricEl.textContent = state.tickCount.toString();
+        errorStreakEl.textContent = state.errorStreak.toString();
+        probeIndexEl.textContent = state.probeIndex.toString();
+        assetLabelEl.textContent = "asset: " + state.asset + " / USD";
+
+        const modeStr = state.simMode
+          ? "SIM mode (synthetic)"
+          : state.liveModeAvailable
+          ? "live feed (Binance)"
+          : "live feed (attempting)";
+        sessionModeLabelEl.textContent = "mode: " + modeStr;
+        simFlagEl.textContent = state.simMode ? "on" : "off";
+        simToggleEl.classList.toggle("on", state.simMode);
+        modeLabelEl.textContent = state.simMode ? "SIM" : "LIVE";
+
+        if (audioBadgeEl && audioFlagEl && audioToggleEl) {
+          audioFlagEl.textContent = state.audioEnabled ? "on" : "off";
+          audioToggleEl.textContent =
+            "audio click: " + (state.audioEnabled ? "on" : "off");
+          audioToggleEl.classList.toggle("on", state.audioEnabled);
+          audioToggleEl.setAttribute(
+            "aria-pressed",
+            state.audioEnabled ? "true" : "false"
+          );
+        }
+
+        const volScore = state.volatility.score || 0;
+        let band = "neutral";
+        let pillClass = "pill";
+        if (volScore < 1.5) {
+          band = "calm";
+          pillClass += " good";
+        } else if (volScore < 3.5) {
+          band = "neutral";
+          pillClass += " warn";
+        } else {
+          band = "spicy";
+          pillClass += " bad";
+        }
+        volBandEl.textContent = band;
+        volPillEl.className = pillClass;
+        volLabelEl.textContent = band + " • " + volScore.toFixed(2) + "%";
+        volMetricEl.textContent = volScore.toFixed(2) + "%";
+      }
+
+      function updatePriceLabels() {
+        const data = state.chartData;
+        if (!data.length) {
+          priceMainEl.textContent = "$0.00";
+          priceSubEl.textContent = "Δ 0.00 (0.00%)";
+          return;
+        }
+        const last = data[data.length - 1];
+        const first = data[0];
+        const delta = last - first;
+        const pct = first !== 0 ? (delta / first) * 100 : 0;
+        priceMainEl.textContent = "$" + last.toFixed(2);
+        priceSubEl.textContent =
+          "Δ " +
+          delta.toFixed(2) +
+          " (" +
+          (pct >= 0 ? "+" : "") +
+          pct.toFixed(2) +
+          "%)";
+      }
+
+      function resizeCanvas() {
+        if (!chartCanvas) return;
+        const rect = chartCanvas.getBoundingClientRect();
+        chartCanvas.width = Math.max(320, rect.width * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1)));
+        chartCanvas.height = Math.max(140, 210 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1)));
+        chartCtx = chartCanvas.getContext("2d");
+        renderChart();
+      }
+
+      /* ---------- REAL DATA FEED (BINANCE) ---------- */
+      function getFeed(asset) {
+        if (!state.feeds[asset]) {
+          state.feeds[asset] = {
+            ws: null,
+            lastPrice: null,
+            lastUpdated: 0,
+            live: false
+          };
+        }
+        return state.feeds[asset];
+      }
+
+      function handleRealPrice(asset, price, source) {
+        if (!isFinite(price)) return;
+        const feed = getFeed(asset);
+        feed.lastPrice = price;
+        feed.lastUpdated = Date.now();
+        feed.live = true;
+        state.liveModeAvailable = true;
+
+        if (asset === state.asset && !state.simMode) {
+          if (!state.chartData.length) {
+            state.chartData.push(price);
+          } else {
+            state.chartData.push(price);
+          }
+          if (state.chartData.length > 120) {
+            state.chartData.shift();
+          }
+          state.tickCount += 1;
+          computeVolatility();
+          updatePriceLabels();
+          updateLabels();
+          renderChart();
+        }
+      }
+
+      function connectBinanceStream(asset) {
+        const symbol = BINANCE_SYMBOLS[asset];
+        if (!symbol || !("WebSocket" in window)) return;
+        const feed = getFeed(asset);
+        if (feed.ws && feed.ws.readyState === WebSocket.OPEN) return;
+
+        try {
+          const ws = new WebSocket(
+            "wss://stream.binance.com:9443/ws/" + symbol + "@trade"
+          );
+          feed.ws = ws;
+
+          ws.onopen = function () {
+            log(
+              "live feed connected (" + asset + " via Binance trade stream)",
+              "sys"
+            );
+            state.liveModeAvailable = true;
+            updateLabels();
+          };
+
+          ws.onmessage = function (evt) {
+            try {
+              const data = JSON.parse(evt.data);
+              const price = parseFloat(data.p || data.c || data.lastPrice);
+              handleRealPrice(asset, price, "ws");
+            } catch (e) {
+              console.warn("binance ws parse error", e);
+            }
+          };
+
+          ws.onerror = function () {
+            log(
+              "live feed error for " + asset + " — falling back to SIM if needed",
+              "warn"
+            );
+            feed.live = false;
+            state.errorStreak += 1;
+            updateLabels();
+          };
+
+          ws.onclose = function () {
+            feed.ws = null;
+            feed.live = false;
+          };
+        } catch (e) {
+          log("WebSocket init failed for " + asset + ": " + e.message, "warn");
+        }
+      }
+
+      function ensureLiveFeeds() {
+        if (state.simMode) return;
+        ["BTC", "ETH", "SOL"].forEach(connectBinanceStream);
+      }
+
+      function fetchHistorical(asset) {
+        const symbol = BINANCE_SYMBOLS[asset];
+        if (!symbol) {
+          seedChartSim();
+          return;
+        }
+        const url =
+          "https://api.binance.com/api/v3/klines?symbol=" +
+          symbol.toUpperCase() +
+          "&interval=1m&limit=120";
+
+        fetch(url)
+          .then(function (resp) {
+            if (!resp.ok) throw new Error("HTTP " + resp.status);
+            return resp.json();
+          })
+          .then(function (rows) {
+            if (!Array.isArray(rows)) throw new Error("unexpected response");
+            const closes = rows
+              .map(function (k) {
+                return parseFloat(k[4]);
+              })
+              .filter(function (v) {
+                return isFinite(v);
+              });
+            if (!closes.length) throw new Error("no candle data");
+            state.chartData = closes;
+            state.tickCount = closes.length;
+            computeVolatility();
+            updatePriceLabels();
+            updateLabels();
+            renderChart();
+            state.liveModeAvailable = true;
+            log(
+              "seeded chart from Binance 1m candles for " + asset,
+              "sys"
+            );
+          })
+          .catch(function (err) {
+            log(
+              "failed to fetch Binance historical for " +
+                asset +
+                ": " +
+                err.message,
+              "warn"
+            );
+            state.liveModeAvailable = false;
+            seedChartSim();
+          });
+      }
+
+
+      /* ---------- LIVE DATA HELPERS (WRAPPER + OPTIONAL SPOT PRICE) ---------- */
+
+      // Coingecko IDs for a simple last-trade sanity check (optional)
+      const COINGECKO_IDS = {
+        BTC: "bitcoin",
+        ETH: "ethereum",
+        SOL: "solana"
+      };
+
+      /**
+       * Fetch a simple USD spot price from Coingecko (optional helper).
+       * Does not affect core chart logic; you can call this from devtools or future UI.
+       */
+      async function fetchSpotPrice(asset) {
+        const id = COINGECKO_IDS[asset];
+        if (!id) throw new Error("No Coingecko id for asset: " + asset);
+        const url =
+          "https://api.coingecko.com/api/v3/simple/price?ids=" +
+          encodeURIComponent(id) +
+          "&vs_currencies=usd";
+
+        const resp = await fetch(url);
+        if (!resp.ok) {
+          throw new Error("Coingecko HTTP " + resp.status);
+        }
+        const data = await resp.json();
+        const value = data[id] && data[id].usd;
+        if (typeof value !== "number") {
+          throw new Error("unexpected Coingecko payload");
+        }
+        return value;
+      }
+
+      /**
+       * Optional periodic live loop:
+       * - Uses existing fetchHistorical(asset) to re-seed the chart every N ms.
+       * - Intended as a backup / smoothing layer on top of Binance websockets.
+       */
+      let liveLoopTimer = null;
+
+      function startLiveLoop(intervalMs) {
+        const delay = Math.max(30_000, intervalMs || 60_000); // floor at 30s
+        if (liveLoopTimer) {
+          clearInterval(liveLoopTimer);
+          liveLoopTimer = null;
+        }
+        if (state.simMode) return; // SIM mode = no live loop
+
+        // Seed immediately for current asset
+        try {
+          fetchHistorical(state.asset);
+        } catch (e) {
+          console.warn("startLiveLoop seed failed", e);
+        }
+
+        liveLoopTimer = setInterval(function () {
+          if (state.simMode) {
+            clearInterval(liveLoopTimer);
+            liveLoopTimer = null;
+            return;
+          }
+          try {
+            fetchHistorical(state.asset);
+          } catch (e) {
+            console.warn("liveLoop tick failed", e);
+          }
+        }, delay);
+      }
+
+      function stopLiveLoop() {
+        if (liveLoopTimer) {
+          clearInterval(liveLoopTimer);
+          liveLoopTimer = null;
+        }
+      }
+
+      // Expose a small dev surface so AI / console can poke at live data safely.
+      window.vortexLive = {
+        fetchHistorical: fetchHistorical,
+        connectStream: connectBinanceStream,
+        fetchSpotPrice: fetchSpotPrice,
+        startLiveLoop: startLiveLoop,
+        stopLiveLoop: stopLiveLoop
+      };
+      /* ---------- CHART / TICKS ---------- */
+      function seedPriceForAsset(asset) {
+        if (asset === "BTC") return 88027.47 + (Math.random() - 0.5) * 440.14;
+        if (asset === "ETH") return 2969.75 + (Math.random() - 0.5) * 19.80;
+        if (asset === "SOL") return 125.51 + (Math.random() - 0.5) * 6.28;
+        return 100;
+      }
+
+      function seedChartSim() {
+        state.chartData.length = 0;
+        const base = seedPriceForAsset(state.asset);
+        for (let i = 0; i < 40; i++) {
+          const wobble = (Math.random() - 0.5) * (base / 200);
+          state.chartData.push(base + wobble);
+        }
+        state.tickCount = 40;
+        computeVolatility();
+        updatePriceLabels();
+        updateLabels();
+        renderChart();
+        if (!state.simMode) {
+          log("SIM seed used (live feed unavailable)", "warn");
+        }
+      }
+
+      function seedChart() {
+        if (state.simMode) {
+          seedChartSim();
+        } else {
+          fetchHistorical(state.asset);
+        }
+      }
+
+      function computeVolatility() {
+        const data = state.chartData;
+        if (!data.length) {
+          state.volatility = { score: 0, label: "booting" };
+          return;
+        }
+        const windowSize = Math.min(40, data.length);
+        const slice = data.slice(data.length - windowSize);
+        const mean = slice.reduce((a, b) => a + b, 0) / slice.length;
+        if (!isFinite(mean) || mean === 0) {
+          state.volatility = { score: 0, label: "booting" };
+          return;
+        }
+        const variance =
+          slice.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) /
+          slice.length;
+        const stdDev = Math.sqrt(variance);
+        const pct = (stdDev / mean) * 100;
+        state.volatility.score = pct;
+        let label = "neutral";
+        if (pct < 1.5) label = "calm";
+        else if (pct < 3.5) label = "neutral";
+        else label = "spicy";
+        state.volatility.label = label;
+      }
+
+      function renderChart() {
+        if (!chartCtx || !chartCanvas) return;
+        const w = chartCanvas.width;
+        const h = chartCanvas.height;
+        chartCtx.setTransform(1, 0, 0, 1, 0, 0);
+        chartCtx.clearRect(0, 0, w, h);
+
+        const data = state.chartData;
+        if (data.length < 2) return;
+
+        const min = Math.min.apply(null, data);
+        const max = Math.max.apply(null, data);
+        const pad = (max - min) * 0.1 || 1;
+        const lo = min - pad;
+        const hi = max + pad;
+
+        chartCtx.lineWidth = 1.4 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1));
+        chartCtx.strokeStyle = state.themeColor;
+        chartCtx.shadowColor = state.themeColor;
+        chartCtx.shadowBlur = 8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1));
+        chartCtx.beginPath();
+        data.forEach((val, idx) => {
+          const t = idx / (data.length - 1 || 1);
+          const x =
+            t * (w - 16 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1))) +
+            8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1));
+          const norm = (val - lo) / (hi - lo || 1);
+          const y =
+            (1 - norm) * (h - 16 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1))) +
+            8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1));
+          if (idx === 0) chartCtx.moveTo(x, y);
+          else chartCtx.lineTo(x, y);
+        });
+        chartCtx.stroke();
+
+        chartCtx.shadowBlur = 0;
+        chartCtx.globalAlpha = 0.18;
+        chartCtx.fillStyle = state.themeColor;
+        chartCtx.lineTo(
+          w - 8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1)),
+          h - 8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1))
+        );
+        chartCtx.lineTo(
+          8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1)),
+          h - 8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1))
+        );
+        chartCtx.closePath();
+        chartCtx.fill();
+        chartCtx.globalAlpha = 1;
+
+        // === Last-price tracker line + glow marker ===
+        const lastIndex = data.length - 1;
+        const lastVal = data[lastIndex];
+        const tLast = lastIndex / (data.length - 1 || 1);
+        const xLast =
+          tLast * (w - 16 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1))) +
+          8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1));
+        const normLast = (lastVal - lo) / (hi - lo || 1);
+        const yLast =
+          (1 - normLast) * (h - 16 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1))) +
+          8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1));
+
+        // vertical tracker
+        chartCtx.save();
+        chartCtx.strokeStyle = "rgba(186, 208, 255, 0.7)";
+        chartCtx.setLineDash([
+          4 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1)),
+          3 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1))
+        ]);
+        chartCtx.lineWidth = 1 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1));
+        chartCtx.beginPath();
+        chartCtx.moveTo(xLast, 8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1)));
+        chartCtx.lineTo(xLast, h - 8 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1)));
+        chartCtx.stroke();
+        chartCtx.restore();
+
+        // glow marker at the latest price
+        chartCtx.save();
+        chartCtx.fillStyle = "#ffffff";
+        chartCtx.shadowColor = state.themeColor;
+        chartCtx.shadowBlur = 10 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1));
+        const rHead = 3 * ((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1));
+        chartCtx.beginPath();
+        chartCtx.arc(xLast, yLast, rHead, 0, Math.PI * 2);
+        chartCtx.fill();
+        chartCtx.restore();
+
+        updateChart3D(lo, hi);
+      }
+
+
+      
+      function initChart3D() {
+        if (chart3D || !window.THREE) return;
+        const canvas = document.getElementById("chart3dCanvas");
+        if (!canvas) return;
+
+        const renderer = new THREE.WebGLRenderer({
+          canvas,
+          antialias: true,
+          alpha: true
+        });
+        const scene = new THREE.Scene();
+        // Depth fade / fog for grid & lines
+        scene.fog = new THREE.Fog(0x0a0f20, 3.0, 8.0);
+
+        const camera = new THREE.PerspectiveCamera(
+          40,
+          (canvas.clientWidth || 320) / (canvas.clientHeight || 120),
+          0.1,
+          20
+        );
+        camera.position.set(0.2, 1.15, 2.6);
+        camera.lookAt(0, 0, 0);
+
+        // Base plane
+        const baseMat = new THREE.MeshBasicMaterial({
+          color: 0x050712,
+          transparent: true,
+          opacity: 0.75
+        });
+        const baseGeo = new THREE.PlaneGeometry(4.2, 1.3);
+        const base = new THREE.Mesh(baseGeo, baseMat);
+        base.rotation.x = -Math.PI / 2;
+        base.position.set(0, -0.001, 0);
+        scene.add(base);
+
+        // 3D grid (D)
+        const gridGroup = new THREE.Group();
+        const gridColor = new THREE.Color(0x224066);
+        const gridStepsX = 16;
+        const gridStepsZ = 8;
+        const spanX = 3.8;
+        const spanZ = 1.2;
+
+        const gridMat = new THREE.LineBasicMaterial({
+          color: gridColor,
+          transparent: true,
+          opacity: 0.28
+        });
+
+        // vertical lines across Z
+        for (let i = 0; i <= gridStepsX; i++) {
+          const t = i / gridStepsX;
+          const x = (t - 0.5) * spanX;
+          const geo = new THREE.BufferGeometry();
+          const arr = new Float32Array([
+            x, 0.0, -spanZ * 0.5,
+            x, 0.0,  spanZ * 0.5
+          ]);
+          geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+          const line = new THREE.Line(geo, gridMat);
+          gridGroup.add(line);
+        }
+        // horizontal lines along X
+        for (let k = 0; k <= gridStepsZ; k++) {
+          const u = k / gridStepsZ;
+          const z = (u - 0.5) * spanZ;
+          const geo = new THREE.BufferGeometry();
+          const arr = new Float32Array([
+            -spanX * 0.5, 0.0, z,
+             spanX * 0.5, 0.0, z
+          ]);
+          geo.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+          const line = new THREE.Line(geo, gridMat);
+          gridGroup.add(line);
+        }
+        gridGroup.position.y = 0.0001; // keep above base
+        scene.add(gridGroup);
+
+        // Mid + Hi/Lo bands (F) – pre-create line objects
+        const lineGeomMid = new THREE.BufferGeometry();
+        const lineGeomHi  = new THREE.BufferGeometry();
+        const lineGeomLo  = new THREE.BufferGeometry();
+
+        const matMid = new THREE.LineBasicMaterial({
+          color: 0x9fe3ff,
+          transparent: true,
+          opacity: 0.95,
+          fog: true
+        });
+        const matHi = new THREE.LineBasicMaterial({
+          color: 0x9fe3ff,
+          transparent: true,
+          opacity: 0.35,
+          fog: true
+        });
+        const matLo = new THREE.LineBasicMaterial({
+          color: 0x9fe3ff,
+          transparent: true,
+          opacity: 0.35,
+          fog: true
+        });
+
+        const lineMid = new THREE.Line(lineGeomMid, matMid);
+        const lineHi  = new THREE.Line(lineGeomHi,  matHi);
+        const lineLo  = new THREE.Line(lineGeomLo,  matLo);
+
+        const group = new THREE.Group();
+        group.add(lineMid, lineHi, lineLo);
+        scene.add(group);
+
+        function resize3D() {
+          const w = canvas.clientWidth || 320;
+          const h = canvas.clientHeight || 120;
+          const ratio = w / h;
+          renderer.setPixelRatio(((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1)) || 1);
+          renderer.setSize(w, h, false);
+          camera.aspect = ratio;
+          camera.updateProjectionMatrix();
+        }
+
+        resize3D();
+        window.addEventListener("resize", resize3D);
+
+        chart3D = {
+          renderer,
+          scene,
+          camera,
+          canvas,
+          group,
+          lineMid,
+          lineHi,
+          lineLo,
+          grid: gridGroup,
+          resize3D,
+          frameId: null
+        };
+
+        function loop(time) {
+          chart3D.frameId = requestAnimationFrame(loop);
+          const t = time * 0.00025;
+          const wobble = Math.min(1.4, Math.max(0.5, (state.veiNorm || 0.6) + 0.2));
+          group.rotation.y = Math.sin(t * wobble) * 0.35;
+          group.position.y = Math.sin(t * 0.7) * 0.06;
+          renderer.render(scene, camera);
+        }
+        loop(0);
+      }
+
+      function updateChart3D(lo, hi) {
+        if (!window.THREE) return;
+        const data = state.chartData;
+        if (!data || data.length < 2) return;
+
+        if (!chart3D || !chart3D.lineMid) {
+          initChart3D();
+          if (!chart3D || !chart3D.lineMid) return;
+        }
+
+        const n = data.length;
+
+        // --- Compute simple rolling hi/lo bands (F)
+        const win = Math.max(4, Math.floor(n * 0.12)); // ~12% window
+        const highs = new Array(n).fill(-Infinity);
+        const lows  = new Array(n).fill(Infinity);
+        for (let i = 0; i < n; i++) {
+          let loW = i - win; if (loW < 0) loW = 0;
+          let hiW = i + win; if (hiW > n - 1) hiW = n - 1;
+          let h = -Infinity, l = Infinity;
+          for (let k = loW; k <= hiW; k++) {
+            const v = data[k];
+            if (v > h) h = v;
+            if (v < l) l = v;
+          }
+          highs[i] = h;
+          lows[i] = l;
+        }
+
+        // --- Positions for mid / hi / lo ribbons
+        function ensureAttr(geom, count) {
+          let attr = geom.getAttribute("position");
+          if (!attr || attr.count !== count) {
+            const arr = new Float32Array(count * 3);
+            geom.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+            attr = geom.getAttribute("position");
+          }
+          return attr;
+        }
+
+        const posMid = ensureAttr(chart3D.lineMid.geometry, n).array;
+        const posHi  = ensureAttr(chart3D.lineHi.geometry,  n).array;
+        const posLo  = ensureAttr(chart3D.lineLo.geometry,  n).array;
+
+        const spanX = 3.6;
+        const spanY = 0.9;
+        const spanZ = 1.2;
+
+        for (let i = 0; i < n; i++) {
+          const t = i / (n - 1 || 1);
+
+          const vMid = data[i];
+          const vHi  = highs[i];
+          const vLo  = lows[i];
+
+          const normMid = (vMid - lo) / (hi - lo || 1);
+          const normHi  = (vHi  - lo) / (hi - lo || 1);
+          const normLo  = (vLo  - lo) / (hi - lo || 1);
+
+          const x = (t - 0.5) * spanX;
+          const yMid = (normMid - 0.5) * spanY;
+          const yHi  = (normHi  - 0.5) * spanY;
+          const yLo  = (normLo  - 0.5) * spanY;
+
+          const z = Math.sin(t * Math.PI * 2) * 0.18 * spanZ * Math.max(0.4, state.veiNorm || 0.6);
+
+          let idx = i * 3;
+          posMid[idx] = x; posMid[idx + 1] = yMid; posMid[idx + 2] = z;
+          posHi[idx]  = x; posHi[idx + 1]  = yHi;  posHi[idx + 2]  = z * 0.9;
+          posLo[idx]  = x; posLo[idx + 1]  = yLo;  posLo[idx + 2]  = z * 1.1;
+        }
+
+        chart3D.lineMid.geometry.getAttribute("position").needsUpdate = true;
+        chart3D.lineHi.geometry.getAttribute("position").needsUpdate  = true;
+        chart3D.lineLo.geometry.getAttribute("position").needsUpdate  = true;
+
+        chart3D.lineMid.geometry.computeBoundingSphere();
+        chart3D.lineHi.geometry.computeBoundingSphere();
+        chart3D.lineLo.geometry.computeBoundingSphere();
+
+        // --- Vol-driven color (E)
+        const vei = Math.min(1, Math.max(0, state.veiNorm || 0.6));
+        function rampColor(v) {
+          // calm blue -> cyan -> magenta
+          if (v < 0.5) {
+            // 0..0.5: 0x6fb2ff -> 0x9ff7ff
+            const t = v / 0.5;
+            const r = Math.round(0x6f + (0x9f - 0x6f) * t);
+            const g = Math.round(0xb2 + (0xf7 - 0xb2) * t);
+            const b = Math.round(0xff + (0xff - 0xff) * t);
+            return new THREE.Color((r << 16) + (g << 8) + b);
+          } else {
+            // 0.5..1: 0x9ff7ff -> 0xff5bf5
+            const t = (v - 0.5) / 0.5;
+            const r = Math.round(0x9f + (0xff - 0x9f) * t);
+            const g = Math.round(0xf7 + (0x5b - 0xf7) * t);
+            const b = Math.round(0xff + (0xf5 - 0xff) * t);
+            return new THREE.Color((r << 16) + (g << 8) + b);
+          }
+        }
+        const c = rampColor(vei);
+
+        chart3D.lineMid.material.color = c.clone();
+        chart3D.lineHi.material.color  = c.clone();
+        chart3D.lineLo.material.color  = c.clone();
+
+        // Opacity & faux thickness via band visibility
+        const opMid = 0.85 + vei * 0.1;
+        const opSide = 0.25 + vei * 0.25;
+        chart3D.lineMid.material.opacity = opMid;
+        chart3D.lineHi.material.opacity  = opSide;
+        chart3D.lineLo.material.opacity  = opSide;
+      }
+function pushTick() {
+        state.probeIndex += 1;
+
+        // SIM only if enabled or live feed unavailable
+        if (state.simMode || !state.liveModeAvailable) {
+          const last =
+            state.chartData.length > 0
+              ? state.chartData[state.chartData.length - 1]
+              : seedPriceForAsset(state.asset);
+
+          const baseVol =
+            state.asset === "BTC" ? 0.9 : state.asset === "ETH" ? 1.2 : 1.6;
+          const simBoost = state.simMode ? 1.7 : 1;
+          const jitter = baseVol * simBoost;
+
+          const next =
+            last +
+            (Math.random() - 0.5) * jitter * (last / 100) +
+            (Math.random() - 0.5) * 0.05 * (last / 100);
+
+          state.chartData.push(Math.max(0, next));
+          if (state.chartData.length > 120) {
+            state.chartData.shift();
+          }
+          state.tickCount += 1;
+
+          computeVolatility();
+          updatePriceLabels();
+        }
+
+        updateLabels();
+        renderChart();
+      }
+
+      /* ---------- 3D VORTEX ---------- */
+      function initVortex3D() {
+        const canvas = document.getElementById("vortex3d");
+        if (!canvas || !window.THREE) {
+          vortexMetricEl.textContent = "offline (no three.js)";
+          return;
+        }
+
+        const renderer = new THREE.WebGLRenderer({
+          canvas,
+          antialias: true
+        });
+        renderer.setPixelRatio(((window.UIHelpers && typeof window.UIHelpers.getPixelRatio==="function") ? window.UIHelpers.getPixelRatio("vortex") : (window.devicePixelRatio||1)) || 1);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(
+          45,
+          (canvas.clientWidth || window.innerWidth) / (canvas.clientHeight || window.innerHeight),
+          0.1,
+          100
+        );
+
+        function doResize() {
+          const width = canvas.clientWidth || window.innerWidth;
+          const height = canvas.clientHeight || window.innerHeight;
+          renderer.setSize(width, height, false);
+          camera.aspect = width / height;
+          camera.updateProjectionMatrix();
+        }
+
+        doResize();
+
+        camera.position.z = 12;
+
+        const geometry = new THREE.BufferGeometry();
+        const __qp = (window.NexusPrefs && window.NexusPrefs.qualityProfile) ? window.NexusPrefs.qualityProfile() : { particleScale: 1 };
+        const count = Math.max(250, Math.round(800 * (Number(__qp.particleScale) || 1)));
+
+        const positions = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) {
+          const r = 4 + Math.random() * 3;
+          const angle = Math.random() * Math.PI * 2;
+          const y = (Math.random() - 0.5) * 4;
+          positions[i * 3] = Math.cos(angle) * r;
+          positions[i * 3 + 1] = y;
+          positions[i * 3 + 2] = Math.sin(angle) * r;
+        }
+        geometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(positions, 3)
+        );
+
+        const material = new THREE.PointsMaterial({
+          size: 0.065,
+          color: new THREE.Color(state.themeColor),
+          transparent: true,
+          opacity: 0.9
+        });
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+
+        const ambient = new THREE.AmbientLight(0xffffff, 0.2);
+        scene.add(ambient);
+
+        let lastTime = performance.now();
+
+        function resize() {
+          doResize();
+        }
+
+        window.addEventListener("resize", resize);
+
+        function setFocus(asset) {
+          const color = assetColors[asset] || "#00ff9d";
+          material.color = new THREE.Color(color);
+        }
+
+        function updateFromData(volatilityScore) {
+          const positionsAttr = geometry.getAttribute("position");
+          const arr = positionsAttr.array;
+          const wobble = Math.min(1.5, Math.max(0.3, volatilityScore / 2.5));
+          for (let i = 0; i < arr.length; i += 3) {
+            arr[i + 1] += (Math.random() - 0.5) * 0.005 * wobble;
+          }
+          positionsAttr.needsUpdate = true;
+        }
+
+        function animate() {
+          const now = performance.now();
+          const dt = (now - lastTime) / 1000;
+          lastTime = now;
+
+          const rotor =
+            0.12 + Math.min(0.8, state.volatility.score / 10) * 0.6;
+          points.rotation.y += rotor * dt;
+
+          updateFromData(state.volatility.score || 0.5);
+
+          renderer.render(scene, camera);
+          requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        vortex3D = {
+          setFocus,
+          updateFromData,
+          resize
+        };
+
+        vortexMetricEl.textContent = "online • particle field";
+        log("SYS: 3D vortex field online", "sys");
+      }
+
+      /* ---------- AI ADVISORS ---------- */
+      function buildAIContext() {
+        const lastPrice =
+          state.chartData && state.chartData.length
+            ? state.chartData[state.chartData.length - 1]
+            : null;
+
+        return {
+          asset: state.asset,
+          themeColor: state.themeColor,
+          tickCount: state.tickCount,
+          simMode: state.simMode,
+          errorStreak: state.errorStreak,
+          volatility: state.volatility,
+          lastPrice,
+          chartPoints: state.chartData ? state.chartData.length : 0,
+          has3D: !!vortex3D,
+          probeIndex: state.probeIndex,
+          liveModeAvailable: state.liveModeAvailable
+        };
+      }
+
+      function buildBaseNarrative(ctx) {
+        const vol = ctx.volatility || { score: 0, label: "unknown" };
+        const lastPriceStr =
+          typeof ctx.lastPrice === "number"
+            ? ctx.lastPrice.toFixed(2)
+            : "no live price yet";
+        const modeStr = ctx.simMode
+          ? "offline SIM mode using synthetic ticks"
+          : ctx.liveModeAvailable
+          ? "live mode using Binance candles + trade stream"
+          : "live mode attempting remote APIs with SIM fallback";
+        const threeD = ctx.has3D
+          ? "The 3D vortex field backdrop is online and reacting to volatility."
+          : "The 3D vortex field backdrop is offline, so only the 2D chart is visible.";
+
+        return (
+          "You are embedded inside the VORTEX multi-asset browser HUD for BTC, ETH, and SOL. " +
+          "The user is currently focused on " +
+          ctx.asset +
+          " priced in USD. " +
+          "The main dashboard shows approximately " +
+          ctx.chartPoints +
+          " recent ticks with a last seen price of " +
+          lastPriceStr +
+          ". " +
+          "Volatility is classified as " +
+          vol.label +
+          " with a rolling standard deviation of roughly " +
+          (vol.score || 0).toFixed(2) +
+          " percent. " +
+          "The app is running in " +
+          modeStr +
+          " and exposes a console-style log plus a HUD of status panels. " +
+          threeD +
+          " Use both this narrative and the structured ctx object when responding."
+        );
+      }
+
+      function activateAiTab(role) {
+        const tabs = document.querySelectorAll(".ai-tab");
+        const panes = document.querySelectorAll(".ai-pane");
+        const activeLabelEl = document.getElementById("aiAdvisorActiveLabel");
+
+        tabs.forEach((btn) => {
+          const isActive = btn.dataset.role === role;
+          btn.classList.toggle("active", isActive);
+          btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+        });
+
+        panes.forEach((pane) => {
+          const isActive = pane.dataset.role === role;
+          pane.classList.toggle("active", isActive);
+          pane.hidden = !isActive;
+        });
+
+        if (activeLabelEl) {
+          const label =
+            role === "critic"
+              ? "active advisor: Signal Critic"
+              : role === "idea-scout"
+              ? "active advisor: Idea Scout"
+              : "active advisor: Field Coach";
+          activeLabelEl.textContent = label;
+        }
+      }
+
+      function streamText(role, text, outputEl) {
+        const key = role || "coach";
+        let stateObj = typewriterStates[key];
+        if (!stateObj) {
+          stateObj = typewriterStates[key] = {};
+        }
+        if (stateObj.timer) {
+          clearInterval(stateObj.timer);
+          stateObj.timer = null;
+        }
+        stateObj.fullText = text;
+        stateObj.outputEl = outputEl;
+        stateObj.stopped = false;
+        outputEl.textContent = "";
+        let i = 0;
+        stateObj.timer = setInterval(function () {
+          if (stateObj.stopped || i >= text.length) {
+            clearInterval(stateObj.timer);
+            stateObj.timer = null;
+            outputEl.textContent = text;
+            return;
+          }
+          outputEl.textContent += text.charAt(i++);
+        }, 12);
+      }
+
+      function stopStream(role) {
+        const key = role || "coach";
+        const stateObj = typewriterStates[key];
+        if (!stateObj) return;
+        stateObj.stopped = true;
+        if (stateObj.timer) {
+          clearInterval(stateObj.timer);
+          stateObj.timer = null;
+        }
+        if (stateObj.outputEl && typeof stateObj.fullText === "string") {
+          stateObj.outputEl.textContent = stateObj.fullText;
+        }
+      }
+
+      function offlineAdvisor(role, userPrompt, uiBindings) {
+        const ctx = buildAIContext();
+        const baseNarrative = buildBaseNarrative(ctx);
+        let body = "";
+
+        if (role === "critic") {
+          body =
+            "Offline Critic Mode — no AI engines are reachable, so this is a rules-based briefing.\n\n" +
+            "• Current asset: " +
+            ctx.asset +
+            " with " +
+            ctx.chartPoints +
+            " points in view.\n" +
+            "• Volatility flag: " +
+            (ctx.volatility ? ctx.volatility.label : "unknown") +
+            ". Error streak: " +
+            ctx.errorStreak +
+            ".\n" +
+            "• SIM mode: " +
+            (ctx.simMode ? "ON (synthetic data)" : "OFF (live market data)") +
+            ".\n\n" +
+            "Look for odd jumps in the chart, stalled tick counters, or repeated error logs in the console panel. " +
+            "Treat this like a pre-flight check before trusting anything for production decisions.\n\n" +
+            "Base snapshot:\n" +
+            baseNarrative;
+        } else if (role === "idea-scout") {
+          body =
+            "Offline Idea Scout — engines are offline, but we can still sketch ideas from the HUD state.\n\n" +
+            "- Use VORTEX as a demo cockpit: screenshot the 3D field plus chart to explain volatility to non-technical clients.\n" +
+            "- Add a per-asset story mode: narrate how BTC, ETH, and SOL behave differently when markets are calm vs spicy.\n" +
+            "- Attach badges or achievements to tickCount so each session feels like a mission run.\n\n" +
+            "Base narrative snapshot:\n" +
+            baseNarrative;
+        } else {
+          body =
+            "Offline Field Coach — AI engines are unavailable, so this is a static walkthrough.\n\n" +
+            "1) Pick an asset (BTC / ETH / SOL) along the top nav.\n" +
+            "2) Watch the main chart and volatility row; the tick counter tracks how long this session has been running.\n" +
+            "3) Flip SIM mode to see how the cockpit behaves with synthetic data only vs live Binance feeds.\n" +
+            "4) Use the log panel on the right as your mission feed: it reports errors, API calls, and 3D status.\n\n" +
+            "Once AI engines are restored, this advisor will generate tailored walkthroughs instead of fixed text.\n\n" +
+            "Base snapshot:\n" +
+            baseNarrative;
+        }
+
+        if (uiBindings.output) {
+          streamText(role, body, uiBindings.output);
+        }
+        if (uiBindings.status) {
+          uiBindings.status.textContent =
+            "Offline advisor response — shared AI lab kit not detected.";
+        }
+        if (uiBindings.button) {
+          uiBindings.button.disabled = false;
+          uiBindings.button.textContent = uiBindings.defaultLabel;
+        }
+
+        if (window.TelemetryHub && TelemetryHub.log) {
+          TelemetryHub.log(
+            APP_ID,
+            "AI",
+            "Offline advisor used for role=" + role + " asset=" + ctx.asset
+          );
+        }
+
+        log(
+          "AI (offline): " + role + " advisor responded without engines",
+          "sys"
+        );
+      }
+
+      function createAdvisorUI(role, uiBindings) {
+        return {
+          setText: function (text, isHTML) {
+            if (!uiBindings.output) return;
+            if (isHTML) {
+              stopStream(role);
+              uiBindings.output.innerHTML = text;
+            } else {
+              streamText(role, String(text), uiBindings.output);
+            }
+          },
+          setStatus: function (text) {
+            if (uiBindings.status) {
+              uiBindings.status.textContent = text;
+            }
+          },
+          onDone: function () {
+            if (uiBindings.button) {
+              uiBindings.button.disabled = false;
+              uiBindings.button.textContent = uiBindings.defaultLabel;
+            }
+          },
+          log: function (msg) {
+            if (window.TelemetryHub && TelemetryHub.log) {
+              TelemetryHub.log(APP_ID, "AI", msg);
+            }
+            log("AI: " + msg, "ai");
+          }
+        };
+      }
+
+      async function runAdvisor(role, userPrompt, uiBindings) {
+        const ctx = buildAIContext();
+        const baseNarrative = buildBaseNarrative(ctx);
+        const persona =
+          window.AIPersonas && AIPersonas.getPersona
+            ? AIPersonas.getPersona(APP_ID, role)
+            : "";
+
+        const ui = createAdvisorUI(role, uiBindings);
+
+        ui.setStatus("Routing to best available engine (Forge / local / offline)…");
+        ui.log("runAdvisor(start) role=" + role + " asset=" + ctx.asset);
+
+        const debugPrompt =
+          baseNarrative +
+          "\n\nPersona Script:\n" +
+          (persona || "(none)") +
+          "\n\nUser Prompt:\n" +
+          userPrompt;
+        const rawBox = rawPromptEls[role];
+        if (rawBox) {
+          rawBox.textContent = debugPrompt;
+        }
+
+        if (
+          !window.AIAdvisorRouter ||
+          !window.AIAdvisorRouter.runAdvisor
+        ) {
+          ui.log("AIAdvisorRouter missing — falling back to offline rules.");
+          offlineAdvisor(role, userPrompt, uiBindings);
+          return;
+        }
+
+        try {
+          await AIAdvisorRouter.runAdvisor({
+            appId: APP_ID,
+            ctx,
+            baseNarrative,
+            persona,
+            userPrompt,
+            ui,
+            mode: "auto"
+          });
+        } catch (err) {
+          console.error("AIAdvisorRouter error", err);
+          ui.setStatus(
+            "Advisor error — falling back to offline narrative: " +
+              (err && err.message ? err.message : "unknown error")
+          );
+          offlineAdvisor(role, userPrompt, uiBindings);
+        }
+      }
+
+      function initAIAdvisors() {
+        const aiPanel = document.querySelector(".ai-panel");
+        const globalStatusEl = document.getElementById("aiGlobalStatus");
+
+        if (!aiPanel) return;
+
+        const hasRouter =
+          !!(window.AIAdvisorRouter && AIAdvisorRouter.runAdvisor);
+        const hasLabKit =
+          !!window.AIPersonas &&
+          !!window.StateStore &&
+          !!window.TelemetryHub &&
+          hasRouter;
+
+        if (globalStatusEl) {
+          globalStatusEl.textContent = hasLabKit
+            ? "AI lab online — shared Forge + local engines, with automatic offline fallback."
+            : "AI lab in offline mode — shared AI kit not fully detected; advisors will use rules-only responses.";
+        }
+
+        const diagSlot = document.getElementById("aiDiagSlot");
+        if (diagSlot && window.AIDiagnostics && AIDiagnostics.renderStatusCard) {
+          try {
+            AIDiagnostics.renderStatusCard("aiDiagSlot", { appId: APP_ID });
+          } catch (e) {
+            console.warn("AIDiagnostics.renderStatusCard failed", e);
+          }
+        }
+
+        let uiState = {
+          activeTab: "coach",
+          lastPrompts: {}
+        };
+
+        if (window.StateStore && StateStore.load) {
+          try {
+            uiState = StateStore.load(APP_ID, "ai-ui", uiState);
+          } catch (e) {
+            console.warn("StateStore.load(ai-ui) failed", e);
+          }
+        }
+
+        const panes = Array.from(document.querySelectorAll(".ai-pane"));
+        const tabs = Array.from(document.querySelectorAll(".ai-tab"));
+
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            const role = tab.dataset.role || "coach";
+            activateAiTab(role);
+            uiState.activeTab = role;
+            if (window.StateStore && StateStore.save) {
+              StateStore.save(APP_ID, "ai-ui", uiState);
+            }
+          });
+        });
+
+        // Raw prompt toggles
+        const rawToggles = document.querySelectorAll(".ai-raw-toggle");
+        rawToggles.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const role = btn.dataset.role;
+            const box = rawPromptEls[role];
+            if (!box) return;
+            if (!box.textContent.trim()) {
+              box.textContent =
+                "Raw prompt will appear here after you ask this advisor at least once.";
+            }
+            box.classList.toggle("open");
+          });
+        });
+
+        panes.forEach((pane) => {
+          const role = pane.dataset.role;
+          const textarea = pane.querySelector("textarea");
+          const button = pane.querySelector(".ai-ask-btn");
+          const stopButton = pane.querySelector(".ai-stop-btn");
+          const output = pane.querySelector(".ai-output");
+          const statusEl = pane.querySelector(".ai-status");
+
+          if (!role || !textarea || !button || !output || !statusEl) return;
+
+          if (uiState.lastPrompts && uiState.lastPrompts[role]) {
+            textarea.value = uiState.lastPrompts[role];
+          }
+
+          const defaultLabel = button.textContent;
+
+          if (stopButton) {
+            stopButton.addEventListener("click", () => {
+              stopStream(role);
+              if (statusEl) {
+                statusEl.textContent = "Output paused.";
+              }
+            });
+          }
+
+          button.addEventListener("click", async () => {
+            const userPrompt = textarea.value.trim();
+            if (!userPrompt) {
+              statusEl.textContent = "Type a question or request first.";
+              textarea.focus();
+              return;
+            }
+
+            uiState.lastPrompts[role] = userPrompt;
+            if (window.StateStore && StateStore.save) {
+              StateStore.save(APP_ID, "ai-ui", uiState);
+            }
+
+            button.disabled = true;
+            button.textContent = "Thinking…";
+            output.textContent = "";
+            statusEl.textContent = "Advisor warming up…";
+
+            if (window.TelemetryHub && TelemetryHub.log) {
+              const ctx = buildAIContext();
+              TelemetryHub.log(
+                APP_ID,
+                "AI",
+                role +
+                  " advisor invoked for asset=" +
+                  ctx.asset +
+                  " ticks=" +
+                  ctx.chartPoints
+              );
+            }
+
+            const bindings = {
+              button,
+              output,
+              status: statusEl,
+              defaultLabel
+            };
+
+            if (hasLabKit) {
+              await runAdvisor(role, userPrompt, bindings);
+            } else {
+              offlineAdvisor(role, userPrompt, bindings);
+            }
+          });
+        });
+
+        const initialRole = uiState.activeTab || "coach";
+        activateAiTab(initialRole);
+      }
+
+      function openAiModal(role) {
+        if (!aiModalBackdrop) return;
+        aiModalBackdrop.classList.add("show");
+        aiModalBackdrop.setAttribute("aria-hidden", "false");
+        activateAiTab(role || "coach");
+        const inputId =
+          role === "critic"
+            ? "aiCriticInput"
+            : role === "idea-scout"
+            ? "aiIdeaInput"
+            : "aiCoachInput";
+        const inputEl = document.getElementById(inputId);
+        if (inputEl) {
+          setTimeout(() => inputEl.focus(), 50);
+        }
+      }
+
+      function closeAiModal() {
+        if (!aiModalBackdrop) return;
+        aiModalBackdrop.classList.remove("show");
+        aiModalBackdrop.setAttribute("aria-hidden", "true");
+      }
+
+      /* ---------- HAPTICS + AUDIO ---------- */
+      function initAudioContext() {
+        if (audioCtx) return audioCtx;
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        audioCtx = new Ctx();
+        return audioCtx;
+      }
+
+      function playClickSound() {
+        if (!state.audioEnabled) return;
+        const ctx = initAudioContext();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(8000, ctx.currentTime);
+        osc.type = "square";
+        gain.gain.setValueAtTime(0.05, ctx.currentTime);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.03);
+      }
+
+      function hapticPulse() {
+        if ("vibrate" in navigator) {
+          try {
+            navigator.vibrate(10);
+          } catch (e) {
+            // ignore
+          }
+        }
+      }
+
+      function wireFeedback() {
+        document.addEventListener("click", function (evt) {
+          const target = evt.target;
+          if (!(target instanceof HTMLElement)) return;
+          if (
+            target.closest("button") ||
+            target.closest(".asset-btn") ||
+            target.classList.contains("ai-inline-btn")
+          ) {
+            hapticPulse();
+            playClickSound();
+          }
+        });
+      }
+
+      /* ---------- PRESENTATION MODE ---------- */
+      function wirePresentationMode() {
+        window.addEventListener("keydown", function (e) {
+          if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "p") {
+            e.preventDefault();
+            document.body.classList.toggle("presentation-mode");
+            const on = document.body.classList.contains("presentation-mode");
+            log(
+              "presentation mode " +
+                (on ? "ENABLED" : "disabled") +
+                " (Ctrl+Shift+P)",
+              "sys"
+            );
+          }
+        });
+      }
+
+      /* ---------- EVENTS ---------- */
+      function setAsset(asset) {
+        if (state.asset === asset) return;
+        state.asset = asset;
+        state.themeColor = assetColors[asset] || "#00ff9d";
+        if (vortex3D && vortex3D.setFocus) {
+          vortex3D.setFocus(asset);
+        }
+        const buttons = document.querySelectorAll(".asset-btn");
+        buttons.forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.asset === asset);
+        });
+        updateTheme();
+        seedChart();
+        if (!state.simMode) {
+          connectBinanceStream(asset);
+        }
+        saveState();
+        log("asset changed → " + asset, "sys");
+      }
+
+      function toggleSimMode() {
+        state.simMode = !state.simMode;
+        if (state.simMode) {
+          state.errorStreak = 0;
+          consoleStatusEl.textContent = "connected";
+          state.liveModeAvailable = false;
+        } else {
+          consoleStatusEl.textContent = "listening";
+          ensureLiveFeeds();
+        }
+        seedChart();
+        updateLabels();
+        saveState();
+        log(
+          "SIM mode " +
+            (state.simMode
+              ? "enabled (offline ticks)"
+              : "disabled (live Binance feed)"),
+          "sys"
+        );
+      }
+
+      function toggleAudioClick() {
+        state.audioEnabled = !state.audioEnabled;
+        updateLabels();
+        saveState();
+        log(
+          "audio click " + (state.audioEnabled ? "enabled" : "muted"),
+          "sys"
+        );
+      }
+
+      function wireEvents() {
+        const assetButtons = document.querySelectorAll(".asset-btn");
+        assetButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const asset = btn.dataset.asset;
+            setAsset(asset);
+          });
+        });
+
+        simToggleEl.addEventListener("click", () => {
+          toggleSimMode();
+        });
+
+        if (audioToggleEl) {
+          audioToggleEl.addEventListener("click", () => {
+            toggleAudioClick();
+          });
+        }
+
+        clearLogBtn.addEventListener("click", () => {
+          logStream.innerHTML = "";
+          log("log cleared", "sys");
+        });
+
+        const aiInlineButtons = document.querySelectorAll(".ai-inline-btn");
+        aiInlineButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const role = btn.dataset.role || "coach";
+            openAiModal(role);
+          });
+        });
+
+        if (aiModalClose) {
+          aiModalClose.addEventListener("click", () => {
+            closeAiModal();
+          });
+        }
+
+        if (aiModalBackdrop) {
+          aiModalBackdrop.addEventListener("click", (evt) => {
+            if (evt.target === aiModalBackdrop) {
+              closeAiModal();
+            }
+          });
+        }
+
+        window.addEventListener("resize", () => {
+          resizeCanvas();
+          if (vortex3D && vortex3D.resize) {
+            vortex3D.resize();
+          }
+        });
+      }
+
+      /* ---------- INIT ---------- */
+      function init() {
+        // Console easter egg
+        if (typeof console !== "undefined" && console.log) {
+          try {
+            console.log(
+              "%c Built by Devin O'Rourke • 2025",
+              "background:#050509;color:#00ff9d;padding:4px 8px;border-radius:4px;font-family:JetBrains Mono,monospace;"
+            );
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        loadState();
+        state.themeColor = assetColors[state.asset] || "#00ff9d";
+        updateTheme();
+        resizeCanvas();
+        // Seed a believable baseline immediately so the UI never boots at $0.00.
+        try { seedChartSim(); } catch (e) {}
+        seedChart();
+        ensureLiveFeeds();
+        initVortex3D();
+        updateLabels();
+        updatePriceLabels();
+        initAIAdvisors();
+        wireEvents();
+        wireFeedback();
+        wirePresentationMode();
+
+        log("SYS: VORTEX online • vortex field booted", "sys");
+
+        setInterval(() => {
+          try {
+            pushTick();
+          } catch (e) {
+            state.errorStreak += 1;
+            updateLabels();
+            log("tick error: " + e.message, "err");
+          }
+        }, 2200);
+
+        // NOTE: Final Lighthouse 100/100 proof screenshots are expected
+        // to be stored in /proof/ during deployment; this demo cannot
+        // auto-capture them.
+      }
+
+      window.addEventListener("load", init);
+    })();
+  </script>
+<script>
+    (function () {
+      const overlay = document.getElementById("splashOverlay");
+      if (!overlay) return;
+
+      const card = overlay.querySelector(".splash-card");
+      const step1 = document.getElementById("splashStep1");
+      const step2 = document.getElementById("splashStep2");
+      const nextBtn = document.getElementById("splashNext");
+      const backBtn = document.getElementById("splashBack");
+      const enterBtn = document.getElementById("splashEnter");
+
+      let currentStep = 1;
+
+      function setStep(step) {
+        currentStep = step === 2 ? 2 : 1;
+        overlay.setAttribute("data-step", String(currentStep));
+        if (card) {
+          card.setAttribute("data-step", String(currentStep));
+        }
+
+        if (step1) {
+          step1.classList.toggle("is-active", currentStep === 1);
+          step1.setAttribute("aria-hidden", currentStep === 1 ? "false" : "true");
+        }
+        if (step2) {
+          step2.classList.toggle("is-active", currentStep === 2);
+          step2.setAttribute("aria-hidden", currentStep === 2 ? "false" : "true");
+        }
+      }
+
+      function goFullscreen() {
+        const docEl = document.documentElement;
+        const req =
+          docEl.requestFullscreen ||
+          docEl.webkitRequestFullscreen ||
+          docEl.mozRequestFullScreen ||
+          docEl.msRequestFullscreen;
+        if (!req) return;
+        try {
+          req.call(docEl);
+        } catch (e) {
+          // noop – fullscreen is optional
+        }
+      }
+
+      function dismiss() {
+        overlay.classList.add("is-dismissing");
+        overlay.setAttribute("aria-hidden", "true");
+        overlay.style.pointerEvents = "none";
+
+        const done = function () {
+          overlay.removeEventListener("transitionend", done);
+          overlay.style.display = "none";
+        };
+
+        overlay.addEventListener("transitionend", done);
+        // Safety timeout in case transition event never fires
+        setTimeout(done, 400);
+      }
+
+      function handleAdvance() {
+        if (currentStep === 1) {
+          setStep(2);
+        } else {
+          goFullscreen();
+          dismiss();
+        }
+      }
+
+      function handleBack() {
+        setStep(1);
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener("click", function () {
+          handleAdvance();
+        });
+      }
+
+      if (backBtn) {
+        backBtn.addEventListener("click", function () {
+          handleBack();
+        });
+      }
+
+      if (enterBtn) {
+        enterBtn.addEventListener("click", function () {
+          goFullscreen();
+          dismiss();
+        });
+      }
+
+      overlay.addEventListener("click", function (event) {
+        if (event.target !== overlay) return;
+        handleAdvance();
+      });
+
+      window.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        // Avoid triggering button click twice
+        if (document.activeElement && document.activeElement.tagName === "BUTTON") {
+          return;
+        }
+        event.preventDefault();
+        handleAdvance();
+      });
+
+      // Initialize starting step
+      setStep(1);
+    })();
+  </script>
+<!-- removed legacy overlay wiring -->
+<script id="phase4-cleanup">
+/* PHASE4_CLEANUP: remove legacy splash/boot overlays + in-app advisor panels (Ask Althea stays) */
+(function(){
+  function isKeep(el){
+    const id=(el.id||"").toLowerCase();
+    const cls=(el.className||"").toString().toLowerCase();
+    // Keep Ask Althea / nexus shell bits
+    if (id.includes("althea") || id.includes("ask") || id.includes("nexus")) return true;
+    if (cls.includes("nexus") || cls.includes("althea")) return true;
+    return false;
+  }
+
+  function nukeSplash(){
+    const ids = [
+      "nexusBootOverlay","nexusBootTip","dsSplash","dsSplashOverlay","splashOverlay",
+      "splash","splashScreen","splashModal"
+    ];
+    ids.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.remove();
+    });
+    // common class patterns
+    document.querySelectorAll(
+      ".ds-splash, .ds-splash-overlay, .splash, .splash-overlay, .splash-screen, [data-splash]"
+    ).forEach(el=>{
+      // Don't remove normal stepper components that are not splash: guard by ancestor splash-ish
+      const looksSplash = (el.className||"").toString().toLowerCase().includes("splash") ||
+                          (el.id||"").toLowerCase().includes("splash") ||
+                          el.hasAttribute("data-splash");
+      if(looksSplash && !isKeep(el)) el.remove();
+    });
+
+    document.body.classList.remove("nexus-booting","booting","no-scroll","locked","modal-open");
+    document.documentElement.classList.remove("nexus-booting","booting","no-scroll","locked","modal-open");
+    document.body.style.overflow="";
+    document.documentElement.style.overflow="";
+  }
+
+  function nukeAdvisors(){
+    // remove/hide any AI advisor docks or panels, but keep Ask Althea
+    const sel = [
+      ".ai-advisors",".ai-advisor",".ai-panel",".ai-panels",".ai-tabs",".ai-tab",".ai-tabbar",
+      ".advisor",".advisors",".advisor-panel",".advisor-tabs",".advisor-dock",".advisorDock",
+      "[data-advisor]","[data-role='coach']","[data-role='critic']","[data-role='architect']",
+      "[data-advisor-panel]","[data-advisor-role]"
+    ].join(",");
+    document.querySelectorAll(sel).forEach(el=>{
+      if (isKeep(el)) return;
+      // If it contains Ask Althea controls, keep
+      const text=(el.textContent||"").toLowerCase();
+      if (text.includes("ask althea")) return;
+      el.remove();
+    });
+  }
+
+  function run(){
+    try{ nukeSplash(); }catch(e){}
+    try{ nukeAdvisors(); }catch(e){}
+  }
+
+  // run multiple times to catch late-inserted UI
+  window.addEventListener("DOMContentLoaded", run);
+  window.addEventListener("load", function(){
+    run();
+    setTimeout(run, 250);
+    setTimeout(run, 800);
+    setTimeout(run, 1500);
+  });
+})();
+</script>
+<!-- PHASE8_UI_CLEANUP (hard-disable all splash screens + hide any remaining advisor UI) -->
+<style id="phase8-ui-cleanup">
+  /* Hide any splash/intro overlays that can steal focus or slide the layout */
+  [id*="splash" i], [class*="splash" i], [data-splash], [data-stepper="splash"],
+  .ds-splash-root, .ds-splash-overlay, .ds-splash-shell, .ds-splash-panel,
+  .helix-splash, .helix-splash-root, .helix-splash-shell {
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+
+  /* Hide any legacy in-app advisors. Ask Althea remains as its own button/modal. */
+  .ai-advisors, .ai-advisor, .ai-panel, .ai-panels, .ai-tabs, .ai-tab, .ai-tabbar,
+  .advisor, .advisors, .advisor-panel, .advisor-tabs, .advisor-dock, .advisorDock,
+  .advisor-tab, #aiAdvisorPanel, #aiAdvisorDock, #aiAdvisorModal, #aiAdvisor, #advisorPanel,
+  #advisorHeader, #advisorTabs, #advisorContent, #advisorLogs, #advisorInputRow,
+  [data-advisor], [data-advisor-panel], [data-advisor-role], [data-role="coach"], [data-role="critic"], [data-role="architect"] {
+    display:none !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+  }
+</style>
+<script>
+(() => {
+  const safeRemove = (el) => {
+    if (!el) return;
+    const id = (el.id || '').toLowerCase();
+    const cls = (el.className || '').toString().toLowerCase();
+    // Keep Ask Althea
+    if (id.includes('askalthea') || cls.includes('askalthea')) return;
+    if (el.closest && el.closest('#askAltheaModal')) return;
+    try { el.remove(); } catch(e) { try { el.parentNode && el.parentNode.removeChild(el); } catch(_) {} }
+  };
+
+  const removeSelectors = [
+    // Splash overlays
+    '[id*="splash" i]','[class*="splash" i]','[data-splash]','[data-stepper="splash"]',
+    '.ds-splash-root','.ds-splash-overlay','.ds-splash-shell','.ds-splash-panel',
+    '.helix-splash','.helix-splash-root','.helix-splash-shell',
+    '#splashOverlay','#ds-splash-overlay','#splash1','#splash2',
+    // Legacy advisor UI
+    '[id*="advisor" i]','[class*="advisor" i]','[data-advisor]','[data-advisor-panel]','[data-advisor-role]',
+    '.ai-advisors','.ai-advisor','.ai-panel','.ai-panels','.ai-tabs','.ai-tab','.ai-tabbar'
+  ];
+
+  try { removeSelectors.forEach(sel => document.querySelectorAll(sel).forEach(safeRemove)); } catch(e) {}
+
+  // Always unlock scroll even if earlier code tried to freeze the page.
+  try {
+    document.documentElement.classList.remove('no-scroll','modal-open','ds-splash-open','splash-open');
+    document.body.classList.remove('no-scroll','modal-open','ds-splash-open','splash-open');
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  } catch(e) {}
+
+  // Neutralize common open/toggle globals if they exist.
+  const no = () => {};
+  [
+    'toggleSplashOverlay','openSplash','showSplash','openSplashFlow','openSplashModal','openSplashScreen','showIntro',
+    'openAdvisor','toggleAdvisor','showAdvisor','openAdvisors','toggleAdvisors','AIAdvisorsOpen'
+  ].forEach(k => { try { if (typeof window[k] === 'function') window[k] = no; } catch(e) {} });
+
+  // Mark known splash flags as seen so other code paths short-circuit.
+  try {
+    const keys = [
+      'aeon_splashes_seen','anvil_splash_seen_v1','event_splash_seen_v1','helix_splash_seen_v1',
+      'string_splash_seen_v1','tectonic_splash_seen_v1','transit_splash_seen_v1','vortex_splash_seen_v1','magma_splash_seen_v1'
+    ];
+    keys.forEach(k => { try { localStorage.setItem(k,'1'); } catch(_) {} });
+  } catch(e) {}
+})();
+</script>
+<script src="/shared/state-store.js?v=20251230"></script>
+<script src="/shared/telemetry-hub.js?v=20251230"></script>
+<script src="/shared/ai-router.js?v=20251230" type="module"></script>
+<script src="/shared/force-catch-clear.js?v=20251230"></script><script>
+/* Per-app Nexus routing: guarantees Readme/Help/404/Althea aren’t dead ends. */
+(() => {
+  const app = document.body.getAttribute("data-app") || window.APP_ID || "";
+  if(!app) return;
+  const map = {
+    home: "/index.html",
+    readme: `/readme/${app}/`,
+    help: `/help/${app}/`,
+    nf: `/404/${app}/`,
+    althea: `/althea/?app=${app}`
+  };
+  document.querySelectorAll('[data-nexus]').forEach(a => {
+    const k = a.getAttribute('data-nexus');
+    if(map[k]) a.setAttribute('href', map[k]);
+  });
+})();
+</script>
+<script src="/shared/app-settings.js?v=20260101"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

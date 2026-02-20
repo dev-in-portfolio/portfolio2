@@ -1,0 +1,114 @@
+{
+  "apps": {
+    "coverage-compass": {
+      "title": "Coverage Compass",
+      "href": "/apps/coverage-compass/",
+      "category": "DECISION SYSTEMS"
+    },
+    "ubr": {
+      "title": "Ultimate Broker Route (UBR)",
+      "href": "/apps/ubr/",
+      "category": "DECISION SYSTEMS"
+    },
+    "alibi": {
+      "title": "Alibi",
+      "href": "/apps/alibi/",
+      "category": "APPS - TOOLS"
+    },
+    "agents": {
+      "title": "Agents (UI)",
+      "href": "/apps/agents/",
+      "category": "APPS - TOOLS"
+    },
+    "vortex": {
+      "title": "Vortex",
+      "href": "/apps/vortex/",
+      "category": "REAL-TIME RENDER"
+    },
+    "helios": {
+      "title": "Helios",
+      "href": "/apps/helios/",
+      "category": "REAL-TIME RENDER"
+    },
+    "helix": {
+      "title": "Helix",
+      "href": "/apps/helix/",
+      "category": "REAL-TIME RENDER"
+    },
+    "transit": {
+      "title": "Transit",
+      "href": "/apps/transit/",
+      "category": "REAL-TIME RENDER"
+    },
+    "tectonic": {
+      "title": "Tectonic",
+      "href": "/apps/tectonic/",
+      "category": "REAL-TIME RENDER"
+    },
+    "aeon": {
+      "title": "Aeon",
+      "href": "/apps/aeon/",
+      "category": "INTERACTIVE SIM"
+    },
+    "magma": {
+      "title": "Magma",
+      "href": "/apps/magma/",
+      "category": "INTERACTIVE SIM"
+    },
+    "string": {
+      "title": "String",
+      "href": "/apps/string/",
+      "category": "INTERACTIVE SIM"
+    },
+    "floraguide-ai": {
+      "title": "FloraGuide AI",
+      "href": "/apps/floraguide-ai/",
+      "category": "AI / KNOWLEDGE"
+    },
+    "lingolive-ai": {
+      "title": "LingoLive AI",
+      "href": "/apps/lingolive-ai/",
+      "category": "AI / KNOWLEDGE"
+    },
+    "oracle-pit": {
+      "title": "Oracle Pit",
+      "href": "/apps/oracle-pit/",
+      "category": "AI / KNOWLEDGE"
+    },
+    "splice": {
+      "title": "Splice",
+      "href": "/apps/splice/",
+      "category": "CREATIVE / MEDIA"
+    },
+    "sleepystory": {
+      "title": "SleepyStory",
+      "href": "/apps/sleepystory/",
+      "category": "CREATIVE / MEDIA"
+    },
+    "toonstudio": {
+      "title": "ToonStudio",
+      "href": "/apps/toonstudio/",
+      "category": "CREATIVE / MEDIA"
+    },
+    "crossword-arena": {
+      "title": "Crossword Arena",
+      "href": "/apps/crossword-arena/",
+      "category": "GAMES & WORD / LOGIC"
+    },
+    "evening-epic-sudoku": {
+      "title": "Evening Epic Sudoku",
+      "href": "/apps/evening-epic-sudoku/",
+      "category": "GAMES & WORD / LOGIC"
+    },
+    "prompt-vault": {
+      "title": "Prompt Vault",
+      "href": "/apps/prompt-vault/",
+      "category": "APPS - TOOLS"
+    }
+  },
+  "routes": {
+    "health": "/health/",
+    "root": "/",
+    "settings": "/settings/"
+  }
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Pack C — Offline + Auth</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Pack C — Offline + Auth</h1>
+<p><a class="btn primary" download="" href="/apps/agents/assets/packs/pack-c.agentpack.zip">Download pack-c.agentpack.zip</a></p>
+<div class="sep"></div>
+<h3 style="margin:0 0 10px">Quickstart</h3>
+<div class="code">
+1) Download the pack zip from this page.
+2) In runner/: node agentx.js install ../site/agents/assets/packs/pack-c.agentpack.zip
+3) Run an agent: node agentx.js run &lt;agentSlug&gt; --root /your/allowlisted/path
+  </div>
+<div class="sep"></div>
+<h3 style="margin:0 0 10px">Pack-level permissions summary</h3>
+<span class="tag">approval.high_risk.gate</span><span class="tag">approval.required</span><span class="tag">crypto.sign</span><span class="tag">hardware.authn.request</span><span class="tag">keys.use.private</span><span class="tag">local.crypto</span><span class="tag">local.fs.read</span><span class="tag">local.fs.write</span><span class="tag">local.logs.write</span><span class="tag">net.disabled</span><span class="tag">policy.enforce</span><span class="tag">receipts.attestation.write</span><span class="tag">receipts.bundle.export</span><span class="tag">receipts.signature.write</span><span class="tag">secrets.issue_handle</span><span class="tag">secrets.never_log</span><span class="tag">vault.create</span><span class="tag">vault.unlock</span>
+<div class="sep"></div>
+<h3 style="margin:0 0 10px">Agents in this pack</h3>
+<div class="grid"><div class="card"><h3>Offline Receipts Agent</h3><p>Captures a complete what-happened run log offline (inputs, actions, artifacts) for later review/export.</p></div>
+<div class="card"><h3>Local Password Vault Agent</h3><p>Stores/retrieves credentials locally using encryption; provides time-limited secret handles to agents.</p></div>
+<div class="card"><h3>Local Signing Agent</h3><p>Signs payloads (agent packages, receipts, approvals) with a locally held keypair.</p></div>
+<div class="card"><h3>Hardware-backed Approval Agent</h3><p>Gates high-risk actions behind a hardware-backed user approval and records proof.</p></div></div>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

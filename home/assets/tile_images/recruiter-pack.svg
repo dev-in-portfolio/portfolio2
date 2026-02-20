@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b1230"/>
+      <stop offset="1" stop-color="#0b0a14"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" rx="48" fill="url(#g)"/>
+  <rect x="40" y="40" width="1120" height="520" rx="36" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.14)" stroke-width="2"/>
+  <text x="80" y="170" fill="rgba(245,247,255,0.92)" font-family="Inter,system-ui,Segoe UI,Roboto" font-size="54" font-weight="800" letter-spacing="2">RECRUITER PACK</text>
+  <text x="80" y="240" fill="rgba(245,247,255,0.70)" font-family="Inter,system-ui,Segoe UI,Roboto" font-size="28" font-weight="600">Fast start for recruiters & hiring managers</text>
+  <g>
+    <rect x="80" y="320" rx="999" ry="999" width="280" height="60" fill="rgba(155,209,255,0.14)" stroke="rgba(155,209,255,0.40)" stroke-width="2"/>
+    <text x="220" y="360" text-anchor="middle" fill="rgba(245,247,255,0.92)" font-family="Inter,system-ui" font-size="22" font-weight="800">PDF + LINKS</text>
+  </g>
+</svg>

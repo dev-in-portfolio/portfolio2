@@ -1,0 +1,288 @@
+/* ============================================================
+   FILE: shared/nexus-topnav-v2.css  (patched)
+   ============================================================ */
+
+/* nexus-topnav-v2.css (v4) — Dropdown Nexus Bar
+   - Scrolls with the page (no sticky)
+   - No Command palette
+   - Works with the builder in nexus-topnav-v2.js
+*/
+
+:root{
+  --nxNavH: 56px;
+  --nxGlassBg: rgba(8, 10, 18, 0.62);
+  --nxGlassBorder: rgba(255,255,255,0.10);
+  --nxTextHi: rgba(255,255,255,0.92);
+  --nxTextLo: rgba(255,255,255,0.72);
+  --nxChipBg: rgba(255,255,255,0.06);
+  --nxChipBgHover: rgba(255,255,255,0.10);
+  --nxChipBorder: rgba(255,255,255,0.10);
+  --nxShadow: 0 18px 60px rgba(0,0,0,0.55);
+  --nxTopGap: 0px; /* deprecated: keep at 0 (safe-top controls spacing) */
+}
+
+nav.nxTopNav{
+  position: relative;
+  z-index: 8000;
+  height: var(--nxNavH);
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 14px 12px 10px;
+  background: var(--nxGlassBg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  pointer-events: auto;
+}
+
+nav.nxTopNav .nxBrand{
+  text-decoration:none;
+}
+
+nav.nxTopNav .nxBrandPill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--nxTextHi);
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+nav.nxTopNav .nxPills{
+  flex: 1;
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  overflow: visible;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Keep the bar in one line without ugly scrollbars */
+nav.nxTopNav .nxPills::-webkit-scrollbar{ height: 0; }
+nav.nxTopNav .nxPills{ scrollbar-width: none; }
+
+nav.nxTopNav .nxPill{
+  display:inline-flex;
+  align-items:center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--nxChipBg);
+  border: 1px solid var(--nxChipBorder);
+  color: var(--nxTextLo);
+  text-decoration:none;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background 120ms ease, transform 120ms ease, color 120ms ease, border-color 120ms ease;
+  cursor: pointer;
+}
+
+/* Logo pill (image-only) */
+nav.nxTopNav .nxPill.nxPill--logo{
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+}
+
+nav.nxTopNav .nxPill.nxPill--logo img{
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: block;
+}
+
+/* Icon-only pill (used for the left-most Nexus icon) */
+nav.nxTopNav .nxPill--icon{
+  padding: 8px 10px;
+}
+
+nav.nxTopNav .nxPillIcon{
+  width: 18px;
+  height: 18px;
+  display:block;
+}
+
+nav.nxTopNav .nxPill:hover{
+  background: var(--nxChipBgHover);
+  border-color: rgba(255,255,255,0.14);
+  color: var(--nxTextHi);
+  transform: translateY(-1px);
+}
+
+nav.nxTopNav .nxPill.isActive{
+  background: rgba(120,180,255,0.12);
+  border-color: rgba(120,180,255,0.26);
+  color: rgba(220,238,255,0.92);
+}
+
+/* Icon-only pill (left of Home) */
+nav.nxTopNav .nxIconPill{
+  padding: 6px 8px;
+}
+nav.nxTopNav .nxIconPill img{
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display:block;
+}
+
+.nxDrop{ position: relative; display:inline-flex; }
+
+.nxDropBtn{
+  border: none;
+  outline: none;
+  font: inherit;
+}
+
+.nxDropMenu{
+  touch-action: manipulation;
+
+  /* Fixed positioning avoids clipping by overflow/transform containers
+     and keeps menus visible without requiring scroll. */
+  position: fixed;
+  top: 0;
+  left: 0;
+  /* Actual top/left/max-height are set by JS at open-time. */
+  min-width: 220px;
+  padding: 8px;
+  border-radius: 16px;
+  background: rgba(10, 12, 20, 0.92);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: var(--nxShadow);
+  display: none;
+  z-index: 9000;
+}
+
+.nxDropMenu[data-open="1"]{ display:block; }
+
+.nxHdr{
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.62);
+  padding: 10px 10px 6px;
+}
+
+.nxSep{
+  height: 1px;
+  background: rgba(255,255,255,0.10);
+  margin: 8px 8px;
+}
+
+.nxMenuItem{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  text-decoration:none;
+  color: rgba(255,255,255,0.80);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.nxMenuItem:hover{
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.92);
+}
+
+.nxMenuItem.isActive{
+  background: rgba(120,180,255,0.12);
+  border: 1px solid rgba(120,180,255,0.26);
+}
+
+/* NX_SAFE_TOP_CONTRACT: universal dead-space below Nexus bar (apps consume --nxSafeTop) */
+:root{
+  --nxTopNavPx: 78px; /* fallback until JS measures (nav height + cushion) */
+  --nxSafeTop: calc(var(--nxTopNavPx) + env(safe-area-inset-top));
+}
+
+/* Reserve space under fixed topnav everywhere */
+html.nx-has-topnav{
+  scroll-padding-top: var(--nxSafeTop);
+}
+body.nx-has-topnav{
+  padding-top: var(--nxSafeTop);
+}
+
+/* If any app uses a fixed header/hud at the top, keep it under the safe top by default */
+.nx-has-topnav .hud,
+.nx-has-topnav .toolbar,
+.nx-has-topnav .topbar,
+.nx-has-topnav .header,
+.nx-has-topnav .appHeader{
+  top: var(--nxSafeTop);
+}
+
+/* Sticky headers inside apps should sit under the safe top */
+.nx-has-topnav .top{
+  top: var(--nxSafeTop) !important;
+}
+
+/* Helper class for fullscreen shells (JS can apply inline too) */
+.nx-has-topnav .nxFullViewport{
+  top: var(--nxSafeTop) !important;
+  height: calc(100vh - var(--nxSafeTop)) !important;
+}
+
+/* NX_TOPNAV_FIXED_WITH_SAFE_TOP: fixed bar + body padding prevents overlap */
+nav.nxTopNav{
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 100000 !important;
+}
+
+
+/* Icon+Text pill (Nexus) */
+nav.nxTopNav .nxPill--iconText{
+  gap: 8px;
+}
+nav.nxTopNav .nxPill--iconText .nxPillIcon{
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  flex: 0 0 auto;
+}
+nav.nxTopNav .nxPill--iconText .nxPillText{
+  display: inline-block;
+}
+
+/* Optional top gap above fixed bar */
+:root{ --nxTopGap: 0px; }
+/* (keep a single fixed-top rule; no extra top-gap) */
+
+
+/* Logo pill (image) */
+nav.nxTopNav .nxPill.nxPillLogo{
+  padding: 0;
+  width: 56px;
+  height: 38px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+nav.nxTopNav .nxPillLogoImg{
+  height: 30px;
+  width: auto;
+  display:block;
+  border-radius: 10px;
+}
+
+/* Hide legacy brand anchor if present */
+nav.nxTopNav .nxBrand{ display:none !important; }

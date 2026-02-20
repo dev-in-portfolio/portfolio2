@@ -1,0 +1,2 @@
+/api/*  /.netlify/functions/:splat  200
+/agents/*  /apps/agents/:splat  301

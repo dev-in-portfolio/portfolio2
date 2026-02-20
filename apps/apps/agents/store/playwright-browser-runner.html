@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Playwright Browser Runner</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Playwright Browser Runner</h1>
+<p>Executes scripted browser flows against demo targets and returns screenshots + step receipts.</p>
+<div class="kv">
+<span class="tag">Pack B</span>
+<span class="tag">ID 3.5.1.1</span>
+<span class="tag ok">demo</span>
+</div>
+<div class="sep"></div>
+<h3 style="margin:0 0 8px">Inputs / outputs</h3>
+<div class="code">Inputs vary by agent; run with --help in local runner (or inspect pack source).
+Outputs: screenshots/*.png, receipts.json, artifacts/</div>
+<div class="sep"></div>
+<h3 style="margin:0 0 8px">Permissions (scoped + why)</h3>
+<span class="tag">browser.automation</span><span class="tag">net.egress.demo_only</span><span class="tag">receipts.screenshots.write</span><span class="tag">local.fs.write</span>
+<div class="sep"></div>
+<h3 style="margin:0 0 8px">Demo mode</h3>
+<p>Runs in demo targets (if browser). For browser agents, baseUrl is restricted to localhost demo targets.</p>
+<div class="sep"></div>
+<h3 style="margin:0 0 8px">Sample receipts</h3>
+<p><a class="btn" href="/apps/agents/runs/index.html">View sample runs</a></p>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

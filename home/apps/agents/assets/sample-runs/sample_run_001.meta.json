@@ -1,0 +1,9 @@
+{
+  "id": "sample_run_001",
+  "agent": "audit-agent",
+  "pack": "D",
+  "when": "pre-recorded",
+  "artifacts": [
+    "audit.report.json"
+  ]
+}

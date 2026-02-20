@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flora Forensics | Advanced Botanical Analysis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/nexus-topnav-v2.css">
+  <link rel="stylesheet" href="../../shared/nexus-topnav.css">
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(16,185,129,0.10), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(244,63,94,0.08), transparent 55%),
+                  radial-gradient(900px 600px at 50% 100%, rgba(59,130,246,0.07), transparent 60%),
+                  linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      min-height: 100vh;
+    }
+    body:before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.07;
+      background-image:
+        linear-gradient(to right, rgba(15,23,42,0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15,23,42,0.15) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at 50% 20%, black 0%, transparent 70%);
+    }
+    .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .glass { background: rgba(255,255,255,0.70); backdrop-filter: blur(10px); }
+    .shadow-soft { box-shadow: 0 16px 60px rgba(2,6,23,0.10); }
+    .tabActive { background: rgba(15,23,42,0.08); border-color: rgba(15,23,42,0.18); }
+    .btnPrimary { background: linear-gradient(135deg, rgba(16,185,129,0.98), rgba(59,130,246,0.92)); color: white; }
+    .btnPrimary:hover { filter: brightness(0.98); }
+    .btnGhost { background: rgba(255,255,255,0.55); border: 1px solid rgba(15,23,42,0.12); }
+    .btnGhost:hover { background: rgba(255,255,255,0.72); }
+    .badgeLive { background: rgba(16,185,129,0.14); color: rgb(5,150,105); border: 1px solid rgba(16,185,129,0.26); }
+    .badgeOff { background: rgba(244,63,94,0.10); color: rgb(190,18,60); border: 1px solid rgba(244,63,94,0.20); }
+    .modalBackdrop { background: rgba(2,6,23,0.55); }
+    .toast { background: rgba(2,6,23,0.88); color: white; }
+    .noSelect { -webkit-user-select:none; user-select:none; }
+  </style>
+</head>
+<body>
+	  <script src="../../shared/nexus-topnav-v2.js"></script>
+	  <div id="app" class="relative"></div>
+	  <!-- Backend sync helper (local-first) -->
+	  <script defer src="../../shared/appdata-client.js?v=1"></script>
+	  <script type="module" src="./floraguide.js"></script>
+</body>
+</html>
