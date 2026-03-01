@@ -24,7 +24,6 @@
     "bundle": {
       "active": true,
       "identifier": "com.repopilot.app",
-      "icon": []
     }
   }
 }
