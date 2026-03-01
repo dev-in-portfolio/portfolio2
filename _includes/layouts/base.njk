@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }} | {{ site.title }}</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <h1><a href="/">{{ site.title }}</a></h1>
+        <p>{{ site.description }}</p>
+      </div>
+      <nav>
+        <a href="/specs/">Specs</a>
+        <a href="/tags/">Tags</a>
+        <a href="/status/">Status</a>
+      </nav>
+    </header>
+    <main>
+      {{ content | safe }}
+    </main>
+    <footer>{{ site.title }} • {{ "now" | date("%Y") }}</footer>
+    <script src="/assets/specforge.js"></script>
+  </body>
+</html>
