@@ -34,6 +34,8 @@ app.use((req, res) => {
   res.status(404).send('Not found');
 });
 
-app.listen(PORT, () => {
+if (require.main === module) app.listen(PORT, () => {
   console.log(`Causality running on http://localhost:${PORT}`);
 });
+
+module.exports = app;
