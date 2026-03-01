@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1eleventy\3
+  FRAMEWORK = "eleventy"
