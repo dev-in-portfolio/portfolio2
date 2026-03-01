@@ -1,5 +1,5 @@
 <script lang="ts">
-  const releaseVersion = "v0.1.7";
+  const releaseVersion = "v0.1.8";
   const releaseRepo = "dev-in-portfolio/portfolio2";
   const releasesPage = `https://github.com/${releaseRepo}/releases`;
 
@@ -8,19 +8,19 @@
       os: "macOS",
       label: "Download for macOS",
       note: "Apple Silicon + Intel",
-      href: `https://github.com/${releaseRepo}/releases/download/v0.1.7/ClipForge-macOS.dmg`,
+      href: `https://github.com/${releaseRepo}/releases/download/v0.1.8/ClipForge-macOS.dmg`,
     },
     {
       os: "Windows",
       label: "Download for Windows",
-      note: "x64 installer",
-      href: `https://github.com/${releaseRepo}/releases/download/v0.1.7/ClipForge-Windows-x64-setup.exe`,
+      note: "MSI installer",
+      href: `https://github.com/${releaseRepo}/releases/download/v0.1.8/ClipForge-Windows-x64.msi`,
     },
     {
       os: "Linux",
       label: "Download for Linux",
-      note: "AppImage",
-      href: `https://github.com/${releaseRepo}/releases/download/v0.1.7/ClipForge-Linux-x86_64.AppImage`,
+      note: "Debian package (.deb)",
+      href: `https://github.com/${releaseRepo}/releases/download/v0.1.8/ClipForge-Linux-amd64.deb`,
     },
   ];
 </script>

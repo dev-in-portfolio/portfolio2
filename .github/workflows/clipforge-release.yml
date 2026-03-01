@@ -19,19 +19,16 @@ jobs:
         platform:
           - name: linux
             os: ubuntu-22.04
-            bundle: appimage
-            artifact_name: ClipForge-Linux-x86_64.AppImage
-            bundle_glob: src-tauri/target/release/bundle/appimage/*.AppImage
+            bundle: deb
+            artifact_name: ClipForge-Linux-amd64.deb
           - name: windows
             os: windows-latest
-            bundle: nsis
-            artifact_name: ClipForge-Windows-x64-setup.exe
-            bundle_glob: src-tauri/target/release/bundle/nsis/*-setup.exe
+            bundle: msi
+            artifact_name: ClipForge-Windows-x64.msi
           - name: macos
             os: macos-latest
             bundle: dmg
             artifact_name: ClipForge-macOS.dmg
-            bundle_glob: src-tauri/target/release/bundle/dmg/*.dmg
 
     steps:
       - name: Checkout
@@ -79,7 +76,6 @@ jobs:
           python3 - <<'PY'
           import struct, zlib
           w, h = 1024, 1024
-          # Solid aqua RGBA icon source.
           pixel = bytes([0x6E, 0xE7, 0xFF, 0xFF])
           row = b'\x00' + pixel * w
           raw = row * h
@@ -102,7 +98,22 @@ jobs:
         shell: bash
         run: |
           mkdir -p release-assets
-          file_path=$(ls ${{ matrix.platform.bundle_glob }} | head -n 1)
+          case "${{ matrix.platform.name }}" in
+            linux)
+              file_path=$(find src-tauri/target -type f -name "*.deb" -print -quit)
+              ;;
+            windows)
+              file_path=$(find src-tauri/target -type f -name "*.msi" -print -quit)
+              ;;
+            macos)
+              file_path=$(find src-tauri/target -type f -name "*.dmg" -print -quit)
+              ;;
+          esac
+          if [ -z "${file_path:-}" ]; then
+            echo "No bundle file found. Available files under src-tauri/target:"
+            find src-tauri/target -type f | sed -n '1,200p'
+            exit 1
+          fi
           cp "$file_path" "release-assets/${{ matrix.platform.artifact_name }}"
 
       - name: Upload CI artifact
@@ -130,5 +141,5 @@ jobs:
           generate_release_notes: true
           files: |
             release-assets/ClipForge-macOS.dmg/ClipForge-macOS.dmg
-            release-assets/ClipForge-Windows-x64-setup.exe/ClipForge-Windows-x64-setup.exe
-            release-assets/ClipForge-Linux-x86_64.AppImage/ClipForge-Linux-x86_64.AppImage
+            release-assets/ClipForge-Windows-x64.msi/ClipForge-Windows-x64.msi
+            release-assets/ClipForge-Linux-amd64.deb/ClipForge-Linux-amd64.deb
