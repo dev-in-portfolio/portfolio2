@@ -1,10 +1,10 @@
 <script lang="ts">
-  const releaseVersion = "operator-ledger-v0.1.7";
+  const releaseVersion = "operator-ledger-v0.1.8";
   const releasesPage = "https://github.com/dev-in-portfolio/portfolio2/releases";
   const downloads = [
-    { os: "macOS", label: "Download for macOS", note: "Apple Silicon + Intel", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/operator-ledger-v0.1.7/OperatorLedger-macOS.dmg" },
-    { os: "Windows", label: "Download for Windows", note: "MSI installer", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/operator-ledger-v0.1.7/OperatorLedger-Windows-x64.zip" },
-    { os: "Linux", label: "Download for Linux", note: "Debian package (.deb)", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/operator-ledger-v0.1.7/OperatorLedger-Linux-amd64.deb" }
+    { os: "macOS", label: "Download for macOS", note: "macOS binary tar.gz", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/operator-ledger-v0.1.8/OperatorLedger-macOS.tar.gz" },
+    { os: "Windows", label: "Download for Windows", note: "Windows binary zip", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/operator-ledger-v0.1.8/OperatorLedger-Windows-x64.zip" },
+    { os: "Linux", label: "Download for Linux", note: "Linux binary tar.gz", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/operator-ledger-v0.1.8/OperatorLedger-Linux-x64.tar.gz" }
   ];
 </script>
 

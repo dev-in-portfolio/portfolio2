@@ -19,16 +19,16 @@ jobs:
         platform:
           - name: linux
             os: ubuntu-22.04
-            bundle: deb
-            artifact_name: OperatorLedger-Linux-amd64.deb
+            artifact_name: OperatorLedger-Linux-x64.tar.gz
           - name: windows
             os: windows-latest
-            bundle: msi
             artifact_name: OperatorLedger-Windows-x64.zip
           - name: macos
             os: macos-latest
-            bundle: dmg
-            artifact_name: OperatorLedger-macOS.dmg
+            artifact_name: OperatorLedger-macOS.tar.gz
+
+    env:
+      APP_BIN: operator-ledger
 
     steps:
       - name: Checkout
@@ -69,106 +69,44 @@ jobs:
       - name: Build web assets
         run: pnpm run build
 
-      - name: Generate app icons
-        shell: bash
-        run: |
-          mkdir -p src-tauri/icons
-          python3 - <<'PY'
-          import struct, zlib
-          w, h = 1024, 1024
-          pixel = bytes([0x6E, 0xE7, 0xFF, 0xFF])
-          row = b'\x00' + pixel * w
-          raw = row * h
-          comp = zlib.compress(raw, 9)
-          def chunk(tag, data):
-              return (struct.pack(">I", len(data)) + tag + data +
-                      struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF))
-          sig = b'\x89PNG\r\n\x1a\n'
-          ihdr = struct.pack(">IIBBBBB", w, h, 8, 6, 0, 0, 0)
-          png = sig + chunk(b'IHDR', ihdr) + chunk(b'IDAT', comp) + chunk(b'IEND', b'')
-          with open('src-tauri/icons/icon-source.png', 'wb') as f:
-              f.write(png)
-          PY
-          pnpm dlx @tauri-apps/cli@1.6.0 icon src-tauri/icons/icon-source.png --output src-tauri/icons
+      - name: Build desktop binary
+        run: cargo build --manifest-path src-tauri/Cargo.toml --release
 
-      - name: Build Tauri bundle
-        continue-on-error: ${{ matrix.platform.name == 'windows' }}
-        run: pnpm dlx @tauri-apps/cli@1.6.0 build --bundles ${{ matrix.platform.bundle }}
-
-      - name: Prepare named artifact
+      - name: Prepare artifact archive
         shell: bash
         run: |
           mkdir -p release-assets
-          export PLATFORM="${{ matrix.platform.name }}"
-
-          find_bundle() {
-            python3 - <<'PY'
-            import glob, os
-            platform = os.environ["PLATFORM"]
-            patterns = {
-              "linux": [
-                "src-tauri/target/**/*.deb",
-                "src-tauri/target/**/*.AppImage",
-              ],
-              "windows": [
-                "src-tauri/target/**/*.msi",
-                "src-tauri/target/**/*-setup.exe",
-                "src-tauri/target/**/operator-ledger.exe",
-                "src-tauri/target/**/*.exe",
-              ],
-              "macos": [
-                "src-tauri/target/**/*.dmg",
-              ],
-            }[platform]
-
-            exclude_substrings = ["/.fingerprint/", "/build/", "/deps/"]
-            for pattern in patterns:
-              for path in glob.glob(pattern, recursive=True):
-                if not os.path.isfile(path):
-                  continue
-                normalized = path.replace('\\\\', '/')
-                if any(ex in normalized for ex in exclude_substrings):
-                  continue
-                print(path)
-                raise SystemExit(0)
-            raise SystemExit(1)
-            PY
-          }
-
-          file_path=$(find_bundle) || true
-
-          if [ -z "${file_path:-}" ] && [ "${{ matrix.platform.name }}" = "windows" ]; then
-            echo "No windows bundle found, building fallback binary with cargo"
-            cargo build --manifest-path src-tauri/Cargo.toml --release
-            file_path=$(find_bundle) || true
+          if [ "${{ matrix.platform.name }}" = "windows" ]; then
+            BIN_PATH="src-tauri/target/release/${APP_BIN}.exe"
+          else
+            BIN_PATH="src-tauri/target/release/${APP_BIN}"
           fi
 
-          if [ -z "${file_path:-}" ]; then
-            echo "No bundle file found. First 200 files under src-tauri/target:"
-            python3 - <<'PY'
-            import os
-            count = 0
-            for root, _, files in os.walk('src-tauri/target'):
-              for name in files:
-                print(os.path.join(root, name))
-                count += 1
-                if count >= 200:
-                  raise SystemExit(0)
-            PY
+          if [ ! -f "$BIN_PATH" ]; then
+            echo "Expected binary not found: $BIN_PATH"
+            find src-tauri/target/release -maxdepth 2 -type f | sed -n '1,200p'
             exit 1
           fi
 
+          ARTIFACT_PATH="release-assets/${{ matrix.platform.artifact_name }}"
           if [ "${{ matrix.platform.name }}" = "windows" ]; then
-            FILE_PATH="$file_path" ARTIFACT_PATH="release-assets/${{ matrix.platform.artifact_name }}" python3 - <<'PY'
+            BIN_PATH="$BIN_PATH" ARTIFACT_PATH="$ARTIFACT_PATH" python3 - <<'PY'
             import os, zipfile
-            src = os.environ['FILE_PATH']
+            src = os.environ['BIN_PATH']
             dst = os.environ['ARTIFACT_PATH']
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             with zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED) as zf:
               zf.write(src, arcname=os.path.basename(src))
             PY
           else
-            cp "$file_path" "release-assets/${{ matrix.platform.artifact_name }}"
+            BIN_PATH="$BIN_PATH" ARTIFACT_PATH="$ARTIFACT_PATH" python3 - <<'PY'
+            import os, tarfile
+            src = os.environ['BIN_PATH']
+            dst = os.environ['ARTIFACT_PATH']
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            with tarfile.open(dst, 'w:gz') as tf:
+              tf.add(src, arcname=os.path.basename(src))
+            PY
           fi
 
       - name: Upload CI artifact
@@ -195,6 +133,6 @@ jobs:
           name: Operator Ledger ${{ github.ref_name }}
           generate_release_notes: true
           files: |
-            release-assets/OperatorLedger-macOS.dmg/OperatorLedger-macOS.dmg
+            release-assets/OperatorLedger-macOS.tar.gz/OperatorLedger-macOS.tar.gz
             release-assets/OperatorLedger-Windows-x64.zip/OperatorLedger-Windows-x64.zip
-            release-assets/OperatorLedger-Linux-amd64.deb/OperatorLedger-Linux-amd64.deb
+            release-assets/OperatorLedger-Linux-x64.tar.gz/OperatorLedger-Linux-x64.tar.gz
