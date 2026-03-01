@@ -1,11 +1,8 @@
 [build]
-  command = "pip install -r requirements.txt && mkdir -p public && echo 'API' > public/index.html"
+  command = ""
   publish = "public"
 
-[functions]
-  node_bundler = "esbuild"
+[build.environment]
+  NODE_VERSION = "20"
+  FRAMEWORK = "unknown"
 
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/api"
-  status = 200
