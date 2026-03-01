@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1express\3
+  FRAMEWORK = "express"
