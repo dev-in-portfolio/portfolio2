@@ -25,3 +25,5 @@ serve({
 });
 
 console.log(`Hono Gatekeeper running on port ${PORT}`);
+
+module.exports = app;
