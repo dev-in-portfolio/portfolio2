@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1angular\3
+  FRAMEWORK = "angular"
