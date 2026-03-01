@@ -69,6 +69,28 @@ jobs:
       - name: Build web assets
         run: pnpm run build
 
+      - name: Generate app icons
+        shell: bash
+        run: |
+          mkdir -p src-tauri/icons
+          python3 - <<'PY'
+          import struct, zlib
+          w, h = 1024, 1024
+          pixel = bytes([0x6E, 0xE7, 0xFF, 0xFF])
+          row = b'\x00' + pixel * w
+          raw = row * h
+          comp = zlib.compress(raw, 9)
+          def chunk(tag, data):
+              return (struct.pack(">I", len(data)) + tag + data +
+                      struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF))
+          sig = b'\x89PNG\r\n\x1a\n'
+          ihdr = struct.pack(">IIBBBBB", w, h, 8, 6, 0, 0, 0)
+          png = sig + chunk(b'IHDR', ihdr) + chunk(b'IDAT', comp) + chunk(b'IEND', b'')
+          with open('src-tauri/icons/icon-source.png', 'wb') as f:
+              f.write(png)
+          PY
+          pnpm dlx @tauri-apps/cli@1.6.0 icon src-tauri/icons/icon-source.png --output src-tauri/icons
+
       - name: Build desktop binary
         run: cargo build --manifest-path src-tauri/Cargo.toml --release
 
