@@ -1,6 +1,7 @@
 [build]
-  command = ""
+  command = "echo Static renderer deploy"
   publish = "renderer"
+  ignore = "bash scripts/netlify-ignore.sh"
 
 [build.environment]
   NODE_VERSION = "20"
