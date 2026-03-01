@@ -1,6 +1,6 @@
 [build]
   command = ""
-  publish = "public"
+  publish = "renderer"
 
 [build.environment]
   NODE_VERSION = "20"
