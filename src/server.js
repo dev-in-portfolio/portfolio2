@@ -71,6 +71,8 @@ app.get("/health", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+if (require.main === module) app.listen(PORT, () => {
   console.log(`Angle running on http://localhost:${PORT}`);
 });
+
+module.exports = app;
