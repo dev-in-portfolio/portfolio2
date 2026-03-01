@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1nestjs\3
+  FRAMEWORK = "nestjs"
