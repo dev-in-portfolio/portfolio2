@@ -3,9 +3,8 @@
   publish = ".next"
 
 [build.environment]
-  BACKEND = "supabase"
   NODE_VERSION = "20"
-\1nextjs\3
+  FRAMEWORK = "nextjs"
+  BACKEND = "supabase"
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
