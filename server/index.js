@@ -266,6 +266,8 @@ app.get('/api/cardpress/public/:publishedSlug', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+if (require.main === module) app.listen(PORT, () => {
   console.log(`CardPress API running on port ${PORT}`);
 });
+
+module.exports = app;
