@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1hono\3
+  FRAMEWORK = "hono"
