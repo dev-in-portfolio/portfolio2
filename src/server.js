@@ -576,6 +576,8 @@ app.use((error, req, res, _next) => {
   res.status(mapped.status).json({ error: mapped.message, requestId: req.requestId });
 });
 
-app.listen(PORT, () => {
+if (require.main === module) app.listen(PORT, () => {
   console.log(`CueDeck API running on http://127.0.0.1:${PORT}`);
 });
+
+module.exports = app;
