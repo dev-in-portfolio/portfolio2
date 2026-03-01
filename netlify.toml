@@ -1,0 +1,3 @@
+[build]
+  command = "deno run -A main.ts build"
+  publish = "_fresh"
