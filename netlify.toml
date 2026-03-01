@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1gradio\3
+  FRAMEWORK = "gradio"
