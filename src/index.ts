@@ -25,3 +25,5 @@ serve({
 });
 
 console.log(`Hono Capsule Cache running on port ${PORT}`);
+
+module.exports = app;
