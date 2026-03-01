@@ -233,6 +233,8 @@ app.get('/api/qcf/public/:publishedSlug', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+if (require.main === module) app.listen(PORT, () => {
   console.log(`Qwik CardForge API running on port ${PORT}`);
 });
+
+module.exports = app;
