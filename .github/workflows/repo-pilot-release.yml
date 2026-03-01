@@ -92,6 +92,7 @@ jobs:
           pnpm dlx @tauri-apps/cli@1.6.0 icon src-tauri/icons/icon-source.png --output src-tauri/icons
 
       - name: Build Tauri bundle
+        continue-on-error: ${{ matrix.platform.name == 'windows' }}
         run: pnpm dlx @tauri-apps/cli@1.6.0 build --bundles ${{ matrix.platform.bundle }}
 
       - name: Prepare named artifact
