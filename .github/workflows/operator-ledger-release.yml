@@ -24,7 +24,7 @@ jobs:
           - name: windows
             os: windows-latest
             bundle: msi
-            artifact_name: OperatorLedger-Windows-x64.msi
+            artifact_name: OperatorLedger-Windows-x64.zip
           - name: macos
             os: macos-latest
             bundle: dmg
@@ -98,24 +98,56 @@ jobs:
         shell: bash
         run: |
           mkdir -p release-assets
-          case "${{ matrix.platform.name }}" in
-            linux)
-              file_path=$(find src-tauri/target -type f -name "*.deb" -print -quit)
-              ;;
-            windows)
-              file_path=$(find src-tauri/target -type f -name "*.msi" -print -quit)
-              ;;
-            macos)
-              file_path=$(find src-tauri/target -type f -name "*.dmg" -print -quit)
-              ;;
-          esac
+          export PLATFORM="${{ matrix.platform.name }}"
+          file_path=$(python3 - <<'PY'
+          import glob, os
+          platform = os.environ["PLATFORM"]
+          patterns = {
+            "linux": ["src-tauri/target/**/*.deb", "src-tauri/target/**/*.AppImage"],
+            "windows": ["src-tauri/target/**/*.msi", "src-tauri/target/**/*-setup.exe", "src-tauri/target/release/*.exe"],
+            "macos": ["src-tauri/target/**/*.dmg"],
+          }[platform]
+          for pattern in patterns:
+            for path in glob.glob(pattern, recursive=True):
+              if not os.path.isfile(path):
+                continue
+              normalized = path.replace('\\\\', '/')
+              if '/.fingerprint/' in normalized:
+                continue
+              print(path)
+              raise SystemExit(0)
+          raise SystemExit(1)
+          PY
+          ) || true
+
           if [ -z "${file_path:-}" ]; then
-            echo "No bundle file found. Available files under src-tauri/target:"
-            find src-tauri/target -type f | sed -n '1,200p'
+            echo "No bundle file found. First 200 files under src-tauri/target:"
+            python3 - <<'PY'
+            import os
+            count = 0
+            for root, _, files in os.walk('src-tauri/target'):
+              for name in files:
+                print(os.path.join(root, name))
+                count += 1
+                if count >= 200:
+                  raise SystemExit(0)
+            PY
             exit 1
           fi
-          cp "$file_path" "release-assets/${{ matrix.platform.artifact_name }}"
 
+          if [ "${{ matrix.platform.name }}" = "windows" ]; then
+            FILE_PATH="$file_path" ARTIFACT_PATH="release-assets/${{ matrix.platform.artifact_name }}" python3 - <<'PY'
+            import os, zipfile
+            src = os.environ['FILE_PATH']
+            dst = os.environ['ARTIFACT_PATH']
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            with zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED) as zf:
+              zf.write(src, arcname=os.path.basename(src))
+            PY
+          else
+            cp "$file_path" "release-assets/${{ matrix.platform.artifact_name }}"
+          fi
+        
       - name: Upload CI artifact
         uses: actions/upload-artifact@v4
         with:
@@ -141,5 +173,5 @@ jobs:
           generate_release_notes: true
           files: |
             release-assets/OperatorLedger-macOS.dmg/OperatorLedger-macOS.dmg
-            release-assets/OperatorLedger-Windows-x64.msi/OperatorLedger-Windows-x64.msi
+            release-assets/OperatorLedger-Windows-x64.zip/OperatorLedger-Windows-x64.zip
             release-assets/OperatorLedger-Linux-amd64.deb/OperatorLedger-Linux-amd64.deb
