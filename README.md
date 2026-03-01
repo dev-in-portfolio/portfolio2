@@ -1,10 +1,8 @@
-# Althea
+# Dockyard
 
-Dockyard — Electron launchpad for local repositories with env presets and command controls.
+Dockyard is distributed as a desktop app. This Netlify deploy is a landing/download page.
 
-## Run locally
-
-1. `npm install`
-2. `npm run dev`
-
-Dockyard stores config at `~/.dockyard/config.json`.
+Expected release asset names:
+- Dockyard-macOS.dmg
+- Dockyard-Windows-x64-setup.exe
+- Dockyard-Linux-x86_64.AppImage

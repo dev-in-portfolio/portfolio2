@@ -3,24 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dockyard</title>
+    <title>Dockyard Downloads</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header>
-      <div>
+    <main class="page">
+      <header class="hero">
+        <p class="eyebrow">Desktop App</p>
         <h1>Dockyard</h1>
-        <p>Launch your local repos with presets, commands, and live logs.</p>
-      </div>
-      <div class="status-bar" id="status-bar"></div>
-    </header>
-
-    <main>
-      <section class="panel" id="repo-panel"></section>
-      <section class="panel" id="detail-panel"></section>
-      <section class="panel" id="log-panel"></section>
+        <p class="subtitle">Native desktop app distribution landing page.</p>
+        <p class="meta"><a class="release-link" href="https://github.com/dev-in-portfolio/portfolio2/releases" rel="noopener noreferrer">Browse all releases</a></p>
+      </header>
+      <section class="downloads">
+        <article class="card"><h2>macOS</h2><p>Apple Silicon + Intel</p><a class="download-btn" href="https://github.com/dev-in-portfolio/portfolio2/releases/latest/download/Dockyard-macOS.dmg" rel="noopener noreferrer">Download for macOS</a></article>
+        <article class="card"><h2>Windows</h2><p>x64 installer</p><a class="download-btn" href="https://github.com/dev-in-portfolio/portfolio2/releases/latest/download/Dockyard-Windows-x64-setup.exe" rel="noopener noreferrer">Download for Windows</a></article>
+        <article class="card"><h2>Linux</h2><p>AppImage</p><a class="download-btn" href="https://github.com/dev-in-portfolio/portfolio2/releases/latest/download/Dockyard-Linux-x86_64.AppImage" rel="noopener noreferrer">Download for Linux</a></article>
+      </section>
     </main>
-
-    <script src="renderer.js"></script>
   </body>
 </html>
