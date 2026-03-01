@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1fresh\3
+  FRAMEWORK = "fresh"
