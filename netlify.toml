@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1remix\3
+  FRAMEWORK = "remix"
