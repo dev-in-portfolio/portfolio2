@@ -1,3 +1,7 @@
 [build]
-  command = "hugo"
+  command = "hugo --gc --minify"
   publish = "public"
+
+[build.environment]
+  NODE_VERSION = "20"
+
