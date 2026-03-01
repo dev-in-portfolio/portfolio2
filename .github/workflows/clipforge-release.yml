@@ -41,15 +41,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
+      - name: Enable Corepack / pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.30.3 --activate
+          pnpm --version
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        shell: bash
+        run: |
+          rustup default stable
+          rustc --version
+          cargo --version
 
       - name: Install Linux dependencies
         if: matrix.platform.name == linux
@@ -69,7 +73,7 @@ jobs:
         run: pnpm run build
 
       - name: Build Tauri bundle
-        run: pnpm tauri build --bundles ${{ matrix.platform.bundle }}
+        run: pnpm dlx @tauri-apps/cli@1.6.0 build --bundles ${{ matrix.platform.bundle }}
 
       - name: Prepare named artifact
         shell: bash
