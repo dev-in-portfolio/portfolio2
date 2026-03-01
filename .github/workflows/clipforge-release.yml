@@ -1,0 +1,107 @@
+name: ClipForge Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform.name }}
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: linux
+            os: ubuntu-22.04
+            bundle: appimage
+            artifact_name: ClipForge-Linux-x86_64.AppImage
+            bundle_glob: src-tauri/target/release/bundle/appimage/*.AppImage
+          - name: windows
+            os: windows-latest
+            bundle: nsis
+            artifact_name: ClipForge-Windows-x64-setup.exe
+            bundle_glob: src-tauri/target/release/bundle/nsis/*-setup.exe
+          - name: macos
+            os: macos-latest
+            bundle: dmg
+            artifact_name: ClipForge-macOS.dmg
+            bundle_glob: src-tauri/target/release/bundle/dmg/*.dmg
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux dependencies
+        if: matrix.platform.name == linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.0-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web assets
+        run: pnpm run build
+
+      - name: Build Tauri bundle
+        run: pnpm tauri build --bundles ${{ matrix.platform.bundle }}
+
+      - name: Prepare named artifact
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          file_path=$(ls ${{ matrix.platform.bundle_glob }} | head -n 1)
+          cp "$file_path" "release-assets/${{ matrix.platform.artifact_name }}"
+
+      - name: Upload CI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform.artifact_name }}
+          path: release-assets/${{ matrix.platform.artifact_name }}
+
+  publish:
+    name: Publish GitHub release assets
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ClipForge ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            release-assets/ClipForge-macOS.dmg/ClipForge-macOS.dmg
+            release-assets/ClipForge-Windows-x64-setup.exe/ClipForge-Windows-x64-setup.exe
+            release-assets/ClipForge-Linux-x86_64.AppImage/ClipForge-Linux-x86_64.AppImage
