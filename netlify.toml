@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1qwik\3
+  FRAMEWORK = "qwik"
