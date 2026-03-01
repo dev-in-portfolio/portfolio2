@@ -187,6 +187,8 @@ app.delete('/api/qst/signals/:id/rule', requireDeviceKey, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+if (require.main === module) app.listen(PORT, () => {
   console.log(`Qwik SignalTile API running on port ${PORT}`);
 });
+
+module.exports = app;
