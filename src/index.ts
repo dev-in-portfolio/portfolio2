@@ -25,3 +25,5 @@ serve({
 });
 
 console.log(`Hono Intake running on port ${PORT}`);
+
+module.exports = app;
