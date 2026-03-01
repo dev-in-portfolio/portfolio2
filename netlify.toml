@@ -3,9 +3,8 @@
   publish = ".next"
 
 [build.environment]
-  BACKEND = "firebase"
   NODE_VERSION = "20"
-\1nextjs\3
+  FRAMEWORK = "nextjs"
+  BACKEND = "firebase"
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-
