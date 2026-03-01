@@ -4,4 +4,4 @@
 
 [build.environment]
   NODE_VERSION = "20"
-\1sveltekit\3
+  FRAMEWORK = "sveltekit"
