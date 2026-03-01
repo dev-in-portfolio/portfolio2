@@ -1,3 +1,7 @@
 [build]
-  command = "npm install && npx @11ty/eleventy"
+  command = "npm run build"
   publish = "_site"
+
+[build.environment]
+  NODE_VERSION = "20"
+
