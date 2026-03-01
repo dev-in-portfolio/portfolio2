@@ -4,6 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  FRAMEWORK = "next"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
