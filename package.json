@@ -14,12 +14,11 @@
     "@builder.io/qwik-city": "^1.7.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "pg": "^8.12.0"
+    "pg": "^8.12.0",
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
-    "@builder.io/qwik/optimizer": "^1.7.0",
     "typescript": "^5.5.4",
-    "vite": "^5.4.2",
-    "vite-plugin-qwik": "^1.7.0"
+    "vite": "^5.4.2"
   }
 }
