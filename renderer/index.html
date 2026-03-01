@@ -3,32 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MapStencil</title>
+    <title>MapStencil Downloads</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header>
-      <div>
+    <main class="page">
+      <header class="hero">
+        <p class="eyebrow">Desktop App</p>
         <h1>MapStencil</h1>
-        <p>Offline map scratchpad with pins and routes.</p>
-      </div>
-      <div>
-        <button id="open-map">Open Map</button>
-        <button id="open-project">Open Project</button>
-        <button id="save-project">Save Project</button>
-        <button id="export-json">Export JSON</button>
-        <button id="export-png">Export PNG</button>
-      </div>
-    </header>
-
-    <main>
-      <aside class="panel" id="tool-panel"></aside>
-      <section class="panel canvas-panel">
-        <canvas id="map-canvas"></canvas>
+        <p class="subtitle">Native desktop app distribution landing page.</p>
+        <p class="meta"><a class="release-link" href="https://github.com/dev-in-portfolio/portfolio2/releases" rel="noopener noreferrer">Browse all releases</a></p>
+      </header>
+      <section class="downloads">
+        <article class="card"><h2>macOS</h2><p>Apple Silicon + Intel</p><a class="download-btn" href="https://github.com/dev-in-portfolio/portfolio2/releases/latest/download/MapStencil-macOS.dmg" rel="noopener noreferrer">Download for macOS</a></article>
+        <article class="card"><h2>Windows</h2><p>x64 installer</p><a class="download-btn" href="https://github.com/dev-in-portfolio/portfolio2/releases/latest/download/MapStencil-Windows-x64-setup.exe" rel="noopener noreferrer">Download for Windows</a></article>
+        <article class="card"><h2>Linux</h2><p>AppImage</p><a class="download-btn" href="https://github.com/dev-in-portfolio/portfolio2/releases/latest/download/MapStencil-Linux-x86_64.AppImage" rel="noopener noreferrer">Download for Linux</a></article>
       </section>
-      <aside class="panel" id="detail-panel"></aside>
     </main>
-
-    <script src="renderer.js"></script>
   </body>
 </html>

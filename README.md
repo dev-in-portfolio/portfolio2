@@ -1,10 +1,8 @@
-# Althea
+# MapStencil
 
-MapStencil — offline map scratchpad with pins, routes, and project exports.
+MapStencil is distributed as a desktop app. This Netlify deploy is a landing/download page.
 
-## Run locally
-
-1. `npm install`
-2. `npm run dev`
-
-Project files use the `.mapstencil.json` format.
+Expected release asset names:
+- MapStencil-macOS.dmg
+- MapStencil-Windows-x64-setup.exe
+- MapStencil-Linux-x86_64.AppImage
