@@ -1,23 +1,20 @@
 # ClipForge
 
-Local-first clipboard pipeline app built with Tauri (Rust + SQLite) and Svelte.
+ClipForge is a Tauri desktop app. This Netlify deploy is a landing page with direct download links for desktop binaries.
 
-## Features
-- Clipboard history with pinning
-- Transform pipelines (wrap code blocks, JSON pretty, patch standardizer)
-- Hotkey-ready pipeline records
-- Preview before overwrite and apply to clipboard
-- Local-only persistence
+## Update Download URLs
+Edit `src/App.svelte` and update the `downloads` URLs to your release assets:
+- macOS `.dmg`
+- Windows `.exe`
+- Linux `.AppImage`
 
-## Dev Setup
-1. Install Node dependencies
-   - `pnpm install`
-2. Install Rust + Tauri prerequisites
-3. Run UI
-   - `pnpm run dev`
-4. Run Tauri app
-   - `pnpm tauri dev`
+Recommended source: GitHub Releases direct asset URLs (`/releases/latest/download/...`).
 
-## Notes
-- Clipboard capture uses the Tauri clipboard API.
-- Global hotkeys and tray wiring are prepared for extension.
+## Netlify
+- Build command: `npm run build`
+- Publish directory: `dist`
+
+## Local dev
+- Install deps: `pnpm install`
+- Web landing page: `pnpm dev`
+- Desktop app: `pnpm tauri dev`
