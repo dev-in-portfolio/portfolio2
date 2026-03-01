@@ -1,10 +1,10 @@
 <script lang="ts">
-  const releaseVersion = "repo-pilot-v0.1.2";
+  const releaseVersion = "repo-pilot-v0.1.3";
   const releasesPage = "https://github.com/dev-in-portfolio/portfolio2/releases";
   const downloads = [
-    { os: "macOS", label: "Download for macOS", note: "Apple Silicon + Intel", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/repo-pilot-v0.1.2/RepoPilot-macOS.dmg" },
-    { os: "Windows", label: "Download for Windows", note: "x64 installer", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/repo-pilot-v0.1.2/RepoPilot-Windows-x64-setup.exe" },
-    { os: "Linux", label: "Download for Linux", note: "AppImage", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/repo-pilot-v0.1.2/RepoPilot-Linux-x86_64.AppImage" }
+    { os: "macOS", label: "Download for macOS", note: "Apple Silicon + Intel", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/repo-pilot-v0.1.3/RepoPilot-macOS.dmg" },
+    { os: "Windows", label: "Download for Windows", note: "MSI installer", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/repo-pilot-v0.1.3/RepoPilot-Windows-x64.msi" },
+    { os: "Linux", label: "Download for Linux", note: "Debian package (.deb)", href: "https://github.com/dev-in-portfolio/portfolio2/releases/download/repo-pilot-v0.1.3/RepoPilot-Linux-amd64.deb" }
   ];
 </script>
 
