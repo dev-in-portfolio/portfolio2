@@ -205,6 +205,8 @@ app.get('/api/signalboard/board', requireDeviceKey, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+if (require.main === module) app.listen(PORT, () => {
   console.log(`Signal Board API running on port ${PORT}`);
 });
+
+module.exports = app;
