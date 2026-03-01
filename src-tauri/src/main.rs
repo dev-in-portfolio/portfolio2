@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::PathBuf;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, ClipboardManager};
 
 #[derive(Serialize)]
 struct ClipboardItem {
@@ -160,7 +160,7 @@ fn list_history(app: AppHandle) -> Vec<ClipboardItem> {
 #[tauri::command]
 fn capture_clipboard(app: AppHandle) {
     let conn = init_db(&app);
-    if let Ok(text) = tauri::api::clipboard::read_text(&app) {
+    if let Ok(text) = app.clipboard_manager().read_text() {
         if text.len() > 200_000 {
             return;
         }
@@ -180,7 +180,7 @@ fn capture_clipboard(app: AppHandle) {
 
 #[tauri::command]
 fn set_clipboard(app: AppHandle, content: String) {
-    let _ = tauri::api::clipboard::write_text(&app, content);
+    let _ = app.clipboard_manager().write_text(content);
 }
 
 #[tauri::command]
