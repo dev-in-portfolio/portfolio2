@@ -3,6 +3,16 @@ layout: layouts/base.njk
 title: "PatchBook"
 permalink: "/index.html"
 ---
+<section class="hero">
+  <h2>Production Patch Library</h2>
+  <p>Curated, copy-safe fixes for recurring deployment and runtime issues.</p>
+  <div class="meta-row">
+    <span class="badge">{{ collections.patches | length }} patches</span>
+    <span class="badge">{{ collections.tagList | length }} tags</span>
+    <span class="badge">{{ collections.riskList | length }} risk levels</span>
+  </div>
+</section>
+
 <div class="search-box">
   <input id="search-input" type="text" placeholder="Search patches" />
   <select id="risk-filter">
