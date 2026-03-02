@@ -5,8 +5,11 @@ import { fileURLToPath } from "url";
 import pkg from "pg";
 
 const { Pool } = pkg;
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentFilePath =
+  typeof import.meta !== "undefined" && import.meta.url
+    ? fileURLToPath(import.meta.url)
+    : path.join(process.cwd(), "server", "index.js");
+const __dirname = path.dirname(currentFilePath);
 
 const app = express();
 const port = process.env.PORT || 3021;
@@ -393,7 +396,7 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 });
 
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === currentFilePath;
 
 if (isDirectRun) {
   app.listen(port, () => {
