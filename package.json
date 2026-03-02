@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "build": "node scripts/build-static.mjs",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
