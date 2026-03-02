@@ -5,6 +5,10 @@ create table if not exists users (
   created_at timestamptz not null default now()
 );
 
+alter table users add column if not exists uid text;
+alter table users add column if not exists created_at timestamptz not null default now();
+create unique index if not exists idx_users_uid_unique on users(uid);
+
 create table if not exists receipts (
   id uuid primary key default gen_random_uuid(),
   uid text not null references users(uid) on delete cascade,
