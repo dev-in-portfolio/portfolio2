@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED;
 
 if (!databaseUrl) {
   console.warn('DATABASE_URL is not set. The app will fail on DB access.');
