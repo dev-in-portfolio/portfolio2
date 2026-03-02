@@ -320,6 +320,22 @@ async function loadForms() {
   renderForms();
 }
 
+async function loadFormsWithRetry(attempts = 3, delayMs = 700) {
+  let lastError = null;
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      await loadForms();
+      return;
+    } catch (err) {
+      lastError = err;
+      if (i < attempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+  throw lastError;
+}
+
 async function loadForm(id) {
   const form = await apiFetch(`${API_BASE}/${id}`);
   state.activeForm = form;
@@ -327,7 +343,7 @@ async function loadForm(id) {
 
 async function init() {
   try {
-    await loadForms();
+    await loadFormsWithRetry();
     renderBuilder();
     renderInbox();
   } catch (err) {

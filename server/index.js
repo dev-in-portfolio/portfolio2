@@ -16,7 +16,21 @@ const databaseUrl =
   process.env.NETLIFY_DATABASE_URL ||
   process.env.NETLIFY_DATABASE_URL_UNPOOLED;
 
-const pool = new Pool({ connectionString: databaseUrl });
+function normalizeDatabaseUrl(connectionString) {
+  if (!connectionString) return connectionString;
+  try {
+    const url = new URL(connectionString);
+    const sslmode = url.searchParams.get("sslmode");
+    if (sslmode === "require" && !url.searchParams.has("uselibpqcompat")) {
+      url.searchParams.set("uselibpqcompat", "true");
+    }
+    return url.toString();
+  } catch {
+    return connectionString;
+  }
+}
+
+const pool = new Pool({ connectionString: normalizeDatabaseUrl(databaseUrl) });
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
@@ -115,13 +129,22 @@ function checkRateLimit(ip) {
 }
 
 app.use(async (req, res, next) => {
-  if (!req.path.startsWith("/api/forms") && !req.path.startsWith("/api/responses")) {
+  if (!req.path.startsWith("/api/")) {
     return next();
   }
+
+  if (!databaseUrl) {
+    return res.status(500).json({ error: "Database is not configured" });
+  }
+
   try {
     await ensureSchema();
-    const deviceKey = req.header("x-device-key");
-    req.userId = await getUserId(deviceKey);
+    const needsAuth =
+      req.path.startsWith("/api/forms") || req.path.startsWith("/api/responses");
+    if (needsAuth) {
+      const deviceKey = req.header("x-device-key");
+      req.userId = await getUserId(deviceKey);
+    }
     next();
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -149,16 +172,19 @@ app.post("/api/forms", async (req, res) => {
   try {
     validateSchema(schema);
     const client = await pool.connect();
-    const result = await client.query(
-      `
-      insert into forms (user_id, name, schema)
-      values ($1, $2, $3)
-      returning id, name, status, public_slug, schema
-      `,
-      [req.userId, name, schema]
-    );
-    res.json(result.rows[0]);
-    client.release();
+    try {
+      const result = await client.query(
+        `
+        insert into forms (user_id, name, schema)
+        values ($1, $2, $3)
+        returning id, name, status, public_slug, schema
+        `,
+        [req.userId, name, schema]
+      );
+      res.json(result.rows[0]);
+    } finally {
+      client.release();
+    }
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -185,21 +211,24 @@ app.patch("/api/forms/:id", async (req, res) => {
   try {
     if (schema) validateSchema(schema);
     const client = await pool.connect();
-    const result = await client.query(
-      `
-      update forms
-      set name = coalesce($1, name),
-          schema = coalesce($2, schema),
-          status = coalesce($3, status),
-          updated_at = now()
-      where id = $4 and user_id = $5
-      returning id, name, status, public_slug, schema
-      `,
-      [name ?? null, schema ?? null, status ?? null, req.params.id, req.userId]
-    );
-    if (!result.rows.length) return res.status(404).json({ error: "Not found" });
-    res.json(result.rows[0]);
-    client.release();
+    try {
+      const result = await client.query(
+        `
+        update forms
+        set name = coalesce($1, name),
+            schema = coalesce($2, schema),
+            status = coalesce($3, status),
+            updated_at = now()
+        where id = $4 and user_id = $5
+        returning id, name, status, public_slug, schema
+        `,
+        [name ?? null, schema ?? null, status ?? null, req.params.id, req.userId]
+      );
+      if (!result.rows.length) return res.status(404).json({ error: "Not found" });
+      res.json(result.rows[0]);
+    } finally {
+      client.release();
+    }
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -242,7 +271,8 @@ app.delete("/api/forms/:id", async (req, res) => {
 });
 
 app.get("/api/forms/:id/responses", async (req, res) => {
-  const limit = Number(req.query.limit || 100);
+  const parsedLimit = Number.parseInt(String(req.query.limit || "100"), 10);
+  const limit = Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 500) : 100;
   const cursor = req.query.cursor;
   const client = await pool.connect();
   try {
