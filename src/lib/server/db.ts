@@ -3,7 +3,7 @@ import pg from 'pg';
 
 const { Pool } = pg as { Pool: any };
 
-const databaseUrl = process.env.DATABASE_URL || '';
+const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED || '';
 
 let pool: any | null = null;
 let dbError: string | null = null;
