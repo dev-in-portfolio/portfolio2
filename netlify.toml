@@ -5,3 +5,4 @@
 [build.environment]
   NODE_VERSION = "20"
   FRAMEWORK = "hugo"
+  HUGO_VERSION = "0.125.7"
