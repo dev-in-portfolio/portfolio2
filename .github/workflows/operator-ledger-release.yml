@@ -39,6 +39,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
       - name: Enable Corepack / pnpm
         run: |
           corepack enable
@@ -73,7 +78,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p src-tauri/icons
-          python3 - <<'PY'
+          python - <<'PY'
           import struct, zlib
           w, h = 1024, 1024
           pixel = bytes([0x6E, 0xE7, 0xFF, 0xFF])
@@ -112,7 +117,7 @@ jobs:
 
           ARTIFACT_PATH="release-assets/${{ matrix.platform.artifact_name }}"
           if [ "${{ matrix.platform.name }}" = "windows" ]; then
-            BIN_PATH="$BIN_PATH" ARTIFACT_PATH="$ARTIFACT_PATH" python3 - <<'PY'
+            BIN_PATH="$BIN_PATH" ARTIFACT_PATH="$ARTIFACT_PATH" python - <<'PY'
             import os, zipfile
             src = os.environ['BIN_PATH']
             dst = os.environ['ARTIFACT_PATH']
@@ -121,7 +126,7 @@ jobs:
               zf.write(src, arcname=os.path.basename(src))
             PY
           else
-            BIN_PATH="$BIN_PATH" ARTIFACT_PATH="$ARTIFACT_PATH" python3 - <<'PY'
+            BIN_PATH="$BIN_PATH" ARTIFACT_PATH="$ARTIFACT_PATH" python - <<'PY'
             import os, tarfile
             src = os.environ['BIN_PATH']
             dst = os.environ['ARTIFACT_PATH']
