@@ -16,7 +16,21 @@ const databaseUrl =
   process.env.NETLIFY_DATABASE_URL ||
   process.env.NETLIFY_DATABASE_URL_UNPOOLED;
 
-const pool = new Pool({ connectionString: databaseUrl });
+function normalizeDatabaseUrl(connectionString) {
+  if (!connectionString) return connectionString;
+  try {
+    const url = new URL(connectionString);
+    const sslmode = url.searchParams.get("sslmode");
+    if (sslmode === "require" && !url.searchParams.has("uselibpqcompat")) {
+      url.searchParams.set("uselibpqcompat", "true");
+    }
+    return url.toString();
+  } catch {
+    return connectionString;
+  }
+}
+
+const pool = new Pool({ connectionString: normalizeDatabaseUrl(databaseUrl) });
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
@@ -96,13 +110,24 @@ async function getUserId(deviceKey) {
 }
 
 app.use(async (req, res, next) => {
-  if (!req.path.startsWith("/api/timelines") && !req.path.startsWith("/api/layers") && !req.path.startsWith("/api/events")) {
+  if (!req.path.startsWith("/api/")) {
     return next();
   }
+
+  if (!databaseUrl) {
+    return res.status(500).json({ error: "Database is not configured" });
+  }
+
   try {
     await ensureSchema();
-    const deviceKey = req.header("x-device-key");
-    req.userId = await getUserId(deviceKey);
+    const needsAuth =
+      req.path.startsWith("/api/timelines") ||
+      req.path.startsWith("/api/layers") ||
+      req.path.startsWith("/api/events");
+    if (needsAuth) {
+      const deviceKey = req.header("x-device-key");
+      req.userId = await getUserId(deviceKey);
+    }
     next();
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -162,14 +187,14 @@ app.patch("/api/timelines/:id", async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      """
+      `
       update timelines
       set name = coalesce($1, name),
           description = coalesce($2, description),
           updated_at = now()
       where id = $3 and user_id = $4
       returning id, name, description
-      """,
+      `,
       [name ?? null, description ?? null, req.params.id, req.userId]
     );
     if (!result.rows.length) return res.status(404).json({ error: "Not found" });
@@ -199,11 +224,11 @@ app.post("/api/timelines/:id/layers", async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      """
+      `
       insert into timeline_layers (timeline_id, name, color, sort_order)
       values ($1, $2, $3, $4)
       returning id, name, color, sort_order
-      """,
+      `,
       [req.params.id, name, color || "#888888", sort_order || 0]
     );
     res.json(result.rows[0]);
@@ -219,14 +244,14 @@ app.patch("/api/layers/:id", async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      """
+      `
       update timeline_layers
       set name = coalesce($1, name),
           color = coalesce($2, color),
           sort_order = coalesce($3, sort_order)
       where id = $4
       returning id, name, color, sort_order
-      """,
+      `,
       [name ?? null, color ?? null, sort_order ?? null, req.params.id]
     );
     res.json(result.rows[0]);
@@ -285,11 +310,11 @@ app.post("/api/timelines/:id/events", async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      """
+      `
       insert into timeline_events (timeline_id, layer_id, title, description, start_time, end_time, tags, metadata)
       values ($1, $2, $3, $4, $5, $6, $7, $8)
       returning id, title, start_time, end_time, tags, layer_id
-      """,
+      `,
       [
         req.params.id,
         layer_id || null,
@@ -314,7 +339,7 @@ app.patch("/api/events/:id", async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      """
+      `
       update timeline_events
       set title = coalesce($1, title),
           description = coalesce($2, description),
@@ -326,7 +351,7 @@ app.patch("/api/events/:id", async (req, res) => {
           updated_at = now()
       where id = $8
       returning id, title, start_time, end_time, tags, layer_id
-      """,
+      `,
       [title ?? null, description ?? null, start_time ?? null, end_time ?? null, tags ?? null, metadata ?? null, layer_id ?? null, req.params.id]
     );
     res.json(result.rows[0]);
@@ -368,8 +393,12 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 });
 
-if (require.main === module) app.listen(port, () => {
-  console.log(`Chronicle running on http://127.0.0.1:${port}`);
-});
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
 
-module.exports = app;
+if (isDirectRun) {
+  app.listen(port, () => {
+    console.log(`Chronicle running on http://127.0.0.1:${port}`);
+  });
+}
+
+export default app;

@@ -45,6 +45,22 @@ async function loadTimelines() {
   renderTimelinePanel();
 }
 
+async function loadTimelinesWithRetry(attempts = 3, delayMs = 700) {
+  let lastError = null;
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      await loadTimelines();
+      return;
+    } catch (err) {
+      lastError = err;
+      if (i < attempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+  throw lastError;
+}
+
 async function loadTimeline(id) {
   const data = await apiFetch(`${API_BASE}/${id}`);
   state.activeTimeline = data;
@@ -315,4 +331,15 @@ function renderCanvas() {
   `;
 }
 
-loadTimelines();
+async function init() {
+  try {
+    await loadTimelinesWithRetry();
+  } catch (err) {
+    timelinePanel.innerHTML = `<h2>Timelines</h2><p class="status">${err.message}</p>`;
+    layerPanel.innerHTML = `<h2>Layers</h2><p class="status">API unavailable.</p>`;
+    eventPanel.innerHTML = `<h2>Events</h2><p class="status">API unavailable.</p>`;
+    canvasPanel.innerHTML = `<h2>Timeline</h2><p class="status">API unavailable.</p>`;
+  }
+}
+
+init();

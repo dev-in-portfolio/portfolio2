@@ -1,7 +1,21 @@
 [build]
-  command = ""
+  command = "echo 'Static Chronicle deploy'"
   publish = "public"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [build.environment]
   NODE_VERSION = "20"
   FRAMEWORK = "angular"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
