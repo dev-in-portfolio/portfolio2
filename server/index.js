@@ -1,13 +1,10 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
-import { fileURLToPath } from "url";
 import pkg from "pg";
 
 const { Pool } = pkg;
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const appRoot = process.cwd();
 
 const app = express();
 const port = process.env.PORT || 3019;
@@ -17,15 +14,25 @@ const databaseUrl =
   process.env.NETLIFY_DATABASE_URL ||
   process.env.NETLIFY_DATABASE_URL_UNPOOLED;
 
-if (!databaseUrl) {
-  console.warn("DATABASE_URL is not set.");
+function normalizeDatabaseUrl(connectionString) {
+  if (!connectionString) return connectionString;
+  try {
+    const url = new URL(connectionString);
+    const sslmode = url.searchParams.get("sslmode");
+    if (sslmode === "require" && !url.searchParams.has("uselibpqcompat")) {
+      url.searchParams.set("uselibpqcompat", "true");
+    }
+    return url.toString();
+  } catch {
+    return connectionString;
+  }
 }
 
-const pool = new Pool({ connectionString: databaseUrl });
+const pool = new Pool({ connectionString: normalizeDatabaseUrl(databaseUrl) });
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
-app.use(express.static(path.join(__dirname, "..", "public")));
+app.use(express.static(path.join(appRoot, "public")));
 
 const schemaSQL = `
 create extension if not exists pgcrypto;
@@ -98,11 +105,16 @@ async function getUserId(deviceKey) {
 }
 
 app.use(async (req, res, next) => {
-  if (!req.path.startsWith("/api/gridsmith")) return next();
+  if (!req.path.startsWith("/api/")) return next();
+  if (!databaseUrl) {
+    return res.status(500).json({ error: "Database is not configured" });
+  }
   try {
     await ensureSchema();
-    const deviceKey = req.header("x-device-key");
-    req.userId = await getUserId(deviceKey);
+    if (req.path.startsWith("/api/gridsmith")) {
+      const deviceKey = req.header("x-device-key");
+      req.userId = await getUserId(deviceKey);
+    }
     next();
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -133,11 +145,11 @@ app.post("/api/gridsmith/datasets", async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      """
+      `
       insert into datasets (user_id, name, slug, schema)
       values ($1, $2, $3, $4)
       returning id, name, slug, schema, created_at, updated_at
-      """,
+      `,
       [req.userId, name, finalSlug, schema]
     );
     res.json(result.rows[0]);
@@ -169,14 +181,14 @@ app.patch("/api/gridsmith/datasets/:id", async (req, res) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
-      """
+      `
       update datasets
       set name = coalesce($1, name),
           schema = coalesce($2, schema),
           updated_at = now()
       where id = $3 and user_id = $4
       returning id, name, slug, schema, updated_at
-      """,
+      `,
       [name ?? null, schema ?? null, req.params.id, req.userId]
     );
     if (!result.rows.length) return res.status(404).json({ error: "Not found" });
@@ -278,12 +290,12 @@ app.post("/api/gridsmith/datasets/:id/rows", async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query(
-      """
+      `
       insert into dataset_rows (dataset_id, row_key, data)
       values ($1, $2, $3)
       on conflict (dataset_id, row_key)
       do update set data = excluded.data, updated_at = now()
-      """,
+      `,
       [req.params.id, rowKey, data]
     );
     await client.query(
@@ -314,11 +326,17 @@ app.delete("/api/gridsmith/datasets/:id/rows/:rowKey", async (req, res) => {
 });
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "public", "index.html"));
+  res.sendFile(path.join(appRoot, "public", "index.html"));
 });
 
-if (require.main === module) app.listen(port, () => {
-  console.log(`GridSmith server running on http://127.0.0.1:${port}`);
-});
+const isDirectRun =
+  Boolean(process.argv[1]) &&
+  path.resolve(process.argv[1]) === path.resolve(appRoot, "server", "index.js");
 
-module.exports = app;
+if (isDirectRun) {
+  app.listen(port, () => {
+    console.log(`GridSmith server running on http://127.0.0.1:${port}`);
+  });
+}
+
+export default app;
