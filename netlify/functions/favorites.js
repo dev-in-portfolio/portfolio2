@@ -24,7 +24,7 @@ exports.handler = async (event) => {
   const userKey = event.queryStringParameters?.userKey || null;
   if (!userKey) return json(400, { error: 'userKey required' });
 
-  const client = new Client({ connectionString: process.env.DATABASE_URL });
+  const client = new Client({ connectionString: process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED });
   await client.connect();
 
   try {
