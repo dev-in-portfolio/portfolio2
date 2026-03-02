@@ -4,23 +4,83 @@
     "title": "Signal Console",
     "summary": "Realtime monitoring console for distributed teams.",
     "tags": ["monitoring", "ops"],
-    "category": "platform",
-    "images": ["/images/signal-console.png"]
+    "category": "platform"
   },
   {
     "slug": "vaultkey",
     "title": "VaultKey",
     "summary": "Secure key registry with rotation playbooks.",
     "tags": ["security", "keys"],
-    "category": "security",
-    "images": ["/images/vaultkey.png"]
+    "category": "security"
   },
   {
     "slug": "routeforge",
     "title": "RouteForge",
     "summary": "Route planner and logistics intelligence.",
     "tags": ["routing", "logistics"],
-    "category": "operations",
-    "images": ["/images/routeforge.png"]
+    "category": "operations"
+  },
+  {
+    "slug": "ops-lighthouse",
+    "title": "Ops Lighthouse",
+    "summary": "Incident visibility wall with escalation ownership tracking.",
+    "tags": ["incidents", "observability"],
+    "category": "platform"
+  },
+  {
+    "slug": "ticket-orbit",
+    "title": "Ticket Orbit",
+    "summary": "Workflow triage board that scores backlog drift and SLA risk.",
+    "tags": ["support", "triage"],
+    "category": "operations"
+  },
+  {
+    "slug": "audit-mirror",
+    "title": "Audit Mirror",
+    "summary": "Compliance snapshot engine for policy and access controls.",
+    "tags": ["compliance", "security"],
+    "category": "security"
+  },
+  {
+    "slug": "handoff-hub",
+    "title": "Handoff Hub",
+    "summary": "Shift handoff workspace for coordinated engineering operations.",
+    "tags": ["handoff", "operations"],
+    "category": "operations"
+  },
+  {
+    "slug": "latency-lens",
+    "title": "Latency Lens",
+    "summary": "Request path profiler for performance bottleneck discovery.",
+    "tags": ["performance", "api"],
+    "category": "platform"
+  },
+  {
+    "slug": "change-trace",
+    "title": "Change Trace",
+    "summary": "Release-to-incident correlation explorer with rollback context.",
+    "tags": ["deployments", "analysis"],
+    "category": "platform"
+  },
+  {
+    "slug": "queue-compass",
+    "title": "Queue Compass",
+    "summary": "Queue health analyzer with retry pressure and dead-letter summaries.",
+    "tags": ["queues", "messaging"],
+    "category": "operations"
+  },
+  {
+    "slug": "schema-sentry",
+    "title": "Schema Sentry",
+    "summary": "Database migration guardrails with compatibility checks.",
+    "tags": ["database", "migrations"],
+    "category": "security"
+  },
+  {
+    "slug": "edge-scout",
+    "title": "Edge Scout",
+    "summary": "Edge region diagnostics and failover readiness overview.",
+    "tags": ["edge", "reliability"],
+    "category": "platform"
   }
 ]
