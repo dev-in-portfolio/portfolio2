@@ -6,11 +6,12 @@ let dbError = '';
 
 export function getPool() {
   if (pool) return pool;
-  if (!process.env.DATABASE_URL) {
+  const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED;
+  if (!databaseUrl) {
     dbError = 'DATABASE_URL is not set.';
     return null;
   }
-  pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
+  pool = new Pool({ connectionString: databaseUrl, max: 5 });
   return pool;
 }
 
