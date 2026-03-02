@@ -7,7 +7,7 @@ import path from 'path';
 
 const { Pool } = pg;
 
-const DATABASE_URL = process.env.DATABASE_URL || '';
+const DATABASE_URL = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED || '';
 const PORT = process.env.PORT || 3011;
 
 if (!DATABASE_URL) {
