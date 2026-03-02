@@ -51,11 +51,7 @@ jobs:
           pnpm --version
 
       - name: Setup Rust
-        shell: bash
-        run: |
-          rustup default stable
-          rustc --version
-          cargo --version
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install Linux dependencies
         if: matrix.platform.name == 'linux'
@@ -152,6 +148,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: release-assets
+          merge-multiple: true
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
