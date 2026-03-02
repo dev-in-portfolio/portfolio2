@@ -157,6 +157,5 @@ jobs:
           name: ClipForge ${{ github.ref_name }}
           generate_release_notes: true
           files: |
-            release-assets/ClipForge-macOS.tar.gz/ClipForge-macOS.tar.gz
-            release-assets/ClipForge-Windows-x64.zip/ClipForge-Windows-x64.zip
-            release-assets/ClipForge-Linux-x64.tar.gz/ClipForge-Linux-x64.tar.gz
+            release-assets/*.zip
+            release-assets/*.tar.gz
