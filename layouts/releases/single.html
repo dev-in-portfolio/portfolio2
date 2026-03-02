@@ -4,7 +4,7 @@
     <h2>Release {{ .Params.version }}</h2>
     <p>{{ .Params.notes }}</p>
     <div class="tags">
-      {{ range .Params.projects }}<span>{{ . }}</span>{{ end }}
+      {{ range .Params.projects }}<span><a href="{{ printf "/projects/%s/" (. | urlize) | relLangURL }}">{{ . }}</a></span>{{ end }}
     </div>
     <small>Date: {{ .Params.date }}</small>
 

@@ -16,6 +16,20 @@ body {
   color: var(--text);
 }
 
+a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #95e4ff;
+}
+
 .site-header {
   display: flex;
   justify-content: space-between;
@@ -29,6 +43,11 @@ body {
 
 .site-nav a { margin-right: 12px; color: var(--muted); text-decoration: none; }
 
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  color: var(--accent-2);
+}
+
 main { padding: 24px 32px 64px; }
 
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
@@ -40,6 +59,10 @@ main { padding: 24px 32px 64px; }
   border: 1px solid rgba(255,255,255,0.05);
 }
 
+.card h3 a {
+  color: var(--accent-2);
+}
+
 .tags span {
   display: inline-block;
   margin: 6px 6px 0 0;
@@ -47,6 +70,10 @@ main { padding: 24px 32px 64px; }
   border-radius: 999px;
   background: rgba(255,122,122,0.2);
   font-size: 12px;
+}
+
+.tags span a {
+  color: var(--text);
 }
 
 .table {
