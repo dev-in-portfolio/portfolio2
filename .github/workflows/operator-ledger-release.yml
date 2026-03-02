@@ -157,6 +157,5 @@ jobs:
           name: Operator Ledger ${{ github.ref_name }}
           generate_release_notes: true
           files: |
-            release-assets/OperatorLedger-macOS.tar.gz/OperatorLedger-macOS.tar.gz
-            release-assets/OperatorLedger-Windows-x64.zip/OperatorLedger-Windows-x64.zip
-            release-assets/OperatorLedger-Linux-x64.tar.gz/OperatorLedger-Linux-x64.tar.gz
+            release-assets/*.zip
+            release-assets/*.tar.gz
