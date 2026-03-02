@@ -4,11 +4,12 @@ let pool;
 
 function getPool() {
   if (!pool) {
-    if (!process.env.DATABASE_URL) {
+    const databaseUrl = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || process.env.NETLIFY_DATABASE_URL_UNPOOLED;
+    if (!databaseUrl) {
       throw new Error("DATABASE_URL is not set");
     }
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: databaseUrl,
       max: 5
     });
   }
