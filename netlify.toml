@@ -1,7 +1,12 @@
 [build]
-  command = ""
+  command = "echo 'Static FormFoundry deploy'"
   publish = "public"
 
 [build.environment]
   NODE_VERSION = "20"
   FRAMEWORK = "angular"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

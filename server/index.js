@@ -150,11 +150,11 @@ app.post("/api/forms", async (req, res) => {
     validateSchema(schema);
     const client = await pool.connect();
     const result = await client.query(
-      """
+      `
       insert into forms (user_id, name, schema)
       values ($1, $2, $3)
       returning id, name, status, public_slug, schema
-      """,
+      `,
       [req.userId, name, schema]
     );
     res.json(result.rows[0]);
@@ -186,7 +186,7 @@ app.patch("/api/forms/:id", async (req, res) => {
     if (schema) validateSchema(schema);
     const client = await pool.connect();
     const result = await client.query(
-      """
+      `
       update forms
       set name = coalesce($1, name),
           schema = coalesce($2, schema),
@@ -194,7 +194,7 @@ app.patch("/api/forms/:id", async (req, res) => {
           updated_at = now()
       where id = $4 and user_id = $5
       returning id, name, status, public_slug, schema
-      """,
+      `,
       [name ?? null, schema ?? null, status ?? null, req.params.id, req.userId]
     );
     if (!result.rows.length) return res.status(404).json({ error: "Not found" });
@@ -341,8 +341,12 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 });
 
-if (require.main === module) app.listen(port, () => {
-  console.log(`FormFoundry running on http://127.0.0.1:${port}`);
-});
+const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === __filename;
 
-module.exports = app;
+if (isDirectRun) {
+  app.listen(port, () => {
+    console.log(`FormFoundry running on http://127.0.0.1:${port}`);
+  });
+}
+
+export default app;

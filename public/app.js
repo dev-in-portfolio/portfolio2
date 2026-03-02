@@ -326,9 +326,15 @@ async function loadForm(id) {
 }
 
 async function init() {
-  await loadForms();
-  renderBuilder();
-  renderInbox();
+  try {
+    await loadForms();
+    renderBuilder();
+    renderInbox();
+  } catch (err) {
+    formsPanel.innerHTML = `<h2>Forms</h2><p class="status">Backend unavailable in static preview.</p>`;
+    builderPanel.innerHTML = `<h2>Builder</h2><p class="status">Connect API runtime to enable editing.</p>`;
+    inboxPanel.innerHTML = `<h2>Inbox</h2><p class="status">Responses appear when API is available.</p>`;
+  }
   const path = window.location.pathname;
   if (path.startsWith("/f/")) {
     const slug = path.split("/f/")[1];
