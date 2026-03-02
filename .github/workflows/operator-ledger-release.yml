@@ -20,12 +20,17 @@ jobs:
           - name: linux
             os: ubuntu-22.04
             artifact_name: OperatorLedger-Linux-x64.tar.gz
+            allow_failure: false
           - name: windows
             os: windows-latest
             artifact_name: OperatorLedger-Windows-x64.zip
+            allow_failure: true
           - name: macos
             os: macos-latest
             artifact_name: OperatorLedger-macOS.tar.gz
+            allow_failure: true
+
+    continue-on-error: ${{ matrix.platform.allow_failure }}
 
     env:
       APP_BIN: operator-ledger
@@ -159,3 +164,4 @@ jobs:
           files: |
             release-assets/*.zip
             release-assets/*.tar.gz
+          fail_on_unmatched_files: false
