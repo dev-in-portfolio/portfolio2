@@ -95,9 +95,9 @@ main { padding: 24px 32px 64px; }
   border: 1px solid rgba(255,255,255,0.05);
 }
 
-.card h3 { margin-top: 0; margin-bottom: 8px; }
+.card h3 { margin-top: 0; margin-bottom: 8px; overflow-wrap: anywhere; word-break: break-word; }
 .card h3 a,
-.card h3 a:visited { color: var(--accent-2); text-decoration: none; }
+.card h3 a:visited { color: var(--accent-2); text-decoration: none; display: inline-block; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
 .card h3 a:hover { text-decoration: underline; }
 .card p { color: #d8deea; }
 
