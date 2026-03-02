@@ -99,7 +99,7 @@ main { padding: 24px 32px 64px; }
 .card h3 a,
 .card h3 a:visited { color: var(--accent-2); text-decoration: none; display: inline-block; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
 .card h3 a:hover { text-decoration: underline; }
-.card p { color: #d8deea; }
+.card p { color: #d8deea; overflow-wrap: anywhere; word-break: break-word; }
 
 .tags span,
 .tags a {

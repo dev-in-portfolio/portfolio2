@@ -5,7 +5,7 @@
     {% set patchPath = '/patches/' + (item.data.slug or item.fileSlug) + '/' %}
     <article class="card">
       <h3><a href="{{ patchPath }}">{{ item.data.title }}</a></h3>
-      <p>{{ item.templateContent | truncate(140) }}</p>
+      <p>{{ item.templateContent | striptags | truncate(180) }}</p>
       <div class="tags">
         {% for tag in item.data.tags %}<span>{{ tag }}</span>{% endfor %}
       </div>
