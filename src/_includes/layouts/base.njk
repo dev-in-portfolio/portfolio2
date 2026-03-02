@@ -16,12 +16,13 @@
         <a href="/patches/">Patches</a>
         <a href="/tags/">Tags</a>
         <a href="/risk/">Risk</a>
+        <a href="/submit/">Add Patch</a>
       </nav>
     </header>
     <main>
       {{ content | safe }}
     </main>
-    <footer>{{ site.title }} • {{ "now" | date("%Y") }}</footer>
+    <footer>{{ site.title }} • {{ "now" | date("yyyy") }}</footer>
     <script src="/assets/patchbook.js"></script>
   </body>
 </html>

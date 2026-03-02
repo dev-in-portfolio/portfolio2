@@ -1,0 +1,21 @@
+---
+layout: layouts/base.njk
+title: "Add Patch"
+permalink: "/submit/index.html"
+---
+<section class="section">
+  <h2>Add a New Patch</h2>
+  <p>PatchBook is content-driven. Add a markdown file in <code>src/patches/</code> and redeploy.</p>
+  <h3>Required frontmatter</h3>
+  <pre><code>---
+slug: your-slug
+title: "Your patch title"
+tags: ["netlify", "build"]
+applies_to: ["node", "netlify"]
+risk: "low"
+permalink: false
+---
+</code></pre>
+  <h3>Where to put it</h3>
+  <p>Create <code>src/patches/your-slug.md</code> and include your patch content below frontmatter.</p>
+</section>

@@ -2,10 +2,11 @@ const { DateTime } = require("luxon");
 
 module.exports = function (eleventyConfig) {
   eleventyConfig.addNunjucksFilter("date", (value, format = "yyyy") => {
-    const date = value instanceof Date ? value : new Date(value);
-    return DateTime.fromJSDate(date).toFormat(format);
+    const normalized = value === "now" || value == null ? new Date() : (value instanceof Date ? value : new Date(value));
+    if (Number.isNaN(normalized.getTime())) return "";
+    const luxonFormat = format === "%Y" ? "yyyy" : format;
+    return DateTime.fromJSDate(normalized).toFormat(luxonFormat);
   });
-
 
   eleventyConfig.addPassthroughCopy({ "src/assets": "assets" });
 
@@ -37,4 +38,4 @@ module.exports = function (eleventyConfig) {
       output: "_site",
     },
   };
-}
+};
