@@ -18,15 +18,15 @@
 <meta content="Operator-trained builder shipping tool apps and UI systems." name="twitter:description"/>
 <meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
 <title>Utilities</title>
-<link href="/shared/tokens.css" rel="stylesheet"/>
-<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
-<link href="/shared/tap-physics.css" rel="stylesheet"/>
-<link href="/shared/ui-physics.css" rel="stylesheet"/>
+<link href="../shared/tokens.css" rel="stylesheet"/>
+<link href="../shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="../shared/tap-physics.css" rel="stylesheet"/>
+<link href="../shared/ui-physics.css" rel="stylesheet"/>
 <!-- Speed: preload hero image (WebP) -->
-<link as="image" fetchpriority="high" href="/assets/tools-hero.webp" rel="preload" type="image/webp"/>
+<link as="image" fetchpriority="high" href="../assets/tools-hero.webp" rel="preload" type="image/webp"/>
 <link href="https://dev-in-portfolio.netlify.app/tools/" rel="canonical"/>
-<link href="/icon-192.png" rel="icon"/>
-<script src="/runtime-guard.js"></script>
+<link href="../icon-192.png" rel="icon"/>
+<script src="../runtime-guard.js"></script>
 <style>
     :root{
       --bg:#05060b;
@@ -89,11 +89,15 @@
       display:block;
       filter: saturate(1.08) contrast(1.05);
       transform: scale(1.03);
-      opacity: 0;
+      opacity: 1;
       transition: opacity .35s ease;
     }
 
-    .heroBg.isLoaded .heroBgMedia img{
+    .heroBg.heroFade .heroBgMedia img{
+      opacity: 0;
+    }
+
+    .heroBg.heroFade.isLoaded .heroBgMedia img{
       opacity: 1;
     }
 
@@ -265,6 +269,11 @@
 
     /* reveal (slower + deliberate) */
     .reveal{
+      opacity: 1;
+      transform: translateY(0);
+      transition: none;
+    }
+    body.js-reveal .reveal{
       opacity: 0;
       transform: translateY(14px);
       transition:
@@ -273,7 +282,7 @@
       transition-delay: var(--reveal-delay, 0ms);
       will-change: opacity, transform;
     }
-    .reveal.on{ opacity: 1; transform: translateY(0); }
+    body.js-reveal .reveal.on{ opacity: 1; transform: translateY(0); }
 
     /* smaller screens */
     @media (max-width: 720px){
@@ -349,7 +358,7 @@ html{scroll-behavior:smooth}
 <div aria-hidden="true" class="heroBg">
 <picture class="heroBgMedia">
 <source srcset="/assets/tools-hero.webp" type="image/webp"/>
-<img alt="" decoding="async" fetchpriority="high" loading="eager" src="/assets/tools-hero.webp"/>
+<img alt="" decoding="async" fetchpriority="high" loading="eager" src="../assets/tools-hero.webp"/>
 </picture>
 </div>
 <div aria-hidden="true" class="heroVignette"></div>
@@ -357,106 +366,239 @@ html{scroll-behavior:smooth}
 <div class="heroInner">
 <p class="kicker">Nexus — Utilities</p>
 <h1 class="title">Utilities</h1>
-<p class="sub">Choose a destination. These are grouped to match the constellation map key — same buckets, same mental model.</p>
-<div aria-label="Docs jump" class="jumpRow"><a aria-current="true" class="jumpBtn" href="#docs-help">HELP</a><a class="jumpBtn" href="#docs-readmes">READMES</a><a class="jumpBtn" href="#docs-case">CASE STUDIES</a></div>
+<p class="sub">Reference docs, implementation notes, and case studies for the full app portfolio.</p>
+<div aria-label="Docs jump" class="jumpRow"><a aria-current="true" class="jumpBtn" href="#docs-case">CASE STUDIES</a><a class="jumpBtn" href="#docs-help">HELP</a><a class="jumpBtn" href="#docs-readmes">READMES</a></div>
 <div aria-hidden="true" class="scrollCue">Scroll</div>
 </div>
 </header>
 <main>
-<section class="beat reveal" id="docs">
+<section class="beat" id="docs">
 <h2 class="beatLine">Docs</h2>
 <p class="beatText">Docs/Tools/Policy now map to Help, Readmes, and Case Studies for faster navigation.</p>
+<div class="docsQuickBar" aria-label="Docs quick tools">
+  <div class="docsQuickJump" aria-label="Docs section jump">
+    <a class="jumpBtn" href="#docs-case">Case Studies</a>
+    <a class="jumpBtn" href="#docs-help">Help</a>
+    <a class="jumpBtn" href="#docs-readmes">Readmes</a>
+  </div>
+  <input id="docsQuickSearch" class="docsQuickSearch" type="search" placeholder="Quick search Help + Readmes..." />
+</div>
 <div aria-label="Docs sections" class="docsGridV2">
-<div aria-label="Help files" class="docsColV2" id="docs-help"><div class="docsColHead"><h3 class="docsColTitle">HELP</h3><span class="docsBadge"><span class="docsDot"></span>33</span></div>
+<div aria-label="Help files" class="docsColV2" id="docs-help"><div class="docsColHead"><h3 class="docsColTitle">HELP</h3><span class="docsBadge"><span class="docsDot"></span>84</span></div>
 <div class="docStackV2">
-<a class="docBtnV2 btn buttonlike" href="/help/aeon/">Aeon</a>
-<a class="docBtnV2 btn buttonlike" href="/help/agents/">Agents</a>
-<a class="docBtnV2 btn buttonlike" href="/help/alibi/">Alibi</a>
-<a class="docBtnV2 btn buttonlike" href="/help/coverage-compass/">Coverage Compass</a>
-<a class="docBtnV2 btn buttonlike" href="/help/helios/">Helios</a>
-<a class="docBtnV2 btn buttonlike" href="/help/helix/">Helix</a>
-<a class="docBtnV2 btn buttonlike" href="/help/magma/">Magma</a>
-<a class="docBtnV2 btn buttonlike" href="/help/string/">String</a>
-<a class="docBtnV2 btn buttonlike" href="/help/tectonic/">Tectonic</a>
-<a class="docBtnV2 btn buttonlike" href="/help/transit/">Transit</a>
-<a class="docBtnV2 btn buttonlike" href="/help/ubr/">Ubr</a>
-<a class="docBtnV2 btn buttonlike" href="/help/vortex/">Vortex</a>
-<a class="docBtnV2 btn buttonlike" href="/help/splice/">Splice</a>
-<a class="docBtnV2 btn buttonlike" href="/help/crossword-arena/">Crossword Arena</a>
-<a class="docBtnV2 btn buttonlike" href="/help/evening-epic-sudoku/">Evening Epic Sudoku</a>
-<a class="docBtnV2 btn buttonlike" href="/help/floraguide-ai/">FloraGuide AI</a>
-<a class="docBtnV2 btn buttonlike" href="/help/lingolive-ai/">LingoLive AI</a>
-<a class="docBtnV2 btn buttonlike" href="/help/oracle-pit/">Oracle Pit</a>
-<a class="docBtnV2 btn buttonlike" href="/help/prompt-vault/">Prompt Vault</a>
-<a class="docBtnV2 btn buttonlike" href="/help/sleepystory/">SleepyStory</a>
-<a class="docBtnV2 btn buttonlike" href="/help/toonstudio/">ToonStudio</a>
-<a class="docBtnV2 btn buttonlike" href="/help/codex-imaginary-physics/">Codex of Imaginary Physics</a>
-<a class="docBtnV2 btn buttonlike" href="/help/myths-facts-almanac/">Myths &amp; Facts Almanac</a>
-<a class="docBtnV2 btn buttonlike" href="/help/time-locked-page-forge/">Time-Locked Page Forge</a>
-<a class="docBtnV2 btn buttonlike" href="/help/motion-workshop-bench/">Motion Workshop Bench</a>
-<a class="docBtnV2 btn buttonlike" href="/help/friction-painter/">Friction Painter</a>
-<a class="docBtnV2 btn buttonlike" href="/help/ink-that-remembers/">Ink That Remembers</a>
-<a class="docBtnV2 btn buttonlike" href="/help/glow-garden/">Glow Garden</a>
-<a class="docBtnV2 btn buttonlike" href="/help/field-notes-alternate-earths/">Field Notes: Alternate Earths</a>
-<a class="docBtnV2 btn buttonlike" href="/help/the-long-walk/">The Long Walk</a>
-<a class="docBtnV2 btn buttonlike" href="/help/constraint-chess/">Constraint Chess</a>
-<a class="docBtnV2 btn buttonlike" href="/help/riddle-rooms/">Riddle Rooms</a>
-<a class="docBtnV2 btn buttonlike" href="/help/reflex-trainer/">Reflex Trainer</a>
+<a class="docBtnV2 btn buttonlike" href="../help/agents/">Agents (UI)</a>
+<a class="docBtnV2 btn buttonlike" href="../help/alibi/">Alibi</a>
+<a class="docBtnV2 btn buttonlike" href="../help/angle/">Angle</a>
+<a class="docBtnV2 btn buttonlike" href="../help/angular-chronicle/">Angular Chronicle</a>
+<a class="docBtnV2 btn buttonlike" href="../help/angular-formfoundry/">Angular FormFoundry</a>
+<a class="docBtnV2 btn buttonlike" href="../help/angular-gridsmith/">Angular GridSmith</a>
+<a class="docBtnV2 btn buttonlike" href="../help/cardpress/">CardPress</a>
+<a class="docBtnV2 btn buttonlike" href="../help/causality/">Causality</a>
+<a class="docBtnV2 btn buttonlike" href="../help/clip-forge/">Clip Forge</a>
+<a class="docBtnV2 btn buttonlike" href="../help/codex-of-hieroglyphi/">Codex of Hieroglyphs</a>
+<a class="docBtnV2 btn buttonlike" href="../help/compression/">Compression</a>
+<a class="docBtnV2 btn buttonlike" href="../help/contradict/">Contradict</a>
+<a class="docBtnV2 btn buttonlike" href="../help/coverage-compass/">Coverage Compass</a>
+<a class="docBtnV2 btn buttonlike" href="../help/cuedeck/">CueDeck</a>
+<a class="docBtnV2 btn buttonlike" href="../help/dash-claimscope/">Dash ClaimScope</a>
+<a class="docBtnV2 btn buttonlike" href="../help/dash-driftmeter/">Dash DriftMeter</a>
+<a class="docBtnV2 btn buttonlike" href="../help/dash-flowlens/">Dash FlowLens</a>
+<a class="docBtnV2 btn buttonlike" href="../help/difflens/">DiffLens</a>
+<a class="docBtnV2 btn buttonlike" href="../help/digital-science/">Digital Science Museum</a>
+<a class="docBtnV2 btn buttonlike" href="../help/draft-relay/">Draft Relay</a>
+<a class="docBtnV2 btn buttonlike" href="../help/electron-dockyard/">Electron Dockyard</a>
+<a class="docBtnV2 btn buttonlike" href="../help/electron-mapstencil/">Electron MapStencil</a>
+<a class="docBtnV2 btn buttonlike" href="../help/electron-receiptbox/">Electron ReceiptBox</a>
+<a class="docBtnV2 btn buttonlike" href="../help/eleventy-patch-book/">Eleventy Patch Book</a>
+<a class="docBtnV2 btn buttonlike" href="../help/eleventy-spec-forge/">Eleventy Spec Forge</a>
+<a class="docBtnV2 btn buttonlike" href="../help/eleventy-switchboard/">Eleventy Switchboard</a>
+<a class="docBtnV2 btn buttonlike" href="../help/floraguide-ai/">FloraGuide AI</a>
+<a class="docBtnV2 btn buttonlike" href="../help/hallmap-studio/">Hallmap Studio</a>
+<a class="docBtnV2 btn buttonlike" href="../help/hono-capsulecache/">Hono CapsuleCache</a>
+<a class="docBtnV2 btn buttonlike" href="../help/hono-gatekeeper/">Hono Gatekeeper</a>
+<a class="docBtnV2 btn buttonlike" href="../help/hono-intake/">Hono Intake</a>
+<a class="docBtnV2 btn buttonlike" href="../help/hugo-atlasshelf/">Hugo AtlasShelf</a>
+<a class="docBtnV2 btn buttonlike" href="../help/hugo-fieldmanual/">Hugo FieldManual</a>
+<a class="docBtnV2 btn buttonlike" href="../help/hugo-release-gallery/">Hugo Release Gallery</a>
+<a class="docBtnV2 btn buttonlike" href="../help/interactive-terms-tr/">Interactive Terms Translator</a>
+<a class="docBtnV2 btn buttonlike" href="../help/island-index/">Island Index</a>
+<a class="docBtnV2 btn buttonlike" href="../help/latchlist/">LatchList</a>
+<a class="docBtnV2 btn buttonlike" href="../help/lineflow/">LineFlow</a>
+<a class="docBtnV2 btn buttonlike" href="../help/lingolive-ai/">LingoLive AI</a>
+<a class="docBtnV2 btn buttonlike" href="../help/momentum/">Momentum</a>
+<a class="docBtnV2 btn buttonlike" href="../help/neonscope/">NeonScope</a>
+<a class="docBtnV2 btn buttonlike" href="../help/nuxt-cardpress/">Nuxt CardPress</a>
+<a class="docBtnV2 btn buttonlike" href="../help/nuxt-signalgrid/">Nuxt SignalGrid</a>
+<a class="docBtnV2 btn buttonlike" href="../help/nuxt-view-vault/">Nuxt View Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../help/operator-ledger/">Operator Ledger</a>
+<a class="docBtnV2 btn buttonlike" href="../help/oracle-pit/">Oracle Pit</a>
+<a class="docBtnV2 btn buttonlike" href="../help/order-of-one/">Order of One</a>
+<a class="docBtnV2 btn buttonlike" href="../help/palmledger/">PalmLedger</a>
+<a class="docBtnV2 btn buttonlike" href="../help/paradox-vault/">Paradox Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../help/patchsmith/">PatchSmith</a>
+<a class="docBtnV2 btn buttonlike" href="../help/pocket-dossier/">Pocket Dossier</a>
+<a class="docBtnV2 btn buttonlike" href="../help/pocket-pass/">Pocket Pass</a>
+<a class="docBtnV2 btn buttonlike" href="../help/prompt-vault/">Prompt Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../help/quejudge/">QueJudge</a>
+<a class="docBtnV2 btn buttonlike" href="../help/queuegauge/">QueueGauge</a>
+<a class="docBtnV2 btn buttonlike" href="../help/qwik-atlas/">Qwik Atlas</a>
+<a class="docBtnV2 btn buttonlike" href="../help/qwik-cardforge/">Qwik CardForge</a>
+<a class="docBtnV2 btn buttonlike" href="../help/qwik-signaltill/">Qwik SignalTiill</a>
+<a class="docBtnV2 btn buttonlike" href="../help/radar-of-one/">Radar of One</a>
+<a class="docBtnV2 btn buttonlike" href="../help/recalgrid/">RecalGrid</a>
+<a class="docBtnV2 btn buttonlike" href="../help/receipt-vault/">Receipt Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../help/relayroom/">RelayRoom</a>
+<a class="docBtnV2 btn buttonlike" href="../help/remix-diffatlas/">Remix DiffAtlas</a>
+<a class="docBtnV2 btn buttonlike" href="../help/remix-queuesplice/">Remix QueueSplice</a>
+<a class="docBtnV2 btn buttonlike" href="../help/remix-vault-key/">Remix Vault Key</a>
+<a class="docBtnV2 btn buttonlike" href="../help/repo-pilot/">Repo Pilot</a>
+<a class="docBtnV2 btn buttonlike" href="../help/room-key/">Room Key</a>
+<a class="docBtnV2 btn buttonlike" href="../help/routeforge-console/">RouteForge Console</a>
+<a class="docBtnV2 btn buttonlike" href="../help/rule-furnace/">Rule Furnace</a>
+<a class="docBtnV2 btn buttonlike" href="../help/schemagate/">SchemaGate</a>
+<a class="docBtnV2 btn buttonlike" href="../help/schemapulse/">SchemaPulse</a>
+<a class="docBtnV2 btn buttonlike" href="../help/sessionmint/">SessionMint</a>
+<a class="docBtnV2 btn buttonlike" href="../help/signal-board/">Signal Board</a>
+<a class="docBtnV2 btn buttonlike" href="../help/signal-kitchen/">Signal Kitchen</a>
+<a class="docBtnV2 btn buttonlike" href="../help/snapshot-vault/">SnapShot Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../help/solvespace/">SolveSpace</a>
+<a class="docBtnV2 btn buttonlike" href="../help/streamlit/">StreamLit</a>
+<a class="docBtnV2 btn buttonlike" href="../help/surfacelab/">SurfaceLab</a>
+<a class="docBtnV2 btn buttonlike" href="../help/swittchboard/">Switchboard</a>
+<a class="docBtnV2 btn buttonlike" href="../help/tagtrellis/">TagTrellis</a>
+<a class="docBtnV2 btn buttonlike" href="../help/tapforge/">TapForge</a>
+<a class="docBtnV2 btn buttonlike" href="../help/timeslice/">TimeSlice</a>
+<a class="docBtnV2 btn buttonlike" href="../help/ubr/">Ultimate Broker Route (UBR)</a>
+<a class="docBtnV2 btn buttonlike" href="../help/wayfinder/">WayFinder</a>
 </div>
 </div>
-<div aria-label="Readme files" class="docsColV2" id="docs-readmes"><div class="docsColHead"><h3 class="docsColTitle">READMES</h3><span class="docsBadge"><span class="docsDot"></span>33</span></div>
+<div aria-label="Readme files" class="docsColV2" id="docs-readmes"><div class="docsColHead"><h3 class="docsColTitle">READMES</h3><span class="docsBadge"><span class="docsDot"></span>84</span></div>
 <div class="docStackV2">
-<a class="docBtnV2 btn buttonlike" href="/readme/aeon/">Aeon</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/agents/">Agents</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/alibi/">Alibi</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/coverage-compass/">Coverage Compass</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/helios/">Helios</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/helix/">Helix</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/magma/">Magma</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/string/">String</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/tectonic/">Tectonic</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/transit/">Transit</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/ubr/">Ubr</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/vortex/">Vortex</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/splice/">Splice</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/crossword-arena/">Crossword Arena</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/evening-epic-sudoku/">Evening Epic Sudoku</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/floraguide-ai/">FloraGuide AI</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/lingolive-ai/">LingoLive AI</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/oracle-pit/">Oracle Pit</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/prompt-vault/">Prompt Vault</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/sleepystory/">SleepyStory</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/toonstudio/">ToonStudio</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/codex-imaginary-physics/">Codex of Imaginary Physics</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/myths-facts-almanac/">Myths &amp; Facts Almanac</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/time-locked-page-forge/">Time-Locked Page Forge</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/motion-workshop-bench/">Motion Workshop Bench</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/friction-painter/">Friction Painter</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/ink-that-remembers/">Ink That Remembers</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/glow-garden/">Glow Garden</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/field-notes-alternate-earths/">Field Notes: Alternate Earths</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/the-long-walk/">The Long Walk</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/constraint-chess/">Constraint Chess</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/riddle-rooms/">Riddle Rooms</a>
-<a class="docBtnV2 btn buttonlike" href="/readme/reflex-trainer/">Reflex Trainer</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/agents/">Agents (UI)</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/alibi/">Alibi</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/angle/">Angle</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/angular-chronicle/">Angular Chronicle</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/angular-formfoundry/">Angular FormFoundry</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/angular-gridsmith/">Angular GridSmith</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/cardpress/">CardPress</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/causality/">Causality</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/clip-forge/">Clip Forge</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/codex-of-hieroglyphi/">Codex of Hieroglyphs</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/compression/">Compression</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/contradict/">Contradict</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/coverage-compass/">Coverage Compass</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/cuedeck/">CueDeck</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/dash-claimscope/">Dash ClaimScope</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/dash-driftmeter/">Dash DriftMeter</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/dash-flowlens/">Dash FlowLens</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/difflens/">DiffLens</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/digital-science/">Digital Science Museum</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/draft-relay/">Draft Relay</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/electron-dockyard/">Electron Dockyard</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/electron-mapstencil/">Electron MapStencil</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/electron-receiptbox/">Electron ReceiptBox</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/eleventy-patch-book/">Eleventy Patch Book</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/eleventy-spec-forge/">Eleventy Spec Forge</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/eleventy-switchboard/">Eleventy Switchboard</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/floraguide-ai/">FloraGuide AI</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/hallmap-studio/">Hallmap Studio</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/hono-capsulecache/">Hono CapsuleCache</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/hono-gatekeeper/">Hono Gatekeeper</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/hono-intake/">Hono Intake</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/hugo-atlasshelf/">Hugo AtlasShelf</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/hugo-fieldmanual/">Hugo FieldManual</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/hugo-release-gallery/">Hugo Release Gallery</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/interactive-terms-tr/">Interactive Terms Translator</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/island-index/">Island Index</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/latchlist/">LatchList</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/lineflow/">LineFlow</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/lingolive-ai/">LingoLive AI</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/momentum/">Momentum</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/neonscope/">NeonScope</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/nuxt-cardpress/">Nuxt CardPress</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/nuxt-signalgrid/">Nuxt SignalGrid</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/nuxt-view-vault/">Nuxt View Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/operator-ledger/">Operator Ledger</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/oracle-pit/">Oracle Pit</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/order-of-one/">Order of One</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/palmledger/">PalmLedger</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/paradox-vault/">Paradox Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/patchsmith/">PatchSmith</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/pocket-dossier/">Pocket Dossier</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/pocket-pass/">Pocket Pass</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/prompt-vault/">Prompt Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/quejudge/">QueJudge</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/queuegauge/">QueueGauge</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/qwik-atlas/">Qwik Atlas</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/qwik-cardforge/">Qwik CardForge</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/qwik-signaltill/">Qwik SignalTiill</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/radar-of-one/">Radar of One</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/recalgrid/">RecalGrid</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/receipt-vault/">Receipt Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/relayroom/">RelayRoom</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/remix-diffatlas/">Remix DiffAtlas</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/remix-queuesplice/">Remix QueueSplice</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/remix-vault-key/">Remix Vault Key</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/repo-pilot/">Repo Pilot</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/room-key/">Room Key</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/routeforge-console/">RouteForge Console</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/rule-furnace/">Rule Furnace</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/schemagate/">SchemaGate</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/schemapulse/">SchemaPulse</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/sessionmint/">SessionMint</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/signal-board/">Signal Board</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/signal-kitchen/">Signal Kitchen</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/snapshot-vault/">SnapShot Vault</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/solvespace/">SolveSpace</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/streamlit/">StreamLit</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/surfacelab/">SurfaceLab</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/swittchboard/">Switchboard</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/tagtrellis/">TagTrellis</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/tapforge/">TapForge</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/timeslice/">TimeSlice</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/ubr/">Ultimate Broker Route (UBR)</a>
+<a class="docBtnV2 btn buttonlike" href="../readme/wayfinder/">WayFinder</a>
 </div>
 </div>
 <div aria-label="Case report files" class="docsColV2" id="docs-case"><div class="docsColHead"><h3 class="docsColTitle">CASE STUDIES</h3><span class="docsBadge"><span class="docsDot"></span>9</span></div>
 <div class="docStackV2">
-<a class="docBtnV2 btn buttonlike" href="/case-reports/agents-platform-ecosystem/">Agents Platform &amp; Ecosystem</a>
-<a class="docBtnV2 btn buttonlike" href="/case-reports/alibi-logged-verified-architectural-case-study/">Alibi — Logged &amp; Verified: Architectural Case Study</a>
-<a class="docBtnV2 btn buttonlike" href="/case-reports/coverage-compass-comprehensive-architectural-case-study-and-technical-report/">Coverage Compass: Comprehensive Architectural Case Study and Technical Report</a>
-<a class="docBtnV2 btn buttonlike" href="/case-reports/helios-a-comprehensive-architectural-and-domain-analysis-of-a-react-based-heliophysics-visualization-platform/">HELIOS: A Comprehensive ARCHITECTURAL AND DOMAIN ANALYSIS OF A REACT-BASED HELIOPHYSICS VISUALIZATION PLATFORM</a>
-<a class="docBtnV2 btn buttonlike" href="/case-reports/orbital-dynamics-and-photometric-reduction-an-exhaustive-technical-analysis-of-the-transit-deep-space-application/">Orbital Dynamics and Photometric Reduction: An Exhaustive Technical Analysis of the 'Transit' Deep Space Application</a>
-<a class="docBtnV2 btn buttonlike" href="/case-reports/string-a-deep-dive-case-report/">String: A Deep-Dive Case Report</a>
-<a class="docBtnV2 btn buttonlike" href="/case-reports/tectonic-the-convergence-of-ai-accelerated-development-and-high-fidelity-geospatial-visualization/">TECTONIC: The Convergence of AI-Accelerated Development and High-Fidelity Geospatial Visualization</a>
-<a class="docBtnV2 btn buttonlike" href="/case-reports/the-aeon-compendium-a-multi-domain-technical-analysis-of-ai-augmented-security-real-estate-analytics-and-decentralized-settlement-protocols/">The Aeon Compendium: A Multi-Domain Technical Analysis of AI-Augmented Security, Real Estate Analytics, and Decentralized Settlement Protocols</a>
-<a class="docBtnV2 btn buttonlike" href="/case-reports/the-decentralized-sales-stack-a-technical-and-operational-audit-of-ultimate-broker-route-ubr/">The Decentralized Sales Stack: A Technical and Operational Audit of Ultimate Broker Route (UBR)</a>
+<a class="docBtnV2 btn buttonlike" href="../case-reports/agents-platform-ecosystem/">Agents Platform &amp; Ecosystem</a>
+<a class="docBtnV2 btn buttonlike" href="../case-reports/alibi-logged-verified-architectural-case-study/">Alibi — Logged &amp; Verified: Architectural Case Study</a>
+<a class="docBtnV2 btn buttonlike" href="../case-reports/coverage-compass-comprehensive-architectural-case-study-and-technical-report/">Coverage Compass: Comprehensive Architectural Case Study and Technical Report</a>
+<a class="docBtnV2 btn buttonlike" href="../case-reports/helios-a-comprehensive-architectural-and-domain-analysis-of-a-react-based-heliophysics-visualization-platform/">HELIOS: A Comprehensive ARCHITECTURAL AND DOMAIN ANALYSIS OF A REACT-BASED HELIOPHYSICS VISUALIZATION PLATFORM</a>
+<a class="docBtnV2 btn buttonlike" href="../case-reports/orbital-dynamics-and-photometric-reduction-an-exhaustive-technical-analysis-of-the-transit-deep-space-application/">Orbital Dynamics and Photometric Reduction: An Exhaustive Technical Analysis of the 'Transit' Deep Space Application</a>
+<a class="docBtnV2 btn buttonlike" href="../case-reports/string-a-deep-dive-case-report/">String: A Deep-Dive Case Report</a>
+<a class="docBtnV2 btn buttonlike" href="../case-reports/tectonic-the-convergence-of-ai-accelerated-development-and-high-fidelity-geospatial-visualization/">TECTONIC: The Convergence of AI-Accelerated Development and High-Fidelity Geospatial Visualization</a>
+<a class="docBtnV2 btn buttonlike" href="../case-reports/the-aeon-compendium-a-multi-domain-technical-analysis-of-ai-augmented-security-real-estate-analytics-and-decentralized-settlement-protocols/">The Aeon Compendium: A Multi-Domain Technical Analysis of AI-Augmented Security, Real Estate Analytics, and Decentralized Settlement Protocols</a>
+<a class="docBtnV2 btn buttonlike" href="../case-reports/the-decentralized-sales-stack-a-technical-and-operational-audit-of-ultimate-broker-route-ubr/">The Decentralized Sales Stack: A Technical and Operational Audit of Ultimate Broker Route (UBR)</a>
 </div>
 </div>
 </div>
 </section>
 <style>
+    .docsQuickBar{
+      max-width:1100px;
+      margin:14px auto 0;
+      padding:0 14px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    .docsQuickJump{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .docsQuickSearch{
+      width:100%;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:12px;
+      background:rgba(8,10,18,.78);
+      color:rgba(255,255,255,.92);
+      font-size:14px;
+      padding:10px 12px;
+    }
+    .docsQuickSearch::placeholder{color:rgba(255,255,255,.58);}
     .docsGridV2{max-width:1100px;margin:14px auto 0;padding:0 14px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;}
     .docsColV2{grid-column: span 12;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px;}
     @media(min-width:900px){.docsColV2{grid-column: span 6;}}
@@ -466,21 +608,38 @@ html{scroll-behavior:smooth}
     .docBtnV2:active{transform: translateY(1px);}
   </style>
 </main>
-<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+<script defer="defer" src="../shared/nexus-topnav-v2.js?v=54"></script>
 <script>
     (function(){
-      const els = Array.from(document.querySelectorAll('.reveal'));
-      els.forEach((el,i) => el.style.setProperty('--reveal-delay', `${Math.min(i*120, 420)}ms`));
-      if (!('IntersectionObserver' in window)) {
-        els.forEach(el => el.classList.add('on'));
-        return;
+      const grid = document.querySelector('.docsGridV2');
+      const caseCol = document.getElementById('docs-case');
+      if (grid && caseCol) grid.prepend(caseCol);
+
+      const helpStack = document.querySelector('#docs-help .docStackV2');
+      const readmeStack = document.querySelector('#docs-readmes .docStackV2');
+      const search = document.getElementById('docsQuickSearch');
+
+      function sortStack(stack){
+        if (!stack) return;
+        const items = Array.from(stack.querySelectorAll('a.docBtnV2'));
+        items.sort((a,b)=>a.textContent.trim().localeCompare(b.textContent.trim(), undefined, { sensitivity:'base' }));
+        items.forEach((el)=>stack.appendChild(el));
       }
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) e.target.classList.add('on');
+
+      function filterStacks(query){
+        const q = query.trim().toLowerCase();
+        [helpStack, readmeStack].forEach((stack)=>{
+          if (!stack) return;
+          Array.from(stack.querySelectorAll('a.docBtnV2')).forEach((a)=>{
+            const hit = !q || a.textContent.toLowerCase().includes(q);
+            a.style.display = hit ? '' : 'none';
+          });
         });
-      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
-      els.forEach(el => io.observe(el));
+      }
+
+      sortStack(helpStack);
+      sortStack(readmeStack);
+      if (search) search.addEventListener('input', (e)=>filterStacks(e.target.value));
     })();
   </script>
 <script>
@@ -488,6 +647,7 @@ html{scroll-behavior:smooth}
       const bg = document.querySelector('.heroBg');
       const img = bg && bg.querySelector('img');
       if (!bg || !img) return;
+      bg.classList.add('heroFade');
       const done = () => bg.classList.add('isLoaded');
       if (img.complete) { done(); }
       else {
