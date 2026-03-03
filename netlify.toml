@@ -5,3 +5,4 @@
 [build.environment]
   NODE_VERSION = "20"
   FRAMEWORK = "fastapi"
+  PYTHON_VERSION = "3.12.3"
