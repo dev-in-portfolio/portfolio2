@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>NEXUS — Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Manrope:wght@500;700;800&family=Outfit:wght@600;700;800&family=Source+Serif+4:wght@700&display=swap" rel="stylesheet">
   <style>
     :root{
       --bg0:#070914;
@@ -15,187 +18,729 @@
       --ring2:rgba(255,255,255,.09);
       --card:rgba(255,255,255,.06);
       --card2:rgba(255,255,255,.03);
+      --font-ui:"Manrope", "Segoe UI", Roboto, Arial, sans-serif;
+      --font-hero:"Cinzel", "Times New Roman", serif;
+      --font-origin:"Source Serif 4", "Times New Roman", serif;
+      --font-node:"Outfit", "Segoe UI", Roboto, Arial, sans-serif;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       min-height:100vh;
       color:var(--ink);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-family: var(--font-ui);
       background:
-        radial-gradient(1200px 700px at 20% 20%, rgba(120,180,255,.18), transparent 60%),
-        radial-gradient(900px 600px at 70% 65%, rgba(120,255,210,.10), transparent 55%),
-        radial-gradient(700px 600px at 50% 40%, rgba(255,120,220,.08), transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
+        radial-gradient(1200px 620px at 50% -18%, rgba(116,181,255,.20), transparent 64%),
+        radial-gradient(1200px 740px at 50% 128%, rgba(34,74,148,.24), transparent 68%),
+        linear-gradient(180deg, #02040a 0%, #010206 58%, #000000 100%);
       overflow:hidden;
     }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-3;
+      pointer-events:none;
+      background:
+        linear-gradient(120deg, rgba(94,162,255,.18) 0%, rgba(94,162,255,0) 60%),
+        linear-gradient(300deg, rgba(122,164,255,.10) 0%, rgba(122,164,255,0) 50%);
+      opacity:.78;
+    }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      pointer-events:none;
+      background:
+        radial-gradient(1800px 1200px at 50% 42%, transparent 42%, rgba(0,0,0,.78) 100%),
+        linear-gradient(180deg, rgba(0,0,0,.14), rgba(0,0,0,.60));
+    }
     .wrap{ position:relative; width:100%; height:100vh; }
+    .nebula{
+      position:absolute;
+      inset:-12% -8%;
+      z-index:0;
+      pointer-events:none;
+      background:
+        radial-gradient(780px 460px at 10% 20%, rgba(66,121,255,.32), transparent 68%),
+        radial-gradient(760px 380px at 86% 18%, rgba(61,126,255,.24), transparent 70%),
+        radial-gradient(820px 500px at 50% 72%, rgba(35,76,164,.28), transparent 74%),
+        radial-gradient(980px 620px at 60% 92%, rgba(74,117,230,.20), transparent 76%);
+      filter: blur(16px) saturate(1.1) contrast(1.12);
+      animation: nebulaDrift 28s ease-in-out infinite alternate;
+      opacity:.82;
+    }
+    .horizon{
+      position:absolute;
+      left:-12%;
+      right:-12%;
+      bottom:-42%;
+      height:76%;
+      z-index:0;
+      pointer-events:none;
+      border-radius:50%;
+      background:
+        radial-gradient(ellipse at 50% 38%, rgba(102,166,255,.48), rgba(72,113,206,.16) 42%, rgba(0,0,0,0) 72%),
+        radial-gradient(ellipse at 50% 58%, rgba(118,156,255,.14), rgba(0,0,0,0) 74%);
+      filter: blur(6px);
+      opacity:.84;
+    }
+    .coreGlow{
+      position:absolute;
+      left:50%;
+      top:34%;
+      width:min(520px, 76vw);
+      height:min(520px, 76vw);
+      transform:translate(-50%, -50%);
+      z-index:1;
+      pointer-events:none;
+      border-radius:50%;
+      background:
+        radial-gradient(circle at 50% 46%, rgba(193,228,255,.58), rgba(150,205,255,.28) 26%, rgba(84,136,255,.14) 44%, rgba(0,0,0,0) 74%);
+      filter: blur(12px);
+      animation: corePulse 8s ease-in-out infinite;
+    }
+    .aurora{
+      position:absolute;
+      inset:-10% -8% auto -8%;
+      height:55%;
+      z-index:1;
+      pointer-events:none;
+      background:
+        conic-gradient(from 210deg at 50% 30%, rgba(93,170,255,.24), rgba(99,145,255,.16), rgba(72,110,221,.20), rgba(93,170,255,.24));
+      filter: blur(48px) saturate(1.08);
+      opacity:.62;
+      animation: auroraSweep 26s linear infinite;
+      transform-origin:50% 30%;
+    }
+    .stars{
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background-repeat:repeat;
+    }
+    .stars.a{
+      background-image:
+        radial-gradient(1px 1px, rgba(255,255,255,.95) 100%, transparent 0),
+        radial-gradient(1px 1px, rgba(173,216,255,.76) 100%, transparent 0),
+        radial-gradient(1px 1px, rgba(145,179,255,.54) 100%, transparent 0);
+      background-size: 160px 160px, 230px 230px, 320px 320px;
+      background-position: 12px 20px, 120px 160px, 70px 90px;
+      opacity:.84;
+      animation: starsDriftA 42s linear infinite;
+    }
+    .stars.b{
+      background-image:
+        radial-gradient(2px 2px, rgba(255,255,255,.98) 100%, transparent 0),
+        radial-gradient(2px 2px, rgba(176,206,255,.78) 100%, transparent 0);
+      background-size: 360px 360px, 520px 520px;
+      background-position: 200px 140px, 30px 280px;
+      opacity:.48;
+      animation: starsDriftB 64s linear infinite reverse;
+      filter: drop-shadow(0 0 8px rgba(138,193,255,.34));
+    }
+    .comets{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      overflow:hidden;
+      opacity:.84;
+    }
+    .comet{
+      content:"";
+      position:absolute;
+      width:2px;
+      height:190px;
+      background: linear-gradient(0deg, rgba(255,255,255,.95), rgba(170,220,255,.3), rgba(0,0,0,0));
+      transform: rotate(var(--comet-angle, -28deg));
+      filter: blur(.2px) drop-shadow(0 0 8px rgba(151,220,255,.7));
+      opacity:0;
+      will-change: transform, opacity;
+    }
+    .twinkles{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .twinkle{
+      position:absolute;
+      width:2px;
+      height:2px;
+      border-radius:999px;
+      background: rgba(255,255,255,.95);
+      box-shadow: 0 0 10px rgba(164,214,255,.7);
+      opacity:0;
+      animation: twinklePulse var(--twk-dur, 3.8s) ease-in-out infinite;
+      animation-delay: var(--twk-delay, 0s);
+    }
     .topbar{
       position:absolute; left:18px; right:18px; top:18px;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
-      z-index:5; padding:10px 12px;
-      background:linear-gradient(180deg, var(--card), var(--card2));
-      border:1px solid var(--ring2);
+      z-index:5; padding:12px 14px;
+      background:
+        linear-gradient(180deg, rgba(8,18,40,.95), rgba(4,10,24,.92)),
+        linear-gradient(90deg, rgba(114,175,255,.22), rgba(0,0,0,0) 58%);
+      border:1px solid rgba(184,218,255,.42);
       border-radius:16px;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(14px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.07) inset,
+        0 18px 48px rgba(0,0,0,.52),
+        0 0 34px rgba(92,154,255,.18);
     }
-    .brand{ display:flex; flex-direction:column; gap:2px; line-height:1.1; }
-    .brand b{ letter-spacing:.12em; font-size:12px; opacity:.9; }
-    .brand span{ font-size:13px; color:var(--muted); }
-    .hint{ font-size:12px; color:var(--muted); opacity:.85; white-space:nowrap; }
+    .brand{
+      display:flex;
+      align-items:center;
+      line-height:1;
+      padding:2px 10px 2px 2px;
+      border-right:1px solid rgba(175,214,255,.26);
+      min-height:38px;
+    }
+    .brand span{
+      font-family: var(--font-hero);
+      font-size:clamp(20px, 3.1vw, 32px);
+      color:rgba(246,251,255,.98);
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      text-shadow: 0 2px 16px rgba(93,157,255,.34);
+    }
+    .hint{
+      font-family: var(--font-ui);
+      font-size:12px;
+      color:rgba(235,246,255,.95);
+      letter-spacing:.11em;
+      text-transform:uppercase;
+      white-space:nowrap;
+      padding:8px 10px;
+      border:1px solid rgba(176,210,255,.42);
+      border-radius:999px;
+      background:rgba(7,17,38,.78);
+      font-weight:700;
+      text-shadow: 0 1px 0 rgba(0,0,0,.5);
+    }
+    .origin{
+      position:absolute;
+      left:50%;
+      top:96px;
+      transform:translateX(-50%);
+      z-index:4;
+      width:min(920px, calc(100% - 36px));
+      padding:18px 18px 16px;
+      border-radius:18px;
+      border:1px solid rgba(176,211,255,.32);
+      background:
+        linear-gradient(180deg, rgba(8,19,42,.9), rgba(5,12,28,.84)),
+        linear-gradient(120deg, rgba(124,168,255,.15), rgba(0,0,0,0) 58%);
+      backdrop-filter: blur(14px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.05) inset,
+        0 18px 48px rgba(0,0,0,.46);
+    }
+    .originHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .originTag{
+      font-family: var(--font-ui);
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(233,245,255,.98);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(168,206,255,.32);
+      background:rgba(8,20,44,.8);
+      font-weight:780;
+    }
+    .originRail{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .originChip{
+      font-family: var(--font-ui);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(228,240,255,.94);
+      padding:5px 9px;
+      border:1px solid rgba(176,211,255,.24);
+      border-radius:999px;
+      background:rgba(7,18,40,.72);
+      font-weight:700;
+    }
+    .origin b{
+      display:block;
+      font-family: var(--font-origin);
+      font-size:30px;
+      letter-spacing:.015em;
+      margin-bottom:8px;
+      color:rgba(246,251,255,1);
+      text-shadow: 0 4px 18px rgba(109,170,255,.2);
+      font-style: normal;
+      font-weight:700;
+    }
+    .origin p{
+      margin:0;
+      font-family: var(--font-ui);
+      font-size:18px;
+      line-height:1.68;
+      color:rgba(235,243,255,.96);
+      max-width:96ch;
+      text-shadow: 0 1px 0 rgba(0,0,0,.42);
+    }
 
     .sky{
-      position:absolute; inset:0; pointer-events:none; opacity:.55;
+      position:absolute; inset:0; pointer-events:none; opacity:.70;
+      z-index:1;
       background-image:
-        radial-gradient(2px 2px at 12% 22%, rgba(255,255,255,.8), transparent 60%),
-        radial-gradient(1px 1px at 35% 28%, rgba(255,255,255,.7), transparent 60%),
-        radial-gradient(2px 2px at 70% 30%, rgba(255,255,255,.75), transparent 60%),
-        radial-gradient(1px 1px at 82% 55%, rgba(255,255,255,.65), transparent 60%),
-        radial-gradient(2px 2px at 55% 70%, rgba(255,255,255,.7), transparent 60%),
-        radial-gradient(1px 1px at 18% 68%, rgba(255,255,255,.65), transparent 60%);
-      filter: drop-shadow(0 0 10px rgba(160,200,255,.2));
+        radial-gradient(700px 300px at 50% 1%, rgba(154,206,255,.30), transparent 74%),
+        radial-gradient(500px 220px at 20% 18%, rgba(120,168,255,.18), transparent 74%),
+        radial-gradient(540px 220px at 82% 20%, rgba(112,158,255,.14), transparent 74%);
+      animation: skyFloat 17s ease-in-out infinite alternate;
+    }
+    .sky::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(700px 320px at 50% 0%, rgba(147,206,255,.24), transparent 72%),
+        radial-gradient(640px 260px at 20% 20%, rgba(126,183,255,.14), transparent 72%),
+        radial-gradient(640px 260px at 80% 18%, rgba(116,164,255,.14), transparent 72%);
+      opacity:.92;
+    }
+    .sky::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0) 20%, rgba(255,255,255,.01) 70%, rgba(255,255,255,0));
+      mix-blend-mode:screen;
     }
 
-    svg#lines{
-      position:absolute; inset:0; width:100%; height:100%;
-      z-index:1; pointer-events:none; opacity:.7;
-    }
 
     .node{
       position:absolute; z-index:3;
       transform: translate(-50%, -50%);
       text-decoration:none; color:var(--ink);
-      padding:12px 14px;
-      border-radius:18px;
-      border:1px solid var(--ring);
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
-      backdrop-filter: blur(10px);
+      border-radius:999px;
+      border:2px solid color-mix(in srgb, var(--accent, #8dc7ff) 72%, white 14%);
+      background:
+        linear-gradient(180deg, rgba(8,18,40,.94), rgba(3,8,22,.94));
       box-shadow:
-        0 0 0 1px rgba(255,255,255,.04) inset,
-        0 12px 40px rgba(0,0,0,.35);
+        0 0 0 1px rgba(255,255,255,.06) inset,
+        0 12px 30px rgba(0,0,0,.56),
+        0 0 24px color-mix(in srgb, var(--accent, #8dc7ff) 22%, transparent);
       display:flex; align-items:center; gap:10px;
-      min-width:160px; max-width:220px;
+      min-width:190px; max-width:248px;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
+      transition: left .24s ease, top .24s ease;
+      isolation:isolate;
+      overflow:hidden;
     }
-    .dot{
-      width:12px; height:12px; border-radius:999px;
-      background: rgba(200,230,255,.85);
-      box-shadow: 0 0 18px rgba(160,200,255,.55);
-      flex:0 0 auto;
+    .node::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(105deg, rgba(255,255,255,0) 40%, color-mix(in srgb, var(--accent, #8dc7ff) 60%, white 10%) 50%, rgba(255,255,255,0) 60%);
+      transform:translateX(-120%);
+      opacity:.35;
+      pointer-events:none;
+    }
+    .node::after{
+      content:"";
+      position:absolute;
+      left:18px;
+      right:18px;
+      bottom:6px;
+      height:8px;
+      border-radius:999px;
+      background: color-mix(in srgb, var(--accent, #8dc7ff) 32%, transparent);
+      filter: blur(10px);
+      opacity:.75;
+      z-index:-1;
+    }
+    .nodeInner{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      padding:13px 18px 12px;
+      border-radius:999px;
+      border:1px solid rgba(156,198,255,.16);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.02));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
     }
     .label{ display:flex; flex-direction:column; gap:2px; line-height:1.1; }
-    .label b{ font-size:14px; letter-spacing:.06em; }
-    .label span{ font-size:12px; color:var(--muted); }
-    .node:active{ transform: translate(-50%, -50%) scale(.99); }
-    .node:hover{ border-color: rgba(190,220,255,.35); box-shadow: 0 0 35px rgba(160,200,255,.10); }
-
-    #n-apps{ left:50%; top:42%; }
-    #n-utils{ left:26%; top:56%; }
-    #n-caps{ left:74%; top:56%; }
-    #n-about{ left:38%; top:72%; }
-    #n-contact{ left:62%; top:72%; }
+    .label b{
+      font-family: var(--font-node);
+      font-size:17px;
+      letter-spacing:.14em;
+      color:rgba(242,249,255,.98);
+      text-shadow:0 1px 0 rgba(0,0,0,.5);
+      text-transform:uppercase;
+      font-weight:800;
+    }
+    .label span{ display:none; }
+    .node:active .nodeInner{ transform:scale(.98); }
+    .node:hover{
+      border-color: color-mix(in srgb, var(--accent, #8dc7ff) 90%, white 12%);
+      box-shadow: 0 0 56px color-mix(in srgb, var(--accent, #8dc7ff) 42%, transparent), 0 14px 36px rgba(0,0,0,.56);
+    }
+    .node:hover::before{
+      animation: nodeSweep .85s ease-out 1;
+    }
+    .node:hover .nodeInner{
+      border-color: color-mix(in srgb, var(--accent, #8dc7ff) 70%, white 10%);
+      background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.03));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 0 20px color-mix(in srgb, var(--accent, #8dc7ff) 24%, transparent);
+      transform: translateY(-2px) scale(1.01);
+    }
+    #n-apps{ --accent:#2dd4ff; }     /* cyan */
+    #n-utils{ --accent:#39e58c; }    /* green */
+    #n-caps{ --accent:#a78bfa; }     /* violet */
+    #n-about{ --accent:#ff6bb3; }    /* magenta */
+    #n-contact{ --accent:#ff9f43; }  /* orange */
 
     @media (max-width: 720px){
-      .node{ min-width:150px; }
-      #n-apps{ left:50%; top:34%; }
-      #n-utils{ left:25%; top:52%; }
-      #n-caps{ left:75%; top:52%; }
-      #n-about{ left:30%; top:70%; }
-      #n-contact{ left:70%; top:70%; }
+      .node{ min-width:170px; max-width:214px; }
+      .nodeInner{ padding:11px 14px; }
+      .label b{ font-size:14px; letter-spacing:.11em; }
       .hint{ display:none; }
+      .origin{
+        top:84px;
+        width:calc(100% - 24px);
+        padding:14px 12px;
+      }
+      .origin b{ font-size:24px; }
+      .origin p{ font-size:16px; }
+      .originTag,
+      .originChip{ font-size:11px; }
+      .brand{ min-height:34px; }
+      .brand span{ font-size:20px; letter-spacing:.10em; }
+      .hint{ font-size:11px; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .sky,
+      .nebula,
+      .stars.a,
+      .stars.b,
+      .aurora,
+      .coreGlow,
+      .twinkle{ animation:none !important; }
+    }
+    @keyframes nebulaDrift{
+      from{ transform:translate3d(-1.5%, -1.2%, 0) scale(1.02); }
+      to{ transform:translate3d(1.8%, 1.1%, 0) scale(1.05); }
+    }
+    @keyframes starsDriftA{
+      from{ transform:translateY(0); }
+      to{ transform:translateY(26px); }
+    }
+    @keyframes starsDriftB{
+      from{ transform:translateX(0); }
+      to{ transform:translateX(34px); }
+    }
+    @keyframes auroraSweep{
+      from{ transform:rotate(0deg) scale(1); opacity:.64; }
+      to{ transform:rotate(360deg) scale(1.08); opacity:.78; }
+    }
+    @keyframes corePulse{
+      0%, 100%{ transform:translate(-50%, -50%) scale(1); opacity:.88; }
+      50%{ transform:translate(-50%, -50%) scale(1.08); opacity:1; }
+    }
+    @keyframes cometFall{
+      0%{ transform:translate3d(0,0,0) rotate(var(--comet-angle, -28deg)); opacity:0; }
+      10%{ opacity:.95; }
+      64%{ opacity:.52; }
+      100%{ transform:translate3d(var(--comet-x, 440px), var(--comet-y, 780px), 0) rotate(var(--comet-angle, -28deg)); opacity:0; }
+    }
+    @keyframes twinklePulse{
+      0%, 100%{ opacity:.06; transform:scale(.7); }
+      30%{ opacity:.94; transform:scale(1.6); }
+      55%{ opacity:.32; transform:scale(1); }
+      78%{ opacity:.72; transform:scale(1.3); }
+    }
+    @keyframes skyFloat{
+      from{ transform:translateY(-7px) scale(1.01); opacity:.66; }
+      to{ transform:translateY(7px) scale(1.03); opacity:.82; }
+    }
+    @keyframes nodeSweep{
+      from{ transform:translateX(-120%); opacity:.1; }
+      35%{ opacity:.5; }
+      to{ transform:translateX(120%); opacity:.08; }
     }
   </style>
 </head>
 
 <body>
   <div class="wrap" id="wrap">
+    <div class="nebula"></div>
+    <div class="horizon"></div>
+    <div class="coreGlow"></div>
+    <div class="aurora"></div>
+    <div class="stars a"></div>
+    <div class="stars b"></div>
+    <div class="comets"></div>
+    <div class="twinkles"></div>
     <div class="sky"></div>
 
     <div class="topbar">
       <div class="brand">
-        <b>NEXUS</b>
-        <span>Home — routing hub</span>
+        <span>NEXUS - HOME</span>
       </div>
       <div class="hint">Tap a node • Absolute links (no subpath traps)</div>
     </div>
-
-    <svg id="lines" viewBox="0 0 1000 1000" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="rgba(180,220,255,.55)"/>
-          <stop offset="100%" stop-color="rgba(180,255,220,.25)"/>
-        </linearGradient>
-      </defs>
-      <path id="p1" d="" stroke="url(#lg)" stroke-width="2" fill="none" opacity=".8"/>
-      <path id="p2" d="" stroke="url(#lg)" stroke-width="2" fill="none" opacity=".6"/>
-      <path id="p3" d="" stroke="url(#lg)" stroke-width="2" fill="none" opacity=".6"/>
-      <path id="p4" d="" stroke="url(#lg)" stroke-width="2" fill="none" opacity=".5"/>
-      <circle id="cglow" cx="500" cy="420" r="120" fill="rgba(160,200,255,.06)"/>
-    </svg>
+    <section class="origin" aria-label="Origin">
+      <div class="originHead">
+        <span class="originTag">Operator Storyline</span>
+        <div class="originRail">
+          <span class="originChip">Triage</span>
+          <span class="originChip">Sequencing</span>
+          <span class="originChip">Recovery</span>
+        </div>
+      </div>
+      <b>Origin Under Pressure</b>
+      <p>Fifteen years in high-throughput kitchens taught triage, sequencing, and recovery under load. The rule stayed the same in software: isolate failure fast, restore service, then harden the system.</p>
+    </section>
 
     <a class="node" id="n-apps" href="https://dev-in-portfolio-apps.netlify.app/" rel="noopener">
-      <span class="dot"></span>
-      <span class="label"><b>APPS</b><span>constellation of projects</span></span>
+      <span class="nodeInner">
+        <span class="label"><b>APPS</b></span>
+      </span>
     </a>
 
     <a class="node" id="n-utils" href="https://dev-in-portfolio-utilities.netlify.app/" rel="noopener">
-      <span class="dot"></span>
-      <span class="label"><b>UTILITIES</b><span>tools & helpers</span></span>
+      <span class="nodeInner">
+        <span class="label"><b>UTILITIES</b></span>
+      </span>
     </a>
 
     <a class="node" id="n-caps" href="https://dev-in-portfolio-capabilities.netlify.app/" rel="noopener">
-      <span class="dot"></span>
-      <span class="label"><b>CAPABILITIES</b><span>skills & proof</span></span>
+      <span class="nodeInner">
+        <span class="label"><b>CAPABILITIES</b></span>
+      </span>
     </a>
 
     <a class="node" id="n-about" href="https://dev-in-portfolio-about.netlify.app/" rel="noopener">
-      <span class="dot"></span>
-      <span class="label"><b>ABOUT</b><span>story & background</span></span>
+      <span class="nodeInner">
+        <span class="label"><b>ABOUT</b></span>
+      </span>
     </a>
 
     <a class="node" id="n-contact" href="https://dev-in-portfolio-contact.netlify.app/" rel="noopener">
-      <span class="dot"></span>
-      <span class="label"><b>CONTACT</b><span>reach me</span></span>
+      <span class="nodeInner">
+        <span class="label"><b>CONTACT</b></span>
+      </span>
     </a>
   </div>
 
   <script>
-    function centerOf(el){
-      const r = el.getBoundingClientRect();
-      const w = window.innerWidth, h = window.innerHeight;
-      const x = ((r.left + r.width/2) / w) * 1000;
-      const y = ((r.top + r.height/2) / h) * 1000;
-      return {x,y};
-    }
-    function curve(a,b, bend=0.18){
-      const dx = b.x - a.x, dy = b.y - a.y;
-      const cx1 = a.x + dx * 0.35 - dy * bend;
-      const cy1 = a.y + dy * 0.35 + dx * bend;
-      const cx2 = a.x + dx * 0.65 - dy * bend;
-      const cy2 = a.y + dy * 0.65 + dx * bend;
-      return `M ${a.x} ${a.y} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${b.x} ${b.y}`;
-    }
-    function draw(){
-      const apps = document.getElementById('n-apps');
-      const utils = document.getElementById('n-utils');
-      const caps = document.getElementById('n-caps');
-      const about = document.getElementById('n-about');
-      const contact = document.getElementById('n-contact');
+    (function(){
+      const wrap = document.getElementById('wrap');
+      const topbar = document.querySelector('.topbar');
+      const origin = document.querySelector('.origin');
+      const ids = ['n-apps', 'n-utils', 'n-caps', 'n-about', 'n-contact'];
+      const nodes = ids.map((id) => document.getElementById(id)).filter(Boolean);
+      if (!wrap || !topbar || !origin || nodes.length !== 5) return;
 
-      const A = centerOf(apps), U = centerOf(utils), C = centerOf(caps), B = centerOf(about), K = centerOf(contact);
+      function clamp(v, lo, hi) {
+        return Math.max(lo, Math.min(hi, v));
+      }
 
-      document.getElementById('p1').setAttribute('d', curve(A,U,0.22));
-      document.getElementById('p2').setAttribute('d', curve(A,C,0.22));
-      document.getElementById('p3').setAttribute('d', curve(A,B,0.10));
-      document.getElementById('p4').setAttribute('d', curve(A,K,0.10));
+      function layoutNodes() {
+        const wrapRect = wrap.getBoundingClientRect();
+        const topbarRect = topbar.getBoundingClientRect();
+        const originRect = origin.getBoundingClientRect();
+        const width = wrapRect.width;
+        const height = wrapRect.height;
 
-      document.getElementById('cglow').setAttribute('cx', A.x);
-      document.getElementById('cglow').setAttribute('cy', A.y);
-    }
-    window.addEventListener('resize', () => requestAnimationFrame(draw));
-    window.addEventListener('load', () => requestAnimationFrame(draw));
-    setTimeout(draw, 80);
+        const safeTop = Math.max(topbarRect.bottom, originRect.bottom) - wrapRect.top + 14;
+        const safeBottom = height - 30;
+        const available = Math.max(160, safeBottom - safeTop);
+
+        let targets;
+        if (width < 620) {
+          const yStart = safeTop + 20;
+          const step = clamp((available - 48) / 4, 54, 82);
+          targets = [
+            [0.5, (yStart + step * 0) / height],
+            [0.5, (yStart + step * 1) / height],
+            [0.5, (yStart + step * 2) / height],
+            [0.5, (yStart + step * 3) / height],
+            [0.5, (yStart + step * 4) / height]
+          ];
+        } else if (width < 980) {
+          const y1 = safeTop + available * 0.18;
+          const y2 = safeTop + available * 0.42;
+          const y3 = safeTop + available * 0.64;
+          targets = [
+            [0.5, y1 / height],
+            [0.28, y2 / height],
+            [0.72, y2 / height],
+            [0.28, y3 / height],
+            [0.72, y3 / height]
+          ];
+        } else {
+          const y1 = safeTop + available * 0.16;
+          const y2 = safeTop + available * 0.40;
+          const y3 = safeTop + available * 0.62;
+          targets = [
+            [0.5, y1 / height],
+            [0.26, y2 / height],
+            [0.74, y2 / height],
+            [0.38, y3 / height],
+            [0.62, y3 / height]
+          ];
+        }
+
+        nodes.forEach((node, i) => {
+          const rect = node.getBoundingClientRect();
+          const halfW = Math.max(74, rect.width / 2);
+          const halfH = Math.max(24, rect.height / 2);
+          const tx = targets[i][0] * width;
+          const ty = targets[i][1] * height;
+          const x = clamp(tx, halfW + 12, width - halfW - 12);
+          const y = clamp(ty, safeTop + halfH + 6, safeBottom - halfH - 2);
+          node.style.left = `${x}px`;
+          node.style.top = `${y}px`;
+        });
+      }
+
+      let raf = 0;
+      const onResize = () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(layoutNodes);
+      };
+
+      window.addEventListener('resize', onResize, { passive: true });
+      window.addEventListener('orientationchange', onResize, { passive: true });
+      window.addEventListener('load', onResize, { passive: true });
+
+      if ('ResizeObserver' in window) {
+        const ro = new ResizeObserver(onResize);
+        ro.observe(topbar);
+        ro.observe(origin);
+      }
+
+      layoutNodes();
+      setTimeout(layoutNodes, 90);
+    })();
+  </script>
+  <script>
+    (function(){
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const layers = [
+        { el: document.querySelector('.stars.a'), mx: 10, my: 8 },
+        { el: document.querySelector('.stars.b'), mx: 18, my: 14 },
+        { el: document.querySelector('.nebula'), mx: 22, my: 16 },
+        { el: document.querySelector('.aurora'), mx: 16, my: 12 },
+        { el: document.querySelector('.coreGlow'), mx: 14, my: 10 },
+        { el: document.querySelector('.sky'), mx: 12, my: 9 },
+        { el: document.querySelector('.horizon'), mx: 10, my: 6 }
+      ].filter((item) => item.el);
+
+      let tx = 0;
+      let ty = 0;
+      let cx = 0;
+      let cy = 0;
+      let raf = 0;
+
+      function render() {
+        cx += (tx - cx) * 0.08;
+        cy += (ty - cy) * 0.08;
+        layers.forEach(({ el, mx, my }) => {
+          const x = (cx / 100) * mx;
+          const y = (cy / 100) * my;
+          el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        });
+        raf = requestAnimationFrame(render);
+      }
+
+      window.addEventListener('pointermove', (e) => {
+        const w = window.innerWidth || 1;
+        const h = window.innerHeight || 1;
+        tx = ((e.clientX / w) - 0.5) * 2 * -1;
+        ty = ((e.clientY / h) - 0.5) * 2 * -1;
+      }, { passive: true });
+
+      window.addEventListener('pointerleave', () => {
+        tx = 0;
+        ty = 0;
+      });
+
+      raf = requestAnimationFrame(render);
+      window.addEventListener('beforeunload', () => cancelAnimationFrame(raf), { once: true });
+    })();
+  </script>
+  <script>
+    (function(){
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const cometsHost = document.querySelector('.comets');
+      const twinklesHost = document.querySelector('.twinkles');
+      if (!cometsHost || !twinklesHost) return;
+
+      function spawnComet() {
+        const comet = document.createElement('span');
+        comet.className = 'comet';
+
+        const startX = Math.random() * 85;
+        const startY = -16 - (Math.random() * 12);
+        const angle = -(22 + Math.random() * 16);
+        const dx = 300 + Math.random() * 260;
+        const dy = 600 + Math.random() * 260;
+        const dur = 1.7 + Math.random() * 1.9;
+
+        comet.style.left = `${startX}%`;
+        comet.style.top = `${startY}%`;
+        comet.style.setProperty('--comet-angle', `${angle}deg`);
+        comet.style.setProperty('--comet-x', `${dx}px`);
+        comet.style.setProperty('--comet-y', `${dy}px`);
+        comet.style.animation = `cometFall ${dur}s ease-out forwards`;
+
+        cometsHost.appendChild(comet);
+        setTimeout(() => comet.remove(), Math.ceil(dur * 1000) + 120);
+      }
+
+      function scheduleComet() {
+        const next = 1600 + Math.random() * 5200;
+        setTimeout(() => {
+          spawnComet();
+          scheduleComet();
+        }, next);
+      }
+
+      const twinkleCount = 26;
+      for (let i = 0; i < twinkleCount; i += 1) {
+        const s = document.createElement('span');
+        s.className = 'twinkle';
+        s.style.left = `${4 + Math.random() * 92}%`;
+        s.style.top = `${4 + Math.random() * 78}%`;
+        s.style.width = `${1 + Math.random() * 2.2}px`;
+        s.style.height = s.style.width;
+        s.style.setProperty('--twk-dur', `${2.2 + Math.random() * 4.6}s`);
+        s.style.setProperty('--twk-delay', `${Math.random() * 4.5}s`);
+        twinklesHost.appendChild(s);
+      }
+
+      scheduleComet();
+    })();
   </script>
 </body>
 </html>
