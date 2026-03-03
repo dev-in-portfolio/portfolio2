@@ -1,10 +1,8 @@
 [build]
-  command = "npm run build"
-  publish = ".next"
+  command = ""
+  publish = "public"
 
 [build.environment]
   NODE_VERSION = "20"
   FRAMEWORK = "nextjs"
   BACKEND = "supabase"
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
