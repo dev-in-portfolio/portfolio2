@@ -126,14 +126,73 @@
       border-radius:999px;
     }
     .scoreHint{ color:var(--muted); font-size:12.8px; line-height:1.5; max-width:78ch; }
+    .scoreControls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      margin-top:8px;
+    }
+    .scoreLens{
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
+      color:var(--muted);
+      border-radius:999px;
+      padding:6px 10px;
+      font-family:var(--mono);
+      font-size:11px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      cursor:pointer;
+    }
+    .scoreLens.on{
+      border-color: rgba(57,255,20,.5);
+      color: var(--text);
+      box-shadow: var(--glow);
+    }
+    .scoreMeta{
+      margin-left:auto;
+      font-size:12px;
+      color:var(--muted);
+      font-family:var(--mono);
+    }
+    .scoreMini{ display:grid; gap:8px; padding:0 16px 12px; }
+    .miniRow{ display:grid; grid-template-columns: 140px 1fr; gap:10px; align-items:center; font-size:12px; color:var(--muted); }
+    .miniTrack{ height:8px; border-radius:999px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.08); overflow:hidden; }
+    .miniFill{ height:100%; width:0%; background:linear-gradient(90deg, rgba(57,255,20,.9), rgba(100,180,255,.55)); }
+    .scopeDetails{ margin:4px 16px 14px; border:1px solid rgba(255,255,255,.09); border-radius:12px; background:rgba(0,0,0,.16); padding:10px 12px; color:var(--muted); font-size:12.5px; }
+    .scopeStats{ margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; }
+    .scopePill{ padding:5px 10px; border:1px solid rgba(255,255,255,.10); border-radius:999px; background:rgba(0,0,0,.18); font-family:var(--mono); font-size:11px; color:#CFE3FF; }
+    .mobileQuick{ display:none; }
     .bars{
       padding:12px 16px 14px;
       display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap:12px;
     }
     @media (max-width: 860px){
       .bars{ grid-template-columns: 1fr; }
+      .scoreMeta{ width:100%; margin-left:0; }
+      .toolbar{
+        position:sticky;
+        top:62px;
+        z-index:25;
+        background: rgba(7,10,16,.84);
+        border:1px solid rgba(255,255,255,.08);
+        border-radius:14px;
+        padding:8px;
+      }
+      .mobileQuick{ display:flex; gap:8px; width:100%; }
+      .mobileQuick a{
+        text-decoration:none;
+        border:1px solid rgba(255,255,255,.12);
+        border-radius:999px;
+        padding:6px 10px;
+        font-family:var(--mono);
+        font-size:11px;
+        color:var(--muted);
+        background:rgba(0,0,0,.2);
+      }
     }
     .bar{
       border:1px solid rgba(255,255,255,.06);
@@ -193,6 +252,7 @@
       display:flex; align-items:center; justify-content:space-between;
       gap:12px; padding:16px;
       cursor:pointer; user-select:none;
+      border-left:3px solid var(--cat-color, transparent);
     }
     .secTitle{ margin:0; font-weight:900; letter-spacing:-.01em; font-size:15px; color:#DDE5FB; }
     .secMeta{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:12.5px; }
@@ -344,6 +404,9 @@
     }
     .proofBody{ padding:10px 12px 12px; }
     .proofLinks{ display:flex; gap:8px; flex-wrap:wrap; }
+    .proofActions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .proofBtn{ border:1px solid var(--stroke); background:rgba(0,0,0,.2); color:var(--text); border-radius:10px; padding:8px 10px; font-family:var(--mono); font-size:11px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; }
+    .proofBtn:hover{ border-color: rgba(57,255,20,.45); box-shadow: var(--glow); }
     .proofLink{
       border:1px solid rgba(57,255,20,.28);
       background: rgba(57,255,20,.08);
@@ -537,17 +600,33 @@
             Auto Scoreboard
           </div>
         </div>
+        <div class="mobileQuick">
+          <a href="#q">Search</a>
+          <a href="#score">Lens</a>
+          <a href="#sections">Category</a>
+        </div>
       </div>
     </div>
 
     <section class="score" id="score">
       <div class="scoreTop">
-        <div class="scoreTitle">
-          Fit Scoreboard
-          <span class="pill" id="scorePill">LENS: PM</span>
+        <div>
+          <div class="scoreTitle">
+            Fit Scoreboard
+            <span class="pill" id="scorePill">LENS: PM</span>
+          </div>
+          <div class="scoreControls">
+            <button class="scoreLens on" id="lensPm" type="button">PM</button>
+            <button class="scoreLens" id="lensEval" type="button">Eval</button>
+            <button class="scoreLens" id="lensOps" type="button">Ops</button>
+            <button class="scoreLens" id="lensArch" type="button">Arch</button>
+            <button class="scoreLens" id="lensUx" type="button">UX</button>
+            <button class="scoreLens" id="lensReliability" type="button">Reliability</button>
+            <div class="scoreMeta">Apps referenced: <span id="scoreAppCount">0</span></div>
+          </div>
         </div>
         <div class="scoreHint" id="scoreHint">
-          This is a *signal panel*, not a rating system. It shifts based on the active lens you’re reading inside role cards.
+          This panel summarizes portfolio fit signals across PM, EVAL, OPS, ARCH, UX, and RELIABILITY lenses. It is directional guidance, not a ranking model.
         </div>
       </div>
       <div class="bars">
@@ -566,7 +645,21 @@
           <div class="meter"><div class="fill" id="fTrust" style="width:55%"></div></div>
           <div class="note" id="nTrust">Clarity, control, recovery patterns, non-annoying explainability.</div>
         </div>
+        <div class="bar" id="bCoverage">
+          <h3>Evidence Coverage</h3>
+          <div class="meter"><div class="fill" id="fCoverage" style="width:60%"></div></div>
+          <div class="note" id="nCoverage">Breadth of unique app proofs referenced in current scope.</div>
+        </div>
       </div>
+      <div class="scoreMini" id="scoreMini"></div>
+      <details class="scopeDetails" id="scopeDetails">
+        <summary>Proof Scope</summary>
+        <div class="scopeStats">
+          <span class="scopePill">Apps: <b id="scopeApps">0</b></span>
+          <span class="scopePill">Framework Families: <b id="scopeFrameworks">0</b></span>
+          <span class="scopePill">Live Links: <b id="scopeLive">0</b></span>
+        </div>
+      </details>
     </section>
 
     <div class="grid" id="sections"></div>
@@ -581,9 +674,13 @@
         </div>
         <button class="closeBtn" id="close" aria-label="Close">✕</button>
       </div>
-<div class="block">
+      <div class="block">
         <h4>Role summary</h4>
         <div class="muted" id="dSummary"></div>
+        <div class="proofActions">
+          <button class="proofBtn" id="dCopyBlurb" type="button">Copy role blurb</button>
+          <button class="proofBtn" id="dCopyBullets" type="button">Copy evidence bullets</button>
+        </div>
       </div>
 
       <div class="block">
@@ -8806,7 +8903,2910 @@ const ROLES = [
   }
 ];
 
-const state = { cat:"all", q:"", compact:false, autoScore:true, scoreboardLens:"pm" };
+const CAPABILITY_EXPANSION_ROLES = [
+  {
+    "id": "framework-portability-migration",
+    "category": "arch",
+    "title": "Framework Portability & Migration",
+    "oneLiner": "Capability pillar proven across the expanded portfolio app set.",
+    "tags": [
+      "Capability",
+      "Portfolio",
+      "Delivery",
+      "Systems",
+      "Evidence"
+    ],
+    "focus": "Converts repeated project patterns into a reusable capability track with clear evidence.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Capability line item backed by cross-project delivery and verification evidence.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "deployment-rescue-runtime-recovery-netlify-focused",
+    "category": "ops",
+    "title": "Deployment Rescue & Runtime Recovery (Netlify-focused)",
+    "oneLiner": "Capability pillar proven across the expanded portfolio app set.",
+    "tags": [
+      "Capability",
+      "Portfolio",
+      "Delivery",
+      "Systems",
+      "Evidence"
+    ],
+    "focus": "Converts repeated project patterns into a reusable capability track with clear evidence.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Capability line item backed by cross-project delivery and verification evidence.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "cross-stack-api-wiring-data-integration",
+    "category": "arch",
+    "title": "Cross-Stack API Wiring & Data Integration",
+    "oneLiner": "Capability pillar proven across the expanded portfolio app set.",
+    "tags": [
+      "Capability",
+      "Portfolio",
+      "Delivery",
+      "Systems",
+      "Evidence"
+    ],
+    "focus": "Converts repeated project patterns into a reusable capability track with clear evidence.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Capability line item backed by cross-project delivery and verification evidence.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "static-to-interactive-product-packaging",
+    "category": "product",
+    "title": "Static-to-Interactive Product Packaging",
+    "oneLiner": "Capability pillar proven across the expanded portfolio app set.",
+    "tags": [
+      "Capability",
+      "Portfolio",
+      "Delivery",
+      "Systems",
+      "Evidence"
+    ],
+    "focus": "Converts repeated project patterns into a reusable capability track with clear evidence.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Capability line item backed by cross-project delivery and verification evidence.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "release-engineering-for-branch-based-product-lines",
+    "category": "ops",
+    "title": "Release Engineering for Branch-Based Product Lines",
+    "oneLiner": "Capability pillar proven across the expanded portfolio app set.",
+    "tags": [
+      "Capability",
+      "Portfolio",
+      "Delivery",
+      "Systems",
+      "Evidence"
+    ],
+    "focus": "Converts repeated project patterns into a reusable capability track with clear evidence.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Capability line item backed by cross-project delivery and verification evidence.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "taxonomy-design-portfolio-information-architecture",
+    "category": "ux",
+    "title": "Taxonomy Design & Portfolio Information Architecture",
+    "oneLiner": "Capability pillar proven across the expanded portfolio app set.",
+    "tags": [
+      "Capability",
+      "Portfolio",
+      "Delivery",
+      "Systems",
+      "Evidence"
+    ],
+    "focus": "Converts repeated project patterns into a reusable capability track with clear evidence.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Capability line item backed by cross-project delivery and verification evidence.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "ai-llm-workflow-qa-and-safety-guardrails",
+    "category": "eval",
+    "title": "AI/LLM Workflow QA and Safety Guardrails",
+    "oneLiner": "Capability pillar proven across the expanded portfolio app set.",
+    "tags": [
+      "Capability",
+      "Portfolio",
+      "Delivery",
+      "Systems",
+      "Evidence"
+    ],
+    "focus": "Converts repeated project patterns into a reusable capability track with clear evidence.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Capability line item backed by cross-project delivery and verification evidence.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "multi-app-ux-systems-and-navigation-consistency",
+    "category": "ux",
+    "title": "Multi-App UX Systems and Navigation Consistency",
+    "oneLiner": "Capability pillar proven across the expanded portfolio app set.",
+    "tags": [
+      "Capability",
+      "Portfolio",
+      "Delivery",
+      "Systems",
+      "Evidence"
+    ],
+    "focus": "Converts repeated project patterns into a reusable capability track with clear evidence.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Capability line item backed by cross-project delivery and verification evidence.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  }
+];
+const JOB_TARGET_ROLES = [
+  {
+    "id": "staff-ai-product-engineer-applied",
+    "category": "product",
+    "title": "Staff AI Product Engineer (Applied)",
+    "oneLiner": "Target role aligned to demonstrated portfolio capabilities and delivery patterns.",
+    "tags": [
+      "Job Target",
+      "Hiring",
+      "Applied",
+      "Systems",
+      "Delivery"
+    ],
+    "focus": "Maps portfolio evidence to a concrete hiring target with practical outcomes.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Hiring target mapped to demonstrated capabilities, delivery behavior, and evidence quality.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "ai-platform-pm-technical-product-manager",
+    "category": "product",
+    "title": "AI Platform PM / Technical Product Manager",
+    "oneLiner": "Target role aligned to demonstrated portfolio capabilities and delivery patterns.",
+    "tags": [
+      "Job Target",
+      "Hiring",
+      "Applied",
+      "Systems",
+      "Delivery"
+    ],
+    "focus": "Maps portfolio evidence to a concrete hiring target with practical outcomes.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Hiring target mapped to demonstrated capabilities, delivery behavior, and evidence quality.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "solutions-architect-ai-web-platforms",
+    "category": "arch",
+    "title": "Solutions Architect (AI + Web Platforms)",
+    "oneLiner": "Target role aligned to demonstrated portfolio capabilities and delivery patterns.",
+    "tags": [
+      "Job Target",
+      "Hiring",
+      "Applied",
+      "Systems",
+      "Delivery"
+    ],
+    "focus": "Maps portfolio evidence to a concrete hiring target with practical outcomes.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Hiring target mapped to demonstrated capabilities, delivery behavior, and evidence quality.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "developer-experience-engineer",
+    "category": "ops",
+    "title": "Developer Experience Engineer",
+    "oneLiner": "Target role aligned to demonstrated portfolio capabilities and delivery patterns.",
+    "tags": [
+      "Job Target",
+      "Hiring",
+      "Applied",
+      "Systems",
+      "Delivery"
+    ],
+    "focus": "Maps portfolio evidence to a concrete hiring target with practical outcomes.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Hiring target mapped to demonstrated capabilities, delivery behavior, and evidence quality.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "release-build-engineer-web-edge-functions",
+    "category": "ops",
+    "title": "Release/Build Engineer (Web + Edge + Functions)",
+    "oneLiner": "Target role aligned to demonstrated portfolio capabilities and delivery patterns.",
+    "tags": [
+      "Job Target",
+      "Hiring",
+      "Applied",
+      "Systems",
+      "Delivery"
+    ],
+    "focus": "Maps portfolio evidence to a concrete hiring target with practical outcomes.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Hiring target mapped to demonstrated capabilities, delivery behavior, and evidence quality.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "technical-program-manager-ai-systems-delivery",
+    "category": "ops",
+    "title": "Technical Program Manager (AI Systems Delivery)",
+    "oneLiner": "Target role aligned to demonstrated portfolio capabilities and delivery patterns.",
+    "tags": [
+      "Job Target",
+      "Hiring",
+      "Applied",
+      "Systems",
+      "Delivery"
+    ],
+    "focus": "Maps portfolio evidence to a concrete hiring target with practical outcomes.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Hiring target mapped to demonstrated capabilities, delivery behavior, and evidence quality.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "product-operations-engineer-automation-reliability",
+    "category": "ops",
+    "title": "Product Operations Engineer (Automation + Reliability)",
+    "oneLiner": "Target role aligned to demonstrated portfolio capabilities and delivery patterns.",
+    "tags": [
+      "Job Target",
+      "Hiring",
+      "Applied",
+      "Systems",
+      "Delivery"
+    ],
+    "focus": "Maps portfolio evidence to a concrete hiring target with practical outcomes.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Hiring target mapped to demonstrated capabilities, delivery behavior, and evidence quality.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  },
+  {
+    "id": "frontend-platform-engineer-design-systems-ia",
+    "category": "ux",
+    "title": "Frontend Platform Engineer (Design Systems + IA)",
+    "oneLiner": "Target role aligned to demonstrated portfolio capabilities and delivery patterns.",
+    "tags": [
+      "Job Target",
+      "Hiring",
+      "Applied",
+      "Systems",
+      "Delivery"
+    ],
+    "focus": "Maps portfolio evidence to a concrete hiring target with practical outcomes.",
+    "lensDefault": "pm",
+    "lensSnapshots": {
+      "pm": {
+        "label": "PM lens",
+        "badge": "OUTCOMES",
+        "preview": "Scope and delivery outcomes mapped to real shipped apps."
+      },
+      "eval": {
+        "label": "Eval lens",
+        "badge": "QUALITY",
+        "preview": "Verification and reliability criteria with concrete proofs."
+      },
+      "ops": {
+        "label": "Ops lens",
+        "badge": "STABILITY",
+        "preview": "Operational readiness, deployment behavior, and recovery discipline."
+      }
+    },
+    "lenses": {
+      "pm": {
+        "summary": "Outcome framing plus implementation evidence from multiple deployed apps.",
+        "bullets": [
+          "Defines clear outcome boundaries and delivery expectations.",
+          "Connects strategy to shippable implementation patterns.",
+          "Uses cross-project evidence instead of one-off claims."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            },
+            {
+              "label": "Utilities",
+              "note": "portfolio",
+              "href": "/utilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: portfolio breadth can look disconnected without structure.",
+            "Constraint: preserve accuracy while scaling evidence coverage.",
+            "Decision: normalize category and framework evidence across apps.",
+            "Result: stronger alignment between claims, proofs, and outcomes."
+          ],
+          "signals": [
+            "Cross-stack delivery evidence present.",
+            "Branch-to-deploy workflow discipline demonstrated.",
+            "Consistency between taxonomy, links, and runtime behavior."
+          ]
+        }
+      },
+      "eval": {
+        "summary": "Quality assurance lens focused on regressions, reliability, and evidence clarity.",
+        "bullets": [
+          "Uses reproducible checks for link, route, and deployment integrity.",
+          "Reduces mismatch risk with hardcoded, validated mappings.",
+          "Keeps evidence readable and categorized for fast review."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Capabilities",
+              "note": "portfolio",
+              "href": "/capabilities/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: drift between stated capability and visible proof.",
+            "Constraint: avoid introducing dynamic mismatch risks.",
+            "Decision: hardcode and validate core evidence paths.",
+            "Result: tighter trust surface for reviewers and hiring teams."
+          ],
+          "signals": [
+            "Regression-oriented validation approach.",
+            "Stable reference links and labels.",
+            "Reduced ambiguity in capability proof trails."
+          ]
+        }
+      },
+      "ops": {
+        "summary": "Operational reliability for shipping and maintaining many app variants.",
+        "bullets": [
+          "Tracks deployment state and route behavior per branch.",
+          "Prioritizes recoverability and predictable release flow.",
+          "Documents runtime constraints and platform-specific fixes."
+        ],
+        "proofStack": {
+          "receipts": [
+            {
+              "label": "Apps Index",
+              "note": "portfolio",
+              "href": "/apps/"
+            },
+            {
+              "label": "Contact",
+              "note": "portfolio",
+              "href": "/contact/"
+            }
+          ],
+          "caseNotes": [
+            "Problem: large multi-branch portfolio increases release complexity.",
+            "Constraint: maintain velocity without unstable deploy outcomes.",
+            "Decision: standardize deploy checks and fallback handling.",
+            "Result: improved operational confidence across project set."
+          ],
+          "signals": [
+            "Explicit branch/deploy ownership.",
+            "Documented runtime adaptation patterns.",
+            "Operational readiness visible in delivered artifacts."
+          ]
+        }
+      }
+    },
+    "briefing": {
+      "summary": "Hiring target mapped to demonstrated capabilities, delivery behavior, and evidence quality.",
+      "angle": [
+        "Prioritize concrete evidence over generic claims.",
+        "Use repeatable patterns that scale across many apps.",
+        "Balance velocity with reliability and clarity."
+      ],
+      "week": {
+        "w1": [
+          "Audit evidence coverage and identify gaps.",
+          "Confirm links, taxonomy, and runtime behavior.",
+          "Align language to role-specific outcomes."
+        ],
+        "w4": [
+          "Ship refined capability narratives.",
+          "Tighten quality checks and proofs.",
+          "Standardize supporting artifacts."
+        ],
+        "w12": [
+          "Scale and maintain evidence system.",
+          "Track regressions and fix drift quickly.",
+          "Keep portfolio aligned with hiring narratives."
+        ]
+      },
+      "fails": [
+        "Unverified claims without proof.",
+        "Category drift and ambiguous tagging.",
+        "Operational regressions after content expansion."
+      ],
+      "partners": [
+        "Product",
+        "Engineering",
+        "Design",
+        "QA",
+        "Hiring teams"
+      ],
+      "artifacts": [
+        "Capability statement",
+        "Evidence links",
+        "Quality checklist",
+        "Operational notes"
+      ]
+    }
+  }
+];
+
+ROLES.push(...CAPABILITY_EXPANSION_ROLES, ...JOB_TARGET_ROLES);
+
+const state = { cat:"all", q:"", compact:false, autoScore:true, scoreboardLens:"pm", scoreCategory:null };
 const HARD_CODED_PORTFOLIO_RECEIPTS = [
   {
     "label": "About",
@@ -9391,6 +12391,7 @@ function expandReceipts(baseReceipts, opts={}){
 
     const $ = (s)=>document.querySelector(s);
     const el = (tag, props={})=>Object.assign(document.createElement(tag), props);
+    const SCORE_LENS_IDS = ["#lensPm","#lensEval","#lensOps","#lensArch","#lensUx","#lensReliability"];
 
     function escapeHtml(str){
       return (str ?? "")
@@ -9440,26 +12441,154 @@ function expandReceipts(baseReceipts, opts={}){
     }
 
     const SCORE_PRESETS = {
-      pm: { pill:"LENS: PM", delivery:72, rigor:58, trust:62,
-        notes:{ delivery:"Outcome + constraints + recovery contracts that ship cleanly.",
-               rigor:"Enough rigor to prevent drift without freezing velocity.",
-               trust:"Predictability and clear user promise (reduce surprise)."},
+      pm: { pill:"LENS: PM", delivery:78, rigor:70, trust:74,
+        notes:{ delivery:"Expanded evidence across product, architecture, and ops strengthens delivery confidence.",
+               rigor:"Hardcoded mappings and broader proof coverage improve consistency and reduce mismatch risk.",
+               trust:"Clearer taxonomy, stable link behavior, and recovery patterns improve reliability signals."},
         emph:"delivery"
+      },
+      eval: { pill:"LENS: EVAL", delivery:71, rigor:84, trust:76,
+        notes:{ delivery:"Evaluation focus still supports practical shipping, with tighter guardrails.",
+               rigor:"Regression checks, validation discipline, and expanded proofs raise quality assurance depth.",
+               trust:"Stronger verification and clearer evidence paths reduce ambiguity for reviewers."},
+        emph:"rigor"
+      },
+      ops: { pill:"LENS: OPS", delivery:80, rigor:75, trust:79,
+        notes:{ delivery:"Branch-to-deploy repeatability and release flow discipline improve execution speed.",
+               rigor:"Operational standards and environment/runtime handling improve consistency under change.",
+               trust:"Operational readiness and recoverability increase confidence in real deployment behavior."},
+        emph:"trust"
+      },
+      arch: { pill:"LENS: ARCH", delivery:77, rigor:82, trust:73,
+        notes:{ delivery:"Architecture lens emphasizes feasible system design that still ships.",
+               rigor:"Tradeoff quality, interface boundaries, and cross-stack consistency drive score strength.",
+               trust:"Predictable architecture patterns improve maintainability and stakeholder confidence."},
+        emph:"rigor"
+      },
+      ux: { pill:"LENS: UX", delivery:73, rigor:69, trust:86,
+        notes:{ delivery:"UX lens keeps delivery grounded in readable, navigable interaction patterns.",
+               rigor:"Information architecture and flow consistency support lower cognitive load.",
+               trust:"Clarity, affordance quality, and coherent navigation are the top trust drivers here."},
+        emph:"trust"
+      },
+      reliability: { pill:"LENS: RELIABILITY", delivery:76, rigor:86, trust:84,
+        notes:{ delivery:"Reliability lens rewards safe shipping with rollback and recovery discipline.",
+               rigor:"Regression prevention, runtime resilience, and deployment consistency are prioritized.",
+               trust:"Stable behavior under change and clear failure handling increase user confidence."},
+        emph:"rigor"
       }
     };
 
-    function setScoreboard(lens){
+    function updateUrlState(){
+      const params = new URLSearchParams(location.search);
+      params.set("lens", state.scoreboardLens);
+      if (state.scoreCategory) params.set("category", state.scoreCategory);
+      else params.delete("category");
+      const next = `${location.pathname}?${params.toString()}`;
+      history.replaceState(null, "", next);
+    }
+
+    function inferFrameworkFamily(href, label){
+      const h = String(href || "").toLowerCase();
+      const l = String(label || "").toLowerCase();
+      if (h.includes("angular")) return "Angular";
+      if (h.includes("nuxt")) return "Nuxt";
+      if (h.includes("remix")) return "Remix";
+      if (h.includes("next")) return "Next.js";
+      if (h.includes("hono")) return "Hono";
+      if (h.includes("hugo")) return "Hugo";
+      if (h.includes("eleventy")) return "Eleventy";
+      if (h.includes("qwik")) return "Qwik";
+      if (h.includes("streamlit")) return "Streamlit";
+      if (h.includes("dash")) return "Dash";
+      if (h.includes("electron")) return "Electron";
+      if (h.includes("astro")) return "Astro";
+      if (h.includes("vue")) return "Vue";
+      if (h.includes("/apps/")) {
+        if (l.includes("codex") || l.includes("myths") || l.includes("riddle") || l.includes("long walk")) return "React";
+        return "HTML/JS";
+      }
+      return "General";
+    }
+
+    function renderEvidenceMini(rolePool, lens){
+      const root = $("#scoreMini");
+      if (!root) return;
+      const counts = new Map();
+      (rolePool || []).forEach((r) => {
+        const L = r?.lenses?.[lens] || r?.lenses?.[r?.lensDefault] || Object.values(r?.lenses || {})[0];
+        const uniq = new Set((L?.proofStack?.receipts || []).map((x) => String(x?.href || "").trim()).filter(Boolean));
+        counts.set(r.category, (counts.get(r.category) || 0) + uniq.size);
+      });
+      const total = Math.max(1, [...counts.values()].reduce((a,b)=>a+b,0));
+      const rows = [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const max = Math.max(1, ...rows.map(([,n]) => n));
+      root.innerHTML = rows.map(([cat, n]) => {
+        const relPct = Math.round((n / max) * 100);
+        return `<div class="miniRow"><span>${escapeHtml(cat.toUpperCase())}</span><div class="miniTrack"><div class="miniFill" style="width:${relPct}%"></div></div></div>`;
+      }).join("");
+    }
+
+    function setScoreboard(lens, rolePool = ROLES, activeCategory = null){
       const p = SCORE_PRESETS[lens] || SCORE_PRESETS.pm;
+      SCORE_LENS_IDS.forEach((x) => $(x)?.classList.remove("on"));
+      const activeMap = { pm:"#lensPm", eval:"#lensEval", ops:"#lensOps", arch:"#lensArch", ux:"#lensUx", reliability:"#lensReliability" };
+      $(activeMap[lens] || "#lensPm")?.classList.add("on");
+      const categoryWeights = {
+        product: { delivery:4, rigor:1, trust:2 },
+        decision: { delivery:2, rigor:3, trust:1 },
+        agents: { delivery:2, rigor:2, trust:2 },
+        arch: { delivery:3, rigor:3, trust:2 },
+        eval: { delivery:1, rigor:5, trust:2 },
+        ops: { delivery:4, rigor:3, trust:4 },
+        ux: { delivery:2, rigor:1, trust:5 },
+        creative: { delivery:2, rigor:1, trust:3 }
+      };
+      const pool = (rolePool || []).filter((r) => !activeCategory || r.category === activeCategory);
+      const unique = new Set();
+      const frameworks = new Set();
+      let liveLinks = 0;
+      let signals = 0;
+      let notes = 0;
+      pool.forEach((r) => {
+        const L = r?.lenses?.[lens] || r?.lenses?.[r?.lensDefault] || Object.values(r?.lenses || {})[0];
+        const ps = L?.proofStack;
+        (ps?.receipts || []).forEach((x) => {
+          if (!x?.href) return;
+          const href = String(x.href).trim();
+          unique.add(href);
+          frameworks.add(inferFrameworkFamily(href, x.label));
+          if (href.startsWith("http://") || href.startsWith("https://")) liveLinks += 1;
+        });
+        signals += (ps?.signals || []).length;
+        notes += (ps?.caseNotes || []).length;
+      });
+      const weight = categoryWeights[activeCategory || ""] || { delivery:0, rigor:0, trust:0 };
+      const roleFactor = Math.min(10, Math.round(pool.length * 0.7));
+      const coverage = Math.max(38, Math.min(96, 34 + Math.round(unique.size * 2.4)));
+      const delivery = Math.max(45, Math.min(96, p.delivery + roleFactor + weight.delivery));
+      const rigor = Math.max(45, Math.min(96, p.rigor + Math.min(8, Math.round(signals / 3)) + weight.rigor));
+      const trust = Math.max(45, Math.min(96, p.trust + Math.min(8, Math.round(notes / 4)) + weight.trust));
       $("#scorePill").textContent = p.pill;
-      $("#fDelivery").style.width = p.delivery + "%";
-      $("#fRigor").style.width = p.rigor + "%";
-      $("#fTrust").style.width = p.trust + "%";
+      $("#fDelivery").style.width = delivery + "%";
+      $("#fRigor").style.width = rigor + "%";
+      $("#fTrust").style.width = trust + "%";
+      $("#fCoverage").style.width = coverage + "%";
       $("#nDelivery").textContent = p.notes.delivery;
       $("#nRigor").textContent = p.notes.rigor;
       $("#nTrust").textContent = p.notes.trust;
+      $("#nCoverage").textContent = `Unique proof apps in scope: ${unique.size} across ${pool.length || 0} role cards.`;
+      const appCountNode = $("#scoreAppCount");
+      if (appCountNode) appCountNode.textContent = String(unique.size);
+      if ($("#scopeApps")) $("#scopeApps").textContent = String(unique.size);
+      if ($("#scopeFrameworks")) $("#scopeFrameworks").textContent = String(frameworks.size);
+      if ($("#scopeLive")) $("#scopeLive").textContent = String(liveLinks);
       $("#bDelivery").classList.toggle("emph", p.emph==="delivery");
       $("#bRigor").classList.toggle("emph", p.emph==="rigor");
       $("#bTrust").classList.toggle("emph", p.emph==="trust");
+      $("#bCoverage").classList.toggle("emph", p.emph==="rigor");
+      renderEvidenceMini(rolePool || ROLES, lens);
+      updateUrlState();
     }
 
     const mask = $("#mask");
@@ -9505,7 +12634,7 @@ function expandReceipts(baseReceipts, opts={}){
 
       const links = $("#dProofLinks"); links.innerHTML="";
       expandReceipts(ps?.receipts, { full:true }).forEach(p=>{
-        const a = el("a",{ className:"proofLink", href:p.href || "#" });
+        const a = el("a",{ className:"proofLink", href:p.href || "#", target:"_blank", rel:"noopener noreferrer" });
         a.innerHTML = `${escapeHtml(p.label)} <span>${escapeHtml(p.note || "")}</span>`;
         a.onclick = (e)=>{ e.stopPropagation(); };
         links.appendChild(a);
@@ -9513,6 +12642,25 @@ function expandReceipts(baseReceipts, opts={}){
 
       const sig = $("#dProofSignals"); sig.innerHTML="";
       (ps?.signals || []).forEach(x=> sig.appendChild(el("li",{ textContent:x })));
+
+      const copyBlurb = $("#dCopyBlurb");
+      if (copyBlurb) {
+        copyBlurb.onclick = async () => {
+          const txt = `${role.title}\\n${role.oneLiner}\\n${lens?.summary || ""}`.trim();
+          try { await navigator.clipboard.writeText(txt); copyBlurb.textContent = "Copied"; setTimeout(()=>copyBlurb.textContent="Copy role blurb", 900); } catch(_) {}
+        };
+      }
+      const copyBullets = $("#dCopyBullets");
+      if (copyBullets) {
+        copyBullets.onclick = async () => {
+          const lines = [
+            `${role.title} — ${lensKey.toUpperCase()} evidence`,
+            ...((lens?.bullets || []).map((x) => `- ${x}`)),
+            ...((ps?.signals || []).map((x) => `- ${x}`))
+          ];
+          try { await navigator.clipboard.writeText(lines.join("\\n")); copyBullets.textContent = "Copied"; setTimeout(()=>copyBullets.textContent="Copy evidence bullets", 900); } catch(_) {}
+        };
+      }
 
       mask.classList.add("show");
       document.body.style.overflow="hidden";
@@ -9550,7 +12698,21 @@ function expandReceipts(baseReceipts, opts={}){
       mini.innerHTML = `Click for briefing →<br><span style="font-family:var(--mono); font-size:11px;">lens + proofs + plan</span>`;
       top.appendChild(mini);
 
-      top.onclick = ()=>openDrawer(role, role.lensDefault || "pm");
+      const isJobTarget = (role.tags||[]).includes("Job Target");
+      if (isJobTarget) {
+        mini.innerHTML = `Job target<br><span style="font-family:var(--mono); font-size:11px;">click card to expand · click here for briefing</span>`;
+        mini.style.cursor = "pointer";
+        mini.onclick = (e)=>{ e.stopPropagation(); openDrawer(role, role.lensDefault || "pm"); };
+      }
+
+      top.onclick = ()=>{
+        if (isJobTarget) {
+          card.classList.toggle("jobClosed");
+          wrap.style.display = card.classList.contains("jobClosed") ? "none" : "";
+          return;
+        }
+        openDrawer(role, role.lensDefault || "pm");
+      };
       card.appendChild(top);
 
       const wrap = el("div",{ className:"lensWrap" });
@@ -9577,7 +12739,7 @@ function expandReceipts(baseReceipts, opts={}){
         body.innerHTML="";
         const links = el("div",{ className:"proofLinks" });
         expandReceipts(L.proofStack?.receipts, { full:false, limit:16 }).forEach(p=>{
-          const a = el("a",{ className:"proofLink", href:p.href||"#" });
+          const a = el("a",{ className:"proofLink", href:p.href||"#", target:"_blank", rel:"noopener noreferrer" });
           a.innerHTML = `${highlight(p.label, state.q)} <span>${highlight(p.note||"", state.q)}</span>`;
           a.onclick=(e)=>{ e.stopPropagation(); };
           links.appendChild(a);
@@ -9591,9 +12753,25 @@ function expandReceipts(baseReceipts, opts={}){
       wrap.appendChild(proof);
       card.appendChild(wrap);
 
+      if (isJobTarget) {
+        card.classList.add("jobClosed");
+        wrap.style.display = "none";
+      }
+
       renderLens();
       return card;
     }
+
+    const CATEGORY_COLORS = {
+      product: "#9cd0ff",
+      decision: "#b2ff9a",
+      agents: "#ffd488",
+      arch: "#c0b0ff",
+      eval: "#ff9fb8",
+      ops: "#95ffd8",
+      ux: "#ffd59c",
+      creative: "#f1b6ff"
+    };
 
     function render(){
       document.body.classList.toggle("compact", state.compact);
@@ -9607,8 +12785,16 @@ function expandReceipts(baseReceipts, opts={}){
 
         // Start ALL accordion sections collapsed by default.
         const section = el("div",{ className:"section" });
+        section.dataset.category = c.id;
+        section.style.setProperty("--cat-color", CATEGORY_COLORS[c.id] || "rgba(255,255,255,.2)");
+        if (state.scoreCategory && state.scoreCategory === c.id) section.classList.add("open");
         const head = el("div",{ className:"secHead" });
-        head.onclick=()=>section.classList.toggle("open");
+        head.onclick=()=>{
+          section.classList.toggle("open");
+          const opens = [...root.querySelectorAll(".section.open")];
+          state.scoreCategory = opens.length === 1 ? (opens[0].dataset.category || null) : null;
+          setScoreboard(state.scoreboardLens, filtered, state.scoreCategory);
+        };
         const left = el("div",{}); left.appendChild(el("h2",{ className:"secTitle", textContent:c.name }));
         const meta = el("div",{ className:"secMeta" });         const chev = el("div",{ className:"chev", innerHTML:"▾" });
         head.appendChild(left); head.appendChild(meta); head.appendChild(chev);
@@ -9620,6 +12806,9 @@ function expandReceipts(baseReceipts, opts={}){
         section.appendChild(body);
         root.appendChild(section);
       }
+      const opens = [...root.querySelectorAll(".section.open")];
+      state.scoreCategory = opens.length === 1 ? (opens[0].dataset.category || null) : null;
+      setScoreboard(state.scoreboardLens, filtered, state.scoreCategory);
     }
 
     document.addEventListener("keydown",(e)=>{
@@ -9645,7 +12834,30 @@ function expandReceipts(baseReceipts, opts={}){
     wireToggle("#tRecruiter", ()=>state.compact, (v)=>state.compact=v);
     wireToggle("#tAutoScore", ()=>state.autoScore, (v)=>state.autoScore=v);
 
-    setScoreboard(state.scoreboardLens);
+    const params = new URLSearchParams(location.search);
+    const lensParam = (params.get("lens") || "").toLowerCase();
+    const catParam = (params.get("category") || "").toLowerCase();
+    if (SCORE_PRESETS[lensParam]) state.scoreboardLens = lensParam;
+    if (catParam && CATS.some((c) => c.id === catParam)) state.scoreCategory = catParam;
+
+    const wireScoreLens = (id, lens) => {
+      const btn = $(id);
+      if (!btn) return;
+      btn.onclick = () => {
+        state.scoreboardLens = lens;
+        SCORE_LENS_IDS.forEach((x) => $(x)?.classList.remove("on"));
+        btn.classList.add("on");
+        render();
+      };
+    };
+    wireScoreLens("#lensPm", "pm");
+    wireScoreLens("#lensEval", "eval");
+    wireScoreLens("#lensOps", "ops");
+    wireScoreLens("#lensArch", "arch");
+    wireScoreLens("#lensUx", "ux");
+    wireScoreLens("#lensReliability", "reliability");
+
+    setScoreboard(state.scoreboardLens, ROLES, null);
     render();
   </script>
   <script src="/shared/nexus-topnav-v2.js?v=54"></script>
