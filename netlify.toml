@@ -1,12 +1,8 @@
 [build]
-  command = ""
-  publish = "public"
+  command = "npm run build"
+  publish = ".output/public"
 
 [build.environment]
   NODE_VERSION = "20"
   FRAMEWORK = "nuxtjs"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  NITRO_PRESET = "netlify"
