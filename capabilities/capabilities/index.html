@@ -8807,6 +8807,588 @@ const ROLES = [
 ];
 
 const state = { cat:"all", q:"", compact:false, autoScore:true, scoreboardLens:"pm" };
+const HARD_CODED_PORTFOLIO_RECEIPTS = [
+  {
+    "label": "About",
+    "href": "/about.html",
+    "note": "portfolio"
+  },
+  {
+    "label": "Aeon",
+    "href": "/apps/aeon/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Agents (UI)",
+    "href": "/apps/agents/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Alibi",
+    "href": "/apps/alibi/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Angle",
+    "href": "https://dev-in-portfolio-angle.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Angular Chronicle",
+    "href": "https://dev-in-portfolio-angular-chronicle.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Angular FormFoundry",
+    "href": "https://dev-in-portfolio-angular-formfoundry.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Angular GridSmith",
+    "href": "https://dev-in-portfolio-angular-gridsmith.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "CardPress",
+    "href": "https://dev-in-portfolio-cardpress.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Causality",
+    "href": "https://dev-in-portfolio-causality.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Clip Forge",
+    "href": "https://dev-in-portfolio-clip-forge.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Codex of Hieroglyphs",
+    "href": "https://dev-in-portfolio-codex-of-hieroglyphi.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Codex of Imaginary Physics",
+    "href": "/apps/codex-of-imaginary-physics/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Compression",
+    "href": "https://dev-in-portfolio-compression.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Constraint Chess",
+    "href": "/apps/constraint-chess/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Contradict",
+    "href": "https://dev-in-portfolio-contradict.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Coverage Compass",
+    "href": "/apps/coverage-compass/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Crossword Arena",
+    "href": "/apps/crossword-arena/",
+    "note": "portfolio"
+  },
+  {
+    "label": "CueDeck",
+    "href": "https://dev-in-portfolio-cuedeck.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Dash ClaimScope",
+    "href": "https://dev-in-portfolio-dash-claimscope.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Dash DriftMeter",
+    "href": "https://dev-in-portfolio-dash-driftmeter.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Dash FlowLens",
+    "href": "https://dev-in-portfolio-dash-flowlens.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "DiffLens",
+    "href": "https://dev-in-portfolio-difflens.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Digital Science Museum",
+    "href": "https://dev-in-portfolio-digital-science.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Do Not Press",
+    "href": "/do-not-press.html",
+    "note": "portfolio"
+  },
+  {
+    "label": "Draft Relay",
+    "href": "https://dev-in-portfolio-draft-relay.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Electron Dockyard",
+    "href": "https://dev-in-portfolio-electron-dockyard.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Electron MapStencil",
+    "href": "https://dev-in-portfolio-electron-mapstencil.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Electron ReceiptBox",
+    "href": "https://dev-in-portfolio-electron-receiptbox.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Eleventy Patch Book",
+    "href": "https://dev-in-portfolio-eleventy-patch-book.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Eleventy Spec Forge",
+    "href": "https://dev-in-portfolio-eleventy-spec-forge.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Eleventy Switchboard",
+    "href": "https://dev-in-portfolio-eleventy-switchboard.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Evening Epic Sudoku",
+    "href": "/apps/evening-epic-sudoku/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Field Notes: Alternate Earths",
+    "href": "/apps/field-notes-alternate-earths/",
+    "note": "portfolio"
+  },
+  {
+    "label": "FloraGuide AI",
+    "href": "/apps/floraguide-ai/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Friction Painter",
+    "href": "/apps/friction-painter/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Glow Garden",
+    "href": "/apps/glow-garden/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Hallmap Studio",
+    "href": "https://dev-in-portfolio-hallmap-studio.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Helios",
+    "href": "/apps/helios/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Helix",
+    "href": "/apps/helix/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Hono CapsuleCache",
+    "href": "https://dev-in-portfolio-hono-capsulecache.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Hono Gatekeeper",
+    "href": "https://dev-in-portfolio-hono-gatekeeper.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Hono Intake",
+    "href": "https://dev-in-portfolio-hono-intake.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Hugo AtlasShelf",
+    "href": "https://dev-in-portfolio-hugo-atlasshelf.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Hugo FieldManual",
+    "href": "https://dev-in-portfolio-hugo-fieldmanual.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Hugo Release Gallery",
+    "href": "https://dev-in-portfolio-hugo-release-gallery.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Ink That Remembers",
+    "href": "/apps/ink-that-remembers/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Interactive Terms Translator",
+    "href": "https://dev-in-portfolio-interactive-terms-tr.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Island Index",
+    "href": "https://dev-in-portfolio-island-index.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "LatchList",
+    "href": "https://dev-in-portfolio-latchlist.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "LineFlow",
+    "href": "https://dev-in-portfolio-lineflow.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "LingoLive AI",
+    "href": "/apps/lingolive-ai/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Magma",
+    "href": "/apps/magma/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Momentum",
+    "href": "https://dev-in-portfolio-momentum.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Motion Workshop Bench",
+    "href": "/apps/motion-workshop-bench/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Myths & Facts Almanac",
+    "href": "/apps/myths-facts-almanac/",
+    "note": "portfolio"
+  },
+  {
+    "label": "NeonScope",
+    "href": "https://dev-in-portfolio-neonscope.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Nuxt CardPress",
+    "href": "https://dev-in-portfolio-nuxt-cardpress.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Nuxt SignalGrid",
+    "href": "https://dev-in-portfolio-nuxt-signalgrid.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Nuxt View Vault",
+    "href": "https://dev-in-portfolio-nuxt-view-vault.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Operator Ledger",
+    "href": "https://dev-in-portfolio-operator-ledger.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Oracle Pit",
+    "href": "/apps/oracle-pit/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Order of One",
+    "href": "https://dev-in-portfolio-order-of-one.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "PalmLedger",
+    "href": "https://dev-in-portfolio-palmledger.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Paradox Vault",
+    "href": "https://dev-in-portfolio-paradox-vault.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "PatchSmith",
+    "href": "https://dev-in-portfolio-patchsmith.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Pocket Dossier",
+    "href": "https://dev-in-portfolio-pocket-dossier.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Pocket Pass",
+    "href": "https://dev-in-portfolio-pocket-pass.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Prompt Vault",
+    "href": "/apps/prompt-vault/",
+    "note": "portfolio"
+  },
+  {
+    "label": "QueJudge",
+    "href": "https://dev-in-portfolio-quejudge.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "QueueGauge",
+    "href": "https://dev-in-portfolio-queuegauge.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Qwik Atlas",
+    "href": "https://dev-in-portfolio-qwik-atlas.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Qwik CardForge",
+    "href": "https://dev-in-portfolio-qwik-cardforge.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Qwik SignalTiill",
+    "href": "https://dev-in-portfolio-qwik-signaltill.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Radar of One",
+    "href": "https://dev-in-portfolio-radar-of-one.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "RecalGrid",
+    "href": "https://dev-in-portfolio-recalgrid.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Receipt Vault",
+    "href": "https://dev-in-portfolio-receipt-vault.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Reflex Trainer",
+    "href": "/apps/reflex-trainer/",
+    "note": "portfolio"
+  },
+  {
+    "label": "RelayRoom",
+    "href": "https://dev-in-portfolio-relayroom.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Remix DiffAtlas",
+    "href": "https://dev-in-portfolio-remix-diffatlas.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Remix QueueSplice",
+    "href": "https://dev-in-portfolio-remix-queuesplice.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Remix Vault Key",
+    "href": "https://dev-in-portfolio-remix-vault-key.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Repo Pilot",
+    "href": "https://dev-in-portfolio-repo-pilot.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Riddle Rooms",
+    "href": "/apps/riddle-rooms/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Room Key",
+    "href": "https://dev-in-portfolio-room-key.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "RouteForge Console",
+    "href": "https://dev-in-portfolio-routeforge-console.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Rule Furnace",
+    "href": "https://dev-in-portfolio-rule-furnace.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "SchemaGate",
+    "href": "https://dev-in-portfolio-schemagate.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "SchemaPulse",
+    "href": "https://dev-in-portfolio-schemapulse.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "SessionMint",
+    "href": "https://dev-in-portfolio-sessionmint.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Signal Board",
+    "href": "https://dev-in-portfolio-signal-board.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Signal Kitchen",
+    "href": "https://dev-in-portfolio-signal-kitchen.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "SleepyStory",
+    "href": "/apps/sleepystory/",
+    "note": "portfolio"
+  },
+  {
+    "label": "SnapShot Vault",
+    "href": "https://dev-in-portfolio-snapshot-vault.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "SolveSpace",
+    "href": "https://dev-in-portfolio-solvespace.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Splice",
+    "href": "/apps/splice/",
+    "note": "portfolio"
+  },
+  {
+    "label": "StreamLit",
+    "href": "https://dev-in-portfolio-streamlit.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "String",
+    "href": "/apps/string/",
+    "note": "portfolio"
+  },
+  {
+    "label": "SurfaceLab",
+    "href": "https://dev-in-portfolio-surfacelab.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Switchboard",
+    "href": "https://dev-in-portfolio-swittchboard.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "TagTrellis",
+    "href": "https://dev-in-portfolio-tagtrellis.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "TapForge",
+    "href": "https://dev-in-portfolio-tapforge.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "Tectonic",
+    "href": "/apps/tectonic/",
+    "note": "portfolio"
+  },
+  {
+    "label": "The Long Walk",
+    "href": "/apps/the-long-walk/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Time-Locked Page Forge",
+    "href": "/apps/time-locked-page-forge/",
+    "note": "portfolio"
+  },
+  {
+    "label": "TimeSlice",
+    "href": "https://dev-in-portfolio-timeslice.netlify.app",
+    "note": "portfolio"
+  },
+  {
+    "label": "ToonStudio",
+    "href": "/apps/toonstudio/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Transit",
+    "href": "/apps/transit/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Ultimate Broker Route (UBR)",
+    "href": "/apps/ubr/",
+    "note": "portfolio"
+  },
+  {
+    "label": "Vortex",
+    "href": "/apps/vortex/",
+    "note": "portfolio"
+  },
+  {
+    "label": "WayFinder",
+    "href": "https://dev-in-portfolio-wayfinder.netlify.app",
+    "note": "portfolio"
+  }
+];
+
+function normalizeReceiptHref(href){
+  return String(href || "").trim().replace(/\/+$/, "");
+}
+
+function expandReceipts(baseReceipts, opts={}){
+  const full = !!opts.full;
+  const limit = Number.isFinite(opts.limit) ? opts.limit : 16;
+  const out = [];
+  const seen = new Set();
+  const add = (entry) => {
+    if (!entry) return;
+    const label = String(entry.label || "").trim();
+    const href = String(entry.href || "").trim();
+    if (!label || !href) return;
+    const key = `${normalizeReceiptHref(href)}::${label.toLowerCase()}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ label, href, note: String(entry.note || "portfolio") });
+  };
+  (baseReceipts || []).forEach(add);
+  HARD_CODED_PORTFOLIO_RECEIPTS.forEach(add);
+  return full ? out : out.slice(0, limit);
+}
+
     const $ = (s)=>document.querySelector(s);
     const el = (tag, props={})=>Object.assign(document.createElement(tag), props);
 
@@ -8922,7 +9504,7 @@ const state = { cat:"all", q:"", compact:false, autoScore:true, scoreboardLens:"
       $("#dProofIntro").textContent = `Active lens: ${lensKey.toUpperCase()} · ${lens?.summary || "Proof stack"}`;
 
       const links = $("#dProofLinks"); links.innerHTML="";
-      (ps?.receipts || []).forEach(p=>{
+      expandReceipts(ps?.receipts, { full:true }).forEach(p=>{
         const a = el("a",{ className:"proofLink", href:p.href || "#" });
         a.innerHTML = `${escapeHtml(p.label)} <span>${escapeHtml(p.note || "")}</span>`;
         a.onclick = (e)=>{ e.stopPropagation(); };
@@ -8994,7 +9576,7 @@ const state = { cat:"all", q:"", compact:false, autoScore:true, scoreboardLens:"
 
         body.innerHTML="";
         const links = el("div",{ className:"proofLinks" });
-        (L.proofStack?.receipts||[]).forEach(p=>{
+        expandReceipts(L.proofStack?.receipts, { full:false, limit:16 }).forEach(p=>{
           const a = el("a",{ className:"proofLink", href:p.href||"#" });
           a.innerHTML = `${highlight(p.label, state.q)} <span>${highlight(p.note||"", state.q)}</span>`;
           a.onclick=(e)=>{ e.stopPropagation(); };
