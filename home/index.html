@@ -645,53 +645,6 @@
     (function(){
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-      const layers = [
-        { el: document.querySelector('.stars.a'), mx: 10, my: 8 },
-        { el: document.querySelector('.stars.b'), mx: 18, my: 14 },
-        { el: document.querySelector('.nebula'), mx: 22, my: 16 },
-        { el: document.querySelector('.aurora'), mx: 16, my: 12 },
-        { el: document.querySelector('.coreGlow'), mx: 14, my: 10 },
-        { el: document.querySelector('.sky'), mx: 12, my: 9 },
-        { el: document.querySelector('.horizon'), mx: 10, my: 6 }
-      ].filter((item) => item.el);
-
-      let tx = 0;
-      let ty = 0;
-      let cx = 0;
-      let cy = 0;
-      let raf = 0;
-
-      function render() {
-        cx += (tx - cx) * 0.08;
-        cy += (ty - cy) * 0.08;
-        layers.forEach(({ el, mx, my }) => {
-          const x = (cx / 100) * mx;
-          const y = (cy / 100) * my;
-          el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-        });
-        raf = requestAnimationFrame(render);
-      }
-
-      window.addEventListener('pointermove', (e) => {
-        const w = window.innerWidth || 1;
-        const h = window.innerHeight || 1;
-        tx = ((e.clientX / w) - 0.5) * 2 * -1;
-        ty = ((e.clientY / h) - 0.5) * 2 * -1;
-      }, { passive: true });
-
-      window.addEventListener('pointerleave', () => {
-        tx = 0;
-        ty = 0;
-      });
-
-      raf = requestAnimationFrame(render);
-      window.addEventListener('beforeunload', () => cancelAnimationFrame(raf), { once: true });
-    })();
-  </script>
-  <script>
-    (function(){
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
       const cometsHost = document.querySelector('.comets');
       const twinklesHost = document.querySelector('.twinkles');
       if (!cometsHost || !twinklesHost) return;
