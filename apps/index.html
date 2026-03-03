@@ -223,6 +223,7 @@
       line-height: 1.10;
       margin: 0 0 10px;
       letter-spacing: .01em;
+      padding: 0 18px;
     }
 
     .beatText{
@@ -314,190 +315,1290 @@
 
 <style>
 /* Landing page cards (About-style) */
-.landingGrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px;margin: 14px auto 0;max-width: 1100px;padding: 0 14px;}
-.landingCard{grid-column: span 12;display:block;padding:14px;border-radius:18px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);text-decoration:none;color:rgba(255,255,255,0.92);}
-.landingCard:hover{transform:translateY(-1px);}
-.landingCardTitle{font-weight:800;letter-spacing:0.02em;}
-.landingCardMeta{opacity:0.72;margin-top:6px;font-size:13px;}
+.landingGrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px;margin: 14px auto 0;max-width: 1100px;padding: 0 14px;}
+.landingCard{
+  grid-column: span 12;
+  display:block;
+  padding:10px 12px;
+  border-radius:12px;
+  background:rgba(0,0,0,.24);
+  border:1px solid rgba(255,255,255,.10);
+  text-decoration:none;
+  color:rgba(255,255,255,.95);
+  box-shadow:none;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.landingCard:hover{
+  transform:translateY(-1px);
+  border-color: rgba(150,220,255,.42);
+  box-shadow: 0 8px 20px rgba(0,0,0,.24);
+}
+.landingCardTitle{
+  font-weight:800;
+  letter-spacing:0.01em;
+  line-height:1.2;
+}
+.landingCardMeta{
+  display:inline-block;
+  margin-top:8px;
+  font-size:10px;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  color:rgba(150,220,255,.96);
+  border:1px solid rgba(150,220,255,.34);
+  background:rgba(150,220,255,.10);
+  border-radius:999px;
+  padding:4px 8px;
+}
+.landingCardMetaRow{
+  margin-top:8px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.catalogWrap{
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+.catalogHeader{
+  margin: 0 0 14px;
+  padding: 0 18px 12px;
+  font-family: var(--serif);
+  font-size: clamp(32px, 4.2vw, 56px);
+  line-height: 1.02;
+  letter-spacing: .015em;
+  color: rgba(255,255,255,.96);
+  border-bottom: 1px solid rgba(150,220,255,.35);
+  text-shadow: 0 12px 30px rgba(0,0,0,.35);
+}
+#classified-categories{
+  border:1px solid rgba(120,190,255,.24);
+  border-radius:18px;
+  padding:14px 0 8px;
+  background:linear-gradient(180deg, rgba(90,150,220,.10), rgba(90,150,220,.03));
+}
+#frameworks-title{
+  margin-top:20px;
+}
+#frameworksCatalog{
+  border:1px solid rgba(190,170,255,.24);
+  border-radius:18px;
+  padding:14px 0 8px;
+  background:linear-gradient(180deg, rgba(150,120,220,.10), rgba(150,120,220,.03));
+}
+#all-apps-title{
+  margin-top:20px;
+}
+#allAppsCatalog{
+  border:1px solid rgba(150,220,190,.24);
+  border-radius:18px;
+  padding:14px 0 8px;
+  background:linear-gradient(180deg, rgba(120,200,170,.10), rgba(120,200,170,.03));
+}
+.catBlock{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  background:rgba(255,255,255,.04);
+  padding:22px 0;
+  margin-bottom:14px;
+}
+.catTitle{
+  margin:0 0 10px;
+  font-family:var(--serif);
+  font-size: clamp(26px, 3.2vw, 44px);
+  line-height: 1.10;
+  letter-spacing: .01em;
+  padding: 0 18px;
+}
+.appList{
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:10px;
+  max-width: 1100px;
+  margin: 14px auto 0;
+  padding: 0 14px;
+}
+.appItem{
+  grid-column: span 12;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:12px;
+  background:rgba(0,0,0,.24);
+  padding:10px 12px;
+}
+.density-compact .appList{ gap:8px; }
+.density-compact .appItem{ padding:8px 10px; border-radius:10px; }
+.density-compact .pillRow{ margin-top:6px; gap:5px; }
+.density-compact .fwPill{ padding:3px 7px; }
+.noAppNote{
+  color:rgba(255,255,255,.56);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.appLink{
+  color:rgba(255,255,255,.95);
+  text-decoration:none;
+  font-weight:800;
+  letter-spacing:.01em;
+}
+.appLink:hover{ color:rgba(150,220,255,.96); }
+.pillRow{
+  margin-top:8px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.fwPill{
+  font-size:10px;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid rgba(150,220,255,.34);
+  color:rgba(150,220,255,.96);
+  background:rgba(150,220,255,.10);
+}
+.jumpBox{
+  max-width:1100px;
+  margin: 0 auto 24px;
+  padding: 0 14px;
+}
+.appCounter{
+  max-width:1100px;
+  margin: 0 auto 12px;
+  padding: 0 14px;
+}
+.appCounterBar{
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:12px;
+  background:rgba(0,0,0,.28);
+  padding:10px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.appCounterLabel{
+  margin:0;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.76);
+}
+.appCounterValue{
+  margin:0;
+  font-size:12px;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  color:rgba(150,220,255,.96);
+}
+.jumpPanel{
+  border:1px solid rgba(150,220,255,.24);
+  border-radius:22px;
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(150,220,255,.12), transparent 58%),
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  padding:18px;
+  box-shadow: 0 20px 70px rgba(0,0,0,.36), inset 0 0 0 1px rgba(255,255,255,.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.jumpTitle{
+  margin:0 0 14px;
+  font-family:var(--serif);
+  font-size:clamp(20px, 2.6vw, 28px);
+  line-height:1.1;
+  letter-spacing:.02em;
+  color:rgba(255,255,255,.94);
+  border-bottom:1px solid rgba(150,220,255,.34);
+  padding-bottom:12px;
+}
+.jumpGrid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+}
+.jumpSection{
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  background:rgba(0,0,0,.26);
+  padding:12px;
+}
+.jumpHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:8px;
+}
+.jumpLabel{
+  display:inline-block;
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.82);
+  margin:0;
+}
+.jumpBadge{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(150,220,255,.96);
+  border:1px solid rgba(150,220,255,.36);
+  background:rgba(150,220,255,.10);
+  border-radius:999px;
+  padding:4px 8px;
+}
+.jumpInput{
+  width:100%;
+  border:1px solid rgba(255,255,255,0.14);
+  border-radius:10px;
+  background:rgba(8,10,18,.78);
+  color:rgba(255,255,255,.72);
+  font-size:14px;
+  padding:12px 14px;
+}
+.jumpNote{
+  margin:8px 0 0;
+  font-family:var(--mono);
+  font-size:11px;
+  color:rgba(255,255,255,.56);
+  letter-spacing:.06em;
+}
+.jumpLinks{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.jumpAnchor{
+  display:inline-flex;
+  align-items:center;
+  text-decoration:none;
+  font-size:10px;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(150,220,255,.34);
+  color:rgba(150,220,255,.96);
+  background:rgba(150,220,255,.10);
+}
+.jumpAnchor:hover{
+  border-color:rgba(150,220,255,.55);
+  background:rgba(150,220,255,.16);
+}
+.jumpAnchor.static{
+  cursor: default;
+}
+.jumpAnchor.active{
+  border-color:rgba(255,255,255,.65);
+  color:rgba(255,255,255,.98);
+  background:rgba(255,255,255,.16);
+  box-shadow:0 8px 24px rgba(255,255,255,.14);
+  transform:translateY(-1px);
+}
+.jumpDivider{
+  height:1px;
+  background:rgba(255,255,255,.10);
+  margin:14px 0;
+}
+.filterBar{
+  max-width:1100px;
+  margin: 0 auto 16px;
+  padding: 0 14px;
+}
+.filterPanel{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  background:rgba(0,0,0,.26);
+  padding:12px;
+}
+.searchInput{
+  width:100%;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;
+  background:rgba(8,10,18,.78);
+  color:rgba(255,255,255,.9);
+  font-size:14px;
+  padding:10px 12px;
+}
+.toggleRow{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:rgba(255,255,255,.82);
+  text-transform:uppercase;
+}
+.densitySelect{
+  width:fit-content;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;
+  background:rgba(8,10,18,.78);
+  color:rgba(255,255,255,.9);
+  font-size:12px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  padding:8px 10px;
+}
+.stickyJump{
+  position:fixed;
+  top:72px;
+  right:14px;
+  z-index:9200;
+  display:none;
+  gap:6px;
+  padding:8px;
+  border:1px solid rgba(150,220,255,.3);
+  border-radius:12px;
+  background:rgba(6,8,14,.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.stickyJump.on{ display:flex; }
+.miniJump{
+  text-decoration:none;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:6px 8px;
+  border:1px solid rgba(150,220,255,.32);
+  border-radius:999px;
+  color:rgba(150,220,255,.96);
+  background:rgba(150,220,255,.10);
+}
+.miniJump.active{
+  border-color:rgba(255,255,255,.65);
+  color:rgba(255,255,255,.98);
+  background:rgba(255,255,255,.16);
+}
+.backTop{
+  position:fixed;
+  right:14px;
+  bottom:16px;
+  z-index:9200;
+  display:none;
+  border:1px solid rgba(150,220,255,.34);
+  border-radius:999px;
+  background:rgba(6,8,14,.88);
+  color:rgba(150,220,255,.98);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:10px 12px;
+  cursor:pointer;
+}
+.backTop.on{ display:inline-flex; }
+.azRail{
+  position:fixed;
+  left:10px;
+  right:10px;
+  bottom:62px;
+  z-index:9200;
+  display:none;
+  overflow:auto;
+  gap:6px;
+  padding:8px;
+  border:1px solid rgba(150,220,190,.34);
+  border-radius:12px;
+  background:rgba(6,8,14,.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.azRail.on{ display:flex; }
+.azMini{
+  text-decoration:none;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:6px 8px;
+  border:1px solid rgba(150,220,190,.34);
+  border-radius:999px;
+  color:rgba(150,220,190,.98);
+  background:rgba(150,220,190,.10);
+  white-space:nowrap;
+}
+.azMini.active{
+  border-color:rgba(255,255,255,.65);
+  color:rgba(255,255,255,.98);
+  background:rgba(255,255,255,.16);
+}
+.sectionActions{
+  display:inline-flex;
+  gap:6px;
+  margin-left:10px;
+  vertical-align:middle;
+}
+.titleBtn{
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.84);
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  padding:4px 8px;
+  cursor:pointer;
+}
+.titleBtn:hover{ border-color:rgba(150,220,255,.46); color:rgba(255,255,255,.96); }
+.catBlock.collapsed .appList{ display:none; }
+.catBlock.frameworkBlock{
+  border-color: color-mix(in srgb, var(--fw-accent, #9bd2ff) 60%, rgba(255,255,255,.16));
+}
+.catBlock.frameworkBlock .catTitle{
+  text-shadow: 0 0 0 transparent;
+  color: color-mix(in srgb, var(--fw-accent, #9bd2ff) 70%, white 30%);
+}
+.skeletonWrap{
+  max-width:1100px;
+  margin:0 auto 14px;
+  padding:0 14px;
+}
+.skeletonCard{
+  height:72px;
+  border-radius:12px;
+  margin-bottom:10px;
+  border:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.14), rgba(255,255,255,.05));
+  background-size: 240% 100%;
+  animation: sk 1.2s linear infinite;
+}
+@keyframes sk{ from{background-position:100% 0} to{background-position:-100% 0} }
+.hidden{ display:none !important; }
+.jumpFlash{
+  animation: jumpFlash .65s ease;
+}
+@keyframes jumpFlash{
+  0%{ transform:translateY(8px); opacity:.35; }
+  100%{ transform:translateY(0); opacity:1; }
+}
+@media (min-width: 860px){
+  .jumpGrid{ grid-template-columns: 1fr 1fr; }
+  .jumpDivider{ display:none; }
+}
+@media (max-width: 860px){
+  .catalogHeader{ margin-bottom:12px; padding:0 14px 10px; }
+  .beatLine{ padding:0 14px; }
+  .azRail{ display:flex; }
+}
 @media (min-width: 760px){
   .landingCard{grid-column: span 6;}
+  .appItem{ grid-column: span 6; }
 }
 @media (min-width: 1040px){
-  .landingCard{grid-column: span 4;}
+  .landingCard{grid-column: span 6;}
+  .appItem{ grid-column: span 6; }
 }
+.beat{
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  background:rgba(255,255,255,.04);
+  padding:22px 0;
+  margin-bottom:14px;
+}
+.beat:last-of-type{ margin-bottom:0; }
 </style>
-<section class="beat reveal" id="apps---tools">
-<h2 class="beatLine">APPS - TOOLS</h2>
-<p class="beatText">
-</p>
-<div class="landingGrid">
-  <a class="landingCard" href="/apps/apps/agents/"><div class="landingCardTitle">Agents (UI)
-</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/alibi/"><div class="landingCardTitle">Alibi</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/prompt-vault/"><div class="landingCardTitle">Prompt Vault</div><div class="landingCardMeta">HTML/JS</div></a>
- </div>
- </section>
-
-<section class="beat reveal" id="data-plus-systems">
-<h2 class="beatLine">DECISION SYSTEMS</h2>
-<p class="beatText">
-</p>
-<div class="landingGrid">
-  <a class="landingCard" href="/apps/apps/coverage-compass/"><div class="landingCardTitle">Coverage Compass</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/ubr/"><div class="landingCardTitle">Ultimate Broker Route (UBR)</div><div class="landingCardMeta">HTML/JS</div></a>
+<section class="appCounter" id="app-counter">
+<div class="appCounterBar">
+<p class="appCounterLabel">Categorized Apps</p>
+<p class="appCounterValue"><span id="appCountValue">0</span> total</p>
 </div>
 </section>
-
-<section class="beat reveal" id="ai---knowledge">
-<h2 class="beatLine">AI / KNOWLEDGE</h2>
-<p class="beatText">
-</p>
-<div class="landingGrid">
-  <a class="landingCard" href="/apps/apps/floraguide-ai/"><div class="landingCardTitle">FloraGuide AI
-</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/lingolive-ai/"><div class="landingCardTitle">LingoLive AI</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/oracle-pit/"><div class="landingCardTitle">Oracle Pit</div><div class="landingCardMeta">HTML/JS</div></a>
+<section class="jumpBox" id="jump-to">
+<div class="jumpPanel">
+<h2 class="jumpTitle">Jump To</h2>
+<div class="jumpGrid">
+<div class="jumpSection">
+<div class="jumpHead"><label class="jumpLabel" for="jumpToInput">Categories</label></div>
+<div class="jumpLinks" id="jumpCategories" aria-label="Category jump links"></div>
+<p class="jumpNote">Click a category to jump to that section.</p>
+</div>
+<div class="jumpDivider" aria-hidden="true"></div>
+<div class="jumpSection">
+<div class="jumpHead"><span class="jumpLabel">Frameworks</span></div>
+<div class="jumpLinks" id="frameworksList" aria-label="Framework list"></div>
+<p class="jumpNote">Click a framework to jump to that section.</p>
+</div>
+<div class="jumpDivider" aria-hidden="true"></div>
+<div class="jumpSection">
+<div class="jumpHead"><span class="jumpLabel">All Apps A-Z</span></div>
+<div class="jumpLinks" id="jumpAz" aria-label="Alphabetical jump links"></div>
+<p class="jumpNote">Click a letter to jump to that section.</p>
+</div>
+</div>
 </div>
 </section>
-
-<section class="beat reveal" id="knowledge---reference">
-<h2 class="beatLine">KNOWLEDGE / REFERENCE</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-codex-imagin-physics.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Codex of Imaginary Physics</div><div class="landingCardMeta">React</div></a>
+<section class="filterBar" id="filters">
+<div class="filterPanel">
+<input class="searchInput" id="appSearch" placeholder="Search apps, tags, or categories…" type="search"/>
+<div class="toggleRow">
+<label for="densityMode">Density</label>
+<select class="densitySelect" id="densityMode">
+<option value="comfortable">Comfortable</option>
+<option value="compact">Compact</option>
+</select>
+</div>
 </div>
 </section>
-
-<section class="beat reveal" id="knowledge---field-guide">
-<h2 class="beatLine">KNOWLEDGE / FIELD GUIDE</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-myths-facts-almanac.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Myths & Facts Almanac</div><div class="landingCardMeta">React</div></a>
-</div>
+<section class="skeletonWrap" id="loadingSkeleton" aria-hidden="true">
+<div class="skeletonCard"></div>
+<div class="skeletonCard"></div>
+<div class="skeletonCard"></div>
 </section>
-
-<section class="beat reveal" id="builders---generators">
-<h2 class="beatLine">BUILDERS / GENERATORS</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-time-lock-page.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Time-Locked Page Forge</div><div class="landingCardMeta">React</div></a>
-</div>
+<section id="classified-categories">
+<h2 class="catalogHeader">Categories</h2>
+<div class="catalogWrap" id="classifiedCatalog"><article class="catBlock"><h3 class="catTitle beatLine">APPS - TOOLS</h3><div class="appList"><div class="appItem"><a class="appLink" href="/apps/agents/" target="_blank" rel="noopener noreferrer">Agents (UI)</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Workflow</span></div></div><div class="appItem"><a class="appLink" href="/apps/alibi/" target="_blank" rel="noopener noreferrer">Alibi</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Audit</span></div></div><div class="appItem"><a class="appLink" href="/apps/prompt-vault/" target="_blank" rel="noopener noreferrer">Prompt Vault</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Prompt Ops</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">DECISION SYSTEMS</h3><div class="appList"><div class="appItem"><a class="appLink" href="/apps/coverage-compass/" target="_blank" rel="noopener noreferrer">Coverage Compass</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Decision System</span></div></div><div class="appItem"><a class="appLink" href="/apps/ubr/" target="_blank" rel="noopener noreferrer">Ultimate Broker Route (UBR)</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Routing</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">AI / KNOWLEDGE</h3><div class="appList"><div class="appItem"><a class="appLink" href="/apps/floraguide-ai/" target="_blank" rel="noopener noreferrer">FloraGuide AI</a><div class="pillRow"><span class="fwPill">AI</span><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="/apps/lingolive-ai/" target="_blank" rel="noopener noreferrer">LingoLive AI</a><div class="pillRow"><span class="fwPill">AI</span><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="/apps/oracle-pit/" target="_blank" rel="noopener noreferrer">Oracle Pit</a><div class="pillRow"><span class="fwPill">AI</span><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">Forms, Grids &amp; Structured Input</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-angular-formfoundry.netlify.app" target="_blank" rel="noopener noreferrer">Angular FormFoundry</a><div class="pillRow"><span class="fwPill">Angular</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-angular-gridsmith.netlify.app" target="_blank" rel="noopener noreferrer">Angular GridSmith</a><div class="pillRow"><span class="fwPill">Angular</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-tapforge.netlify.app" target="_blank" rel="noopener noreferrer">TapForge</a><div class="pillRow"><span class="fwPill">Flutter</span><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-pocket-pass.netlify.app" target="_blank" rel="noopener noreferrer">Pocket Pass</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Firebase</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">Schema, Diff &amp; Rule Enforcement Engines</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-schemagate.netlify.app" target="_blank" rel="noopener noreferrer">SchemaGate</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-schemapulse.netlify.app" target="_blank" rel="noopener noreferrer">SchemaPulse</a><div class="pillRow"><span class="fwPill">Gradio</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-difflens.netlify.app" target="_blank" rel="noopener noreferrer">DiffLens</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-remix-diffatlas.netlify.app" target="_blank" rel="noopener noreferrer">Remix DiffAtlas</a><div class="pillRow"><span class="fwPill">Remix</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-compression.netlify.app" target="_blank" rel="noopener noreferrer">Compression</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Express</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-causality.netlify.app" target="_blank" rel="noopener noreferrer">Causality</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Express</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-queuegauge.netlify.app" target="_blank" rel="noopener noreferrer">QueueGauge</a><div class="pillRow"><span class="fwPill">NestJS</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-remix-queuesplice.netlify.app" target="_blank" rel="noopener noreferrer">Remix QueueSplice</a><div class="pillRow"><span class="fwPill">Remix</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hono-intake.netlify.app" target="_blank" rel="noopener noreferrer">Hono Intake</a><div class="pillRow"><span class="fwPill">Hono</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hono-gatekeeper.netlify.app" target="_blank" rel="noopener noreferrer">Hono Gatekeeper</a><div class="pillRow"><span class="fwPill">Hono</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hono-capsulecache.netlify.app" target="_blank" rel="noopener noreferrer">Hono CapsuleCache</a><div class="pillRow"><span class="fwPill">Hono</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">Reasoning &amp; Language Systems</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-angle.netlify.app" target="_blank" rel="noopener noreferrer">Angle</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Express</span><span class="fwPill">EJS</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-contradict.netlify.app" target="_blank" rel="noopener noreferrer">Contradict</a><div class="pillRow"><span class="fwPill">Next.js</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-interactive-terms-tr.netlify.app" target="_blank" rel="noopener noreferrer">Interactive Terms Translator</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-codex-of-hieroglyphi.netlify.app" target="_blank" rel="noopener noreferrer">Codex of Hieroglyphs</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-paradox-vault.netlify.app" target="_blank" rel="noopener noreferrer">Paradox Vault</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Local-First</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-quejudge.netlify.app" target="_blank" rel="noopener noreferrer">QueJudge</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-solvespace.netlify.app" target="_blank" rel="noopener noreferrer">SolveSpace</a><div class="pillRow"><span class="fwPill">Next.js</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-rule-furnace.netlify.app" target="_blank" rel="noopener noreferrer">Rule Furnace</a><div class="pillRow"><span class="fwPill">Fresh</span><span class="fwPill">Deno</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">CREATIVE / MEDIA / STUDIO</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-clip-forge.netlify.app" target="_blank" rel="noopener noreferrer">Clip Forge</a><div class="pillRow"><span class="fwPill">Tauri</span><span class="fwPill">Svelte</span><span class="fwPill">Desktop</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-cardpress.netlify.app" target="_blank" rel="noopener noreferrer">CardPress</a><div class="pillRow"><span class="fwPill">Vue</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-nuxt-cardpress.netlify.app" target="_blank" rel="noopener noreferrer">Nuxt CardPress</a><div class="pillRow"><span class="fwPill">Nuxt 3</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-surfacelab.netlify.app" target="_blank" rel="noopener noreferrer">SurfaceLab</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-electron-mapstencil.netlify.app" target="_blank" rel="noopener noreferrer">Electron MapStencil</a><div class="pillRow"><span class="fwPill">Electron</span><span class="fwPill">Desktop</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-electron-receiptbox.netlify.app" target="_blank" rel="noopener noreferrer">Electron ReceiptBox</a><div class="pillRow"><span class="fwPill">Electron</span><span class="fwPill">Desktop</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-electron-dockyard.netlify.app" target="_blank" rel="noopener noreferrer">Electron Dockyard</a><div class="pillRow"><span class="fwPill">Electron</span><span class="fwPill">Desktop</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-qwik-cardforge.netlify.app" target="_blank" rel="noopener noreferrer">Qwik CardForge</a><div class="pillRow"><span class="fwPill">Qwik City</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">TIMELINE / CADENCE</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-angular-chronicle.netlify.app" target="_blank" rel="noopener noreferrer">Angular Chronicle</a><div class="pillRow"><span class="fwPill">Angular</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-timeslice.netlify.app" target="_blank" rel="noopener noreferrer">TimeSlice</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-sessionmint.netlify.app" target="_blank" rel="noopener noreferrer">SessionMint</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Supabase</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-momentum.netlify.app" target="_blank" rel="noopener noreferrer">Momentum</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">SIGNAL / MONITORING</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-signal-board.netlify.app" target="_blank" rel="noopener noreferrer">Signal Board</a><div class="pillRow"><span class="fwPill">Vue</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-signal-kitchen.netlify.app" target="_blank" rel="noopener noreferrer">Signal Kitchen</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-nuxt-signalgrid.netlify.app" target="_blank" rel="noopener noreferrer">Nuxt SignalGrid</a><div class="pillRow"><span class="fwPill">Nuxt 3</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-qwik-signaltill.netlify.app" target="_blank" rel="noopener noreferrer">Qwik SignalTiill</a><div class="pillRow"><span class="fwPill">Qwik City</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-dash-flowlens.netlify.app" target="_blank" rel="noopener noreferrer">Dash FlowLens</a><div class="pillRow"><span class="fwPill">Dash</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-dash-driftmeter.netlify.app" target="_blank" rel="noopener noreferrer">Dash DriftMeter</a><div class="pillRow"><span class="fwPill">Dash</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-dash-claimscope.netlify.app" target="_blank" rel="noopener noreferrer">Dash ClaimScope</a><div class="pillRow"><span class="fwPill">Dash</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-lineflow.netlify.app" target="_blank" rel="noopener noreferrer">LineFlow</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-recalgrid.netlify.app" target="_blank" rel="noopener noreferrer">RecalGrid</a><div class="pillRow"><span class="fwPill">Gradio</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">MUSEUM / EXPERIENCE</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-digital-science.netlify.app" target="_blank" rel="noopener noreferrer">Digital Science Museum</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-wayfinder.netlify.app" target="_blank" rel="noopener noreferrer">WayFinder</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hallmap-studio.netlify.app" target="_blank" rel="noopener noreferrer">Hallmap Studio</a><div class="pillRow"><span class="fwPill">Streamlit</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-routeforge-console.netlify.app" target="_blank" rel="noopener noreferrer">RouteForge Console</a><div class="pillRow"><span class="fwPill">Streamlit</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">LEDGER / VAULT</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-cuedeck.netlify.app" target="_blank" rel="noopener noreferrer">CueDeck</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-operator-ledger.netlify.app" target="_blank" rel="noopener noreferrer">Operator Ledger</a><div class="pillRow"><span class="fwPill">Desktop</span><span class="fwPill">Download</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-palmledger.netlify.app" target="_blank" rel="noopener noreferrer">PalmLedger</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-snapshot-vault.netlify.app" target="_blank" rel="noopener noreferrer">SnapShot Vault</a><div class="pillRow"><span class="fwPill">NestJS</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-remix-vault-key.netlify.app" target="_blank" rel="noopener noreferrer">Remix Vault Key</a><div class="pillRow"><span class="fwPill">Remix</span><span class="fwPill">Encrypted Notes</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-receipt-vault.netlify.app" target="_blank" rel="noopener noreferrer">Receipt Vault</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Firebase</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-pocket-dossier.netlify.app" target="_blank" rel="noopener noreferrer">Pocket Dossier</a><div class="pillRow"><span class="fwPill">Flutter</span><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-room-key.netlify.app" target="_blank" rel="noopener noreferrer">Room Key</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Firebase</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-relayroom.netlify.app" target="_blank" rel="noopener noreferrer">RelayRoom</a><div class="pillRow"><span class="fwPill">NestJS</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">Docs, Specs &amp; Release Libraries</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-eleventy-patch-book.netlify.app" target="_blank" rel="noopener noreferrer">Eleventy Patch Book</a><div class="pillRow"><span class="fwPill">Eleventy</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-eleventy-spec-forge.netlify.app" target="_blank" rel="noopener noreferrer">Eleventy Spec Forge</a><div class="pillRow"><span class="fwPill">Eleventy</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-eleventy-switchboard.netlify.app" target="_blank" rel="noopener noreferrer">Eleventy Switchboard</a><div class="pillRow"><span class="fwPill">Eleventy</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hugo-atlasshelf.netlify.app" target="_blank" rel="noopener noreferrer">Hugo AtlasShelf</a><div class="pillRow"><span class="fwPill">Hugo</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hugo-fieldmanual.netlify.app" target="_blank" rel="noopener noreferrer">Hugo FieldManual</a><div class="pillRow"><span class="fwPill">Hugo</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hugo-release-gallery.netlify.app" target="_blank" rel="noopener noreferrer">Hugo Release Gallery</a><div class="pillRow"><span class="fwPill">Hugo</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-patchsmith.netlify.app" target="_blank" rel="noopener noreferrer">PatchSmith</a><div class="pillRow"><span class="fwPill">Gradio</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-repo-pilot.netlify.app" target="_blank" rel="noopener noreferrer">Repo Pilot</a><div class="pillRow"><span class="fwPill">Desktop</span><span class="fwPill">Download</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-swittchboard.netlify.app" target="_blank" rel="noopener noreferrer">Switchboard</a><div class="pillRow"><span class="fwPill">Vue</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">App Platform Labs &amp; View Infrastructure</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-nuxt-view-vault.netlify.app" target="_blank" rel="noopener noreferrer">Nuxt View Vault</a><div class="pillRow"><span class="fwPill">Nuxt 3</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-qwik-atlas.netlify.app" target="_blank" rel="noopener noreferrer">Qwik Atlas</a><div class="pillRow"><span class="fwPill">Qwik City</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-island-index.netlify.app" target="_blank" rel="noopener noreferrer">Island Index</a><div class="pillRow"><span class="fwPill">Fresh</span><span class="fwPill">Deno</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-draft-relay.netlify.app" target="_blank" rel="noopener noreferrer">Draft Relay</a><div class="pillRow"><span class="fwPill">Fresh</span><span class="fwPill">Deno</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-streamlit.netlify.app" target="_blank" rel="noopener noreferrer">StreamLit</a><div class="pillRow"><span class="fwPill">Streamlit</span><span class="fwPill">Python</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-neonscope.netlify.app" target="_blank" rel="noopener noreferrer">NeonScope</a><div class="pillRow"><span class="fwPill">Streamlit</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-latchlist.netlify.app" target="_blank" rel="noopener noreferrer">LatchList</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Supabase</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-order-of-one.netlify.app" target="_blank" rel="noopener noreferrer">Order of One</a><div class="pillRow"><span class="fwPill">Next.js</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-radar-of-one.netlify.app" target="_blank" rel="noopener noreferrer">Radar of One</a><div class="pillRow"><span class="fwPill">Next.js</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-tagtrellis.netlify.app" target="_blank" rel="noopener noreferrer">TagTrellis</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Supabase</span></div></div></div></article></div>
 </section>
-
-<section class="beat reveal" id="ui-labs---motion">
-<h2 class="beatLine">UI LABS / MOTION</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-motion-workshop.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Motion Workshop Bench</div><div class="landingCardMeta">React</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="creative-tools---canvas">
-<h2 class="beatLine">CREATIVE TOOLS / CANVAS</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-friction-painter.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Friction Painter</div><div class="landingCardMeta">React</div></a>
-  <a class="landingCard" href="https://dev-in-portfolio-ink-that-remembers.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Ink That Remembers</div><div class="landingCardMeta">React</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="generative---visual-systems">
-<h2 class="beatLine">GENERATIVE / VISUAL SYSTEMS</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-glow-garden.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Glow Garden</div><div class="landingCardMeta">React</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="creative---media">
-<h2 class="beatLine">CREATIVE / MEDIA / STUDIO</h2>
-<p class="beatText">
-</p>
-<div class="landingGrid">
-  <a class="landingCard" href="/apps/apps/sleepystory/"><div class="landingCardTitle">SleepyStory</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/toonstudio/"><div class="landingCardTitle">ToonStudio</div><div class="landingCardMeta">HTML/JS</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="media---tools---editing">
-<h2 class="beatLine">MEDIA TOOLS / EDITING</h2>
-<p class="beatText">
-</p>
-<div class="landingGrid">
-  <a class="landingCard" href="/apps/apps/splice/"><div class="landingCardTitle">Splice
-</div><div class="landingCardMeta">HTML/JS</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="real-time-render">
-<h2 class="beatLine">REAL-TIME RENDER</h2>
-<p class="beatText">
-</p>
-<div class="landingGrid">
-  <a class="landingCard" href="/apps/apps/helios/"><div class="landingCardTitle">Helios</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/transit/"><div class="landingCardTitle">Transit</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/vortex/"><div class="landingCardTitle">Vortex</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/helix/"><div class="landingCardTitle">Helix</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/tectonic/"><div class="landingCardTitle">Tectonic</div><div class="landingCardMeta">HTML/JS</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="interactive-sim">
-<h2 class="beatLine">INTERACTIVE SIM</h2>
-<p class="beatText">
-</p>
-<div class="landingGrid">
-  <a class="landingCard" href="/apps/apps/aeon/"><div class="landingCardTitle">Aeon</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/magma/"><div class="landingCardTitle">Magma</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/string/"><div class="landingCardTitle">String</div><div class="landingCardMeta">HTML/JS</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="storyworld---explorer">
-<h2 class="beatLine">STORYWORLD / EXPLORER</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-field-notes-altearth.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Field Notes: Alternate Earths</div><div class="landingCardMeta">React</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="museum---experience">
-<h2 class="beatLine">MUSEUM / EXPERIENCE</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-the-long-walk.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">The Long Walk</div><div class="landingCardMeta">React</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="games---puzzles">
-<h2 class="beatLine">GAMES / PUZZLES / LOGIC</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-constraint-chess.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Constraint Chess</div><div class="landingCardMeta">React</div></a>
-  <a class="landingCard" href="https://dev-in-portfolio-riddle-room.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Riddle Rooms</div><div class="landingCardMeta">React</div></a>
-  <a class="landingCard" href="/apps/apps/crossword-arena/"><div class="landingCardTitle">Crossword Arena</div><div class="landingCardMeta">HTML/JS</div></a>
-  <a class="landingCard" href="/apps/apps/evening-epic-sudoku/"><div class="landingCardTitle">Evening Epic Sudoku</div><div class="landingCardMeta">HTML/JS</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="chaos">
-<h2 class="beatLine">CHAOS</h2>
-<p class="beatText">
-</p>
-<div class="landingGrid">
-  <a class="landingCard" href="/do-not-press.html"><div class="landingCardTitle">Do Not Press
-</div><div class="landingCardMeta">HTML/JS</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="training---reflex">
-<h2 class="beatLine">TRAINING / REFLEX</h2>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-reflex-trainer.netlify.app" target="_blank" rel="noopener"><div class="landingCardTitle">Reflex Trainer</div><div class="landingCardMeta">React</div></a>
-</div>
-</section>
-
-<section class="beat reveal" id="info">
-<h2 class="beatLine">INFO</h2>
-<p class="beatText">Supporting pages and orientation.</p>
-<div class="landingGrid">
-  <a class="landingCard" href="https://dev-in-portfolio-about.netlify.app/"><div class="landingCardTitle">About</div><div class="landingCardMeta">HTML/JS</div></a>
-</div>
-</section>
-
 </main>
 <script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+<script>
+    (async function(){
+      const CATEGORY_DATA = [
+        { name:"APPS - TOOLS", apps:[
+          {name:"Agents (UI)", href:"/apps/agents/", tags:["HTML/JS"]},
+          {name:"Alibi", href:"/apps/alibi/", tags:["HTML/JS"]},
+          {name:"Prompt Vault", href:"/apps/prompt-vault/", tags:["HTML/JS"]}
+        ]},
+        { name:"DECISION SYSTEMS", apps:[
+          {name:"Coverage Compass", href:"/apps/coverage-compass/", tags:["HTML/JS"]},
+          {name:"Ultimate Broker Route (UBR)", href:"/apps/ubr/", tags:["HTML/JS"]},
+          {name:"Contradict", href:"https://dev-in-portfolio-contradict.netlify.app", tags:["Next.js"]}
+        ]},
+        { name:"AI / KNOWLEDGE", apps:[
+          {name:"FloraGuide AI", href:"/apps/floraguide-ai/", tags:["HTML/JS"]},
+          {name:"LingoLive AI", href:"/apps/lingolive-ai/", tags:["HTML/JS"]},
+          {name:"Oracle Pit", href:"/apps/oracle-pit/", tags:["HTML/JS"]}
+        ]},
+        { name:"Reasoning & Language Systems", apps:[
+          {name:"Angle", href:"https://dev-in-portfolio-angle.netlify.app", tags:["Node API","Express","EJS","Neon"]},
+          {name:"Interactive Terms Translator", href:"https://dev-in-portfolio-interactive-terms-tr.netlify.app", tags:["Astro","Static"]},
+          {name:"Paradox Vault", href:"https://dev-in-portfolio-paradox-vault.netlify.app", tags:["Web App","Local-First"]},
+          {name:"QueJudge", href:"https://dev-in-portfolio-quejudge.netlify.app", tags:["Node API","Neon"]},
+          {name:"SolveSpace", href:"https://dev-in-portfolio-solvespace.netlify.app", tags:["Next.js"]},
+          {name:"Rule Furnace", href:"https://dev-in-portfolio-rule-furnace.netlify.app", tags:["Fresh","Deno","Neon"]}
+        ]},
+        { name:"Forms, Grids & Structured Input", apps:[
+          {name:"Angular FormFoundry", href:"https://dev-in-portfolio-angular-formfoundry.netlify.app", tags:["Angular","Functions","Neon"]},
+          {name:"Angular GridSmith", href:"https://dev-in-portfolio-angular-gridsmith.netlify.app", tags:["Angular","Functions","Neon"]},
+          {name:"TapForge", href:"https://dev-in-portfolio-tapforge.netlify.app", tags:["Flutter","Node API","Neon"]},
+          {name:"Pocket Pass", href:"https://dev-in-portfolio-pocket-pass.netlify.app", tags:["Next.js","Firebase","Neon"]}
+        ]},
+        { name:"Timeline, Cadence & Session Flow", apps:[
+          {name:"Angular Chronicle", href:"https://dev-in-portfolio-angular-chronicle.netlify.app", tags:["Angular","Functions","Neon"]},
+          {name:"TimeSlice", href:"https://dev-in-portfolio-timeslice.netlify.app", tags:["Web App","Neon"]},
+          {name:"SessionMint", href:"https://dev-in-portfolio-sessionmint.netlify.app", tags:["Next.js","Supabase"]},
+          {name:"Momentum", href:"https://dev-in-portfolio-momentum.netlify.app", tags:["Astro","Neon"]}
+        ]},
+        { name:"Signal, Status & Monitoring Boards", apps:[
+          {name:"Signal Board", href:"https://dev-in-portfolio-signal-board.netlify.app", tags:["Vue","Functions","Neon"]},
+          {name:"Signal Kitchen", href:"https://dev-in-portfolio-signal-kitchen.netlify.app", tags:["Web App","Neon"]},
+          {name:"Nuxt SignalGrid", href:"https://dev-in-portfolio-nuxt-signalgrid.netlify.app", tags:["Nuxt 3","Neon"]},
+          {name:"Qwik SignalTiill", href:"https://dev-in-portfolio-qwik-signaltill.netlify.app", tags:["Qwik City","Functions","Neon"]},
+          {name:"Dash FlowLens", href:"https://dev-in-portfolio-dash-flowlens.netlify.app", tags:["Dash","Python","Neon"]},
+          {name:"Dash DriftMeter", href:"https://dev-in-portfolio-dash-driftmeter.netlify.app", tags:["Dash","Python","Neon"]},
+          {name:"Dash ClaimScope", href:"https://dev-in-portfolio-dash-claimscope.netlify.app", tags:["Dash","Python","Neon"]},
+          {name:"QueueGauge", href:"https://dev-in-portfolio-queuegauge.netlify.app", tags:["NestJS","Neon"]},
+          {name:"LineFlow", href:"https://dev-in-portfolio-lineflow.netlify.app", tags:["Node API","Functions","Neon"]},
+          {name:"RecalGrid", href:"https://dev-in-portfolio-recalgrid.netlify.app", tags:["Gradio","Python","Neon"]}
+        ]},
+        { name:"Ledger, Vault & Record Systems", apps:[
+          {name:"CueDeck", href:"https://dev-in-portfolio-cuedeck.netlify.app", tags:["Node API","Functions","Neon"]},
+          {name:"Operator Ledger", href:"https://dev-in-portfolio-operator-ledger.netlify.app", tags:["Desktop","Download"]},
+          {name:"PalmLedger", href:"https://dev-in-portfolio-palmledger.netlify.app", tags:["Node API","Functions","Neon"]},
+          {name:"SnapShot Vault", href:"https://dev-in-portfolio-snapshot-vault.netlify.app", tags:["NestJS","Functions","Neon"]},
+          {name:"Remix Vault Key", href:"https://dev-in-portfolio-remix-vault-key.netlify.app", tags:["Remix","Encrypted Notes"]},
+          {name:"Receipt Vault", href:"https://dev-in-portfolio-receipt-vault.netlify.app", tags:["Next.js","Firebase","Neon"]},
+          {name:"Pocket Dossier", href:"https://dev-in-portfolio-pocket-dossier.netlify.app", tags:["Flutter","Node API","Neon"]},
+          {name:"Room Key", href:"https://dev-in-portfolio-room-key.netlify.app", tags:["Next.js","Firebase","Neon"]},
+          {name:"RelayRoom", href:"https://dev-in-portfolio-relayroom.netlify.app", tags:["NestJS","Neon"]}
+        ]},
+        { name:"Media, Cards & Composition Studios", apps:[
+          {name:"Clip Forge", href:"https://dev-in-portfolio-clip-forge.netlify.app", tags:["Tauri","Svelte","Desktop"]},
+          {name:"CardPress", href:"https://dev-in-portfolio-cardpress.netlify.app", tags:["Vue","Functions","Neon"]},
+          {name:"Nuxt CardPress", href:"https://dev-in-portfolio-nuxt-cardpress.netlify.app", tags:["Nuxt 3","Neon"]},
+          {name:"SurfaceLab", href:"https://dev-in-portfolio-surfacelab.netlify.app", tags:["Web App","Neon"]},
+          {name:"SleepyStory", href:"/apps/sleepystory/", tags:["HTML/JS"]},
+          {name:"ToonStudio", href:"/apps/toonstudio/", tags:["HTML/JS"]},
+          {name:"Electron MapStencil", href:"https://dev-in-portfolio-electron-mapstencil.netlify.app", tags:["Electron","Desktop"]},
+          {name:"Electron ReceiptBox", href:"https://dev-in-portfolio-electron-receiptbox.netlify.app", tags:["Electron","Desktop"]},
+          {name:"Electron Dockyard", href:"https://dev-in-portfolio-electron-dockyard.netlify.app", tags:["Electron","Desktop"]},
+          {name:"Qwik CardForge", href:"https://dev-in-portfolio-qwik-cardforge.netlify.app", tags:["Qwik City","Functions","Neon"]}
+        ]},
+        { name:"Spatial, Museum & Navigation Systems", apps:[
+          {name:"Digital Science Museum", href:"https://dev-in-portfolio-digital-science.netlify.app", tags:["Astro","Functions","Neon"]},
+          {name:"WayFinder", href:"https://dev-in-portfolio-wayfinder.netlify.app", tags:["Astro","Static"]},
+          {name:"The Long Walk", href:"/apps/the-long-walk/", tags:["React"]},
+          {name:"Hallmap Studio", href:"https://dev-in-portfolio-hallmap-studio.netlify.app", tags:["Streamlit","Python","Neon"]},
+          {name:"RouteForge Console", href:"https://dev-in-portfolio-routeforge-console.netlify.app", tags:["Streamlit","Python","Neon"]}
+        ]},
+        { name:"Docs, Specs & Release Libraries", apps:[
+          {name:"Eleventy Patch Book", href:"https://dev-in-portfolio-eleventy-patch-book.netlify.app", tags:["Eleventy","Static"]},
+          {name:"Eleventy Spec Forge", href:"https://dev-in-portfolio-eleventy-spec-forge.netlify.app", tags:["Eleventy","Static"]},
+          {name:"Eleventy Switchboard", href:"https://dev-in-portfolio-eleventy-switchboard.netlify.app", tags:["Eleventy","Static"]},
+          {name:"Hugo AtlasShelf", href:"https://dev-in-portfolio-hugo-atlasshelf.netlify.app", tags:["Hugo","Static"]},
+          {name:"Hugo FieldManual", href:"https://dev-in-portfolio-hugo-fieldmanual.netlify.app", tags:["Hugo","Static"]},
+          {name:"Hugo Release Gallery", href:"https://dev-in-portfolio-hugo-release-gallery.netlify.app", tags:["Hugo","Static"]},
+          {name:"PatchSmith", href:"https://dev-in-portfolio-patchsmith.netlify.app", tags:["Gradio","Python","Neon"]},
+          {name:"Repo Pilot", href:"https://dev-in-portfolio-repo-pilot.netlify.app", tags:["Desktop","Download"]},
+          {name:"Draft Relay", href:"https://dev-in-portfolio-draft-relay.netlify.app", tags:["Fresh","Deno","Neon"]},
+          {name:"Switchboard", href:"https://dev-in-portfolio-swittchboard.netlify.app", tags:["Vue","Functions","Neon"]}
+        ]},
+        { name:"Schema, Diff & Rule Enforcement Engines", apps:[
+          {name:"SchemaGate", href:"https://dev-in-portfolio-schemagate.netlify.app", tags:["Node API","Neon"]},
+          {name:"SchemaPulse", href:"https://dev-in-portfolio-schemapulse.netlify.app", tags:["Gradio","Python","Neon"]},
+          {name:"DiffLens", href:"https://dev-in-portfolio-difflens.netlify.app", tags:["Node API","Neon"]},
+          {name:"Remix DiffAtlas", href:"https://dev-in-portfolio-remix-diffatlas.netlify.app", tags:["Remix","Neon"]},
+          {name:"Compression", href:"https://dev-in-portfolio-compression.netlify.app", tags:["Node API","Express","Neon"]},
+          {name:"Causality", href:"https://dev-in-portfolio-causality.netlify.app", tags:["Node API","Express","Neon"]},
+          {name:"Remix QueueSplice", href:"https://dev-in-portfolio-remix-queuesplice.netlify.app", tags:["Remix","Neon"]},
+          {name:"Hono Intake", href:"https://dev-in-portfolio-hono-intake.netlify.app", tags:["Hono","Functions","Neon"]},
+          {name:"Hono Gatekeeper", href:"https://dev-in-portfolio-hono-gatekeeper.netlify.app", tags:["Hono","Functions","Neon"]},
+          {name:"Hono CapsuleCache", href:"https://dev-in-portfolio-hono-capsulecache.netlify.app", tags:["Hono","Functions","Neon"]}
+        ]},
+        { name:"App Platform Labs & View Infrastructure", apps:[
+          {name:"Nuxt View Vault", href:"https://dev-in-portfolio-nuxt-view-vault.netlify.app", tags:["Nuxt 3","Neon"]},
+          {name:"Qwik Atlas", href:"https://dev-in-portfolio-qwik-atlas.netlify.app", tags:["Qwik City","Functions","Neon"]},
+          {name:"Island Index", href:"https://dev-in-portfolio-island-index.netlify.app", tags:["Fresh","Deno","Neon"]},
+          {name:"StreamLit", href:"https://dev-in-portfolio-streamlit.netlify.app", tags:["Streamlit","Python"]},
+          {name:"NeonScope", href:"https://dev-in-portfolio-neonscope.netlify.app", tags:["Streamlit","Python","Neon"]},
+          {name:"LatchList", href:"https://dev-in-portfolio-latchlist.netlify.app", tags:["Next.js","Supabase"]},
+          {name:"Order of One", href:"https://dev-in-portfolio-order-of-one.netlify.app", tags:["Next.js"]},
+          {name:"Radar of One", href:"https://dev-in-portfolio-radar-of-one.netlify.app", tags:["Next.js"]},
+          {name:"TagTrellis", href:"https://dev-in-portfolio-tagtrellis.netlify.app", tags:["Next.js","Supabase"]}
+        ]}
+      ];
+
+      const CATEGORY_ORDER = [
+        "APPS - TOOLS",
+        "DECISION SYSTEMS",
+        "AI / KNOWLEDGE",
+        "MEDIA TOOLS / EDITING",
+        "REAL-TIME RENDER",
+        "INTERACTIVE SIM",
+        "Forms, Grids & Structured Input",
+        "KNOWLEDGE / REFERENCE",
+        "GAMES / PUZZLES / LOGIC",
+        "Signal, Status & Monitoring Boards",
+        "BUILDERS / GENERATORS",
+        "Timeline, Cadence & Session Flow",
+        "CREATIVE TOOLS / CANVAS",
+        "Schema, Diff & Rule Enforcement Engines",
+        "Ledger, Vault & Record Systems",
+        "STORYWORLD / EXPLORER",
+        "Docs, Specs & Release Libraries",
+        "App Platform Labs & View Infrastructure",
+        "UI LABS / MOTION",
+        "GENERATIVE / VISUAL SYSTEMS",
+        "Reasoning & Language Systems",
+        "Spatial, Museum & Navigation Systems",
+        "KNOWLEDGE / FIELD GUIDE",
+        "TRAINING / REFLEX",
+        "CHAOS",
+        "INFO"
+      ];
+
+      const CATEGORY_LABELS = {
+        "Media, Cards & Composition Studios": "CREATIVE / MEDIA / STUDIO",
+        "Timeline, Cadence & Session Flow": "TIMELINE / CADENCE",
+        "Signal, Status & Monitoring Boards": "SIGNAL / MONITORING",
+        "Spatial, Museum & Navigation Systems": "MUSEUM / EXPERIENCE",
+        "Ledger, Vault & Record Systems": "LEDGER / VAULT"
+      };
+      const EXTRA_CATEGORIES = [
+        { name:"KNOWLEDGE / REFERENCE", apps:[
+          {name:"Codex of Imaginary Physics", href:"/apps/codex-of-imaginary-physics/", tags:["React"]},
+          {name:"Codex of Hieroglyphs", href:"https://dev-in-portfolio-codex-of-hieroglyphi.netlify.app", tags:["Astro","Static"]}
+        ]},
+        { name:"KNOWLEDGE / FIELD GUIDE", apps:[
+          {name:"Myths & Facts Almanac", href:"/apps/myths-facts-almanac/", tags:["React"]}
+        ]},
+        { name:"BUILDERS / GENERATORS", apps:[
+          {name:"Time-Locked Page Forge", href:"/apps/time-locked-page-forge/", tags:["React"]}
+        ]},
+        { name:"UI LABS / MOTION", apps:[
+          {name:"Motion Workshop Bench", href:"/apps/motion-workshop-bench/", tags:["React"]}
+        ]},
+        { name:"CREATIVE TOOLS / CANVAS", apps:[
+          {name:"Friction Painter", href:"/apps/friction-painter/", tags:["React"]},
+          {name:"Ink That Remembers", href:"/apps/ink-that-remembers/", tags:["React"]}
+        ]},
+        { name:"GENERATIVE / VISUAL SYSTEMS", apps:[
+          {name:"Glow Garden", href:"/apps/glow-garden/", tags:["React"]}
+        ]},
+        { name:"MEDIA TOOLS / EDITING", apps:[
+          {name:"Splice", href:"/apps/splice/", tags:["HTML/JS"]}
+        ]},
+        { name:"REAL-TIME RENDER", apps:[
+          {name:"Helios", href:"/apps/helios/", tags:["HTML/JS"]},
+          {name:"Transit", href:"/apps/transit/", tags:["HTML/JS"]},
+          {name:"Vortex", href:"/apps/vortex/", tags:["HTML/JS"]},
+          {name:"Helix", href:"/apps/helix/", tags:["HTML/JS"]},
+          {name:"Tectonic", href:"/apps/tectonic/", tags:["HTML/JS"]}
+        ]},
+        { name:"INTERACTIVE SIM", apps:[
+          {name:"Aeon", href:"/apps/aeon/", tags:["HTML/JS"]},
+          {name:"Magma", href:"/apps/magma/", tags:["HTML/JS"]},
+          {name:"String", href:"/apps/string/", tags:["HTML/JS"]}
+        ]},
+        { name:"STORYWORLD / EXPLORER", apps:[
+          {name:"Field Notes: Alternate Earths", href:"/apps/field-notes-alternate-earths/", tags:["React"]}
+        ]},
+        { name:"GAMES / PUZZLES / LOGIC", apps:[
+          {name:"Constraint Chess", href:"/apps/constraint-chess/", tags:["React"]},
+          {name:"Riddle Rooms", href:"/apps/riddle-rooms/", tags:["React"]},
+          {name:"Crossword Arena", href:"/apps/crossword-arena/", tags:["HTML/JS"]},
+          {name:"Evening Epic Sudoku", href:"/apps/evening-epic-sudoku/", tags:["HTML/JS"]}
+        ]},
+        { name:"CHAOS", apps:[
+          {name:"Do Not Press", href:"/do-not-press.html", tags:["HTML/JS"]}
+        ]},
+        { name:"TRAINING / REFLEX", apps:[
+          {name:"Reflex Trainer", href:"/apps/reflex-trainer/", tags:["React"]}
+        ]},
+        { name:"INFO", apps:[
+          {name:"About", href:"/about.html", tags:["HTML/JS"]}
+        ]}
+      ];
+
+      let dataSource = null;
+      try {
+        const res = await fetch("/assets/apps-data.json", { cache: "no-store" });
+        if (res.ok) dataSource = await res.json();
+      } catch (_) {}
+      const CATEGORY_DATA_SRC = dataSource?.categoryData || CATEGORY_DATA;
+      const EXTRA_CATEGORIES_SRC = dataSource?.extraCategories || EXTRA_CATEGORIES;
+      const CATEGORY_ORDER_SRC = dataSource?.categoryOrder || CATEGORY_ORDER;
+      const CATEGORY_LABELS_SRC = dataSource?.categoryLabels || CATEGORY_LABELS;
+
+      const ALL_CATEGORIES = [...CATEGORY_DATA_SRC, ...EXTRA_CATEGORIES_SRC];
+      const orderIndex = new Map(CATEGORY_ORDER_SRC.map((name, idx) => [name, idx]));
+      const displayCategories = [...ALL_CATEGORIES].sort((a, b) => {
+        const ai = orderIndex.has(a.name) ? orderIndex.get(a.name) : 999;
+        const bi = orderIndex.has(b.name) ? orderIndex.get(b.name) : 999;
+        if (ai !== bi) return ai - bi;
+        return a.name.localeCompare(b.name);
+      });
+
+      const root = document.getElementById("classifiedCatalog");
+      if (!root) return;
+      if (!document.getElementById("frameworks-title")) {
+        const frameworksTitle = document.createElement("h2");
+        frameworksTitle.id = "frameworks-title";
+        frameworksTitle.className = "catalogHeader";
+        frameworksTitle.textContent = "Frameworks";
+        root.insertAdjacentElement("afterend", frameworksTitle);
+      }
+
+      const appendCategory = (cat) => {
+        const block = document.createElement("article");
+        block.className = "catBlock";
+        const title = document.createElement("h3");
+        title.className = "catTitle beatLine";
+        title.textContent = CATEGORY_LABELS_SRC[cat.name] || cat.name;
+        block.appendChild(title);
+        const list = document.createElement("div");
+        list.className = "appList";
+        cat.apps.forEach((app) => {
+          if (seenAppHrefs.has(app.href)) return;
+          seenAppHrefs.add(app.href);
+          const item = document.createElement("div");
+          item.className = "appItem";
+          const link = document.createElement("a");
+          link.className = "appLink";
+          link.href = app.href;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = app.name;
+          item.appendChild(link);
+          const pills = document.createElement("div");
+          pills.className = "pillRow";
+          (app.tags || []).forEach((tag) => {
+            const pill = document.createElement("span");
+            pill.className = "fwPill";
+            pill.textContent = tag;
+            pills.appendChild(pill);
+          });
+          item.appendChild(pills);
+          list.appendChild(item);
+        });
+        if (!list.childElementCount) return;
+        block.appendChild(list);
+        root.appendChild(block);
+      };
+
+      const seenAppHrefs = new Set();
+      root.innerHTML = "";
+      displayCategories.forEach(appendCategory);
+
+      const frameworksTitle = document.getElementById("frameworks-title");
+      if (!frameworksTitle) return;
+      let frameworksCatalog = document.getElementById("frameworksCatalog");
+      if (!frameworksCatalog) {
+        frameworksCatalog = document.createElement("div");
+        frameworksCatalog.id = "frameworksCatalog";
+        frameworksCatalog.className = "catalogWrap";
+        frameworksTitle.insertAdjacentElement("afterend", frameworksCatalog);
+      }
+      frameworksCatalog.innerHTML = "";
+
+      const FRAMEWORK_SECTION_TAGS = new Set([
+        "HTML/JS", "React", "Angular", "Astro", "Vue", "Nuxt 3", "Next.js", "Remix",
+        "Qwik City", "Hono", "Fresh", "Eleventy", "Hugo", "Streamlit", "Flutter",
+        "Svelte", "Tauri", "Electron", "Node API", "Express", "NestJS", "Dash",
+        "Gradio", "Deno", "Python", "Supabase", "Firebase", "Neon", "Functions", "Static"
+      ]);
+
+      const frameworkApps = new Map();
+      root.querySelectorAll(".appItem").forEach((item) => {
+        const link = item.querySelector(".appLink");
+        if (!link) return;
+        const app = {
+          name: (link.textContent || "").trim(),
+          href: link.getAttribute("href") || "#",
+          tags: Array.from(item.querySelectorAll(".fwPill")).map((p) => (p.textContent || "").trim()).filter(Boolean)
+        };
+        app.tags.forEach((tag) => {
+          if (!FRAMEWORK_SECTION_TAGS.has(tag)) return;
+          if (!frameworkApps.has(tag)) frameworkApps.set(tag, []);
+          const bucket = frameworkApps.get(tag);
+          if (!bucket.some((x) => x.href === app.href)) bucket.push(app);
+        });
+      });
+
+      const frameworkOrder = Array.from(frameworkApps.keys()).sort((a, b) => {
+        if (a === "Neon" && b !== "Neon") return 1;
+        if (b === "Neon" && a !== "Neon") return -1;
+        const d = frameworkApps.get(b).length - frameworkApps.get(a).length;
+        if (d !== 0) return d;
+        return a.localeCompare(b);
+      });
+      const FRAMEWORK_ACCENTS = {
+        "React": "#8ed7ff",
+        "Angular": "#ff8e9e",
+        "Astro": "#ffbe85",
+        "Vue": "#8dffc3",
+        "Nuxt 3": "#8bffcf",
+        "Next.js": "#c7d0ff",
+        "Remix": "#b9d5ff",
+        "Qwik City": "#9ec0ff",
+        "Hono": "#ffd094",
+        "Fresh": "#ffd6a3",
+        "Eleventy": "#f2b6ff",
+        "Hugo": "#ffc0dc",
+        "Streamlit": "#ffb0b0",
+        "Flutter": "#99dbff",
+        "Svelte": "#ffbd9d",
+        "Tauri": "#ffcb9a",
+        "Electron": "#a6f2ff",
+        "Node API": "#8adfb0",
+        "Express": "#a9d2ff",
+        "NestJS": "#ff9ebb",
+        "Dash": "#8ec2ff",
+        "Gradio": "#ffbc8f",
+        "Deno": "#d7ddff",
+        "Python": "#ffe08a",
+        "Supabase": "#95ffc6",
+        "Firebase": "#ffd97b",
+        "Neon": "#7dffdd",
+        "Functions": "#95efff",
+        "Static": "#d2d2ff",
+        "HTML/JS": "#9fc8ff"
+      };
+
+      frameworkOrder.forEach((framework) => {
+        const block = document.createElement("article");
+        block.className = "catBlock frameworkBlock";
+        block.id = "fw-" + framework.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        block.style.setProperty("--fw-accent", FRAMEWORK_ACCENTS[framework] || "#9bd2ff");
+        const title = document.createElement("h3");
+        title.className = "catTitle beatLine";
+        title.textContent = framework;
+        block.appendChild(title);
+
+        const list = document.createElement("div");
+        list.className = "appList";
+        frameworkApps.get(framework).forEach((app) => {
+          const appItem = document.createElement("div");
+          appItem.className = "appItem";
+
+          const link = document.createElement("a");
+          link.className = "appLink";
+          link.href = app.href;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = app.name;
+          appItem.appendChild(link);
+
+          const pills = document.createElement("div");
+          pills.className = "pillRow";
+          app.tags.forEach((tag) => {
+            const pill = document.createElement("span");
+            pill.className = "fwPill";
+            pill.textContent = tag;
+            pills.appendChild(pill);
+          });
+          appItem.appendChild(pills);
+          list.appendChild(appItem);
+        });
+
+        block.appendChild(list);
+        frameworksCatalog.appendChild(block);
+      });
+
+      let allAppsTitle = document.getElementById("all-apps-title");
+      if (!allAppsTitle) {
+        allAppsTitle = document.createElement("h2");
+        allAppsTitle.id = "all-apps-title";
+        allAppsTitle.className = "catalogHeader";
+        allAppsTitle.textContent = "All Apps A-Z";
+        frameworksCatalog.insertAdjacentElement("afterend", allAppsTitle);
+      }
+
+      let allAppsCatalog = document.getElementById("allAppsCatalog");
+      if (!allAppsCatalog) {
+        allAppsCatalog = document.createElement("div");
+        allAppsCatalog.id = "allAppsCatalog";
+        allAppsCatalog.className = "catalogWrap";
+        allAppsTitle.insertAdjacentElement("afterend", allAppsCatalog);
+      }
+      allAppsCatalog.innerHTML = "";
+
+      const sourceApps = Array.from(root.querySelectorAll(".appItem")).map((item) => {
+        const link = item.querySelector(".appLink");
+        if (!link) return null;
+        return {
+          name: (link.textContent || "").trim(),
+          href: link.getAttribute("href") || "#",
+          tags: Array.from(item.querySelectorAll(".fwPill")).map((p) => (p.textContent || "").trim()).filter(Boolean)
+        };
+      }).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
+
+      const grouped = new Map();
+      for (let i = 65; i <= 90; i += 1) grouped.set(String.fromCharCode(i), []);
+      sourceApps.forEach((app) => {
+        const letter = ((app.name || "").trim().charAt(0).toUpperCase() || "#");
+        if (grouped.has(letter)) grouped.get(letter).push(app);
+      });
+
+      Array.from(grouped.entries()).forEach(([letter, apps]) => {
+        const block = document.createElement("article");
+        block.className = "catBlock";
+        block.id = `az-${letter.toLowerCase()}`;
+
+        const title = document.createElement("h3");
+        title.className = "catTitle beatLine";
+        title.textContent = letter;
+        block.appendChild(title);
+
+        const list = document.createElement("div");
+        list.className = "appList";
+
+        if (!apps.length) {
+          const emptyItem = document.createElement("div");
+          emptyItem.className = "appItem";
+          const note = document.createElement("span");
+          note.className = "noAppNote";
+          note.textContent = "No apps";
+          emptyItem.appendChild(note);
+          list.appendChild(emptyItem);
+        } else {
+          apps.forEach((app) => {
+            const appItem = document.createElement("div");
+            appItem.className = "appItem";
+
+            const link = document.createElement("a");
+            link.className = "appLink";
+            link.href = app.href;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = app.name;
+            appItem.appendChild(link);
+
+            const pills = document.createElement("div");
+            pills.className = "pillRow";
+            app.tags.forEach((tag) => {
+              const pill = document.createElement("span");
+              pill.className = "fwPill";
+              pill.textContent = tag;
+              pills.appendChild(pill);
+            });
+            appItem.appendChild(pills);
+            list.appendChild(appItem);
+          });
+        }
+
+        block.appendChild(list);
+        allAppsCatalog.appendChild(block);
+      });
+    })();
+  </script>
+<script>
+    (function(){
+      // Convert legacy cards into the same structure as the new category cards.
+      document.querySelectorAll(".landingGrid a.landingCard").forEach((legacy) => {
+        const titleNode = legacy.querySelector(".landingCardTitle");
+        if (!titleNode) return;
+
+        const item = document.createElement("div");
+        item.className = "appItem";
+
+        const link = document.createElement("a");
+        link.className = "appLink";
+        link.href = legacy.getAttribute("href") || "#";
+        link.textContent = (titleNode.textContent || "").trim();
+        item.appendChild(link);
+
+        const pills = document.createElement("div");
+        pills.className = "pillRow";
+        legacy.querySelectorAll(".landingCardMetaRow .landingCardMeta, .landingCardMeta").forEach((meta) => {
+          const text = (meta.textContent || "").trim();
+          if (!text) return;
+          const pill = document.createElement("span");
+          pill.className = "fwPill";
+          pill.textContent = text;
+          pills.appendChild(pill);
+        });
+        if (pills.childElementCount) item.appendChild(pills);
+
+        legacy.replaceWith(item);
+      });
+
+      // Remove duplicate legacy category sections now that the unified generated catalog exists.
+      [
+        "apps---tools",
+        "data-plus-systems",
+        "ai---knowledge",
+        "knowledge---reference",
+        "knowledge---field-guide",
+        "builders---generators",
+        "ui-labs---motion",
+        "creative-tools---canvas",
+        "generative---visual-systems",
+        "creative---media",
+        "media---tools---editing",
+        "real-time-render",
+        "interactive-sim",
+        "storyworld---explorer",
+        "museum---experience",
+        "games---puzzles",
+        "chaos",
+        "training---reflex",
+        "info"
+      ].forEach((id) => {
+        const node = document.getElementById(id);
+        if (node) node.remove();
+      });
+
+      const ABS_URLS = {
+        "angle":"https://dev-in-portfolio-angle.netlify.app",
+        "angular-chronicle":"https://dev-in-portfolio-angular-chronicle.netlify.app",
+        "angular-formfoundry":"https://dev-in-portfolio-angular-formfoundry.netlify.app",
+        "angular-gridsmith":"https://dev-in-portfolio-angular-gridsmith.netlify.app",
+        "causality":"https://dev-in-portfolio-causality.netlify.app",
+        "compression":"https://dev-in-portfolio-compression.netlify.app",
+        "cuedeck":"https://dev-in-portfolio-cuedeck.netlify.app",
+        "electron-dockyard":"https://dev-in-portfolio-electron-dockyard.netlify.app",
+        "electron-mapstencil":"https://dev-in-portfolio-electron-mapstencil.netlify.app",
+        "electron-receiptbox":"https://dev-in-portfolio-electron-receiptbox.netlify.app",
+        "clip-forge":"https://dev-in-portfolio-clip-forge.netlify.app",
+        "codex-of-h":"https://dev-in-portfolio-codex-of-hieroglyphi.netlify.app",
+        "digital-science-museum":"https://dev-in-portfolio-digital-science.netlify.app",
+        "interactive-terms-translator":"https://dev-in-portfolio-interactive-terms-tr.netlify.app",
+        "momentum":"https://dev-in-portfolio-momentum.netlify.app",
+        "operator-ledger":"https://dev-in-portfolio-operator-ledger.netlify.app",
+        "paradox-vault":"https://dev-in-portfolio-paradox-vault.netlify.app",
+        "repo-pilot":"https://dev-in-portfolio-repo-pilot.netlify.app",
+        "signal-board":"https://dev-in-portfolio-signal-board.netlify.app",
+        "surfacelab":"https://dev-in-portfolio-surfacelab.netlify.app",
+        "switchboard":"https://dev-in-portfolio-swittchboard.netlify.app",
+        "timeslice":"https://dev-in-portfolio-timeslice.netlify.app",
+        "wayfinder":"https://dev-in-portfolio-wayfinder.netlify.app",
+        "cardpress":"https://dev-in-portfolio-cardpress.netlify.app",
+        "contradict":"https://dev-in-portfolio-contradict.netlify.app",
+        "eleventy-patch-book":"https://dev-in-portfolio-eleventy-patch-book.netlify.app",
+        "eleventy-spec-forge":"https://dev-in-portfolio-eleventy-spec-forge.netlify.app",
+        "eleventy-switchboard":"https://dev-in-portfolio-eleventy-switchboard.netlify.app",
+        "latchlist":"https://dev-in-portfolio-latchlist.netlify.app",
+        "order-of-one":"https://dev-in-portfolio-order-of-one.netlify.app",
+        "pocket-pass":"https://dev-in-portfolio-pocket-pass.netlify.app",
+        "radar-of-one":"https://dev-in-portfolio-radar-of-one.netlify.app",
+        "receipt-vault":"https://dev-in-portfolio-receipt-vault.netlify.app",
+        "room-key":"https://dev-in-portfolio-room-key.netlify.app",
+        "sessionmint":"https://dev-in-portfolio-sessionmint.netlify.app",
+        "hallmap-studio":"https://dev-in-portfolio-hallmap-studio.netlify.app",
+        "neonscope":"https://dev-in-portfolio-neonscope.netlify.app",
+        "routeforge-console":"https://dev-in-portfolio-routeforge-console.netlify.app",
+        "hugo-atlasshelf":"https://dev-in-portfolio-hugo-atlasshelf.netlify.app",
+        "hugo-fieldmanual":"https://dev-in-portfolio-hugo-fieldmanual.netlify.app",
+        "hugo-release-gallery":"https://dev-in-portfolio-hugo-release-gallery.netlify.app",
+        "hono-capsulecache":"https://dev-in-portfolio-hono-capsulecache.netlify.app",
+        "hono-gatekeeper":"https://dev-in-portfolio-hono-gatekeeper.netlify.app",
+        "hono-intake":"https://dev-in-portfolio-hono-intake.netlify.app",
+        "signal-kitchen":"https://dev-in-portfolio-signal-kitchen.netlify.app",
+        "streamlit":"https://dev-in-portfolio-streamlit.netlify.app",
+        "tapforge":"https://dev-in-portfolio-tapforge.netlify.app",
+        "rule-furnace":"https://dev-in-portfolio-rule-furnace.netlify.app",
+        "schemagate":"https://dev-in-portfolio-schemagate.netlify.app",
+        "schemapulse":"https://dev-in-portfolio-schemapulse.netlify.app",
+        "quejudge":"https://dev-in-portfolio-quejudge.netlify.app",
+        "recalgrid":"https://dev-in-portfolio-recalgrid.netlify.app",
+        "island-index":"https://dev-in-portfolio-island-index.netlify.app",
+        "patchsmith":"https://dev-in-portfolio-patchsmith.netlify.app",
+        "pocket-dossier":"https://dev-in-portfolio-pocket-dossier.netlify.app",
+        "dash-flowlens":"https://dev-in-portfolio-dash-flowlens.netlify.app",
+        "difflens":"https://dev-in-portfolio-difflens.netlify.app",
+        "draft-relay":"https://dev-in-portfolio-draft-relay.netlify.app",
+        "remix-vault-key":"https://dev-in-portfolio-remix-vault-key.netlify.app",
+        "dash-claimscope":"https://dev-in-portfolio-dash-claimscope.netlify.app",
+        "dash-driftmeter":"https://dev-in-portfolio-dash-driftmeter.netlify.app",
+        "nuxt-view-vault":"https://dev-in-portfolio-nuxt-view-vault.netlify.app",
+        "remix-diffatlas":"https://dev-in-portfolio-remix-diffatlas.netlify.app",
+        "remix-queuesplice":"https://dev-in-portfolio-remix-queuesplice.netlify.app",
+        "solvespace":"https://dev-in-portfolio-solvespace.netlify.app",
+        "tagtrellis":"https://dev-in-portfolio-tagtrellis.netlify.app",
+        "lineflow":"https://dev-in-portfolio-lineflow.netlify.app",
+        "palmledger":"https://dev-in-portfolio-palmledger.netlify.app",
+        "queuegauge":"https://dev-in-portfolio-queuegauge.netlify.app",
+        "relayroom":"https://dev-in-portfolio-relayroom.netlify.app",
+        "snapshot-vault":"https://dev-in-portfolio-snapshot-vault.netlify.app",
+        "qwik-atlas":"https://dev-in-portfolio-qwik-atlas.netlify.app",
+        "qwik-cardforge":"https://dev-in-portfolio-qwik-cardforge.netlify.app",
+        "qwik-signaltiill":"https://dev-in-portfolio-qwik-signaltill.netlify.app",
+        "nuxt-cardpress":"https://dev-in-portfolio-nuxt-cardpress.netlify.app",
+        "nuxt-signalgrid":"https://dev-in-portfolio-nuxt-signalgrid.netlify.app"
+      };
+
+      const pickSlug = (rawHref) => {
+        if (!rawHref) return "";
+        const clean = rawHref.split("?")[0].split("#")[0];
+        const parts = clean.split("/").filter(Boolean);
+        if (!parts.length) return "";
+        return parts[parts.length - 1].toLowerCase();
+      };
+
+      document.querySelectorAll(".landingCard, .appItem .appLink").forEach((a) => {
+        const rawHref = a.getAttribute("href") || "";
+        const normalizedHref = rawHref.startsWith("/apps/apps/")
+          ? rawHref.replace("/apps/apps/", "/apps/")
+          : rawHref;
+        const slug = pickSlug(normalizedHref);
+        if (slug && ABS_URLS[slug]) a.setAttribute("href", ABS_URLS[slug]);
+        else a.setAttribute("href", normalizedHref);
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener noreferrer");
+      });
+    })();
+  </script>
+<script>
+    (function(){
+      const slugify = (text) => (text || "")
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      const buildJumpUi = () => {
+        const root = document.getElementById("classifiedCatalog");
+        const fwRoot = document.getElementById("frameworksCatalog");
+        const azRoot = document.getElementById("allAppsCatalog");
+        const jump = document.getElementById("jumpCategories");
+        const fwList = document.getElementById("frameworksList");
+        const jumpAz = document.getElementById("jumpAz");
+        if (!root || !fwRoot || !azRoot || !jump || !fwList || !jumpAz) return false;
+        if (!root.children.length || !fwRoot.children.length || !azRoot.children.length) return false;
+
+        jump.innerHTML = "";
+        fwList.innerHTML = "";
+        jumpAz.innerHTML = "";
+
+        const used = new Set();
+        root.querySelectorAll(".catBlock").forEach((block) => {
+          const title = block.querySelector(".catTitle");
+          const label = title ? (title.textContent || "").trim().replace(/\s+\(\d+\)$/, "") : "";
+          if (!label) return;
+
+          let id = "cat-" + slugify(label);
+          let n = 2;
+          while (used.has(id) || document.getElementById(id)) {
+            id = "cat-" + slugify(label) + "-" + n;
+            n += 1;
+          }
+          used.add(id);
+          block.id = id;
+
+          const a = document.createElement("a");
+          a.className = "jumpAnchor";
+          a.href = "#" + id;
+          a.textContent = label;
+          jump.appendChild(a);
+        });
+
+        const FRAMEWORK_TAGS = new Set([
+          "HTML/JS", "React", "Angular", "Astro", "Vue", "Nuxt 3", "Next.js", "Remix",
+          "Qwik City", "Hono", "Fresh", "Eleventy", "Hugo", "Streamlit", "Flutter",
+          "Svelte", "Tauri", "Electron", "Node API", "Express", "NestJS", "Dash",
+          "Gradio", "Deno", "Python", "Supabase", "Firebase", "Neon", "Functions", "Static"
+        ]);
+        const counts = new Map();
+        root.querySelectorAll(".fwPill").forEach((pill) => {
+          const key = (pill.textContent || "").trim();
+          if (!key || !FRAMEWORK_TAGS.has(key)) return;
+          counts.set(key, (counts.get(key) || 0) + 1);
+        });
+        const ordered = Array.from(counts.entries()).sort((a, b) => {
+          if (a[0] === "Neon" && b[0] !== "Neon") return 1;
+          if (b[0] === "Neon" && a[0] !== "Neon") return -1;
+          if (b[1] !== a[1]) return b[1] - a[1];
+          return a[0].localeCompare(b[0]);
+        });
+        ordered.forEach(([name, count]) => {
+          const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+          const pill = document.createElement("a");
+          pill.className = "jumpAnchor";
+          pill.href = `#fw-${slug}`;
+          pill.textContent = `${name} (${count})`;
+          fwList.appendChild(pill);
+        });
+
+        for (let i = 65; i <= 90; i += 1) {
+          const letter = String.fromCharCode(i);
+          const count = azRoot.querySelectorAll(`#az-${letter.toLowerCase()} .appLink`).length;
+          const a = document.createElement("a");
+          a.className = "jumpAnchor";
+          a.href = `#az-${letter.toLowerCase()}`;
+          a.textContent = `${letter} (${count})`;
+          jumpAz.appendChild(a);
+        }
+
+        const countNode = document.getElementById("appCountValue");
+        const total = root.querySelectorAll(".appItem .appLink").length;
+        if (countNode) countNode.textContent = String(total);
+        return true;
+      };
+
+      let tries = 0;
+      const wait = () => {
+        if (buildJumpUi()) return;
+        tries += 1;
+        if (tries < 80) setTimeout(wait, 100);
+      };
+      wait();
+    })();
+  </script>
 <script>
     (function(){
       const els = Array.from(document.querySelectorAll('.reveal'));
@@ -525,6 +1626,233 @@
         img.addEventListener('load', done, { once:true });
         img.addEventListener('error', done, { once:true });
       }
+    })();
+  </script>
+<script>
+    (function(){
+      const onReady = () => {
+        const catRoot = document.getElementById("classifiedCatalog");
+        const fwRoot = document.getElementById("frameworksCatalog");
+        const azRoot = document.getElementById("allAppsCatalog");
+        if (!catRoot || !fwRoot || !azRoot || !catRoot.children.length) return false;
+
+        // Section counts in titles.
+        document.querySelectorAll("#classifiedCatalog .catBlock, #frameworksCatalog .catBlock, #allAppsCatalog .catBlock").forEach((block) => {
+          const title = block.querySelector(".catTitle");
+          if (!title) return;
+          const base = (title.getAttribute("data-base") || title.textContent || "").replace(/\s+\(\d+\)$/, "");
+          title.setAttribute("data-base", base);
+          const count = block.querySelectorAll(".appLink").length;
+          title.textContent = `${base} (${count})`;
+        });
+        const sectionActions = (block, title) => {
+          if (!block || !title || title.querySelector(".sectionActions")) return;
+          const actions = document.createElement("span");
+          actions.className = "sectionActions";
+          const copyBtn = document.createElement("button");
+          copyBtn.type = "button";
+          copyBtn.className = "titleBtn";
+          copyBtn.textContent = "Copy Link";
+          copyBtn.addEventListener("click", async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const target = `${location.origin}${location.pathname}#${block.id}`;
+            try {
+              await navigator.clipboard.writeText(target);
+              copyBtn.textContent = "Copied";
+              setTimeout(() => { copyBtn.textContent = "Copy Link"; }, 900);
+            } catch (_) {
+              copyBtn.textContent = "Copy";
+            }
+          });
+          const collapseBtn = document.createElement("button");
+          collapseBtn.type = "button";
+          collapseBtn.className = "titleBtn";
+          collapseBtn.textContent = "Collapse";
+          collapseBtn.addEventListener("click", (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            block.classList.toggle("collapsed");
+            collapseBtn.textContent = block.classList.contains("collapsed") ? "Expand" : "Collapse";
+          });
+          actions.appendChild(copyBtn);
+          actions.appendChild(collapseBtn);
+          title.appendChild(actions);
+        };
+        document.querySelectorAll("#classifiedCatalog .catBlock[id], #frameworksCatalog .catBlock[id], #allAppsCatalog .catBlock[id]").forEach((block) => {
+          const title = block.querySelector(".catTitle");
+          sectionActions(block, title);
+        });
+
+        // Sticky mini jump.
+        let sticky = document.getElementById("stickyJump");
+        if (!sticky) {
+          sticky = document.createElement("nav");
+          sticky.id = "stickyJump";
+          sticky.className = "stickyJump";
+          sticky.innerHTML = '<a class="miniJump" href="#classified-categories">Categories</a><a class="miniJump" href="#frameworks-title">Frameworks</a><a class="miniJump" href="#all-apps-title">A-Z</a>';
+          document.body.appendChild(sticky);
+        }
+
+        // Back to top.
+        let backTop = document.getElementById("backTop");
+        if (!backTop) {
+          backTop = document.createElement("button");
+          backTop.id = "backTop";
+          backTop.className = "backTop";
+          backTop.type = "button";
+          backTop.textContent = "Back to top";
+          backTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+          document.body.appendChild(backTop);
+        }
+        // Sticky A-Z rail.
+        let azRail = document.getElementById("azRail");
+        if (!azRail) {
+          azRail = document.createElement("nav");
+          azRail.id = "azRail";
+          azRail.className = "azRail";
+          for (let i = 65; i <= 90; i += 1) {
+            const letter = String.fromCharCode(i);
+            const a = document.createElement("a");
+            a.className = "azMini";
+            a.href = `#az-${letter.toLowerCase()}`;
+            a.textContent = letter;
+            azRail.appendChild(a);
+          }
+          document.body.appendChild(azRail);
+        }
+
+        const updateScrollUi = () => {
+          const on = window.scrollY > 220;
+          sticky.classList.toggle("on", on);
+          backTop.classList.toggle("on", on);
+          const azTop = azRoot.getBoundingClientRect().top;
+          const azBottom = azRoot.getBoundingClientRect().bottom;
+          azRail.classList.toggle("on", on && azTop < window.innerHeight * 0.7 && azBottom > 120);
+        };
+        window.addEventListener("scroll", updateScrollUi, { passive: true });
+        updateScrollUi();
+
+        // Jump click polish + URL state.
+        const jumpAnchors = Array.from(document.querySelectorAll(".jumpAnchor[href^='#'], .miniJump[href^='#']"));
+        const updateStateFromHash = (hash) => {
+          if (!hash) return;
+          if (hash.startsWith("#fw-")) {
+            history.replaceState(null, "", `?section=frameworks&tag=${encodeURIComponent(hash.slice(4))}${hash}`);
+          } else if (hash.startsWith("#az-")) {
+            history.replaceState(null, "", `?section=az&letter=${encodeURIComponent(hash.slice(4))}${hash}`);
+          } else if (hash.startsWith("#cat-")) {
+            history.replaceState(null, "", `?section=categories&category=${encodeURIComponent(hash.slice(5))}${hash}`);
+          }
+        };
+        const flashTarget = (hash) => {
+          const target = hash ? document.querySelector(hash) : null;
+          if (!target) return;
+          const cards = target.querySelectorAll ? target.querySelectorAll(".appItem") : [];
+          cards.forEach((el, idx) => {
+            el.style.animationDelay = `${Math.min(idx * 24, 260)}ms`;
+            el.classList.remove("jumpFlash");
+            void el.offsetWidth;
+            el.classList.add("jumpFlash");
+          });
+        };
+        jumpAnchors.forEach((a) => {
+          a.addEventListener("click", () => {
+            const hash = a.getAttribute("href");
+            if (!hash || !hash.startsWith("#")) return;
+            updateStateFromHash(hash);
+            setTimeout(() => flashTarget(hash), 40);
+          });
+        });
+
+        // Active highlighting by section visibility.
+        const hashLinks = Array.from(document.querySelectorAll("a.jumpAnchor[href^='#'], a.miniJump[href^='#'], a.azMini[href^='#']"));
+        const hashMap = new Map(hashLinks.map((a) => [a.getAttribute("href"), []]));
+        hashLinks.forEach((a) => hashMap.get(a.getAttribute("href")).push(a));
+        const clearActive = () => hashLinks.forEach((a) => a.classList.remove("active"));
+        const setActive = (hash) => {
+          clearActive();
+          (hashMap.get(hash) || []).forEach((a) => a.classList.add("active"));
+        };
+        const ioTargets = [
+          ...document.querySelectorAll("#classifiedCatalog .catBlock[id]"),
+          ...document.querySelectorAll("#frameworksCatalog .catBlock[id]"),
+          ...document.querySelectorAll("#allAppsCatalog .catBlock[id]"),
+          document.getElementById("classified-categories"),
+          document.getElementById("frameworks-title"),
+          document.getElementById("all-apps-title")
+        ].filter(Boolean);
+        const io = new IntersectionObserver((entries) => {
+          const top = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!top || !top.target || !top.target.id) return;
+          setActive(`#${top.target.id}`);
+        }, { rootMargin: "-20% 0px -70% 0px", threshold: [0.15, 0.35, 0.6] });
+        ioTargets.forEach((el) => io.observe(el));
+
+        // Search + live-only filters.
+        const search = document.getElementById("appSearch");
+        const density = document.getElementById("densityMode");
+        const applyFilters = () => {
+          const q = ((search && search.value) || "").trim().toLowerCase();
+          document.querySelectorAll(".catBlock").forEach((block) => {
+            let shown = 0;
+            block.querySelectorAll(".appItem").forEach((item) => {
+              const link = item.querySelector(".appLink");
+              const name = (link?.textContent || "").toLowerCase();
+              const tags = Array.from(item.querySelectorAll(".fwPill")).map((p) => (p.textContent || "").toLowerCase()).join(" ");
+              const pass = !q || name.includes(q) || tags.includes(q);
+              item.style.display = pass ? "" : "none";
+              if (pass) shown += 1;
+            });
+            block.style.display = shown ? "" : "none";
+          });
+        };
+        if (search) search.addEventListener("input", applyFilters);
+        if (density) {
+          density.addEventListener("change", () => {
+            document.body.classList.toggle("density-compact", density.value === "compact");
+          });
+        }
+        applyFilters();
+        const skeleton = document.getElementById("loadingSkeleton");
+        if (skeleton) skeleton.classList.add("hidden");
+
+        // URL deep links.
+        const params = new URLSearchParams(location.search);
+        const section = params.get("section");
+        const tag = params.get("tag");
+        const letter = params.get("letter");
+        const category = params.get("category");
+        let targetHash = location.hash;
+        if (!targetHash) {
+          if (section === "frameworks" && tag) targetHash = `#fw-${tag}`;
+          else if (section === "az" && letter) targetHash = `#az-${letter.toLowerCase()}`;
+          else if (section === "categories" && category) targetHash = `#cat-${category}`;
+          else if (section === "frameworks") targetHash = "#frameworks-title";
+          else if (section === "az") targetHash = "#all-apps-title";
+          else if (section === "categories") targetHash = "#classified-categories";
+        }
+        if (targetHash) {
+          const target = document.querySelector(targetHash);
+          if (target) {
+            setTimeout(() => {
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+              flashTarget(targetHash);
+              setActive(targetHash);
+            }, 60);
+          }
+        }
+
+        return true;
+      };
+
+      let tries = 0;
+      const tick = () => {
+        if (onReady()) return;
+        tries += 1;
+        if (tries < 80) setTimeout(tick, 100);
+      };
+      tick();
     })();
   </script>
 </body>
