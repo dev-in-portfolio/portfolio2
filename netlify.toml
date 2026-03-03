@@ -5,3 +5,16 @@
 [build.environment]
   NODE_VERSION = "20"
   FRAMEWORK = "express"
+
+[functions]
+  directory = "functions"
+
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/server"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
