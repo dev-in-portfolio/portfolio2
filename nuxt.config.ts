@@ -5,6 +5,6 @@ export default defineNuxtConfig({
   },
   css: ['~/assets/main.css'],
   nitro: {
-    preset: 'node-server'
+    preset: 'netlify'
   }
 });
