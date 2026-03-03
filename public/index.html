@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Nuxt ViewVault | Portfolio Preview</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
+      :root { --bg:#0b0f19; --bg-2:#101a2c; --surface:rgba(14,22,39,.72); --surface-2:rgba(25,34,56,.8); --fg:#e8eefc; --muted:#9eb0d2; --accent:#4fd1ff; --accent-2:#8e9dff; --outline:rgba(125,152,206,.26);} *{box-sizing:border-box}
+      body{margin:0;min-height:100vh;font-family:"Space Grotesk",system-ui,sans-serif;color:var(--fg);background:radial-gradient(circle at 18% 10%,rgba(79,209,255,.18),transparent 36%),radial-gradient(circle at 82% 0%,rgba(142,157,255,.18),transparent 42%),linear-gradient(180deg,var(--bg),var(--bg-2));}
+      .wrap{max-width:980px;margin:0 auto;padding:64px 24px 84px}.badge{display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:rgba(79,209,255,.1);border:1px solid rgba(79,209,255,.3)}
+      h1{margin:18px 0 10px;font-size:clamp(2rem,3.6vw,3.1rem);line-height:1.1}.lead{max-width:760px;margin:0;color:var(--muted);font-size:clamp(1rem,2.1vw,1.15rem);line-height:1.65}
+      .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:34px}.card{border-radius:16px;border:1px solid var(--outline);background:var(--surface);padding:16px}.card h3{margin:0 0 7px;font-size:.95rem;color:#cdd8f2}.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82rem;color:#dbe7ff;word-break:break-word}
+      .actions{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 15px;border-radius:12px;text-decoration:none;font-size:.9rem;border:1px solid transparent;transition:transform 120ms ease}.btn.primary{color:#001729;background:linear-gradient(90deg,#69dcff,#8ea7ff)}.btn.secondary{color:#d7e5ff;background:var(--surface-2);border-color:var(--outline)}.btn:hover{transform:translateY(-1px)}.foot{margin-top:30px;color:#93a8cf;font-size:.9rem}
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <div class="badge">Static Netlify Preview</div>
+      <h1>Nuxt ViewVault</h1>
+      <p class="lead">Nuxt ViewVault is a runtime-backed application (Nuxt 3 + Node + Postgres) and cannot execute directly on Netlify static hosting. This page keeps the project published and provides direct access to the source and a downloadable package.</p>
+      <section class="grid" aria-label="Project metadata">
+        <article class="card"><h3>Branch</h3><div class="mono">nuxt-view-vault</div></article>
+        <article class="card"><h3>Runtime</h3><div class="mono">Nuxt 3 + Node + Postgres</div></article>
+        <article class="card"><h3>Netlify Status</h3><div class="mono">Landing page active (static)</div></article>
+      </section>
+      <div class="actions">
+        <a class="btn primary" href="https://github.com/dev-in-portfolio/portfolio2/archive/refs/heads/nuxt-view-vault.zip">Download Source ZIP</a>
+        <a class="btn secondary" href="https://github.com/dev-in-portfolio/portfolio2/tree/nuxt-view-vault">View Branch Source</a>
+      </div>
+      <p class="foot">To run the full app, use the local runtime documented in the branch README.</p>
+    </main>
+  </body>
+</html>
