@@ -3,153 +3,71 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hono Intake | Portfolio Preview</title>
+    <title>Intake</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
-      :root {
-        --bg: #0b0f19;
-        --bg-2: #101a2c;
-        --surface: rgba(14, 22, 39, 0.72);
-        --surface-2: rgba(25, 34, 56, 0.8);
-        --fg: #e8eefc;
-        --muted: #9eb0d2;
-        --accent: #4fd1ff;
-        --accent-2: #8e9dff;
-        --outline: rgba(125, 152, 206, 0.26);
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "Space Grotesk", system-ui, sans-serif;
-        color: var(--fg);
-        background:
-          radial-gradient(circle at 18% 10%, rgba(79, 209, 255, 0.18), transparent 36%),
-          radial-gradient(circle at 82% 0%, rgba(142, 157, 255, 0.18), transparent 42%),
-          linear-gradient(180deg, var(--bg), var(--bg-2));
-      }
-      .wrap {
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 64px 24px 84px;
-      }
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 8px 14px;
-        border-radius: 999px;
-        font-size: 12px;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--accent);
-        background: rgba(79, 209, 255, 0.1);
-        border: 1px solid rgba(79, 209, 255, 0.3);
-      }
-      h1 {
-        margin: 18px 0 10px;
-        font-size: clamp(2rem, 3.6vw, 3.1rem);
-        line-height: 1.1;
-      }
-      .lead {
-        max-width: 760px;
-        margin: 0;
-        color: var(--muted);
-        font-size: clamp(1rem, 2.1vw, 1.15rem);
-        line-height: 1.65;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-        margin-top: 34px;
-      }
-      .card {
-        border-radius: 16px;
-        border: 1px solid var(--outline);
-        background: var(--surface);
-        padding: 16px;
-      }
-      .card h3 {
-        margin: 0 0 7px;
-        font-size: 0.95rem;
-        color: #cdd8f2;
-      }
-      .mono {
-        font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 0.82rem;
-        color: #dbe7ff;
-        word-break: break-word;
-      }
-      .actions {
-        margin-top: 26px;
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 11px 15px;
-        border-radius: 12px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        border: 1px solid transparent;
-        transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
-      }
-      .btn.primary {
-        color: #001729;
-        background: linear-gradient(90deg, #69dcff, #8ea7ff);
-      }
-      .btn.secondary {
-        color: #d7e5ff;
-        background: var(--surface-2);
-        border-color: var(--outline);
-      }
-      .btn:hover {
-        transform: translateY(-1px);
-      }
-      .foot {
-        margin-top: 30px;
-        color: #93a8cf;
-        font-size: 0.9rem;
-      }
+      :root{--bg:#0a1020;--card:#131c36;--bd:#2f4a7f;--txt:#edf3ff;--muted:#a7b7dd;--a:#6cf0ff;--b:#7fa2ff}*{box-sizing:border-box}
+      body{margin:0;background:radial-gradient(circle at 12% 0,#274b71 0,#0a1020 58%);color:var(--txt);font-family:Inter,system-ui,sans-serif}
+      .wrap{max-width:1080px;margin:0 auto;padding:24px}.card{border:1px solid var(--bd);background:var(--card);border-radius:14px;padding:14px}
+      .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}input,textarea,button{width:100%;padding:10px;border-radius:10px;border:1px solid #3f609d;background:#11193a;color:var(--txt)}
+      button{background:linear-gradient(90deg,var(--a),var(--b));border:none;color:#06162f;font-weight:700;cursor:pointer}.muted{color:var(--muted);font-size:.9rem}
+      @media(max-width:960px){.row{grid-template-columns:1fr}}
     </style>
   </head>
   <body>
     <main class="wrap">
-      <div class="badge">Static Netlify Preview</div>
-      <h1>Hono Intake</h1>
-      <p class="lead">
-        Hono Intake is a runtime-backed application (Hono + Node + Postgres) and cannot execute directly on Netlify static hosting.
-        This page keeps the project published and provides direct access to the source and a downloadable package.
-      </p>
-
-      <section class="grid" aria-label="Project metadata">
+      <section class="card"><h1>Intake</h1><p class="muted">Event intake pipeline with quarantine + retry flow.</p><p id="status" class="muted">Checking API...</p></section>
+      <section class="row">
         <article class="card">
-          <h3>Branch</h3>
-          <div class="mono">hono-intake</div>
+          <h2>Submit Event</h2>
+          <input id="type" placeholder="eventType" value="order.created" />
+          <input id="source" placeholder="source" value="ui" />
+          <textarea id="payload" rows="8" placeholder='JSON payload'></textarea>
+          <button id="send">Send to Intake</button>
+          <div id="submitOut" class="muted"></div>
         </article>
         <article class="card">
-          <h3>Runtime</h3>
-          <div class="mono">Hono + Node + Postgres</div>
-        </article>
-        <article class="card">
-          <h3>Netlify Status</h3>
-          <div class="mono">Landing page active (static)</div>
+          <h2>Queues</h2>
+          <button id="loadRecords">Load Records</button>
+          <button id="loadQ">Load Quarantine</button>
+          <input id="retryId" placeholder="quarantine id to retry" />
+          <button id="retry">Retry Quarantine Item</button>
+          <div id="queueOut" class="muted"></div>
         </article>
       </section>
-
-      <div class="actions">
-        <a class="btn primary" href="https://github.com/dev-in-portfolio/portfolio2/archive/refs/heads/hono-intake.zip">Download Source ZIP</a>
-        <a class="btn secondary" href="https://github.com/dev-in-portfolio/portfolio2/tree/hono-intake">View Branch Source</a>
-      </div>
-
-      <p class="foot">
-        To run the full API service: provision Postgres + secrets, then run via Node on a compatible backend host.
-      </p>
     </main>
+    <script>
+      const device = localStorage.intakeKey || (localStorage.intakeKey = `intake-${crypto.randomUUID()}`);
+      const headers = {'Content-Type':'application/json','X-Device-Key':device};
+      const status = document.getElementById('status');
+      const submitOut = document.getElementById('submitOut');
+      const queueOut = document.getElementById('queueOut');
+      const esc=(s)=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+      const show=(el,data)=>{ el.innerHTML=`<pre>${esc(JSON.stringify(data,null,2))}</pre>`; };
+      const val=(id)=>document.getElementById(id).value.trim();
+      const parse=(raw)=>{ if(!raw) return {}; try{return JSON.parse(raw);}catch{return {invalid:true,raw};} };
+
+      async function health(){ const r=await fetch('/api/health/db'); const d=await r.json(); status.textContent=d.ok?'API connected to database.':`API warning: ${d.error||'unavailable'}`; }
+
+      document.getElementById('send').onclick=async()=>{
+        const body={eventType:val('type'),source:val('source'),payload:parse(document.getElementById('payload').value)};
+        const r=await fetch('/api/intake',{method:'POST',headers,body:JSON.stringify(body)});
+        show(submitOut, await r.json().catch(()=>({error:'bad_response'})));
+      };
+      document.getElementById('loadRecords').onclick=async()=>{
+        const r=await fetch('/api/intake/records',{headers});
+        show(queueOut, await r.json().catch(()=>({error:'bad_response'})));
+      };
+      document.getElementById('loadQ').onclick=async()=>{
+        const r=await fetch('/api/intake/quarantine',{headers});
+        show(queueOut, await r.json().catch(()=>({error:'bad_response'})));
+      };
+      document.getElementById('retry').onclick=async()=>{
+        const id=val('retryId');
+        const r=await fetch(`/api/admin/quarantine/${encodeURIComponent(id)}/retry`,{method:'POST',headers,body:'{}'});
+        show(queueOut, await r.json().catch(()=>({error:'bad_response'})));
+      };
+
+      health().catch(()=>status.textContent='API unavailable.');
+    </script>
   </body>
 </html>
