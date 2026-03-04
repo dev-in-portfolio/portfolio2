@@ -54,3 +54,18 @@ body {
 .muted {
   color: var(--muted);
 }
+
+input,
+select {
+  width: 100%;
+  border: 1px solid rgba(125, 211, 252, 0.28);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.75);
+  color: #e2e8f0;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+input::placeholder {
+  color: #94a3b8;
+}

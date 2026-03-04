@@ -40,6 +40,8 @@ const paged = computed(() => {
   return filtered.value.slice(start, start + pageSize.value);
 });
 
+const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / pageSize.value)));
+
 const updateUrl = () => {
   router.replace({
     query: {
@@ -54,6 +56,19 @@ const updateUrl = () => {
 };
 
 watch([q, tag, status, sort, pageSize, page], updateUrl);
+
+watch(totalPages, (next) => {
+  if (page.value > next) page.value = next;
+});
+
+const handleFilterUpdate = (payload: Record<string, string | number>) => {
+  if (typeof payload.q === 'string') q.value = payload.q;
+  if (typeof payload.tag === 'string') tag.value = payload.tag;
+  if (typeof payload.status === 'string') status.value = payload.status;
+  if (typeof payload.sort === 'string') sort.value = payload.sort;
+  if (typeof payload.pageSize === 'number') pageSize.value = payload.pageSize;
+  page.value = 1;
+};
 
 const loadViews = async () => {
   const { views: data } = await $fetch('/api/views', {
@@ -106,13 +121,23 @@ onMounted(loadViews);
 <template>
   <div class="page">
     <header class="hero">
-      <h1>Dataset Browser</h1>
-      <p>Filter, sort, and save views to reuse later.</p>
+      <div class="eyebrow">Nuxt ViewVault</div>
+      <h1>Demo Workspace</h1>
+      <p>Filter, sort, and save reusable state presets for this route.</p>
+      <div class="meta">
+        <span class="pill">{{ filtered.length }} results</span>
+        <span class="pill">Page {{ page }} of {{ totalPages }}</span>
+      </div>
     </header>
-    <FilterBar :q="q" :tag="tag" :status="status" :sort="sort" :pageSize="pageSize" @update="(payload) => { Object.assign({ q, tag, status, sort, pageSize }, payload) }" />
-    <div class="row">
-      <button class="primary" @click="showModal = true">Save View</button>
-      <span class="pill">{{ filtered.length }} results</span>
+    <FilterBar :q="q" :tag="tag" :status="status" :sort="sort" :pageSize="pageSize" @update="handleFilterUpdate" />
+    <div class="row panel controls">
+      <div class="left-controls">
+        <button class="primary" @click="showModal = true">Save View</button>
+      </div>
+      <div class="pager">
+        <button class="ghost" :disabled="page <= 1" @click="page = Math.max(1, page - 1)">Previous</button>
+        <button class="ghost" :disabled="page >= totalPages" @click="page = Math.min(totalPages, page + 1)">Next</button>
+      </div>
     </div>
     <ViewPicker :views="views" @apply="applyView" @delete="deleteView" />
     <DataTable :rows="paged" :columns="columns" />
@@ -124,26 +149,61 @@ onMounted(loadViews);
 .page {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 24px 64px;
+  padding: 40px 24px 72px;
+}
+.hero {
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  background:
+    radial-gradient(circle at 90% 5%, rgba(56, 189, 248, 0.18), transparent 40%),
+    radial-gradient(circle at 10% 90%, rgba(34, 211, 238, 0.14), transparent 45%),
+    rgba(15, 23, 42, 0.76);
+  margin-bottom: 14px;
+}
+.eyebrow {
+  color: #7dd3fc;
+  font-size: 12px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
 }
 .hero h1 {
   margin: 0 0 8px;
   font-size: clamp(28px, 4vw, 40px);
 }
 .hero p {
-  color: #94a3b8;
+  color: #cbd5e1;
+  margin: 0;
 }
 .row {
   display: flex;
   gap: 12px;
-  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   margin: 16px 0;
+}
+.controls {
+  padding: 12px;
+}
+.left-controls,
+.pager {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
 }
 .pill {
   padding: 6px 12px;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.15);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(14, 116, 144, 0.22);
+  border: 1px solid rgba(125, 211, 252, 0.36);
   font-size: 12px;
+  color: #bae6fd;
 }
 </style>
