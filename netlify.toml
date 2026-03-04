@@ -1,7 +1,14 @@
 [build]
-  command = ""
+  command = "npm install"
   publish = "public"
 
 [build.environment]
   NODE_VERSION = "20"
-  FRAMEWORK = "nestjs"
+
+[functions]
+  directory = "functions"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
