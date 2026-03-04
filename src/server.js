@@ -37,7 +37,7 @@ function requireDb() {
 
 async function getUserId(deviceKey) {
   const { rows } = await pool.query(
-    `insert into users (device_key)
+    `insert into qg_users (device_key)
      values ($1)
      on conflict (device_key) do update set device_key = excluded.device_key
      returning id`,
@@ -71,7 +71,7 @@ app.get('/api/queuegauge/stats', async (req, res, next) => {
     requireDb();
     const userId = await getUserId(req.deviceKey);
     const { rows } = await pool.query(
-      `select status, count(*)::int as count from jobs where user_id = $1 group by status order by status`,
+      `select status, count(*)::int as count from qg_jobs where user_id = $1 group by status order by status`,
       [userId]
     );
     res.json({ items: rows });
@@ -95,7 +95,7 @@ app.get('/api/queuegauge/jobs', async (req, res, next) => {
     params.push(limit);
     const { rows } = await pool.query(
       `select id, type, payload, status, priority, attempts, max_attempts, leased_until, lease_owner, last_error, run_after, created_at, updated_at
-       from jobs ${where} order by created_at desc limit $${params.length}`,
+       from qg_jobs ${where} order by created_at desc limit $${params.length}`,
       params
     );
     res.json({ items: rows });
@@ -114,7 +114,7 @@ app.post('/api/queuegauge/jobs', async (req, res, next) => {
     const priority = Number(req.body.priority || 0);
     const maxAttempts = Math.min(20, Math.max(1, Number(req.body.maxAttempts || 3)));
     const { rows } = await pool.query(
-      `insert into jobs (user_id, type, payload, priority, max_attempts)
+      `insert into qg_jobs (user_id, type, payload, priority, max_attempts)
        values ($1, $2, $3, $4, $5)
        returning id, type, payload, status, priority, attempts, max_attempts, created_at`,
       [userId, type, payload, priority, maxAttempts]
@@ -134,7 +134,7 @@ app.post('/api/queuegauge/lease', async (req, res, next) => {
     const ttlSeconds = Math.min(600, Math.max(10, Number(req.body.ttlSeconds || 60)));
     await client.query('begin');
     const pick = await client.query(
-      `select id from jobs
+      `select id from qg_jobs
        where user_id = $1 and status = 'queued' and run_after <= now()
        order by priority desc, created_at asc
        for update skip locked
@@ -146,7 +146,7 @@ app.post('/api/queuegauge/lease', async (req, res, next) => {
       return res.json({ leased: null });
     }
     const { rows } = await client.query(
-      `update jobs
+      `update qg_jobs
        set status = 'leased', lease_owner = $1, leased_until = now() + ($2 || ' seconds')::interval, updated_at = now()
        where id = $3
        returning id, type, payload, status, lease_owner, leased_until`,
@@ -167,7 +167,7 @@ app.post('/api/queuegauge/jobs/:id/complete', async (req, res, next) => {
     requireDb();
     const userId = await getUserId(req.deviceKey);
     const out = await pool.query(
-      `update jobs set status = 'succeeded', lease_owner = '', leased_until = null, updated_at = now()
+      `update qg_jobs set status = 'succeeded', lease_owner = '', leased_until = null, updated_at = now()
        where id = $1 and user_id = $2 returning id`,
       [req.params.id, userId]
     );
@@ -183,13 +183,13 @@ app.post('/api/queuegauge/jobs/:id/fail', async (req, res, next) => {
     requireDb();
     const userId = await getUserId(req.deviceKey);
     const reason = String(req.body.error || 'failed').slice(0, 1000);
-    const row = await pool.query('select attempts, max_attempts from jobs where id = $1 and user_id = $2', [req.params.id, userId]);
+    const row = await pool.query('select attempts, max_attempts from qg_jobs where id = $1 and user_id = $2', [req.params.id, userId]);
     if (!row.rows[0]) return res.status(404).json({ error: 'job not found' });
     const attempts = Number(row.rows[0].attempts) + 1;
     const maxAttempts = Number(row.rows[0].max_attempts);
     const nextStatus = attempts >= maxAttempts ? 'failed' : 'queued';
     await pool.query(
-      `update jobs
+      `update qg_jobs
        set status = $1, attempts = $2, last_error = $3, lease_owner = '', leased_until = null,
            run_after = case when $1 = 'queued' then now() + interval '30 seconds' else run_after end,
            updated_at = now()
