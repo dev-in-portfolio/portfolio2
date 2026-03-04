@@ -1,8 +1,6 @@
 [build]
-  command = "npm run build"
-  publish = ".output/public"
+  command = "pnpm run build"
+  publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
-  FRAMEWORK = "nuxtjs"
-  NITRO_PRESET = "netlify"
