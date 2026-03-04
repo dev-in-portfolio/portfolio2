@@ -7,7 +7,12 @@ const { Pool } = require('pg');
 
 const app = express();
 const PORT = Number(process.env.PORT || 3013);
-const DATABASE_URL = process.env.DATABASE_URL || '';
+const DATABASE_URL =
+  process.env.PALMLEDGER_DATABASE_URL ||
+  process.env.DATABASE_URL ||
+  process.env.NETLIFY_DATABASE_URL ||
+  process.env.NETLIFY_DATABASE_URL_UNPOOLED ||
+  '';
 const MAX_ENTRIES = 200000;
 const MAX_CATEGORIES = 500;
 const MAX_NOTE_LENGTH = 5000;
@@ -27,6 +32,15 @@ app.use(
   })
 );
 app.use(express.json({ limit: '100kb' }));
+app.use((req, _res, next) => {
+  const fnPrefix = '/.netlify/functions/server';
+  if (req.url === fnPrefix) {
+    req.url = '/';
+  } else if (req.url.startsWith(`${fnPrefix}/`)) {
+    req.url = req.url.slice(fnPrefix.length);
+  }
+  next();
+});
 app.use((req, res, next) => {
   const requestId = crypto.randomUUID();
   res.setHeader('X-Request-Id', requestId);
