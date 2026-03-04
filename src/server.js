@@ -33,10 +33,11 @@ app.use(
 );
 app.use(express.json({ limit: '100kb' }));
 app.use((req, _res, next) => {
-  if (req.url === '/api') {
+  const fnPrefix = '/.netlify/functions/server';
+  if (req.url === fnPrefix) {
     req.url = '/';
-  } else if (req.url.startsWith('/api/')) {
-    req.url = req.url.slice(4);
+  } else if (req.url.startsWith(`${fnPrefix}/`)) {
+    req.url = req.url.slice(fnPrefix.length);
   }
   next();
 });
