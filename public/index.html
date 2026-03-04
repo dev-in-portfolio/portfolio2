@@ -3,73 +3,238 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SchemaGate | Portfolio Preview</title>
+    <title>SchemaGate</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
       :root {
-        --bg: #0b0f19;
-        --bg-2: #101a2c;
-        --surface: rgba(14, 22, 39, 0.72);
-        --surface-2: rgba(25, 34, 56, 0.8);
-        --fg: #e8eefc;
-        --muted: #9eb0d2;
-        --accent: #4fd1ff;
-        --accent-2: #8e9dff;
-        --outline: rgba(125, 152, 206, 0.26);
+        --bg: #0a0f1b;
+        --panel: #121b31;
+        --panel2: #1b2743;
+        --text: #e8eeff;
+        --muted: #a2b5df;
+        --accent: #67d9ff;
+        --line: rgba(145, 170, 224, 0.28);
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        min-height: 100vh;
         font-family: "Space Grotesk", system-ui, sans-serif;
-        color: var(--fg);
+        color: var(--text);
         background:
-          radial-gradient(circle at 18% 10%, rgba(79, 209, 255, 0.18), transparent 36%),
-          radial-gradient(circle at 82% 0%, rgba(142, 157, 255, 0.18), transparent 42%),
-          linear-gradient(180deg, var(--bg), var(--bg-2));
+          radial-gradient(circle at 10% 0%, rgba(103, 217, 255, 0.15), transparent 36%),
+          linear-gradient(180deg, #080e1a, #0d1528 70%);
       }
-      .wrap { max-width: 980px; margin: 0 auto; padding: 64px 24px 84px; }
-      .badge {
-        display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px;
-        border-radius: 999px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
-        color: var(--accent); background: rgba(79, 209, 255, 0.1); border: 1px solid rgba(79, 209, 255, 0.3);
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 30px 18px 70px; }
+      .hero, .card { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); padding: 14px; }
+      .hero { margin-bottom: 14px; }
+      .muted { color: var(--muted); }
+      .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+      .card { background: var(--panel2); }
+      label { display: block; font-size: 12px; color: var(--muted); margin: 8px 0 6px; text-transform: uppercase; letter-spacing: .06em; }
+      input, textarea, select, button {
+        width: 100%; border-radius: 10px; border: 1px solid var(--line); background: #0d1730;
+        color: var(--text); padding: 8px 10px; min-height: 38px; font: inherit;
       }
-      h1 { margin: 18px 0 10px; font-size: clamp(2rem, 3.6vw, 3.1rem); line-height: 1.1; }
-      .lead { max-width: 760px; margin: 0; color: var(--muted); font-size: clamp(1rem, 2.1vw, 1.15rem); line-height: 1.65; }
-      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 34px; }
-      .card { border-radius: 16px; border: 1px solid var(--outline); background: var(--surface); padding: 16px; }
-      .card h3 { margin: 0 0 7px; font-size: 0.95rem; color: #cdd8f2; }
-      .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; color: #dbe7ff; word-break: break-word; }
-      .actions { margin-top: 26px; display: flex; gap: 12px; flex-wrap: wrap; }
-      .btn {
-        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        padding: 11px 15px; border-radius: 12px; text-decoration: none; font-size: 0.9rem;
-        border: 1px solid transparent; transition: transform 120ms ease;
-      }
-      .btn.primary { color: #001729; background: linear-gradient(90deg, #69dcff, #8ea7ff); }
-      .btn.secondary { color: #d7e5ff; background: var(--surface-2); border-color: var(--outline); }
-      .btn:hover { transform: translateY(-1px); }
-      .foot { margin-top: 30px; color: #93a8cf; font-size: 0.9rem; }
+      textarea { min-height: 130px; resize: vertical; }
+      button { cursor: pointer; border: 0; background: linear-gradient(90deg, #67d9ff, #8ba3ff); color: #031226; font-weight: 700; }
+      button.secondary { border: 1px solid var(--line); background: #13223f; color: #dae6ff; }
+      .row { display: flex; gap: 8px; align-items: center; }
+      .row > * { flex: 1; }
+      .list { display: grid; gap: 8px; margin-top: 8px; }
+      .item { border: 1px solid var(--line); border-radius: 10px; background: #0e1931; padding: 10px; }
+      pre { white-space: pre-wrap; word-break: break-word; background: #0a1328; border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin: 0; }
+      #msg { margin-top: 10px; min-height: 22px; }
+      @media (max-width: 700px) { .row { flex-direction: column; } }
     </style>
   </head>
   <body>
     <main class="wrap">
-      <div class="badge">Static Netlify Preview</div>
-      <h1>SchemaGate</h1>
-      <p class="lead">
-        SchemaGate is a runtime-backed application (FastAPI + Python + Postgres) and cannot execute directly on Netlify static hosting.
-        This page keeps the project published and provides direct access to the source and a downloadable package.
-      </p>
-      <section class="grid" aria-label="Project metadata">
-        <article class="card"><h3>Branch</h3><div class="mono">schemagate</div></article>
-        <article class="card"><h3>Runtime</h3><div class="mono">FastAPI + Python + Postgres</div></article>
-        <article class="card"><h3>Netlify Status</h3><div class="mono">Landing page active (static)</div></article>
+      <section class="hero">
+        <h1 style="margin:0 0 8px">SchemaGate</h1>
+        <p class="muted" style="margin:0">Store schema versions, validate payloads, and normalize values against a selected schema.</p>
       </section>
-      <div class="actions">
-        <a class="btn primary" href="https://github.com/dev-in-portfolio/portfolio2/archive/refs/heads/schemagate.zip">Download Source ZIP</a>
-        <a class="btn secondary" href="https://github.com/dev-in-portfolio/portfolio2/tree/schemagate">View Branch Source</a>
-      </div>
-      <p class="foot">To run the full app, use the local runtime documented in the branch README.</p>
+
+      <section class="grid">
+        <article class="card">
+          <h3 style="margin:0">Create Schema Version</h3>
+          <label>User key</label>
+          <input id="userKey" placeholder="operator-123" />
+          <label>Schema name</label>
+          <input id="schemaName" placeholder="events_v1" />
+          <label>Schema JSON</label>
+          <textarea id="schemaJson">{"type":"object","required":["id","name"],"properties":{"id":{"type":"string","minLength":1},"name":{"type":"string","minLength":1},"age":{"type":"integer","minimum":0},"active":{"type":"boolean","default":true}},"additionalProperties":false}</textarea>
+          <div class="row" style="margin-top:10px">
+            <button id="saveSchema">Save</button>
+            <button class="secondary" id="listSchemas">Refresh List</button>
+          </div>
+          <div id="schemas" class="list"></div>
+        </article>
+
+        <article class="card">
+          <h3 style="margin:0">Validate / Normalize</h3>
+          <label>Mode</label>
+          <select id="mode">
+            <option value="validate">validate</option>
+            <option value="normalize">normalize</option>
+          </select>
+          <label>Schema name</label>
+          <input id="runSchemaName" placeholder="events_v1" />
+          <label>Version (optional)</label>
+          <input id="runVersion" type="number" min="1" />
+          <label>Payload JSON</label>
+          <textarea id="payloadJson">{"id":"evt-1","name":"devin","age":"42","active":"true"}</textarea>
+          <button id="runCheck" style="margin-top:10px">Run</button>
+          <label style="margin-top:12px">Result</label>
+          <pre id="result">{}</pre>
+        </article>
+      </section>
+      <p id="msg" class="muted"></p>
     </main>
+
+    <script>
+      const msg = (t, bad = false) => {
+        const el = document.getElementById("msg");
+        el.textContent = t;
+        el.style.color = bad ? "#ffb9b9" : "#a2b5df";
+      };
+
+      const getUserKey = () => {
+        const userKey = document.getElementById("userKey").value.trim();
+        if (!userKey) throw new Error("user key required");
+        return userKey;
+      };
+
+      const storeKey = (userKey) => `schemagate:${userKey}:schemas`;
+      const loadSchemas = (userKey) => JSON.parse(localStorage.getItem(storeKey(userKey)) || "[]");
+      const saveSchemas = (userKey, rows) => localStorage.setItem(storeKey(userKey), JSON.stringify(rows));
+
+      function normalizeNode(node, schema, path, mode, errors) {
+        if (!schema || typeof schema !== "object") return node;
+
+        if (schema.type === "object") {
+          if (!node || typeof node !== "object" || Array.isArray(node)) {
+            errors.push({ path, code: "type", message: "must be object" });
+            return node;
+          }
+          const out = { ...node };
+          const props = schema.properties && typeof schema.properties === "object" ? schema.properties : {};
+          const required = Array.isArray(schema.required) ? schema.required : [];
+          for (const key of required) {
+            if (!(key in out)) errors.push({ path: `${path}/${key}`, code: "required", message: "is required" });
+          }
+          for (const [key, propSchema] of Object.entries(props)) {
+            if (!(key in out) && mode === "normalize" && propSchema && Object.prototype.hasOwnProperty.call(propSchema, "default")) {
+              out[key] = propSchema.default;
+            }
+            if (key in out) out[key] = normalizeNode(out[key], propSchema, `${path}/${key}`, mode, errors);
+          }
+          if (schema.additionalProperties === false) {
+            for (const key of Object.keys(out)) {
+              if (!(key in props)) errors.push({ path: `${path}/${key}`, code: "additionalProperties", message: "not allowed" });
+            }
+          }
+          return out;
+        }
+
+        if (schema.type === "string") {
+          if (mode === "normalize" && typeof node !== "string" && node != null) node = String(node);
+          if (typeof node !== "string") {
+            errors.push({ path, code: "type", message: "must be string" });
+            return node;
+          }
+          if (schema.minLength != null && node.length < Number(schema.minLength)) {
+            errors.push({ path, code: "minLength", message: `must be at least ${schema.minLength}` });
+          }
+          return node;
+        }
+
+        if (schema.type === "integer") {
+          if (mode === "normalize" && typeof node === "string" && /^-?\\d+$/.test(node)) node = Number(node);
+          if (!Number.isInteger(node)) {
+            errors.push({ path, code: "type", message: "must be integer" });
+            return node;
+          }
+          if (schema.minimum != null && node < Number(schema.minimum)) {
+            errors.push({ path, code: "minimum", message: `must be >= ${schema.minimum}` });
+          }
+          return node;
+        }
+
+        if (schema.type === "boolean") {
+          if (mode === "normalize" && typeof node === "string") {
+            if (node === "true") node = true;
+            if (node === "false") node = false;
+          }
+          if (typeof node !== "boolean") errors.push({ path, code: "type", message: "must be boolean" });
+          return node;
+        }
+
+        return node;
+      }
+
+      function refreshSchemas() {
+        try {
+          const key = getUserKey();
+          const rows = loadSchemas(key);
+          const root = document.getElementById("schemas");
+          root.innerHTML = "";
+          rows.sort((a, b) => a.name.localeCompare(b.name) || b.version - a.version);
+          for (const item of rows) {
+            const row = document.createElement("div");
+            row.className = "item";
+            row.innerHTML = `<strong>${item.name}</strong> <span class="muted">v${item.version}</span>`;
+            root.appendChild(row);
+          }
+          msg("Schema list refreshed.");
+        } catch (e) { msg(e.message, true); }
+      }
+
+      document.getElementById("saveSchema").onclick = () => {
+        try {
+          const key = getUserKey();
+          const name = document.getElementById("schemaName").value.trim();
+          const schema = JSON.parse(document.getElementById("schemaJson").value);
+          if (!name) throw new Error("schema name required");
+          const rows = loadSchemas(key);
+          const versions = rows.filter((r) => r.name === name).map((r) => r.version);
+          const version = (versions.length ? Math.max(...versions) : 0) + 1;
+          rows.push({ name, version, schema, created_at: new Date().toISOString() });
+          saveSchemas(key, rows);
+          refreshSchemas();
+          msg("Schema version saved.");
+        } catch (e) { msg(e.message, true); }
+      };
+
+      document.getElementById("listSchemas").onclick = refreshSchemas;
+
+      document.getElementById("runCheck").onclick = () => {
+        try {
+          const key = getUserKey();
+          const mode = document.getElementById("mode").value;
+          const name = document.getElementById("runSchemaName").value.trim();
+          const versionInput = document.getElementById("runVersion").value.trim();
+          const payload = JSON.parse(document.getElementById("payloadJson").value);
+          const rows = loadSchemas(key).filter((r) => r.name === name);
+          if (!rows.length) throw new Error("schema not found");
+          const schema = versionInput
+            ? rows.find((r) => r.version === Number(versionInput))
+            : rows.sort((a, b) => b.version - a.version)[0];
+          if (!schema) throw new Error("schema version not found");
+          const candidate = JSON.parse(JSON.stringify(payload));
+          const errors = [];
+          const normalized = normalizeNode(candidate, schema.schema, "", mode, errors);
+          const result = {
+            ok: errors.length === 0,
+            errors,
+            normalized: mode === "normalize" ? normalized : null,
+            schema: { name: schema.name, version: schema.version }
+          };
+          document.getElementById("result").textContent = JSON.stringify(result, null, 2);
+          msg(`${mode} completed.`);
+        } catch (e) {
+          document.getElementById("result").textContent = "{}";
+          msg(e.message, true);
+        }
+      };
+    </script>
   </body>
 </html>
