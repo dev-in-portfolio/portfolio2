@@ -1,21 +1,21 @@
 create extension if not exists pgcrypto;
 
-create table if not exists users (
+create table if not exists sv_users (
   id uuid primary key default gen_random_uuid(),
   device_key text unique not null,
   created_at timestamptz default now()
 );
 
-create table if not exists documents (
+create table if not exists sv_documents (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references users(id) on delete cascade,
+  user_id uuid not null references sv_users(id) on delete cascade,
   title text not null,
   created_at timestamptz default now()
 );
 
-create table if not exists snapshots (
+create table if not exists sv_snapshots (
   id uuid primary key default gen_random_uuid(),
-  document_id uuid not null references documents(id) on delete cascade,
+  document_id uuid not null references sv_documents(id) on delete cascade,
   version integer not null,
   body text not null,
   summary text not null default '',
@@ -26,7 +26,7 @@ create table if not exists snapshots (
 );
 
 create index if not exists idx_docs_user
-  on documents(user_id);
+  on sv_documents(user_id);
 
 create index if not exists idx_snapshots_doc_version
-  on snapshots(document_id, version desc);
+  on sv_snapshots(document_id, version desc);

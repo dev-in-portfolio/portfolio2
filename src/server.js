@@ -37,7 +37,7 @@ function requireDb() {
 
 async function getUserId(deviceKey) {
   const { rows } = await pool.query(
-    `insert into users (device_key)
+    `insert into sv_users (device_key)
      values ($1)
      on conflict (device_key) do update set device_key = excluded.device_key
      returning id`,
@@ -71,7 +71,7 @@ app.get('/api/snapshotvault/documents', async (req, res, next) => {
     requireDb();
     const userId = await getUserId(req.deviceKey);
     const { rows } = await pool.query(
-      'select id, title, created_at from documents where user_id = $1 order by created_at desc',
+      'select id, title, created_at from sv_documents where user_id = $1 order by created_at desc',
       [userId]
     );
     res.json({ documents: rows });
@@ -87,7 +87,7 @@ app.post('/api/snapshotvault/documents', async (req, res, next) => {
     const title = String(req.body.title || '').trim().slice(0, 200);
     if (!title) return res.status(400).json({ error: 'title required' });
     const { rows } = await pool.query(
-      'insert into documents (user_id, title) values ($1, $2) returning id, title, created_at',
+      'insert into sv_documents (user_id, title) values ($1, $2) returning id, title, created_at',
       [userId, title]
     );
     res.status(201).json({ document: rows[0] });
@@ -100,11 +100,11 @@ app.get('/api/snapshotvault/documents/:id/snapshots', async (req, res, next) => 
   try {
     requireDb();
     const userId = await getUserId(req.deviceKey);
-    const allowed = await pool.query('select 1 from documents where id = $1 and user_id = $2', [req.params.id, userId]);
+    const allowed = await pool.query('select 1 from sv_documents where id = $1 and user_id = $2', [req.params.id, userId]);
     if (!allowed.rows[0]) return res.status(404).json({ error: 'document not found' });
     const { rows } = await pool.query(
       `select id, version, body, summary, diff_added, diff_removed, created_at
-       from snapshots where document_id = $1 order by version desc`,
+       from sv_snapshots where document_id = $1 order by version desc`,
       [req.params.id]
     );
     res.json({ snapshots: rows });
@@ -117,18 +117,18 @@ app.post('/api/snapshotvault/documents/:id/snapshots', async (req, res, next) =>
   try {
     requireDb();
     const userId = await getUserId(req.deviceKey);
-    const allowed = await pool.query('select 1 from documents where id = $1 and user_id = $2', [req.params.id, userId]);
+    const allowed = await pool.query('select 1 from sv_documents where id = $1 and user_id = $2', [req.params.id, userId]);
     if (!allowed.rows[0]) return res.status(404).json({ error: 'document not found' });
     const body = String(req.body.body || '');
     const summary = String(req.body.summary || '').slice(0, 400);
     if (!body) return res.status(400).json({ error: 'body required' });
-    const latest = await pool.query('select version, body from snapshots where document_id = $1 order by version desc limit 1', [req.params.id]);
+    const latest = await pool.query('select version, body from sv_snapshots where document_id = $1 order by version desc limit 1', [req.params.id]);
     const version = (latest.rows[0]?.version || 0) + 1;
     const prevBody = latest.rows[0]?.body || '';
     const diffAdded = Math.max(0, body.length - prevBody.length);
     const diffRemoved = Math.max(0, prevBody.length - body.length);
     const { rows } = await pool.query(
-      `insert into snapshots (document_id, version, body, summary, diff_added, diff_removed)
+      `insert into sv_snapshots (document_id, version, body, summary, diff_added, diff_removed)
        values ($1, $2, $3, $4, $5, $6)
        returning id, version, body, summary, diff_added, diff_removed, created_at`,
       [req.params.id, version, body, summary, diffAdded, diffRemoved]
