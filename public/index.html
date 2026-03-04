@@ -3,65 +3,49 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Draft Relay | Portfolio Preview</title>
+    <title>Draft Relay</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
-      :root {
-        --bg: #0b0f19;
-        --bg-2: #101a2c;
-        --surface: rgba(14, 22, 39, 0.72);
-        --surface-2: rgba(25, 34, 56, 0.8);
-        --fg: #e8eefc;
-        --muted: #9eb0d2;
-        --accent: #4fd1ff;
-        --accent-2: #8e9dff;
-        --outline: rgba(125, 152, 206, 0.26);
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "Space Grotesk", system-ui, sans-serif;
-        color: var(--fg);
-        background:
-          radial-gradient(circle at 18% 10%, rgba(79, 209, 255, 0.18), transparent 36%),
-          radial-gradient(circle at 82% 0%, rgba(142, 157, 255, 0.18), transparent 42%),
-          linear-gradient(180deg, var(--bg), var(--bg-2));
-      }
-      .wrap { max-width: 980px; margin: 0 auto; padding: 64px 24px 84px; }
-      .badge { display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 999px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: rgba(79, 209, 255, 0.1); border: 1px solid rgba(79, 209, 255, 0.3); }
-      h1 { margin: 18px 0 10px; font-size: clamp(2rem, 3.6vw, 3.1rem); line-height: 1.1; }
-      .lead { max-width: 760px; margin: 0; color: var(--muted); font-size: clamp(1rem, 2.1vw, 1.15rem); line-height: 1.65; }
-      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 34px; }
-      .card { border-radius: 16px; border: 1px solid var(--outline); background: var(--surface); padding: 16px; }
-      .card h3 { margin: 0 0 7px; font-size: 0.95rem; color: #cdd8f2; }
-      .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; color: #dbe7ff; word-break: break-word; }
-      .actions { margin-top: 26px; display: flex; gap: 12px; flex-wrap: wrap; }
-      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 15px; border-radius: 12px; text-decoration: none; font-size: 0.9rem; border: 1px solid transparent; transition: transform 120ms ease; }
-      .btn.primary { color: #001729; background: linear-gradient(90deg, #69dcff, #8ea7ff); }
-      .btn.secondary { color: #d7e5ff; background: var(--surface-2); border-color: var(--outline); }
-      .btn:hover { transform: translateY(-1px); }
-      .foot { margin-top: 30px; color: #93a8cf; font-size: 0.9rem; }
+      :root { --bg:#0a1222; --panel:#172440; --panel2:#1f2f50; --text:#ebf2ff; --muted:#a1b6de; --line:rgba(150,176,226,.28); }
+      *{box-sizing:border-box;} body{margin:0;font-family:"Space Grotesk",system-ui,sans-serif;color:var(--text);background:linear-gradient(180deg,#0a1222,#0f1c38);}
+      .wrap{max-width:1100px;margin:0 auto;padding:28px 16px 58px;} .hero,.card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px;}
+      .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;} .card{background:var(--panel2);}
+      label{display:block;margin:8px 0 4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+      input,textarea,select,button{width:100%;border-radius:10px;border:1px solid var(--line);background:#0d1931;color:var(--text);padding:8px 10px;font:inherit;}
+      textarea{min-height:100px;resize:vertical;} .row{display:flex;gap:8px;} .row>*{flex:1;}
+      button{border:0;background:linear-gradient(90deg,#70dcff,#90abff);color:#03152b;font-weight:700;cursor:pointer;} button.secondary{border:1px solid var(--line);background:#172744;color:#dbe9ff;}
+      .list{display:grid;gap:8px;margin-top:8px;max-height:430px;overflow:auto;} .item{border:1px solid var(--line);border-radius:10px;background:#0d1830;padding:10px;} .muted{color:var(--muted);}
+      @media (max-width:900px){.grid{grid-template-columns:1fr;}.row{flex-direction:column;}}
     </style>
   </head>
   <body>
     <main class="wrap">
-      <div class="badge">Static Netlify Preview</div>
-      <h1>Draft Relay</h1>
-      <p class="lead">
-        Draft Relay is a runtime-backed application (Fresh + Deno + Postgres) and cannot execute directly on Netlify static hosting.
-        This page keeps the project published and provides direct access to the source and a downloadable package.
-      </p>
-      <section class="grid" aria-label="Project metadata">
-        <article class="card"><h3>Branch</h3><div class="mono">draft-relay</div></article>
-        <article class="card"><h3>Runtime</h3><div class="mono">Fresh + Deno + Postgres</div></article>
-        <article class="card"><h3>Netlify Status</h3><div class="mono">Landing page active (static)</div></article>
+      <section class="hero"><h1 style="margin:0 0 8px">Draft Relay</h1><p class="muted" style="margin:0">Draft pages with ordered cards and publish-ready slugs.</p></section>
+      <section class="grid">
+        <article class="card">
+          <h3 style="margin:0">Page</h3>
+          <label>Title</label><input id="title" placeholder="Release Notes" />
+          <label>Slug</label><input id="slug" placeholder="release-notes" />
+          <div class="row" style="margin-top:8px"><button id="createPage">Create Page</button><button id="reload" class="secondary">Reload</button></div>
+          <label>Active page</label><select id="pageSelect"></select>
+          <label>Card title</label><input id="cardTitle" placeholder="Highlights" />
+          <label>Card body</label><textarea id="cardBody">Add card copy here...</textarea>
+          <button id="addCard" style="margin-top:8px">Add Card</button>
+          <p id="msg" class="muted"></p>
+        </article>
+        <article class="card"><h3 style="margin:0">Cards</h3><div id="cards" class="list"></div></article>
       </section>
-      <div class="actions">
-        <a class="btn primary" href="https://github.com/dev-in-portfolio/portfolio2/archive/refs/heads/draft-relay.zip">Download Source ZIP</a>
-        <a class="btn secondary" href="https://github.com/dev-in-portfolio/portfolio2/tree/draft-relay">View Branch Source</a>
-      </div>
-      <p class="foot">To run the full app, use the local runtime documented in the branch README.</p>
     </main>
+    <script>
+      const keyName='draft_relay_device_key'; let deviceKey=localStorage.getItem(keyName); if(!deviceKey&&crypto.randomUUID){deviceKey=crypto.randomUUID();localStorage.setItem(keyName,deviceKey);}
+      let activePage=''; const msg=(t,b=false)=>{const el=document.getElementById('msg');el.textContent=t;el.style.color=b?'#ffb7b7':'#a1b6de';};
+      async function api(path,opts={}){const res=await fetch(path,{...opts,headers:{'content-type':'application/json','X-Device-Key':deviceKey,...(opts.headers||{})}});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.detail||data.error||`http_${res.status}`);return data;}
+      async function loadPages(){const data=await api('/api/draftrelay/pages');const sel=document.getElementById('pageSelect');sel.innerHTML='';for(const p of data.pages||[]){const o=document.createElement('option');o.value=p.id;o.textContent=`${p.title} (${p.slug})`;sel.appendChild(o);}if(!activePage&&sel.value)activePage=sel.value;if(activePage)sel.value=activePage;if(sel.value){activePage=sel.value;await loadCards();}}
+      async function loadCards(){if(!activePage)return;const data=await api(`/api/draftrelay/pages/${activePage}`);const root=document.getElementById('cards');root.innerHTML='';for(const c of data.cards||[]){const card=document.createElement('div');card.className='item';card.innerHTML=`<strong>${c.title||c.type}</strong><div>${c.body||''}</div>`;root.appendChild(card);}}
+      document.getElementById('createPage').onclick=async()=>{try{const out=await api('/api/draftrelay/pages',{method:'POST',body:JSON.stringify({title:document.getElementById('title').value.trim(),slug:document.getElementById('slug').value.trim()})});activePage=out.page.id;msg('Page created.');await loadPages();}catch(e){msg(e.message,true);}};
+      document.getElementById('addCard').onclick=async()=>{try{if(!activePage)throw new Error('select page first');await api(`/api/draftrelay/pages/${activePage}/cards`,{method:'POST',body:JSON.stringify({type:'text',ord:Date.now(),title:document.getElementById('cardTitle').value.trim(),body:document.getElementById('cardBody').value})});msg('Card added.');await loadCards();}catch(e){msg(e.message,true);}};
+      document.getElementById('pageSelect').onchange=async(e)=>{activePage=e.target.value;await loadCards();};
+      document.getElementById('reload').onclick=loadPages;
+      loadPages().catch(e=>msg(e.message,true));
+    </script>
   </body>
 </html>
