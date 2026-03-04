@@ -22,6 +22,14 @@ const pool = DATABASE_URL
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use((req, _res, next) => {
+  if (req.url === '/api') {
+    req.url = '/';
+  } else if (req.url.startsWith('/api/')) {
+    req.url = req.url.slice(4);
+  }
+  next();
+});
 
 function sha256Text(text) {
   return crypto.createHash('sha256').update(String(text || ''), 'utf8').digest('hex');
