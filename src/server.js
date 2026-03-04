@@ -20,6 +20,14 @@ const pool = DATABASE_URL
 
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
+app.use((req, _res, next) => {
+  if (req.url === '/api') {
+    req.url = '/';
+  } else if (req.url.startsWith('/api/')) {
+    req.url = req.url.slice(4);
+  }
+  next();
+});
 
 function getUserKey(req) {
   const key = String(req.header('x-user-key') || req.header('x-device-key') || '').trim();
