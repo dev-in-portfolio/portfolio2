@@ -3,65 +3,116 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Remix VaultKey | Portfolio Preview</title>
+    <title>Remix VaultKey</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
-      :root {
-        --bg: #0b0f19;
-        --bg-2: #101a2c;
-        --surface: rgba(14, 22, 39, 0.72);
-        --surface-2: rgba(25, 34, 56, 0.8);
-        --fg: #e8eefc;
-        --muted: #9eb0d2;
-        --accent: #4fd1ff;
-        --accent-2: #8e9dff;
-        --outline: rgba(125, 152, 206, 0.26);
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "Space Grotesk", system-ui, sans-serif;
-        color: var(--fg);
-        background:
-          radial-gradient(circle at 18% 10%, rgba(79, 209, 255, 0.18), transparent 36%),
-          radial-gradient(circle at 82% 0%, rgba(142, 157, 255, 0.18), transparent 42%),
-          linear-gradient(180deg, var(--bg), var(--bg-2));
-      }
-      .wrap { max-width: 980px; margin: 0 auto; padding: 64px 24px 84px; }
-      .badge { display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 999px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); background: rgba(79, 209, 255, 0.1); border: 1px solid rgba(79, 209, 255, 0.3); }
-      h1 { margin: 18px 0 10px; font-size: clamp(2rem, 3.6vw, 3.1rem); line-height: 1.1; }
-      .lead { max-width: 760px; margin: 0; color: var(--muted); font-size: clamp(1rem, 2.1vw, 1.15rem); line-height: 1.65; }
-      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 34px; }
-      .card { border-radius: 16px; border: 1px solid var(--outline); background: var(--surface); padding: 16px; }
-      .card h3 { margin: 0 0 7px; font-size: 0.95rem; color: #cdd8f2; }
-      .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; color: #dbe7ff; word-break: break-word; }
-      .actions { margin-top: 26px; display: flex; gap: 12px; flex-wrap: wrap; }
-      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 15px; border-radius: 12px; text-decoration: none; font-size: 0.9rem; border: 1px solid transparent; transition: transform 120ms ease; }
-      .btn.primary { color: #001729; background: linear-gradient(90deg, #69dcff, #8ea7ff); }
-      .btn.secondary { color: #d7e5ff; background: var(--surface-2); border-color: var(--outline); }
-      .btn:hover { transform: translateY(-1px); }
-      .foot { margin-top: 30px; color: #93a8cf; font-size: 0.9rem; }
+      :root { --bg:#0a1222; --panel:#172440; --panel2:#1f2f50; --text:#ebf2ff; --muted:#a1b6de; --line:rgba(150,176,226,.28); }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Space Grotesk",system-ui,sans-serif; color:var(--text); background:linear-gradient(180deg,#0a1222,#0f1c38); }
+      .wrap { max-width:1050px; margin:0 auto; padding:28px 16px 58px; }
+      .hero,.card { border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:14px; }
+      .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+      .card { background:var(--panel2); }
+      label { display:block; margin:8px 0 4px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+      input,textarea,button { width:100%; border-radius:10px; border:1px solid var(--line); background:#0d1931; color:var(--text); padding:8px 10px; font:inherit; }
+      textarea { min-height:130px; resize:vertical; }
+      .row { display:flex; gap:8px; }
+      .row > * { flex:1; }
+      button { border:0; background:linear-gradient(90deg,#70dcff,#90abff); color:#03152b; font-weight:700; cursor:pointer; }
+      button.secondary { border:1px solid var(--line); background:#172744; color:#dbe9ff; }
+      .list { display:grid; gap:8px; margin-top:8px; max-height:460px; overflow:auto; }
+      .item { border:1px solid var(--line); border-radius:10px; background:#0d1830; padding:10px; }
+      .muted { color:var(--muted); }
+      #msg { min-height:20px; }
+      @media (max-width: 860px) { .grid { grid-template-columns:1fr; } .row { flex-direction:column; } }
     </style>
   </head>
   <body>
     <main class="wrap">
-      <div class="badge">Static Netlify Preview</div>
-      <h1>Remix VaultKey</h1>
-      <p class="lead">
-        Remix VaultKey is a runtime-backed application (Remix + Node + Postgres) and cannot execute directly on Netlify static hosting.
-        This page keeps the project published and provides direct access to the source and a downloadable package.
-      </p>
-      <section class="grid" aria-label="Project metadata">
-        <article class="card"><h3>Branch</h3><div class="mono">remix-vault-key</div></article>
-        <article class="card"><h3>Runtime</h3><div class="mono">Remix + Node + Postgres</div></article>
-        <article class="card"><h3>Netlify Status</h3><div class="mono">Landing page active (static)</div></article>
+      <section class="hero">
+        <h1 style="margin:0 0 8px">Remix VaultKey</h1>
+        <p class="muted" style="margin:0">Sealed notes workspace with DB-backed entries and metadata.</p>
       </section>
-      <div class="actions">
-        <a class="btn primary" href="https://github.com/dev-in-portfolio/portfolio2/archive/refs/heads/remix-vault-key.zip">Download Source ZIP</a>
-        <a class="btn secondary" href="https://github.com/dev-in-portfolio/portfolio2/tree/remix-vault-key">View Branch Source</a>
-      </div>
-      <p class="foot">To run the full app, use the local runtime documented in the branch README.</p>
+      <section class="grid">
+        <article class="card">
+          <h3 style="margin:0">Create Entry</h3>
+          <label>Title</label>
+          <input id="title" placeholder="Incident timeline notes" />
+          <label>Tags (comma-separated)</label>
+          <input id="tags" placeholder="ops,postmortem,private" />
+          <label>Plaintext</label>
+          <textarea id="plaintext" placeholder="Write secure note content here..."></textarea>
+          <div class="row" style="margin-top:10px">
+            <button id="save">Seal & Save</button>
+            <button id="reload" class="secondary">Reload</button>
+          </div>
+          <p id="msg" class="muted"></p>
+        </article>
+        <article class="card">
+          <h3 style="margin:0">Entries</h3>
+          <div id="list" class="list"></div>
+        </article>
+      </section>
     </main>
+    <script>
+      const msg = (t, bad = false) => {
+        const el = document.getElementById('msg');
+        el.textContent = t;
+        el.style.color = bad ? '#ffb7b7' : '#a1b6de';
+      };
+      async function api(path, opts = {}) {
+        const res = await fetch(path, {
+          ...opts,
+          headers: { 'content-type': 'application/json', ...(opts.headers || {}) }
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || data.error || `http_${res.status}`);
+        return data;
+      }
+      async function load() {
+        try {
+          const data = await api('/api/entries?limit=100');
+          const root = document.getElementById('list');
+          root.innerHTML = '';
+          for (const item of data.items || []) {
+            const card = document.createElement('div');
+            card.className = 'item';
+            const tags = (item.tags || []).join(', ');
+            card.innerHTML =
+              `<strong>${item.title}</strong>` +
+              `<div class="muted">${new Date(item.createdAt).toLocaleString()}</div>` +
+              `<div class="muted">${tags || 'no tags'}</div>`;
+            const del = document.createElement('button');
+            del.textContent = 'Delete';
+            del.className = 'secondary';
+            del.style.marginTop = '8px';
+            del.onclick = async () => {
+              try {
+                await api(`/api/entries/${item.id}`, { method: 'DELETE' });
+                await load();
+              } catch (e) { msg(e.message, true); }
+            };
+            card.appendChild(del);
+            root.appendChild(card);
+          }
+        } catch (e) { msg(e.message, true); }
+      }
+      document.getElementById('save').onclick = async () => {
+        try {
+          const payload = {
+            title: document.getElementById('title').value.trim(),
+            tags: document.getElementById('tags').value.trim(),
+            plaintext: document.getElementById('plaintext').value
+          };
+          await api('/api/entries', { method: 'POST', body: JSON.stringify(payload) });
+          document.getElementById('title').value = '';
+          document.getElementById('tags').value = '';
+          document.getElementById('plaintext').value = '';
+          msg('Entry stored.');
+          await load();
+        } catch (e) { msg(e.message, true); }
+      };
+      document.getElementById('reload').onclick = load;
+      load();
+    </script>
   </body>
 </html>
