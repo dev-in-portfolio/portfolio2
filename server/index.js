@@ -108,6 +108,7 @@ function createApp() {
     );
     res.json({ presets: rows });
   } catch (err) {
+    console.error('sk_presets_fetch_failed', err);
     res.status(500).json({ error: 'presets_fetch_failed' });
   }
   });
@@ -233,6 +234,7 @@ function createApp() {
     );
     res.json({ runs: rows });
   } catch (err) {
+    console.error('sk_runs_fetch_failed', err);
     res.status(500).json({ error: 'runs_fetch_failed' });
   }
   });
