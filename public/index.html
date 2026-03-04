@@ -3,153 +3,66 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>NeonScope | Portfolio Preview</title>
+    <title>NeonScope</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
-      :root {
-        --bg: #0b0f19;
-        --bg-2: #101a2c;
-        --surface: rgba(14, 22, 39, 0.72);
-        --surface-2: rgba(25, 34, 56, 0.8);
-        --fg: #e8eefc;
-        --muted: #9eb0d2;
-        --accent: #4fd1ff;
-        --accent-2: #8e9dff;
-        --outline: rgba(125, 152, 206, 0.26);
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: "Space Grotesk", system-ui, sans-serif;
-        color: var(--fg);
-        background:
-          radial-gradient(circle at 18% 10%, rgba(79, 209, 255, 0.18), transparent 36%),
-          radial-gradient(circle at 82% 0%, rgba(142, 157, 255, 0.18), transparent 42%),
-          linear-gradient(180deg, var(--bg), var(--bg-2));
-      }
-      .wrap {
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 64px 24px 84px;
-      }
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 8px 14px;
-        border-radius: 999px;
-        font-size: 12px;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--accent);
-        background: rgba(79, 209, 255, 0.1);
-        border: 1px solid rgba(79, 209, 255, 0.3);
-      }
-      h1 {
-        margin: 18px 0 10px;
-        font-size: clamp(2rem, 3.6vw, 3.1rem);
-        line-height: 1.1;
-      }
-      .lead {
-        max-width: 760px;
-        margin: 0;
-        color: var(--muted);
-        font-size: clamp(1rem, 2.1vw, 1.15rem);
-        line-height: 1.65;
-      }
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 16px;
-        margin-top: 34px;
-      }
-      .card {
-        border-radius: 16px;
-        border: 1px solid var(--outline);
-        background: var(--surface);
-        padding: 16px;
-      }
-      .card h3 {
-        margin: 0 0 7px;
-        font-size: 0.95rem;
-        color: #cdd8f2;
-      }
-      .mono {
-        font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 0.82rem;
-        color: #dbe7ff;
-        word-break: break-word;
-      }
-      .actions {
-        margin-top: 26px;
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 11px 15px;
-        border-radius: 12px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        border: 1px solid transparent;
-        transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
-      }
-      .btn.primary {
-        color: #001729;
-        background: linear-gradient(90deg, #69dcff, #8ea7ff);
-      }
-      .btn.secondary {
-        color: #d7e5ff;
-        background: var(--surface-2);
-        border-color: var(--outline);
-      }
-      .btn:hover {
-        transform: translateY(-1px);
-      }
-      .foot {
-        margin-top: 30px;
-        color: #93a8cf;
-        font-size: 0.9rem;
-      }
+      :root{--bg:#0a1220;--card:#131d35;--bd:#35507f;--txt:#edf3ff;--muted:#a7b7dc;--a:#78ecff;--b:#90a1ff}*{box-sizing:border-box}
+      body{margin:0;background:radial-gradient(circle at 16% 0,#2b4f7f 0,#0a1220 56%);color:var(--txt);font-family:Inter,system-ui,sans-serif}
+      .wrap{max-width:1120px;margin:0 auto;padding:24px}.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px}
+      .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}input,textarea,button{width:100%;padding:10px;border-radius:10px;border:1px solid #3e6297;background:#111a35;color:var(--txt)}
+      button{border:none;background:linear-gradient(90deg,var(--a),var(--b));color:#05152d;font-weight:700;cursor:pointer}.muted{color:var(--muted);font-size:.9rem}
+      @media(max-width:960px){.row{grid-template-columns:1fr}}
     </style>
   </head>
   <body>
     <main class="wrap">
-      <div class="badge">Static Netlify Preview</div>
-      <h1>NeonScope</h1>
-      <p class="lead">
-        NeonScope is a runtime-backed application (Streamlit + Postgres) and cannot execute directly on Netlify static hosting.
-        This page keeps the project published and provides direct access to the source and a downloadable build package.
-      </p>
-
-      <section class="grid" aria-label="Project metadata">
+      <section class="card"><h1>NeonScope</h1><p class="muted">Read-only SQL workbench with saved queries and audit trail.</p><p id="status" class="muted">Checking API...</p></section>
+      <section class="row">
         <article class="card">
-          <h3>Branch</h3>
-          <div class="mono">neonscope</div>
+          <h2>Query</h2>
+          <input id="name" placeholder="Query name (optional)" />
+          <textarea id="sql" rows="10" placeholder="select * from ns_saved_queries"></textarea>
+          <input id="limit" type="number" value="50" min="1" max="200" />
+          <button id="run">Run Query</button>
+          <button id="save">Save Query</button>
+          <div id="queryOut" class="muted"></div>
         </article>
         <article class="card">
-          <h3>Runtime</h3>
-          <div class="mono">Streamlit + Postgres</div>
-        </article>
-        <article class="card">
-          <h3>Netlify Status</h3>
-          <div class="mono">Landing page active (static)</div>
+          <h2>Explorer</h2>
+          <button id="tables">List Tables</button>
+          <button id="saved">Load Saved Queries</button>
+          <button id="audit">Load Audit Log</button>
+          <input id="deleteId" placeholder="saved query id to delete" />
+          <button id="deleteSaved">Delete Saved Query</button>
+          <div id="infoOut" class="muted"></div>
         </article>
       </section>
-
-      <div class="actions">
-        <a class="btn primary" href="https://github.com/dev-in-portfolio/portfolio2/archive/refs/heads/neonscope.zip">Download Source ZIP</a>
-        <a class="btn secondary" href="https://github.com/dev-in-portfolio/portfolio2/tree/neonscope">View Branch Source</a>
-      </div>
-
-      <p class="foot">
-        To run the full application: configure environment secrets and launch locally or on a Python-capable host.
-      </p>
     </main>
+    <script>
+      const status=document.getElementById('status');
+      const queryOut=document.getElementById('queryOut');
+      const infoOut=document.getElementById('infoOut');
+      const esc=(s)=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+      const show=(el,d)=>{ el.innerHTML=`<pre>${esc(JSON.stringify(d,null,2))}</pre>`; };
+      const val=(id)=>document.getElementById(id).value.trim();
+
+      async function health(){ const r=await fetch('/api/health/db'); const d=await r.json(); status.textContent=d.ok?'API connected to database.':`API warning: ${d.error||'unavailable'}`; }
+
+      document.getElementById('run').onclick=async()=>{
+        const body={name:val('name'),sql:val('sql'),limit:Number(val('limit')||50)};
+        const r=await fetch('/api/neonscope/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        show(queryOut, await r.json().catch(()=>({error:'bad_response'})));
+      };
+      document.getElementById('save').onclick=async()=>{
+        const body={name:val('name'),sql:val('sql')};
+        const r=await fetch('/api/neonscope/saved',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        show(queryOut, await r.json().catch(()=>({error:'bad_response'})));
+      };
+      document.getElementById('tables').onclick=async()=>{ const r=await fetch('/api/neonscope/tables'); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
+      document.getElementById('saved').onclick=async()=>{ const r=await fetch('/api/neonscope/saved'); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
+      document.getElementById('audit').onclick=async()=>{ const r=await fetch('/api/neonscope/audit'); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
+      document.getElementById('deleteSaved').onclick=async()=>{ const r=await fetch(`/api/neonscope/saved/${encodeURIComponent(val('deleteId'))}`,{method:'DELETE'}); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
+
+      health().catch(()=>status.textContent='API unavailable.');
+    </script>
   </body>
 </html>

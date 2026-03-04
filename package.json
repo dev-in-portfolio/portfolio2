@@ -1,0 +1,17 @@
+{
+  "name": "neonscope",
+  "version": "0.2.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "cors": "2.8.5",
+    "dotenv": "16.4.5",
+    "express": "4.19.2",
+    "pg": "8.11.5",
+    "serverless-http": "^4.0.0"
+  }
+}
