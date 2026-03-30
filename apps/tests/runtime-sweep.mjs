@@ -1,8 +1,10 @@
 import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const ROOT = process.env.ROOT_DIR || '/mnt/data/v31F_work';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = process.env.ROOT_DIR || path.resolve(__dirname, '..');
 const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:4173';
 
 function walkHtmlFiles(dir) {

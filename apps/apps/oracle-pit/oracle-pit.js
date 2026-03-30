@@ -83,8 +83,8 @@ const AGENTS = [
   };
 
 // ------------------------- Backend Sync (optional) -------------------------
-// Uses Netlify Functions via /api/* redirect. Silent fallback if offline/unconfigured.
-const SERVER = { saveUrl: "/api/oracle-save" };
+// Uses shared appdata persistence when this root exposes /api/appdata.
+const APPDATA_APP = "oracle-pit";
 let _syncTimer = null;
 
 function buildServerPayload() {
@@ -104,11 +104,7 @@ async function serverSaveNow() {
   const clientId = (state.apiKey || "").trim();
   if (!clientId) return;
   try {
-    await fetch(SERVER.saveUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_id: clientId, payload: buildServerPayload() }),
-    });
+    await window.NexusAppData?.save?.(APPDATA_APP, buildServerPayload(), { clientId });
   } catch (_) {}
 }
 
@@ -123,10 +119,8 @@ async function serverLoadLatest() {
   const clientId = (state.apiKey || "").trim();
   if (!clientId) return;
   try {
-    const res = await fetch(`${SERVER.saveUrl}?client_id=${encodeURIComponent(clientId)}&limit=1`, { method: "GET" });
-    if (!res.ok) return;
-    const data = await res.json().catch(() => null);
-    const p = data?.items?.[0]?.payload;
+    const data = await window.NexusAppData?.loadLatest?.(APPDATA_APP, { clientId });
+    const p = data?.payload;
     if (!p || typeof p !== "object") return;
 
     state.dilemma = p.dilemma ?? state.dilemma;

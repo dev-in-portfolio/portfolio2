@@ -69,57 +69,12 @@ img{ height:auto; }
 </style>
 <script>
 (function(){
-  // Load shared/loader.js without assuming site root (works on file:// and subpaths)
-  var tries=[
-    'shared/loader.js','../shared/loader.js','../../shared/loader.js','../../../shared/loader.js','../../../../shared/loader.js'
-  ];
-  function load(i){
-    if(i>=tries.length){console.error('Failed to load shared/loader.js');return;}
-    var s=document.createElement('script');
-    s.src=tries[i];
-    s.onload=function(){};
-    s.onerror=function(){load(i+1);};
-    document.head.appendChild(s);
-  }
-  load(0);
-})();
-</script>
-<script>
-(function(){
-  const tries=[
-    'shared/loader.js','../shared/loader.js','../../shared/loader.js','../../../shared/loader.js','../../../../shared/loader.js'
-  ];
-  function loadNext(i){
-    if(i>=tries.length){
-      const pre=document.createElement('pre');
-      pre.style.whiteSpace='pre-wrap';
-      pre.textContent='FATAL: could not load shared/loader.js from any relative path.';
-      document.addEventListener('DOMContentLoaded',()=>document.body.appendChild(pre));
-      return;
-    }
-    const s=document.createElement('script');
-    s.src=tries[i];
-    s.onload=()=>{window.__TREE_LOADER_BOOTSTRAPPED__=true;};
-    s.onerror=()=>loadNext(i+1);
-    document.head.appendChild(s);
-  }
-  loadNext(0);
-})();
-</script>
-<script>
-(function(){
-  const candidates = [
-    './shared/loader.js','../shared/loader.js','../../shared/loader.js','../../../shared/loader.js','../../../../shared/loader.js'
-  ];
-  for (const src of candidates){
-    const s=document.createElement('script');
-    s.src=src;
-    s.async=false;
-    s.onload=()=>{window.__TREE_LOADER_OK__=true;};
-    s.onerror=()=>{};
-    document.head.appendChild(s);
-    // stop after first attempt; browser will try to load; if 404, next scripts still run but harmless
-  }
+  const s = document.createElement('script');
+  s.src = '/shared/loader.js';
+  s.async = false;
+  s.onload = function(){ window.__TREE_LOADER_BOOTSTRAPPED__ = true; };
+  s.onerror = function(){ console.error('Failed to load /shared/loader.js'); };
+  document.head.appendChild(s);
 })();
 </script>
 <link href="/shared/tokens.css" rel="stylesheet"/><link href="https://dev-in-portfolio.netlify.app/" rel="canonical"/><link href="/icon-192.png" rel="icon"/><script src="/runtime-guard.js"></script>

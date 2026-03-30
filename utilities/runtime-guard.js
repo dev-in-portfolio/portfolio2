@@ -77,6 +77,24 @@
     }
   });
 
+  function normalizeInternalNavigation() {
+    try {
+      var absoluteHrefRe = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i;
+      function absolutizeAttr(node, attr) {
+        var raw = String(node.getAttribute(attr) || '').trim();
+        if (!raw || raw.charAt(0) === '/' || absoluteHrefRe.test(raw)) return;
+        var resolved = new URL(raw, window.location.href);
+        if (resolved.origin !== window.location.origin) return;
+        node.setAttribute(attr, resolved.pathname + resolved.search + resolved.hash);
+      }
+      document.querySelectorAll('a[href], [data-href]').forEach(function (link) {
+        absolutizeAttr(link, 'href');
+        absolutizeAttr(link, 'data-href');
+      });
+    } catch (_) {}
+  }
+  document.addEventListener('DOMContentLoaded', normalizeInternalNavigation, { once: true });
+
 
 // ---- Agents nav patch (safe, non-breaking) ----
 // Adds the Agents pill to the Nexus top nav on pages that use the shared nav markup.

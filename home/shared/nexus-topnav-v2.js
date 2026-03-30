@@ -75,44 +75,35 @@
   };
 
   // ---------------------------------------------------------------------------
-  // Root prefix detection (so links work under /subfolder deploys)
+  // Root prefix detection (anchor to the helper URL, never to the current page)
   // ---------------------------------------------------------------------------
 
-  var isHttpLike = function () { return /^https?:$/i.test(window.location.protocol || ""); };
-
-  var probe = async function (url) {
+  var inferPrefixFromLoadedScript = function () {
     try {
-      var res = await fetch(url, { method: "HEAD", cache: "no-store" });
-      return !!(res && (res.ok || (res.status >= 200 && res.status < 400)));
-    } catch (_) {
-      return false;
-    }
-  };
-
-  var inferPrefixFromPathname = function () {
-    // If deployed under /something/, pathname includes that prefix.
-    // We pick the first segment as a candidate root.
-    var p = window.location.pathname || "/";
-    if (p === "/" || p === "") return "/";
-    var segs = p.split("/").filter(Boolean);
-    if (!segs.length) return "/";
-    return "/" + segs[0] + "/";
+      var scripts = document.getElementsByTagName("script");
+      for (var i = scripts.length - 1; i >= 0; i--) {
+        var src = scripts[i].getAttribute("src");
+        if (!src) continue;
+        var u = new URL(src, window.location.href);
+        var marker = "/shared/nexus-topnav-v2.js";
+        var idx = u.pathname.lastIndexOf(marker);
+        if (idx === -1) continue;
+        var prefix = u.pathname.slice(0, idx + 1);
+        return prefix || "/";
+      }
+    } catch (_) {}
+    return null;
   };
 
   var findRootPrefix = async function () {
     // 1) Fast path: already computed
     if (window.NX_ROOT_PREFIX) return window.NX_ROOT_PREFIX;
 
-    // 2) If local file protocol, treat as root
-    if (!isHttpLike()) return "/";
-
-    // 3) Try inferred prefix; validate by probing shared asset
-    var inferred = inferPrefixFromPathname();
-    var testUrl = inferred.replace(/\/+$/, "/") + "shared/nexus-topnav-v2.js";
-    if (await probe(testUrl)) return inferred;
-
-    // 4) Fallback: root
-    return "/";
+    // Anchor all helper-relative links to the script URL that actually loaded.
+    // This avoids route-local probes like /about/shared or /althea/shared.
+    var scriptPrefix = inferPrefixFromLoadedScript();
+    window.NX_ROOT_PREFIX = scriptPrefix || "/";
+    return window.NX_ROOT_PREFIX;
   };
 
   var join = function (prefix, path) {
@@ -126,6 +117,34 @@
     while (path[0] === "/") path = path.slice(1);
 
     return prefix + path;
+  };
+
+  var ABSOLUTE_HREF_RE = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i;
+
+  var toAbsoluteInternalHref = function (href) {
+    try {
+      var raw = String(href || "").trim();
+      if (!raw || raw[0] === "/" || ABSOLUTE_HREF_RE.test(raw)) return raw;
+      var resolved = new URL(raw, window.location.href);
+      if (resolved.origin !== window.location.origin) return raw;
+      return resolved.pathname + resolved.search + resolved.hash;
+    } catch (_) {
+      return href;
+    }
+  };
+
+  var normalizeDocumentNavLinks = function () {
+    try {
+      document.querySelectorAll("a[href]").forEach(function (link) {
+        var href = link.getAttribute("href");
+        var absoluteHref = toAbsoluteInternalHref(href);
+        if (absoluteHref && absoluteHref !== href) link.setAttribute("href", absoluteHref);
+
+        var dataHref = link.getAttribute("data-href");
+        var absoluteDataHref = toAbsoluteInternalHref(dataHref);
+        if (absoluteDataHref && absoluteDataHref !== dataHref) link.setAttribute("data-href", absoluteDataHref);
+      });
+    } catch (_) {}
   };
 
   // ---------------------------------------------------------------------------
@@ -481,6 +500,7 @@ if (!nav) {
 
       var rootPrefix = await findRootPrefix();
       window.NX_ROOT_PREFIX = rootPrefix;
+      normalizeDocumentNavLinks();
 
       // If nav markup isn't present, build it.
       // NOTE: Per request, remove the "✦ NEXUS" brand label from the bar.

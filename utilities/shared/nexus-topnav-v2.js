@@ -128,6 +128,34 @@
     return prefix + path;
   };
 
+  var ABSOLUTE_HREF_RE = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i;
+
+  var toAbsoluteInternalHref = function (href) {
+    try {
+      var raw = String(href || "").trim();
+      if (!raw || raw[0] === "/" || ABSOLUTE_HREF_RE.test(raw)) return raw;
+      var resolved = new URL(raw, window.location.href);
+      if (resolved.origin !== window.location.origin) return raw;
+      return resolved.pathname + resolved.search + resolved.hash;
+    } catch (_) {
+      return href;
+    }
+  };
+
+  var normalizeDocumentNavLinks = function () {
+    try {
+      document.querySelectorAll("a[href]").forEach(function (link) {
+        var href = link.getAttribute("href");
+        var absoluteHref = toAbsoluteInternalHref(href);
+        if (absoluteHref && absoluteHref !== href) link.setAttribute("href", absoluteHref);
+
+        var dataHref = link.getAttribute("data-href");
+        var absoluteDataHref = toAbsoluteInternalHref(dataHref);
+        if (absoluteDataHref && absoluteDataHref !== dataHref) link.setAttribute("data-href", absoluteDataHref);
+      });
+    } catch (_) {}
+  };
+
   // ---------------------------------------------------------------------------
   // Active state helper
   // ---------------------------------------------------------------------------
@@ -481,6 +509,7 @@ if (!nav) {
 
       var rootPrefix = await findRootPrefix();
       window.NX_ROOT_PREFIX = rootPrefix;
+      normalizeDocumentNavLinks();
 
       // If nav markup isn't present, build it.
       // NOTE: Per request, remove the "✦ NEXUS" brand label from the bar.

@@ -118,7 +118,7 @@ async function loadDataset(){
 let items=[];
 loadDataset().then(d=>items=d);
 
-function render(mode, , answer){
+function render(mode, meta, answer){
   const box=document.getElementById('a');
   box.style.display='block';
   box.innerHTML = '';
@@ -127,7 +127,7 @@ function render(mode, , answer){
   h.textContent = mode;
   const m=document.createElement('div');
   m.className='small muted';
-  m.textContent = ;
+  m.textContent = meta || '';
   const a=document.createElement('div');
   a.style.marginTop='10px';
   a.style.whiteSpace='pre-wrap';

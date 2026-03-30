@@ -6,28 +6,26 @@ function corsHeaders() {
   };
 }
 
-function ok(bodyObj) {
+function json(statusCode, bodyObj) {
   return {
-    statusCode: 200,
+    statusCode,
     headers: { "Content-Type": "application/json", ...corsHeaders() },
     body: JSON.stringify(bodyObj),
   };
 }
 
+function ok(bodyObj = {}) {
+  return json(200, { ok: true, ...bodyObj });
+}
+
 function bad(statusCode, message, extra = {}) {
-  return {
-    statusCode,
-    headers: { "Content-Type": "application/json", ...corsHeaders() },
-    body: JSON.stringify({ ok: false, error: message, ...extra }),
-  };
+  return json(statusCode, { ok: false, error: message, ...extra });
 }
 
-function options() {
-  return {
-    statusCode: 204,
-    headers: corsHeaders(),
-    body: "",
-  };
+function preflight(bodyObj = {}) {
+  return ok({ method: "OPTIONS", ...bodyObj });
 }
 
-module.exports = { corsHeaders, ok, bad, options };
+const options = preflight;
+
+module.exports = { corsHeaders, json, ok, bad, options, preflight };

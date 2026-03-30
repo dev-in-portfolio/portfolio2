@@ -3,7 +3,7 @@
 // POST { app, clientId, payload } -> upsert
 // GET  ?app=...&clientId=...       -> latest payload
 const { query } = require('./_db');
-const { ok, bad, corsHeaders, preflight } = require('./_cors');
+const { ok, bad, preflight } = require('./_cors');
 
 function asText(v, max=200){
   v = (v ?? '').toString().trim();
@@ -12,9 +12,10 @@ function asText(v, max=200){
 }
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return preflight();
-
   const method = event.httpMethod || 'GET';
+  if (method === 'OPTIONS') {
+    return preflight({ app: null, clientId: null, payload: null, updatedAt: null });
+  }
 
   try{
     if(method === 'GET'){
@@ -22,20 +23,21 @@ exports.handler = async (event) => {
       const app = asText(qs.app, 120);
       const clientId = asText(qs.clientId, 200);
 
-      if(!app || !clientId) return bad('Missing app/clientId');
+      if(!app || !clientId) return bad(400, 'Missing app/clientId');
 
-      const rows = await query(
+      const result = await query(
         `select app, client_id as "clientId", payload, updated_at as "updatedAt"
          from nexus_appdata
          where app=$1 and client_id=$2
          limit 1`,
         [app, clientId]
       );
+      const rows = result.rows || [];
 
       if(!rows.length){
-        return ok({ app, clientId, payload: null, updatedAt: null });
+        return ok({ method, app, clientId, payload: null, updatedAt: null });
       }
-      return ok(rows[0]);
+      return ok({ method, ...rows[0] });
     }
 
     if(method === 'POST'){
@@ -44,35 +46,28 @@ exports.handler = async (event) => {
       const clientId = asText(body.clientId, 200);
       const payload = body.payload ?? {};
 
-      if(!app || !clientId) return bad('Missing app/clientId');
+      if(!app || !clientId) return bad(400, 'Missing app/clientId');
 
       // Basic guard: keep payload reasonable
       const json = JSON.stringify(payload);
-      if(json.length > 1_500_000) return bad('Payload too large');
+      if(json.length > 1_500_000) return bad(413, 'Payload too large');
 
-      const rows = await query(
+      const result = await query(
         `insert into nexus_appdata(app, client_id, payload, updated_at)
          values ($1,$2,$3::jsonb, now())
          on conflict (app, client_id)
          do update set payload=excluded.payload, updated_at=now()
-         returning app, client_id as "clientId", updated_at as "updatedAt"`,
+         returning app, client_id as "clientId", payload, updated_at as "updatedAt"`,
         [app, clientId, json]
       );
+      const rows = result.rows || [];
 
-      return ok({ ok:true, ...rows[0] });
+      return ok({ method, ...rows[0] });
     }
 
-    return {
-      statusCode: 405,
-      headers: { ...corsHeaders(), 'content-type':'application/json' },
-      body: JSON.stringify({ error: 'Method not allowed' })
-    };
+    return bad(405, 'Method not allowed', { method });
   }catch(err){
     console.error('[appdata] error', err);
-    return {
-      statusCode: 500,
-      headers: { ...corsHeaders(), 'content-type':'application/json' },
-      body: JSON.stringify({ error: 'Server error' })
-    };
+    return bad(500, 'Server error', { method });
   }
 };

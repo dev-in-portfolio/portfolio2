@@ -2,7 +2,7 @@ const { test, expect } = require('playwright/test');
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = process.env.ROOT_DIR || '/mnt/data/v31F_work';
+const ROOT = process.env.ROOT_DIR || path.resolve(__dirname, '..');
 const BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:4173';
 
 function walkHtmlFiles(dir) {

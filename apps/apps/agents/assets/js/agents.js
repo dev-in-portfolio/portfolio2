@@ -1,17 +1,17 @@
 // AgentX demo UI helpers
-// Fixes: robust base-path detection + friendly errors when JSON assets fail to load.
+// Canonical runtime contract:
+// - public pages live under /apps/agents/*
+// - assets resolve relative to the mounted Agents root for clone safety
 
-const __AGENTX_SCRIPT_SRC = (document.currentScript && document.currentScript.src) || "";
-const __AGENTX_SCRIPT_URL = __AGENTX_SCRIPT_SRC ? new URL(__AGENTX_SCRIPT_SRC, window.location.href) : null;
-
-// If this file lives at:  /agents/assets/js/agents.js  => base = /agents
-// If it lives at:       /assets/js/agents.js         => base = ""
-const AGENTX_BASE = (__AGENTX_SCRIPT_URL ? __AGENTX_SCRIPT_URL.pathname : window.location.pathname)
+const AGENTX_PUBLIC_BASE = "/apps/agents";
+const AGENTX_SCRIPT_SRC = (document.currentScript && document.currentScript.src) || "";
+const AGENTX_SCRIPT_URL = AGENTX_SCRIPT_SRC ? new URL(AGENTX_SCRIPT_SRC, window.location.href) : null;
+const AGENTX_BASE = (AGENTX_SCRIPT_URL ? AGENTX_SCRIPT_URL.pathname : window.location.pathname)
   .replace(/\/assets\/js\/agents\.js$/, "")
   .replace(/\/$/, "");
 
 function withBase(p) {
-  return (AGENTX_BASE || "") + p;
+  return `${AGENTX_BASE || AGENTX_PUBLIC_BASE}${p}`;
 }
 
 function escapeHtml(str) {
@@ -31,7 +31,7 @@ function renderError(rootEl, title, err) {
       <h3 style="margin-top:0">${escapeHtml(title)}</h3>
       <p style="margin:0;color:var(--muted)">${escapeHtml(msg)}</p>
       <div class="sep"></div>
-      <p style="margin:0;color:var(--muted)">Tip: open DevTools → Network and check which URL returned 404 or HTML instead of JSON.</p>
+      <p style="margin:0;color:var(--muted)">Tip: check which asset URL returned 404 or HTML instead of JSON.</p>
     </div>
   `;
 }
@@ -47,7 +47,6 @@ async function loadJson(pathOrPaths) {
       const ct = (r.headers.get("content-type") || "").toLowerCase();
       const text = await r.text();
 
-      // If Netlify/SPAs rewrite a JSON request to an HTML page, fail loudly.
       if (text.trim().startsWith("<")) {
         throw new Error(`Non-JSON response (content-type: ${ct || "unknown"})`);
       }
@@ -117,15 +116,9 @@ async function renderStore() {
   if (!grid || !filter) return;
 
   try {
-    const agents = await loadJson([
-      withBase("/assets/data/agents.json"),
-      "/apps/agents/assets/data/agents.json",
-      "../assets/data/agents.json",
-      "./assets/data/agents.json"
-    ]);
+    const agents = await loadJson([withBase("/assets/data/agents.json")]);
 
     function apply() {
-      // In the HTML, "All Packs" uses value="".
       const v = filter.value;
       const list = !v ? agents : agents.filter((a) => a.pack === v);
 
@@ -147,19 +140,8 @@ async function renderPacks() {
   if (!root) return;
 
   try {
-    const packs = await loadJson([
-      withBase("/assets/data/packs.json"),
-      "/apps/agents/assets/data/packs.json",
-      "../assets/data/packs.json",
-      "./assets/data/packs.json"
-    ]);
-
-    const agents = await loadJson([
-      withBase("/assets/data/agents.json"),
-      "/apps/agents/assets/data/agents.json",
-      "../assets/data/agents.json",
-      "./assets/data/agents.json"
-    ]);
+    const packs = await loadJson([withBase("/assets/data/packs.json")]);
+    const agents = await loadJson([withBase("/assets/data/agents.json")]);
 
     root.innerHTML = packs
       .map((p) => {
@@ -196,4 +178,9 @@ async function renderPacks() {
   }
 }
 
-window.AgentPages = { renderStore, renderPacks };
+window.AgentPages = {
+  renderStore,
+  renderPacks,
+  publicBase: AGENTX_PUBLIC_BASE,
+  base: AGENTX_BASE || AGENTX_PUBLIC_BASE,
+};

@@ -39,8 +39,9 @@ function _dsJSONSafe(text){
 if (!globalThis.global) globalThis.global = globalThis;
 if (!globalThis.process) globalThis.process = { env: {} };
 
-const webllm = await import("https://esm.run/@mlc-ai/web-llm@0.2.46");
-const { pipeline } = await import("https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2");
+const webllmModulePromise = import("https://esm.run/@mlc-ai/web-llm@0.2.46");
+const pipelinePromise = import("https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2")
+  .then((mod) => mod.pipeline);
 
 // --- 1. WebLLM: Gemma / Phi-3 (MAGMA / general chat) -----------------------
 
@@ -51,15 +52,17 @@ let gemmaEngine = null;
 async function ensureGemmaEngine() {
   if (gemmaEngine) return gemmaEngine;
   if (!gemmaEnginePromise) {
-    gemmaEnginePromise = webllm.CreateMLCEngine(GEMMA_MODEL_ID, {
-      initProgressCallback: (info) => {
-        console.log(
-          "[Forge/LLM gemma-webllm] loading",
-          GEMMA_MODEL_ID,
-          Math.round((info.progress || 0) * 100) + "%"
-        );
-      },
-    }).then((engine) => {
+    gemmaEnginePromise = webllmModulePromise.then((webllm) =>
+      webllm.CreateMLCEngine(GEMMA_MODEL_ID, {
+        initProgressCallback: (info) => {
+          console.log(
+            "[Forge/LLM gemma-webllm] loading",
+            GEMMA_MODEL_ID,
+            Math.round((info.progress || 0) * 100) + "%"
+          );
+        },
+      })
+    ).then((engine) => {
       gemmaEngine = engine;
       return engine;
     });
@@ -128,16 +131,18 @@ async function ensureLlamaPipeline() {
   if (llamaPipe) return llamaPipe;
   if (!llamaPipePromise) {
     console.log("[Forge/LLM llama-xenova] loading", LLAMA_MODEL_ID);
-    llamaPipePromise = pipeline("text-generation", LLAMA_MODEL_ID, {
-      quantized: true,
-      progress_callback: (p) => {
-        console.log(
-          "[Forge/LLM llama-xenova] progress",
-          p.status,
-          Math.round((p.progress || 0) * 100) + "%"
-        );
-      },
-    }).then((p) => {
+    llamaPipePromise = pipelinePromise.then((pipeline) =>
+      pipeline("text-generation", LLAMA_MODEL_ID, {
+        quantized: true,
+        progress_callback: (p) => {
+          console.log(
+            "[Forge/LLM llama-xenova] progress",
+            p.status,
+            Math.round((p.progress || 0) * 100) + "%"
+          );
+        },
+      })
+    ).then((p) => {
       llamaPipe = p;
       return p;
     });

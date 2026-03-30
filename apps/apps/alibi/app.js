@@ -54,6 +54,7 @@ db.settings = db.settings || {};
 db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
 
 function renderPeriodStatus(){
+  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   const s = document.getElementById('periodStatus');
   if(!s) return;
   if(db.period.locked){
@@ -69,6 +70,7 @@ function renderPeriodStatus(){
 }
 
 function confirmBeginInventory(){
+  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   const inp = document.getElementById('beginInvInput');
   if(!inp) return;
   db.beginInventory = Number(inp.value||0);
@@ -78,6 +80,7 @@ function confirmBeginInventory(){
 }
 
 function lockCurrentPeriod(){
+  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   if(db.period.locked) return;
   db.period.locked = true;
   db.period.lockedAt = Date.now();
@@ -2183,6 +2186,7 @@ db.settings = db.settings || {};
 db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
 
 function renderPeriodStatus(){
+  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   const s = document.getElementById('periodStatus');
   if(!s) return;
   if(db.period.locked){
@@ -2198,6 +2202,7 @@ function renderPeriodStatus(){
 }
 
 function confirmBeginInventory(){
+  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   const inp = document.getElementById('beginInvInput');
   if(!inp) return;
   db.beginInventory = Number(inp.value||0);
@@ -2207,6 +2212,7 @@ function confirmBeginInventory(){
 }
 
 function lockCurrentPeriod(){
+  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   if(db.period.locked) return;
   db.period.locked = true;
   db.period.lockedAt = Date.now();
@@ -2766,7 +2772,8 @@ function renderVendorChips(vendor){
     }catch(_e){}
   })();
 
-})();
+  window.exportZIP = exportZIP;
+  window.emailDraft = emailDraft;
 
 document.addEventListener('change', (e)=>{
   if(e.target && e.target.id==='invoiceVendor'){
@@ -2869,8 +2876,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     renderMonthlySummary();
   }catch(e){}
 });
-document.getElementById('exportZip')?.addEventListener('click', exportZIP);
-document.getElementById('emailReport')?.addEventListener('click', emailDraft);
+document.getElementById('exportZip')?.addEventListener('click', (...args) => window.exportZIP?.(...args));
+document.getElementById('emailReport')?.addEventListener('click', (...args) => window.emailDraft?.(...args));
 
 document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('confirmBeginInv')?.addEventListener('click', confirmBeginInventory);
@@ -3463,3 +3470,4 @@ document.getElementById("expEmail")?.addEventListener("click", ()=>{
   const body = encodeURIComponent("Attached: exported reports ZIP.");
   if(subject) window.location.href = `mailto:?subject=${subject}&body=${body}`;
 });
+})();

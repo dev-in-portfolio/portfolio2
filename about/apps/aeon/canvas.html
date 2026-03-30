@@ -2408,6 +2408,7 @@ document.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListe
     });    
   </script>
 <!-- Shared helpers (kept alongside apps for single-folder deployment) -->
+<script src="/shared/global-polyfill.js"></script>
 <script src="/shared/state-store.js"></script>
 <script src="/shared/telemetry-hub.js"></script>
 <script src="/shared/ui-helpers.js"></script>
@@ -2415,7 +2416,7 @@ document.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListe
 <script src="/shared/ai-diagnostics.js"></script>
 <script src="/shared/ai-engines.js" type="module"></script>
 <script src="/shared/forge-sdk.llm.js"></script>
-<script src="/shared/forge-llm-drivers.js"></script>
+<script src="/shared/forge-llm-drivers.js" type="module"></script>
 <script src="/shared/ai-router.js"></script>
 <script>
   // 404 overlay wiring (image expected at: assets/404/aeon-quantum-warp-hero-cams-x-ray-hud.png)

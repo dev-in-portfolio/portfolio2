@@ -2869,23 +2869,53 @@ document.addEventListener('DOMContentLoaded', ()=>{
     renderMonthlySummary();
   }catch(e){}
 });
-document.getElementById('exportZip')?.addEventListener('click', exportZIP);
-document.getElementById('emailReport')?.addEventListener('click', emailDraft);
+document.getElementById('exportZip')?.addEventListener('click', ()=>{
+  if(typeof exportZIP === 'function') return exportZIP();
+  if(typeof window.exportZIP === 'function') return window.exportZIP();
+  if(typeof window.exportAll === 'function'){
+    const payload = window.exportAll();
+    if(payload){
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      download('alibi_reports.json', blob, 'application/json');
+      return;
+    }
+  }
+  if(typeof notify === 'function') notify('Export is unavailable in this build');
+});
+document.getElementById('emailReport')?.addEventListener('click', ()=>{
+  if(typeof emailDraft === 'function') return emailDraft();
+  if(typeof window.emailDraft === 'function') return window.emailDraft();
+  if(typeof notify === 'function') notify('Email draft is unavailable in this build');
+});
 
 document.addEventListener('DOMContentLoaded', ()=>{
-  document.getElementById('confirmBeginInv')?.addEventListener('click', confirmBeginInventory);
-  document.getElementById('lockPeriod')?.addEventListener('click', lockCurrentPeriod);
-  document.getElementById('addAlias')?.addEventListener('click', addAlias);
+  const onConfirmBegin =
+    (typeof confirmBeginInventory === 'function' && confirmBeginInventory) ||
+    (typeof window.confirmBeginInventory === 'function' && window.confirmBeginInventory);
+  const onLockPeriod =
+    (typeof lockCurrentPeriod === 'function' && lockCurrentPeriod) ||
+    (typeof window.lockCurrentPeriod === 'function' && window.lockCurrentPeriod);
+  const onAddAlias =
+    (typeof addAlias === 'function' && addAlias) ||
+    (typeof window.addAlias === 'function' && window.addAlias);
+  document.getElementById('confirmBeginInv')?.addEventListener('click', onConfirmBegin || (()=>{}));
+  document.getElementById('lockPeriod')?.addEventListener('click', onLockPeriod || (()=>{}));
+  document.getElementById('addAlias')?.addEventListener('click', onAddAlias || (()=>{}));
   document.getElementById('closeAlias')?.addEventListener('click', ()=>document.getElementById('aliasModal')?.classList.remove('open'));
   document.getElementById('itemList')?.addEventListener('click',(e)=>{
-    if(e.target?.dataset?.alias) openAliasModal(e.target.dataset.alias);
+    const openAlias =
+      (typeof openAliasModal === 'function' && openAliasModal) ||
+      (typeof window.openAliasModal === 'function' && window.openAliasModal);
+    if(e.target?.dataset?.alias && openAlias) openAlias(e.target.dataset.alias);
     if(e.target?.dataset?.exclude){
       const it = db.items.find(x=>x.name===e.target.dataset.exclude);
       if(it){ it.exclude = e.target.checked; saveDB(); }
     }
   });
-  renderPeriodStatus();
-  renderItemFormalization();
+  if(typeof renderPeriodStatus === 'function') renderPeriodStatus();
+  else if(typeof window.renderPeriodStatus === 'function') window.renderPeriodStatus();
+  if(typeof renderItemFormalization === 'function') renderItemFormalization();
+  else if(typeof window.renderItemFormalization === 'function') window.renderItemFormalization();
 });
 
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -2901,7 +2931,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     sSel.value = recall('lastSection', sSel.value);
     sSel.addEventListener('change', ()=>remember('lastSection', sSel.value));
   }
-  autoFocus();
+  if(typeof autoFocus === 'function') autoFocus();
+  else if(typeof window.autoFocus === 'function') window.autoFocus();
 });
 
 function confirmHard(action){
