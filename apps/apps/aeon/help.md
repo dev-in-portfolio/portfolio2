@@ -1,17 +1,19 @@
-# Aeon — Help
+# Aeon - User Guide
 
-## Quick start
-- Open the app from the Apps menu.
-- Give it a moment to finish first render, then interact with any visible controls.
+Aeon is a standalone generative visual application that provides an interactive canvas and dynamic controls.
 
-## Common fixes
-- Refresh once.
-- Check Console for missing files and fix paths first.
-- Check Network to confirm the entry page + primary scripts return 200.
+## Features
+- Interactive visual canvas.
+- Real-time controls to adjust visual parameters.
+- Standalone immersive experience.
 
-## Where to look in the code
-- Entry page: `index.html`
+## Step-by-Step Usage
+1. Open the app from the Apps menu.
+2. Wait for the initial render to complete.
+3. Use the provided controls and sliders to adjust visual effects.
+4. Observe the canvas updating in real-time as you tweak parameters.
 
-## Mobile checks
-- Confirm controls are tappable (no overlap / off-screen).
-- Rotate portrait ↔ landscape and confirm layout remains usable.
+## Troubleshooting
+- If the canvas doesn't load, check the browser console for missing file errors.
+- If visuals do not update when tweaking controls, refresh the page to reinitialize the render loop.
+- Hard refresh (or pull-to-refresh on mobile) if the app looks stale.

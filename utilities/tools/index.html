@@ -384,7 +384,7 @@ html{scroll-behavior:smooth}
   <input id="docsQuickSearch" class="docsQuickSearch" type="search" placeholder="Quick search Help + Readmes..." />
 </div>
 <div aria-label="Docs sections" class="docsGridV2">
-<div aria-label="Help files" class="docsColV2" id="docs-help"><div class="docsColHead"><h3 class="docsColTitle">HELP</h3><span class="docsBadge"><span class="docsDot"></span>84</span></div>
+<details aria-label="Help files" class="docsColV2" id="docs-help"><summary class="docsColHead"><h3 class="docsColTitle">HELP</h3><div style="display:flex; align-items:center; gap:8px;"><span class="docsBadge"><span class="docsDot"></span>84</span><svg class="docsChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></div></summary>
 <div class="docStackV2">
 <a class="docBtnV2 btn buttonlike" href="../help/agents/">Agents (UI)</a>
 <a class="docBtnV2 btn buttonlike" href="../help/alibi/">Alibi</a>
@@ -471,8 +471,8 @@ html{scroll-behavior:smooth}
 <a class="docBtnV2 btn buttonlike" href="../help/ubr/">Ultimate Broker Route (UBR)</a>
 <a class="docBtnV2 btn buttonlike" href="../help/wayfinder/">WayFinder</a>
 </div>
-</div>
-<div aria-label="Readme files" class="docsColV2" id="docs-readmes"><div class="docsColHead"><h3 class="docsColTitle">READMES</h3><span class="docsBadge"><span class="docsDot"></span>84</span></div>
+</details>
+<details aria-label="Readme files" class="docsColV2" id="docs-readmes"><summary class="docsColHead"><h3 class="docsColTitle">READMES</h3><div style="display:flex; align-items:center; gap:8px;"><span class="docsBadge"><span class="docsDot"></span>84</span><svg class="docsChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></div></summary>
 <div class="docStackV2">
 <a class="docBtnV2 btn buttonlike" href="../readme/agents/">Agents (UI)</a>
 <a class="docBtnV2 btn buttonlike" href="../readme/alibi/">Alibi</a>
@@ -559,8 +559,8 @@ html{scroll-behavior:smooth}
 <a class="docBtnV2 btn buttonlike" href="../readme/ubr/">Ultimate Broker Route (UBR)</a>
 <a class="docBtnV2 btn buttonlike" href="../readme/wayfinder/">WayFinder</a>
 </div>
-</div>
-<div aria-label="Case report files" class="docsColV2" id="docs-case"><div class="docsColHead"><h3 class="docsColTitle">CASE STUDIES</h3><span class="docsBadge"><span class="docsDot"></span>9</span></div>
+</details>
+<details aria-label="Case report files" class="docsColV2" id="docs-case"><summary class="docsColHead"><h3 class="docsColTitle">CASE STUDIES</h3><div style="display:flex; align-items:center; gap:8px;"><span class="docsBadge"><span class="docsDot"></span>9</span><svg class="docsChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></div></summary>
 <div class="docStackV2">
 <a class="docBtnV2 btn buttonlike" href="../case-reports/agents-platform-ecosystem/">Agents Platform &amp; Ecosystem</a>
 <a class="docBtnV2 btn buttonlike" href="../case-reports/alibi-logged-verified-architectural-case-study/">Alibi — Logged &amp; Verified: Architectural Case Study</a>
@@ -572,7 +572,7 @@ html{scroll-behavior:smooth}
 <a class="docBtnV2 btn buttonlike" href="../case-reports/the-aeon-compendium-a-multi-domain-technical-analysis-of-ai-augmented-security-real-estate-analytics-and-decentralized-settlement-protocols/">The Aeon Compendium: A Multi-Domain Technical Analysis of AI-Augmented Security, Real Estate Analytics, and Decentralized Settlement Protocols</a>
 <a class="docBtnV2 btn buttonlike" href="../case-reports/the-decentralized-sales-stack-a-technical-and-operational-audit-of-ultimate-broker-route-ubr/">The Decentralized Sales Stack: A Technical and Operational Audit of Ultimate Broker Route (UBR)</a>
 </div>
-</div>
+</details>
 </div>
 </section>
 <style>
@@ -602,8 +602,15 @@ html{scroll-behavior:smooth}
     .docsGridV2{max-width:1100px;margin:14px auto 0;padding:0 14px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;}
     .docsColV2{grid-column: span 12;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px;}
     @media(min-width:900px){.docsColV2{grid-column: span 6;}}
-    .docsColTitle{margin:0 0 10px 0;font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.85;}
-    .docStackV2{display:flex;flex-direction:column;gap:10px;}
+    .docsColHead {display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; outline:none; list-style:none;}
+    .docsColHead::-webkit-details-marker {display:none;}
+    .docsColTitle{margin:0; font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.85;}
+    .docsChevron {color:rgba(255,255,255,0.5); transition: transform 0.3s ease;}
+    .docsColV2[open] .docsChevron {transform: rotate(180deg);}
+    .docsColV2[open] .docsColHead {margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:12px;}
+    .docsColV2:not([open]) .docsColHead {margin-bottom:0;}
+    .docStackV2{display:flex;flex-direction:column;gap:10px; animation: jumpFadeIn 0.3s ease forwards;}
+    @keyframes jumpFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
     .docBtnV2{display:block;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);}
     .docBtnV2:active{transform: translateY(1px);}
   </style>
@@ -634,6 +641,10 @@ html{scroll-behavior:smooth}
             const hit = !q || a.textContent.toLowerCase().includes(q);
             a.style.display = hit ? '' : 'none';
           });
+          if (q) {
+            const parent = stack.closest('details');
+            if (parent) parent.open = true;
+          }
         });
       }
 

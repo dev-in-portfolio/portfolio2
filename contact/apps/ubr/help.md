@@ -1,19 +1,21 @@
-# Ubr — Help
+# UBR - User Guide
 
-## Quick start
-- Open the app from the Apps menu.
-- Give it a moment to finish first render, then interact with any visible controls.
+UBR (Ultimate Broker Routing) is a sophisticated interactive product build for managing logistics, utilizing maps, document scanning, and image cropping.
 
-## Common fixes
-- Refresh once.
-- Check Console for missing files and fix paths first.
-- Check Network to confirm the entry page + primary scripts return 200.
+## Features
+- Interactive mapping powered by Leaflet.
+- Built-in document or image cropping tools.
+- Optical Character Recognition (OCR) using Tesseract.js.
+- Sleek, modern dashboard interface.
 
-## Where to look in the code
-- Entry page: `index.html`
-- Primary scripts:
-  - `app.js`
+## Step-by-Step Usage
+1. Open the UBR application from the menu.
+2. Use the map interface to view or manage routing locations.
+3. When prompted, upload or capture an image of a document.
+4. Use the cropping tool to isolate the relevant text on the document.
+5. Initiate the OCR process to extract data directly from your image.
 
-## Mobile checks
-- Confirm controls are tappable (no overlap / off-screen).
-- Rotate portrait ↔ landscape and confirm layout remains usable.
+## Troubleshooting
+- If the map fails to load, check your internet connection as map tiles are fetched dynamically.
+- The OCR process (Tesseract.js) can be slow on older devices; please be patient.
+- If image cropping doesn't work, ensure you are uploading a supported image format (JPEG, PNG).

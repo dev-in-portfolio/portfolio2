@@ -1,19 +1,19 @@
-# Helios — Help
+# Helios - User Guide
 
-## Quick start
-- Open the app from the Apps menu.
-- Give it a moment to finish first render, then interact with any visible controls.
+Helios is an interactive visual canvas application offering dynamic controls over simulated space or solar parameters like intensity, zoom, and wind density.
 
-## Common fixes
-- Refresh once.
-- Check Console for missing files and fix paths first.
-- Check Network to confirm the entry page + primary scripts return 200.
+## Features
+- High-performance visual canvas.
+- Real-time adjustment of simulation parameters (intensity, boost, zoom).
+- Immersive atmospheric UI.
 
-## Where to look in the code
-- Entry page: `index.html`
-- Primary scripts:
-  - `helios.js`
+## Step-by-Step Usage
+1. Open Helios from the Apps menu.
+2. Wait for the environment to render on the canvas.
+3. Use the control panel to adjust sliders like 'Intensity', 'Zoom', and 'Boost'.
+4. Watch the visual simulation respond instantly to your adjustments.
 
-## Mobile checks
-- Confirm controls are tappable (no overlap / off-screen).
-- Rotate portrait ↔ landscape and confirm layout remains usable.
+## Troubleshooting
+- If the canvas remains black or empty, check the browser console for script errors.
+- If controls don't update the visuals, try refreshing the page to reset the render loop.
+- On mobile, ensure you are in the correct orientation if UI elements overlap.

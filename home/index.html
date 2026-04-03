@@ -8,6 +8,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Manrope:wght@500;700;800&family=Outfit:wght@600;700;800&family=Source+Serif+4:wght@700&display=swap" rel="stylesheet">
   <style>
+
+    .noise {
+      position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.04;
+    }
+    @keyframes nodeFloat {
+      0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+      50% { transform: translate(-50%, -50%) translateY(-8px); }
+    }
     :root{
       --bg0:#070914;
       --bg1:#050610;
@@ -179,6 +189,9 @@
       animation-delay: var(--twk-delay, 0s);
     }
     .topbar{
+      animation: slideDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      opacity: 1;
+
       position:absolute; left:18px; right:18px; top:18px;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       z-index:5; padding:12px 14px;
@@ -187,7 +200,7 @@
         linear-gradient(90deg, rgba(114,175,255,.22), rgba(0,0,0,0) 58%);
       border:1px solid rgba(184,218,255,.42);
       border-radius:16px;
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(24px);
       box-shadow:
         0 0 0 1px rgba(255,255,255,.07) inset,
         0 18px 48px rgba(0,0,0,.52),
@@ -204,11 +217,13 @@
     .brand span{
       font-family: var(--font-hero);
       font-size:clamp(20px, 3.1vw, 32px);
-      color:rgba(246,251,255,.98);
       font-weight:800;
       letter-spacing:.12em;
       text-transform:uppercase;
-      text-shadow: 0 2px 16px rgba(93,157,255,.34);
+      background: linear-gradient(135deg, #ffffff 20%, #a0c8ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 12px rgba(93,157,255,.5));
     }
     .hint{
       font-family: var(--font-ui);
@@ -225,6 +240,9 @@
       text-shadow: 0 1px 0 rgba(0,0,0,.5);
     }
     .origin{
+      animation: scaleUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s forwards;
+      opacity: 1;
+
       position:absolute;
       left:50%;
       top:96px;
@@ -237,7 +255,7 @@
       background:
         linear-gradient(180deg, rgba(8,19,42,.9), rgba(5,12,28,.84)),
         linear-gradient(120deg, rgba(124,168,255,.15), rgba(0,0,0,0) 58%);
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(24px);
       box-shadow:
         0 0 0 1px rgba(255,255,255,.05) inset,
         0 18px 48px rgba(0,0,0,.46);
@@ -285,8 +303,10 @@
       font-size:30px;
       letter-spacing:.015em;
       margin-bottom:8px;
-      color:rgba(246,251,255,1);
-      text-shadow: 0 4px 18px rgba(109,170,255,.2);
+      background: linear-gradient(90deg, #ffffff 0%, #8dc7ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 18px rgba(109,170,255,.4));
       font-style: normal;
       font-weight:700;
     }
@@ -329,25 +349,22 @@
     }
 
 
-    .node{
+                .node{
       position:absolute; z-index:3;
       transform: translate(-50%, -50%);
       text-decoration:none; color:var(--ink);
       border-radius:999px;
       border:2px solid color-mix(in srgb, var(--accent, #8dc7ff) 72%, white 14%);
-      background:
-        linear-gradient(180deg, rgba(8,18,40,.94), rgba(3,8,22,.94));
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,.06) inset,
-        0 12px 30px rgba(0,0,0,.56),
-        0 0 24px color-mix(in srgb, var(--accent, #8dc7ff) 22%, transparent);
+      background: linear-gradient(180deg, rgba(8,18,40,.94), rgba(3,8,22,.94));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 12px 30px rgba(0,0,0,.56), 0 0 24px color-mix(in srgb, var(--accent, #8dc7ff) 22%, transparent);
       display:flex; align-items:center; gap:10px;
       min-width:190px; max-width:248px;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
-      transition: left .24s ease, top .24s ease;
       isolation:isolate;
       overflow:hidden;
+      opacity: 1;
+      will-change: left, top;
     }
     .node::before{
       content:"";
@@ -417,22 +434,22 @@
     #n-contact{ --accent:#ff9f43; }  /* orange */
 
     @media (max-width: 720px){
-      .node{ min-width:170px; max-width:214px; }
-      .nodeInner{ padding:11px 14px; }
-      .label b{ font-size:14px; letter-spacing:.11em; }
-      .hint{ display:none; }
-      .origin{
-        top:84px;
-        width:calc(100% - 24px);
-        padding:14px 12px;
-      }
-      .origin b{ font-size:24px; }
-      .origin p{ font-size:16px; }
-      .originTag,
-      .originChip{ font-size:11px; }
-      .brand{ min-height:34px; }
-      .brand span{ font-size:20px; letter-spacing:.10em; }
-      .hint{ font-size:11px; }
+              .node{
+      position:absolute; z-index:3;
+      transform: translate(-50%, -50%);
+      text-decoration:none; color:var(--ink);
+      border-radius:999px;
+      border:2px solid color-mix(in srgb, var(--accent, #8dc7ff) 72%, white 14%);
+      background: linear-gradient(180deg, rgba(8,18,40,.94), rgba(3,8,22,.94));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 12px 30px rgba(0,0,0,.56), 0 0 24px color-mix(in srgb, var(--accent, #8dc7ff) 22%, transparent);
+      display:flex; align-items:center; gap:10px;
+      min-width:190px; max-width:248px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      isolation:isolate;
+      overflow:hidden;
+      opacity: 1;
+      will-change: left, top;
     }
     @media (prefers-reduced-motion: reduce){
       .sky,
@@ -484,10 +501,110 @@
       35%{ opacity:.5; }
       to{ transform:translateX(120%); opacity:.08; }
     }
+
+    #nexus-connections {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 1;
+      animation: fadeIn 2s ease-out 0.8s forwards;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes slideDown { from { opacity: 1; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleUp { from { opacity: 1; transform: translateX(-50%) scale(0.9); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
+    @keyframes nodeEnter { from { opacity: 1; transform: translate(-50%, -50%) scale(0.5); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+    .gridOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-size: 60px 60px;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      mask-image: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), black 0%, transparent 60%);
+      -webkit-mask-image: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), black 0%, transparent 60%);
+      opacity: 1;
+      transition: opacity 1s ease;
+      transform: perspective(600px) rotateX(15deg) scale(1.2);
+      transform-origin: bottom center;
+    }
+    body.ready .gridOverlay {
+      opacity: 1;
+    }
+
+    .glitch {
+      position: relative;
+    }
+    .glitch::before, .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.8;
+    }
+    .glitch::before {
+      left: 2px;
+      text-shadow: -2px 0 red;
+      clip: rect(24px, 550px, 90px, 0);
+      animation: glitch-anim-2 3s infinite linear alternate-reverse;
+    }
+    .glitch::after {
+      left: -2px;
+      text-shadow: -2px 0 blue;
+      clip: rect(85px, 550px, 140px, 0);
+      animation: glitch-anim 2.5s infinite linear alternate-reverse;
+    }
+    @keyframes glitch-anim {
+      0% { clip: rect(12px, 9999px, 86px, 0); transform: skew(0.2deg); }
+      5% { clip: rect(65px, 9999px, 14px, 0); transform: skew(0.4deg); }
+      10% { clip: rect(104px, 9999px, 11px, 0); transform: skew(0.1deg); }
+      15% { clip: rect(59px, 9999px, 130px, 0); transform: skew(0.8deg); }
+      20% { clip: rect(29px, 9999px, 84px, 0); transform: skew(0.5deg); }
+      25% { clip: rect(13px, 9999px, 102px, 0); transform: skew(0.3deg); }
+      30% { clip: rect(87px, 9999px, 118px, 0); transform: skew(0.6deg); }
+      35%, 100% { clip: rect(0, 0, 0, 0); transform: skew(0deg); }
+    }
+    @keyframes glitch-anim-2 {
+      0% { clip: rect(65px, 9999px, 100px, 0); transform: skew(0.6deg); }
+      5% { clip: rect(52px, 9999px, 74px, 0); transform: skew(0.2deg); }
+      10% { clip: rect(79px, 9999px, 144px, 0); transform: skew(0.8deg); }
+      15% { clip: rect(12px, 9999px, 20px, 0); transform: skew(0.4deg); }
+      20% { clip: rect(144px, 9999px, 88px, 0); transform: skew(0.1deg); }
+      25%, 100% { clip: rect(0, 0, 0, 0); transform: skew(0deg); }
+    }
+
+    .node::after {
+      content: "";
+      position: absolute;
+      inset: -50%;
+      background: conic-gradient(from var(--angle, 0deg), transparent 70%, color-mix(in srgb, var(--accent) 60%, white 20%) 100%);
+      animation: rotateSweep 4s linear infinite;
+      opacity: 1;
+      transition: opacity 0.3s;
+      z-index: -2;
+      border-radius: 50%;
+    }
+    .node:hover::after {
+      opacity: 1;
+    }
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    @keyframes rotateSweep {
+      to { --angle: 360deg; }
+    }
   </style>
 </head>
 
 <body>
+  <div class="noise"></div>
   <div class="wrap" id="wrap">
     <div class="nebula"></div>
     <div class="horizon"></div>
@@ -498,6 +615,8 @@
     <div class="comets"></div>
     <div class="twinkles"></div>
     <div class="sky"></div>
+    <div class="gridOverlay"></div>
+    <canvas id="nexus-connections"></canvas>
 
     <div class="topbar">
       <div class="brand">
@@ -514,35 +633,35 @@
           <span class="originChip">Recovery</span>
         </div>
       </div>
-      <b>Origin Under Pressure</b>
+      <b class="glitch" data-text="Origin Under Pressure">Origin Under Pressure</b>
       <p>Fifteen years in high-throughput kitchens taught triage, sequencing, and recovery under load. The rule stayed the same in software: isolate failure fast, restore service, then harden the system.</p>
     </section>
 
-    <a class="node" id="n-apps" href="https://dev-in-portfolio-apps.netlify.app/" rel="noopener">
+    <a class="node" id="n-apps" style="--node-idx: 1" href="https://dev-in-portfolio-apps.netlify.app/" rel="noopener">
       <span class="nodeInner">
         <span class="label"><b>APPS</b></span>
       </span>
     </a>
 
-    <a class="node" id="n-utils" href="https://dev-in-portfolio-utilities.netlify.app/" rel="noopener">
+    <a class="node" id="n-utils" style="--node-idx: 2" href="https://dev-in-portfolio-utilities.netlify.app/" rel="noopener">
       <span class="nodeInner">
         <span class="label"><b>UTILITIES</b></span>
       </span>
     </a>
 
-    <a class="node" id="n-caps" href="https://dev-in-portfolio-capabilities.netlify.app/" rel="noopener">
+    <a class="node" id="n-caps" style="--node-idx: 3" href="https://dev-in-portfolio-capabilities.netlify.app/" rel="noopener">
       <span class="nodeInner">
         <span class="label"><b>CAPABILITIES</b></span>
       </span>
     </a>
 
-    <a class="node" id="n-about" href="https://dev-in-portfolio-about.netlify.app/" rel="noopener">
+    <a class="node" id="n-about" style="--node-idx: 4" href="https://dev-in-portfolio-about.netlify.app/" rel="noopener">
       <span class="nodeInner">
         <span class="label"><b>ABOUT</b></span>
       </span>
     </a>
 
-    <a class="node" id="n-contact" href="https://dev-in-portfolio-contact.netlify.app/" rel="noopener">
+    <a class="node" id="n-contact" style="--node-idx: 5" href="https://dev-in-portfolio-contact.netlify.app/" rel="noopener">
       <span class="nodeInner">
         <span class="label"><b>CONTACT</b></span>
       </span>
@@ -639,6 +758,185 @@
 
       layoutNodes();
       setTimeout(layoutNodes, 90);
+
+
+      // --- Level Up: Magnetic Nodes & Canvas Connections ---
+      const canvas = document.getElementById('nexus-connections');
+      const ctx = canvas ? canvas.getContext('2d') : null;
+      let mouseX = window.innerWidth / 2;
+      let mouseY = window.innerHeight / 2;
+      let targetMouseX = mouseX;
+      let targetMouseY = mouseY;
+      
+      if (canvas) {
+        const resizeCanvas = () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+      }
+
+      window.addEventListener('mousemove', (e) => {
+        targetMouseX = e.clientX || window.innerWidth / 2;
+        targetMouseY = e.clientY || window.innerHeight / 2;
+      });
+
+      const nodeStates = nodes.map((n, i) => ({
+        el: n,
+        baseX: 0, baseY: 0,
+        x: 0, y: 0,
+        vx: 0, vy: 0,
+        floatOffset: Math.random() * Math.PI * 2,
+        color: window.getComputedStyle(n).getPropertyValue('--accent').trim() || '#8dc7ff'
+      }));
+
+      const originalLayout = layoutNodes;
+      layoutNodes = function() {
+        originalLayout();
+        nodeStates.forEach(state => {
+          const l = parseFloat(state.el.style.left);
+          const t = parseFloat(state.el.style.top);
+          state.baseX = isNaN(l) ? (window.innerWidth / 2) : l;
+          state.baseY = isNaN(t) ? (window.innerHeight / 2) : t;
+          
+          if(state.x === 0 || isNaN(state.x)) { 
+            state.x = state.baseX; 
+            state.y = state.baseY; 
+          }
+        });
+      };
+      
+      layoutNodes();
+      setTimeout(layoutNodes, 50);
+      setTimeout(layoutNodes, 250);
+
+      function animateLevelUp() {
+        if (isNaN(mouseX)) mouseX = window.innerWidth / 2;
+        if (isNaN(mouseY)) mouseY = window.innerHeight / 2;
+        
+        mouseX += (targetMouseX - mouseX) * 0.12;
+        mouseY += (targetMouseY - mouseY) * 0.12;
+        const time = performance.now() * 0.001;
+        
+        if (ctx) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.lineWidth = 1.5;
+        }
+
+        const originRect = origin.getBoundingClientRect();
+        const centerX = originRect.left + originRect.width / 2;
+        const centerY = originRect.top + originRect.height / 2 + 20;
+
+        nodeStates.forEach((state, idx) => {
+          // Physics: Idle Float (Lissajous curve variant)
+          const floatX = Math.sin(time * 0.9 + state.floatOffset) * 5;
+          const floatY = Math.cos(time * 1.3 + state.floatOffset) * 10;
+          
+          // Physics: Magnetic Pull
+          const dx = mouseX - state.baseX;
+          const dy = mouseY - state.baseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          let magX = 0, magY = 0;
+          const magnetRadius = 240; // Proximity trigger
+          if (dist < magnetRadius && dist > 0) {
+            const pull = Math.pow((1 - dist / magnetRadius), 2) * 45; // Pull strength
+            magX = (dx / dist) * pull;
+            magY = (dy / dist) * pull;
+          }
+          
+          // Spring integration
+          const targetX = state.baseX + floatX + magX;
+          const targetY = state.baseY + floatY + magY;
+          
+          state.vx += (targetX - state.x) * 0.08;
+          state.vy += (targetY - state.y) * 0.08;
+          state.vx *= 0.82; // friction
+          state.vy *= 0.82;
+          
+          state.x += state.vx;
+          state.y += state.vy;
+          
+          state.el.style.left = state.x + 'px';
+          state.el.style.top = state.y + 'px';
+          
+          // Draw Dynamic Connections
+          if (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            
+            // Curve routing
+            const cpX = centerX + (state.x - centerX) * 0.2;
+            const cpY = centerY + (state.y - centerY) * 0.8;
+            
+            ctx.quadraticCurveTo(cpX, cpY, state.x, state.y);
+            
+            const grad = ctx.createLinearGradient(centerX, centerY, state.x, state.y);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            grad.addColorStop(0.3, `color-mix(in srgb, ${state.color} 15%, transparent)`);
+            grad.addColorStop(1, `color-mix(in srgb, ${state.color} 65%, transparent)`);
+            
+            ctx.strokeStyle = grad;
+            ctx.stroke();
+            
+            // Draw Data Packets (energy dots traveling the line)
+
+            // Check hover state for packet speed/size
+            const isHovered = state.el.matches(':hover');
+            const speedMult = isHovered ? 1.5 : 0.35;
+            const sizeMult = isHovered ? 3.5 : 1.8;
+            
+            const pPhase = (time * speedMult + (idx * 0.2)) % 1;
+            const inv = 1 - pPhase;
+            const pX = inv * inv * centerX + 2 * inv * pPhase * cpX + pPhase * pPhase * state.x;
+            const pY = inv * inv * centerY + 2 * inv * pPhase * cpY + pPhase * pPhase * state.y;
+            
+            ctx.beginPath();
+            ctx.arc(pX, pY, sizeMult, 0, Math.PI * 2);
+            ctx.fillStyle = isHovered ? '#ffffff' : 'rgba(255,255,255,0.7)';
+            ctx.shadowColor = isHovered ? '#ffffff' : state.color;
+            ctx.shadowBlur = isHovered ? 15 : 10;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+          }
+        });
+        
+        requestAnimationFrame(animateLevelUp);
+      }
+      
+      animateLevelUp();
+
+
+      // --- Parallax Effect ---
+      const nebula = document.querySelector('.nebula');
+      const coreGlow = document.querySelector('.coreGlow');
+      const starsA = document.querySelector('.stars.a');
+      const starsB = document.querySelector('.stars.b');
+      
+      
+      // Grid Mouse Tracking & Initial Load
+
+      window.addEventListener('mousemove', (e) => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const x = (e.clientX / window.innerWidth - 0.5) * 2;
+        const y = (e.clientY / window.innerHeight - 0.5) * 2;
+        
+        requestAnimationFrame(() => {
+          if(nebula) nebula.style.transform = `translate3d(${x * -25}px, ${y * -25}px, 0)`;
+          // coreGlow already has translate(-50%, -50%) from CSS layout, so we append to it
+          // Wait, coreGlow has an animation that alters transform. Parallax via margin/left is safer or wrap it.
+          // Since coreGlow uses left:50% top:34%, let's just use margin for parallax to not fight the animation.
+          if(coreGlow) {
+            coreGlow.style.marginLeft = `${x * -15}px`;
+            coreGlow.style.marginTop = `${y * -15}px`;
+          }
+          if(starsA) starsA.style.transform = `translate3d(${x * -45}px, ${y * -45}px, 0)`;
+          if(starsB) starsB.style.transform = `translate3d(${x * -15}px, ${y * -15}px, 0)`;
+        });
+      });
+
     })();
   </script>
   <script>

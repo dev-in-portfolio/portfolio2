@@ -1,22 +1,23 @@
-# Vortex
+# Vortex - Developer Documentation
 
-## Overview
-Vortex loads as a standalone page and initializes its UI on load. Entry page: `index.html`.
+Vortex is a stylized data visualization dashboard designed to mimic a high-tech trading or tracking terminal, relying heavily on CSS styling and semantic HTML structure.
 
-## What you can do
-- Open the app from the Apps menu (or navigate directly to its route).
-- Use any visible controls, menus, sliders, buttons, or toggles.
-- If the app includes a visual/canvas area, changes should appear as you interact with controls.
+## Architecture & Tech Stack
+- HTML5, Vanilla JavaScript.
+- Extensive Custom CSS with deep use of CSS variables for theming (`--bg`, `--accent-eth`, `--danger`).
+- Typography-focused design using `JetBrains Mono`.
 
-## How it works
-- The app loads its entry page, then initializes scripts and styles referenced by that page.
-- Rendering updates are driven by the app’s internal event handlers (button clicks, input changes, etc.).
+## Key Systems / Components
+- Dashboard Layout: Uses Flexbox/Grid to create a dense, data-rich interface.
+- Data Simulation Engine: JavaScript logic that mocks real-time data ticks or fetches from external APIs, updating the DOM dynamically.
+- Theming Engine: Centralized CSS variables allow for instant color shifts based on asset states (good/warn/bad).
 
-## Key files (for edits)
-### Pages
-- `index.html`
+## Performance & Accessibility / Development Notes
+- Frequent DOM updates (if simulating high-frequency trading data) should be batched or managed via lightweight frameworks/Vanilla JS to avoid layout thrashing.
+- Ensure the high contrast ratios meet accessibility standards, even in the dark theme.
+- The monospace font is critical to the layout; ensure fallback fonts are also monospaced.
 
-## Troubleshooting
-- If something looks stale after deploy: hard refresh (mobile: pull-to-refresh + clear site data if needed).
-- If something looks empty: open the Console and fix missing file errors first (404/failed to load).
-- If input responds but visuals don’t update: refresh once to reinitialize the render loop.
+## Integration & DB
+- In a production scenario, this application would integrate via WebSockets to a real-time financial data provider.
+- Currently operates with mocked data or simple REST API polling for demonstration purposes.
+- No persistent backend database is required for the client-side portfolio build.

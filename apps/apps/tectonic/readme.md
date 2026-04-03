@@ -1,28 +1,23 @@
-# Tectonic
+# Tectonic - Developer Documentation
 
-## Overview
-Tectonic loads as a standalone page and initializes its UI on load. Entry page: `index.html`.
+Tectonic is an interactive generative art application structured similarly to Helios, focusing on visual representations of seismic data via a control interface.
 
-## What you can do
-- Open the app from the Apps menu (or navigate directly to its route).
-- Use any visible controls, menus, sliders, buttons, or toggles.
-- If the app includes a visual/canvas area, changes should appear as you interact with controls.
+## Architecture & Tech Stack
+- HTML5 / Canvas API.
+- Vanilla JavaScript (`wyla.js` integration).
+- Custom CSS (`tectonic.css`) combined with shared layout styles.
 
-## How it works
-- The app loads its entry page, then initializes scripts and styles referenced by that page.
-- Rendering updates are driven by the app’s internal event handlers (button clicks, input changes, etc.).
+## Key Systems / Components
+- Simulation Engine: A Canvas or WebGL implementation rendering the "seismic" effects.
+- Control Panel: HTML inputs (type="range") that capture user tweaks.
+- State Sync: Event listeners that bind the slider values to the simulation's state variables (e.g., `ctlMagnitude`, `ctlSpin`).
+- Ticker UI: A dynamic header (`.ticker`) displaying real-time or mocked data readouts.
 
-## Key files (for edits)
-### Pages
-- `index.html`
+## Performance & Accessibility / Development Notes
+- Real-time binding between range inputs and the render loop should be optimized to prevent stuttering.
+- The use of `requestAnimationFrame` is essential for the canvas updates.
+- Ensure the contrast on the ticker elements meets accessibility guidelines.
 
-### Scripts
-- `tectonic.js`
-
-### Styles
-- `tectonic.css`
-
-## Troubleshooting
-- If something looks stale after deploy: hard refresh (mobile: pull-to-refresh + clear site data if needed).
-- If something looks empty: open the Console and fix missing file errors first (404/failed to load).
-- If input responds but visuals don’t update: refresh once to reinitialize the render loop.
+## Integration & DB
+- Fully client-side application.
+- No backend database; purely a visual simulation operating in the browser.

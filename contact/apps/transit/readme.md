@@ -1,22 +1,23 @@
-# Transit
+# Transit - Developer Documentation
 
-## Overview
-Transit loads as a standalone page and initializes its UI on load. Entry page: `index.html`.
+Transit is a robust client-side 3D application built to demonstrate advanced WebGL capabilities through Three.js.
 
-## What you can do
-- Open the app from the Apps menu (or navigate directly to its route).
-- Use any visible controls, menus, sliders, buttons, or toggles.
-- If the app includes a visual/canvas area, changes should appear as you interact with controls.
+## Architecture & Tech Stack
+- HTML5, CSS3, Vanilla JavaScript.
+- Three.js (via CDN) for 3D rendering.
+- `OrbitControls.js` for camera interaction.
 
-## How it works
-- The app loads its entry page, then initializes scripts and styles referenced by that page.
-- Rendering updates are driven by the app’s internal event handlers (button clicks, input changes, etc.).
+## Key Systems / Components
+- Scene Graph: Manages the 3D objects, meshes, and lighting within the Three.js environment.
+- Camera Controller: Integrates OrbitControls to allow intuitive user navigation of the scene.
+- Render Loop: Utilizes `requestAnimationFrame` to continuously update the WebGL context.
 
-## Key files (for edits)
-### Pages
-- `index.html`
+## Performance & Accessibility / Development Notes
+- The Three.js library is loaded via CDN; ensure fallback mechanisms (like the provided backup CDN) are tested.
+- 3D rendering is power-hungry; implement mechanisms to pause the render loop when the tab is not in focus.
+- Consider adding ARIA roles to the UI overlays, though making the canvas itself accessible requires specialized techniques.
 
-## Troubleshooting
-- If something looks stale after deploy: hard refresh (mobile: pull-to-refresh + clear site data if needed).
-- If something looks empty: open the Console and fix missing file errors first (404/failed to load).
-- If input responds but visuals don’t update: refresh once to reinitialize the render loop.
+## Integration & DB
+- Primarily a frontend demonstration.
+- No backend database integration.
+- 3D models or textures may be fetched asynchronously, but the logic is handled client-side.

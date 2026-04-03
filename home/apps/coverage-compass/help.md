@@ -1,20 +1,21 @@
-# Coverage Compass — Help
+# Coverage Compass - User Guide
 
-## Quick start
-- Open the app from the Apps menu.
-- Give it a moment to finish first render, then interact with any visible controls.
+Coverage Compass is a decision-support tool designed to help you navigate the choice between Medigap and Medicare Advantage. It scores your preferences and models risk without selling you a plan.
 
-## Common fixes
-- Refresh once.
-- Check Console for missing files and fix paths first.
-- Check Network to confirm the entry page + primary scripts return 200.
+## Features
+- **Unbiased Recommendation**: Analyzes Medigap, MA PPO, and MA HMO options.
+- **Lockout Warnings**: Warns you about state-specific Medigap underwriting lockouts.
+- **Friction Modeling**: Evaluates administrative friction like prior authorizations and network restrictions.
+- **Assistance Modeling**: Factors in LIS, MSP, or Medicaid when relevant.
+- **Local Privacy**: Your health data stays in your browser.
 
-## Where to look in the code
-- Entry page: `index.html`
-- Primary scripts:
-  - `app.js`
-  - `engine.js`
+## Step-by-Step Usage
+1. **Start**: Read the welcome screen and click **Start**.
+2. **Disclaimers**: Review the key disclosures. This tool is for educational purposes only. Click **Continue**.
+3. **Answer Questions**: The engine will ask about your risk tolerance, provider needs, and current situation. Answer honestly for the best result.
+4. **Review Results**: The tool will generate a recommendation and an explanation trace showing exactly how it reasoned through your answers.
+5. **Save/Export**: Your progress is auto-saved locally. If you wish to share your results, use the "Safe" export option to redact sensitive data.
 
-## Mobile checks
-- Confirm controls are tappable (no overlap / off-screen).
-- Rotate portrait ↔ landscape and confirm layout remains usable.
+## Troubleshooting
+- **Lost Progress**: If you clear your browser cache, your progress will be lost. Use the Export feature if you need to retain your scenarios.
+- **Unexpected Recommendation**: Check the "audit log" generated at the end to see the specific heuristics that influenced the final score.

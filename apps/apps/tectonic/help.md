@@ -1,19 +1,19 @@
-# Tectonic — Help
+# Tectonic - User Guide
 
-## Quick start
-- Open the app from the Apps menu.
-- Give it a moment to finish first render, then interact with any visible controls.
+Tectonic is a generative interactive application that visualizes seismic activity using dynamic variables like magnitude, spin, and depth bias.
 
-## Common fixes
-- Refresh once.
-- Check Console for missing files and fix paths first.
-- Check Network to confirm the entry page + primary scripts return 200.
+## Features
+- Real-time seismic simulation canvas.
+- Dynamic "Seismic ticker" header.
+- Control panel with sliders for Activity, Magnitude, Spin, and Depth.
 
-## Where to look in the code
-- Entry page: `index.html`
-- Primary scripts:
-  - `tectonic.js`
+## Step-by-Step Usage
+1. Open Tectonic.
+2. Watch the real-time simulation on the canvas and the data on the top ticker.
+3. Open the "Controls" panel to adjust sliders.
+4. Modify variables like "Magnitude" and "Spin" and observe the visual representation respond instantly.
 
-## Mobile checks
-- Confirm controls are tappable (no overlap / off-screen).
-- Rotate portrait ↔ landscape and confirm layout remains usable.
+## Troubleshooting
+- If the controls seem stuck, refresh the browser to reset the JavaScript event listeners.
+- Check your browser console if the simulation fails to render.
+- Ensure your device supports HTML5 Canvas operations for the best experience.

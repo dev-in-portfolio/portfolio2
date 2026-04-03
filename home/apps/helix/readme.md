@@ -1,22 +1,23 @@
-# Helix
+# Helix - Developer Documentation
 
-## Overview
-Helix loads as a standalone page and initializes its UI on load. Entry page: `index.html`.
+Helix (Epic Protein Lab v3.1) is a generative simulation app designed to visualize complex structures utilizing HTML5, CSS variables, and JavaScript-based rendering.
 
-## What you can do
-- Open the app from the Apps menu (or navigate directly to its route).
-- Use any visible controls, menus, sliders, buttons, or toggles.
-- If the app includes a visual/canvas area, changes should appear as you interact with controls.
+## Architecture & Tech Stack
+- Vanilla JavaScript.
+- Custom styling with complex gradients and CSS variables.
+- Likely relies on Canvas/WebGL for rendering intricate visual models.
 
-## How it works
-- The app loads its entry page, then initializes scripts and styles referenced by that page.
-- Rendering updates are driven by the app’s internal event handlers (button clicks, input changes, etc.).
+## Key Systems / Components
+- UI Panel: Built with custom CSS to provide a dark-themed, translucent interface.
+- Rendering Engine: Manages the display and animation loop of the molecular structures.
+- Event Manager: Handles user inputs for orbiting, zooming, and tweaking simulation variables.
 
-## Key files (for edits)
-### Pages
-- `index.html`
+## Performance & Accessibility / Development Notes
+- Render loops must be strictly tied to `requestAnimationFrame` to ensure smooth performance.
+- CSS backdrop-filters are used for the UI; monitor for performance hits on lower-end devices.
+- Ensure the canvas handles resizing events gracefully to avoid pixelation.
 
-## Troubleshooting
-- If something looks stale after deploy: hard refresh (mobile: pull-to-refresh + clear site data if needed).
-- If something looks empty: open the Console and fix missing file errors first (404/failed to load).
-- If input responds but visuals don’t update: refresh once to reinitialize the render loop.
+## Integration & DB
+- Client-side only.
+- No external database or API integration required for core functionality.
+- State is managed within the session.

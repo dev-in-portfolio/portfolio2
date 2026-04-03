@@ -19,15 +19,15 @@
 <meta content="Operator-trained builder shipping tool apps and UI systems." name="twitter:description"/>
 <meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
 <title>Apps</title>
-<link href="/shared/tokens.css" rel="stylesheet"/>
-<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
-<link href="/shared/tap-physics.css" rel="stylesheet"/>
-<link href="/shared/ui-physics.css" rel="stylesheet"/>
+<link href="shared/tokens.css" rel="stylesheet"/>
+<link href="shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="shared/tap-physics.css" rel="stylesheet"/>
+<link href="shared/ui-physics.css" rel="stylesheet"/>
 <!-- Speed: preload hero image (WebP) -->
-<link as="image" fetchpriority="high" href="/assets/apps-hero.webp" rel="preload" type="image/webp"/>
+<link as="image" fetchpriority="high" href="assets/apps-hero.webp" rel="preload" type="image/webp"/>
 <link href="https://dev-in-portfolio.netlify.app/apps/" rel="canonical"/>
-<link href="icon-192.png" rel="icon"/>
-<script src="runtime-guard.js"></script>
+<link href="/icon-192.png" rel="icon"/>
+<script src="/runtime-guard.js"></script>
 <style>
     :root{
       --bg:#05060b;
@@ -69,7 +69,7 @@
       position:absolute; inset:0;
       overflow:hidden;
       background:
-        url('/assets/apps-hero-blur.webp') center/cover no-repeat;
+        url('assets/apps-hero-blur.webp') center/cover no-repeat;
       z-index:-3;
     }
 
@@ -294,12 +294,12 @@
 </head>
 <body class="page-landing" data-app="apps">
 <nav class="nxTopNav"></nav>
-<!-- Nav placeholder (hydrated by /shared/nexus-topnav-v2.js) -->
+<!-- Nav placeholder (hydrated by shared/nexus-topnav-v2.js) -->
 <header aria-label="Apps hero" class="hero">
 <div aria-hidden="true" class="heroBg">
 <picture class="heroBgMedia">
-<source srcset="/assets/apps-hero.webp" type="image/webp"/>
-<img alt="" decoding="async" fetchpriority="high" loading="eager" src="/assets/apps-hero.webp"/>
+<source srcset="assets/apps-hero.webp" type="image/webp"/>
+<img alt="" decoding="async" fetchpriority="high" loading="eager" src="assets/apps-hero.webp"/>
 </picture>
 </div>
 <div aria-hidden="true" class="heroVignette"></div>
@@ -307,7 +307,7 @@
 <div class="heroInner">
 <p class="kicker">Nexus — Apps</p>
 <h1 class="title">Apps</h1>
-<p class="sub">Choose a destination. These are grouped to match the constellation map key — same buckets, same mental model.</p>
+<p class="sub">Choose a destination.</p>
 <div aria-hidden="true" class="scrollCue">Scroll</div>
 </div>
 </header>
@@ -505,16 +505,58 @@
   box-shadow: 0 20px 70px rgba(0,0,0,.36), inset 0 0 0 1px rgba(255,255,255,.04);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
 }
-.jumpTitle{
-  margin:0 0 14px;
+.jumpPanel:hover {
+  border-color: rgba(150,220,255,.4);
+  box-shadow: 0 24px 80px rgba(0,0,0,.4), 0 0 40px rgba(150,220,255,.08), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.jumpSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  list-style: none;
+  outline: none;
+  margin:0 0 0px;
   font-family:var(--serif);
   font-size:clamp(20px, 2.6vw, 28px);
   line-height:1.1;
   letter-spacing:.02em;
   color:rgba(255,255,255,.94);
+  border-bottom:1px solid transparent;
+  transition: color 0.2s ease;
+}
+.jumpSummary span {
+  background: linear-gradient(to right, #fff, rgba(150,220,255,.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(150,220,255,.2);
+}
+.jumpSummary:hover {
+  color: rgba(150,220,255,1);
+}
+.jumpSummary::-webkit-details-marker {
+  display: none;
+}
+.jumpDetails[open] .jumpSummary {
   border-bottom:1px solid rgba(150,220,255,.34);
   padding-bottom:12px;
+  margin-bottom:14px;
+}
+.jumpChevron {
+  transition: transform 0.3s ease;
+  color: rgba(150,220,255,0.8);
+}
+.jumpDetails[open] .jumpChevron {
+  transform: rotate(180deg);
+}
+.jumpContent {
+  animation: jumpFadeIn 0.3s ease forwards;
+}
+@keyframes jumpFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .jumpGrid{
   display:grid;
@@ -522,17 +564,46 @@
   gap:12px;
 }
 .jumpSection{
-  border:1px solid rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.10);
   border-radius:14px;
-  background:rgba(0,0,0,.26);
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
   padding:12px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
 }
-.jumpHead{
+.jumpSection:hover {
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  border-color: rgba(150,220,255,.3);
+  box-shadow: 0 8px 24px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.1);
+}
+.jumpSummarySub {
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:12px;
-  margin-bottom:8px;
+  margin-bottom:0;
+  cursor: pointer;
+  list-style: none;
+  outline: none;
+}
+.jumpSummarySub::-webkit-details-marker {
+  display: none;
+}
+.jumpDetailsSub[open] .jumpSummarySub {
+  margin-bottom: 8px;
+}
+.jumpChevronSub {
+  transition: transform 0.3s ease;
+  color: rgba(255,255,255,0.5);
+}
+.jumpSection:hover .jumpChevronSub {
+  color: rgba(150,220,255,0.8);
+}
+.jumpDetailsSub[open] .jumpChevronSub {
+  transform: rotate(180deg);
+}
+.jumpContentSub {
+  animation: jumpFadeIn 0.3s ease forwards;
 }
 .jumpLabel{
   display:inline-block;
@@ -582,15 +653,34 @@
   font-size:10px;
   letter-spacing:.10em;
   text-transform:uppercase;
-  padding:6px 10px;
+  padding:6px 12px;
   border-radius:999px;
-  border:1px solid rgba(150,220,255,.34);
-  color:rgba(150,220,255,.96);
-  background:rgba(150,220,255,.10);
+  border:1px solid rgba(150,220,255,.25);
+  color:rgba(150,220,255,.9);
+  background:linear-gradient(135deg, rgba(150,220,255,.08), rgba(150,220,255,.02));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.05);
 }
 .jumpAnchor:hover{
-  border-color:rgba(150,220,255,.55);
-  background:rgba(150,220,255,.16);
+  border-color:rgba(150,220,255,.6);
+  color:rgba(255,255,255,1);
+  background:linear-gradient(135deg, rgba(150,220,255,.15), rgba(150,220,255,.05));
+  box-shadow: 0 4px 12px rgba(150,220,255,.15), inset 0 1px 0 rgba(255,255,255,.2);
+  transform: translateY(-2px);
+}
+/* Categories accent (Purple hue) */
+#jumpCategories .jumpAnchor:hover {
+  border-color:rgba(200,150,255,.6);
+  background:linear-gradient(135deg, rgba(200,150,255,.15), rgba(200,150,255,.05));
+  box-shadow: 0 4px 12px rgba(200,150,255,.15), inset 0 1px 0 rgba(255,255,255,.2);
+}
+/* Frameworks accent (Green hue) */
+#frameworksList .jumpAnchor:hover {
+  border-color:rgba(150,255,180,.6);
+  background:linear-gradient(135deg, rgba(150,255,180,.15), rgba(150,255,180,.05));
+  box-shadow: 0 4px 12px rgba(150,255,180,.15), inset 0 1px 0 rgba(255,255,255,.2);
 }
 .jumpAnchor.static{
   cursor: default;
@@ -819,28 +909,46 @@
 </div>
 </section>
 <section class="jumpBox" id="jump-to">
-<div class="jumpPanel">
-<h2 class="jumpTitle">Jump To</h2>
-<div class="jumpGrid">
-<div class="jumpSection">
-<div class="jumpHead"><label class="jumpLabel" for="jumpToInput">Categories</label></div>
-<div class="jumpLinks" id="jumpCategories" aria-label="Category jump links"></div>
-<p class="jumpNote">Click a category to jump to that section.</p>
+<details class="jumpPanel jumpDetails">
+<summary class="jumpTitle jumpSummary">
+  <span>Jump To</span>
+  <svg class="jumpChevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</summary>
+<div class="jumpGrid jumpContent">
+<details class="jumpSection jumpDetailsSub">
+<summary class="jumpHead jumpSummarySub">
+  <label class="jumpLabel" for="jumpToInput">Categories</label>
+  <svg class="jumpChevronSub" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</summary>
+<div class="jumpContentSub">
+  <div class="jumpLinks" id="jumpCategories" aria-label="Category jump links"></div>
+  <p class="jumpNote">Click a category to jump to that section.</p>
 </div>
+</details>
 <div class="jumpDivider" aria-hidden="true"></div>
-<div class="jumpSection">
-<div class="jumpHead"><span class="jumpLabel">Frameworks</span></div>
-<div class="jumpLinks" id="frameworksList" aria-label="Framework list"></div>
-<p class="jumpNote">Click a framework to jump to that section.</p>
+<details class="jumpSection jumpDetailsSub">
+<summary class="jumpHead jumpSummarySub">
+  <span class="jumpLabel">Frameworks</span>
+  <svg class="jumpChevronSub" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</summary>
+<div class="jumpContentSub">
+  <div class="jumpLinks" id="frameworksList" aria-label="Framework list"></div>
+  <p class="jumpNote">Click a framework to jump to that section.</p>
 </div>
+</details>
 <div class="jumpDivider" aria-hidden="true"></div>
-<div class="jumpSection">
-<div class="jumpHead"><span class="jumpLabel">All Apps A-Z</span></div>
-<div class="jumpLinks" id="jumpAz" aria-label="Alphabetical jump links"></div>
-<p class="jumpNote">Click a letter to jump to that section.</p>
+<details class="jumpSection jumpDetailsSub">
+<summary class="jumpHead jumpSummarySub">
+  <span class="jumpLabel">All Apps A-Z</span>
+  <svg class="jumpChevronSub" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</summary>
+<div class="jumpContentSub">
+  <div class="jumpLinks" id="jumpAz" aria-label="Alphabetical jump links"></div>
+  <p class="jumpNote">Click a letter to jump to that section.</p>
 </div>
+</details>
 </div>
-</div>
+</details>
 </section>
 <section class="filterBar" id="filters">
 <div class="filterPanel">
@@ -864,7 +972,7 @@
 <div class="catalogWrap" id="classifiedCatalog"><article class="catBlock"><h3 class="catTitle beatLine">APPS - TOOLS</h3><div class="appList"><div class="appItem"><a class="appLink" href="/apps/agents/" target="_blank" rel="noopener noreferrer">Agents (UI)</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Workflow</span></div></div><div class="appItem"><a class="appLink" href="/apps/alibi/" target="_blank" rel="noopener noreferrer">Alibi</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Audit</span></div></div><div class="appItem"><a class="appLink" href="/apps/prompt-vault/" target="_blank" rel="noopener noreferrer">Prompt Vault</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Prompt Ops</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">DECISION SYSTEMS</h3><div class="appList"><div class="appItem"><a class="appLink" href="/apps/coverage-compass/" target="_blank" rel="noopener noreferrer">Coverage Compass</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Decision System</span></div></div><div class="appItem"><a class="appLink" href="/apps/ubr/" target="_blank" rel="noopener noreferrer">Ultimate Broker Route (UBR)</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span><span class="fwPill">Routing</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">AI / KNOWLEDGE</h3><div class="appList"><div class="appItem"><a class="appLink" href="/apps/floraguide-ai/" target="_blank" rel="noopener noreferrer">FloraGuide AI</a><div class="pillRow"><span class="fwPill">AI</span><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="/apps/lingolive-ai/" target="_blank" rel="noopener noreferrer">LingoLive AI</a><div class="pillRow"><span class="fwPill">AI</span><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="/apps/oracle-pit/" target="_blank" rel="noopener noreferrer">Oracle Pit</a><div class="pillRow"><span class="fwPill">AI</span><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">Forms, Grids &amp; Structured Input</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-angular-formfoundry.netlify.app" target="_blank" rel="noopener noreferrer">Angular FormFoundry</a><div class="pillRow"><span class="fwPill">Angular</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-angular-gridsmith.netlify.app" target="_blank" rel="noopener noreferrer">Angular GridSmith</a><div class="pillRow"><span class="fwPill">Angular</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-tapforge.netlify.app" target="_blank" rel="noopener noreferrer">TapForge</a><div class="pillRow"><span class="fwPill">Flutter</span><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-pocket-pass.netlify.app" target="_blank" rel="noopener noreferrer">Pocket Pass</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Firebase</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">Schema, Diff &amp; Rule Enforcement Engines</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-schemagate.netlify.app" target="_blank" rel="noopener noreferrer">SchemaGate</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-schemapulse.netlify.app" target="_blank" rel="noopener noreferrer">SchemaPulse</a><div class="pillRow"><span class="fwPill">Gradio</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-difflens.netlify.app" target="_blank" rel="noopener noreferrer">DiffLens</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-remix-diffatlas.netlify.app" target="_blank" rel="noopener noreferrer">Remix DiffAtlas</a><div class="pillRow"><span class="fwPill">Remix</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-compression.netlify.app" target="_blank" rel="noopener noreferrer">Compression</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Express</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-causality.netlify.app" target="_blank" rel="noopener noreferrer">Causality</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Express</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-queuegauge.netlify.app" target="_blank" rel="noopener noreferrer">QueueGauge</a><div class="pillRow"><span class="fwPill">NestJS</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-remix-queuesplice.netlify.app" target="_blank" rel="noopener noreferrer">Remix QueueSplice</a><div class="pillRow"><span class="fwPill">Remix</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hono-intake.netlify.app" target="_blank" rel="noopener noreferrer">Hono Intake</a><div class="pillRow"><span class="fwPill">Hono</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hono-gatekeeper.netlify.app" target="_blank" rel="noopener noreferrer">Hono Gatekeeper</a><div class="pillRow"><span class="fwPill">Hono</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hono-capsulecache.netlify.app" target="_blank" rel="noopener noreferrer">Hono CapsuleCache</a><div class="pillRow"><span class="fwPill">Hono</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">Reasoning &amp; Language Systems</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-angle.netlify.app" target="_blank" rel="noopener noreferrer">Angle</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Express</span><span class="fwPill">EJS</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-contradict.netlify.app" target="_blank" rel="noopener noreferrer">Contradict</a><div class="pillRow"><span class="fwPill">Next.js</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-interactive-terms-tr.netlify.app" target="_blank" rel="noopener noreferrer">Interactive Terms Translator</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-codex-of-hieroglyphi.netlify.app" target="_blank" rel="noopener noreferrer">Codex of Hieroglyphs</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-paradox-vault.netlify.app" target="_blank" rel="noopener noreferrer">Paradox Vault</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Local-First</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-quejudge.netlify.app" target="_blank" rel="noopener noreferrer">QueJudge</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-solvespace.netlify.app" target="_blank" rel="noopener noreferrer">SolveSpace</a><div class="pillRow"><span class="fwPill">Next.js</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-rule-furnace.netlify.app" target="_blank" rel="noopener noreferrer">Rule Furnace</a><div class="pillRow"><span class="fwPill">Fresh</span><span class="fwPill">Deno</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">CREATIVE / MEDIA / STUDIO</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-clip-forge.netlify.app" target="_blank" rel="noopener noreferrer">Clip Forge</a><div class="pillRow"><span class="fwPill">Tauri</span><span class="fwPill">Svelte</span><span class="fwPill">Desktop</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-cardpress.netlify.app" target="_blank" rel="noopener noreferrer">CardPress</a><div class="pillRow"><span class="fwPill">Vue</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-nuxt-cardpress.netlify.app" target="_blank" rel="noopener noreferrer">Nuxt CardPress</a><div class="pillRow"><span class="fwPill">Nuxt 3</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-surfacelab.netlify.app" target="_blank" rel="noopener noreferrer">SurfaceLab</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-electron-mapstencil.netlify.app" target="_blank" rel="noopener noreferrer">Electron MapStencil</a><div class="pillRow"><span class="fwPill">Electron</span><span class="fwPill">Desktop</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-electron-receiptbox.netlify.app" target="_blank" rel="noopener noreferrer">Electron ReceiptBox</a><div class="pillRow"><span class="fwPill">Electron</span><span class="fwPill">Desktop</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-electron-dockyard.netlify.app" target="_blank" rel="noopener noreferrer">Electron Dockyard</a><div class="pillRow"><span class="fwPill">Electron</span><span class="fwPill">Desktop</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-qwik-cardforge.netlify.app" target="_blank" rel="noopener noreferrer">Qwik CardForge</a><div class="pillRow"><span class="fwPill">Qwik City</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">TIMELINE / CADENCE</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-angular-chronicle.netlify.app" target="_blank" rel="noopener noreferrer">Angular Chronicle</a><div class="pillRow"><span class="fwPill">Angular</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-timeslice.netlify.app" target="_blank" rel="noopener noreferrer">TimeSlice</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-sessionmint.netlify.app" target="_blank" rel="noopener noreferrer">SessionMint</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Supabase</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-momentum.netlify.app" target="_blank" rel="noopener noreferrer">Momentum</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">SIGNAL / MONITORING</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-signal-board.netlify.app" target="_blank" rel="noopener noreferrer">Signal Board</a><div class="pillRow"><span class="fwPill">Vue</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-signal-kitchen.netlify.app" target="_blank" rel="noopener noreferrer">Signal Kitchen</a><div class="pillRow"><span class="fwPill">Web App</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-nuxt-signalgrid.netlify.app" target="_blank" rel="noopener noreferrer">Nuxt SignalGrid</a><div class="pillRow"><span class="fwPill">Nuxt 3</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-qwik-signaltill.netlify.app" target="_blank" rel="noopener noreferrer">Qwik SignalTiill</a><div class="pillRow"><span class="fwPill">Qwik City</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-dash-flowlens.netlify.app" target="_blank" rel="noopener noreferrer">Dash FlowLens</a><div class="pillRow"><span class="fwPill">Dash</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-dash-driftmeter.netlify.app" target="_blank" rel="noopener noreferrer">Dash DriftMeter</a><div class="pillRow"><span class="fwPill">Dash</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-dash-claimscope.netlify.app" target="_blank" rel="noopener noreferrer">Dash ClaimScope</a><div class="pillRow"><span class="fwPill">Dash</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-lineflow.netlify.app" target="_blank" rel="noopener noreferrer">LineFlow</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-recalgrid.netlify.app" target="_blank" rel="noopener noreferrer">RecalGrid</a><div class="pillRow"><span class="fwPill">Gradio</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">MUSEUM / EXPERIENCE</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-digital-science.netlify.app" target="_blank" rel="noopener noreferrer">Digital Science Museum</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-wayfinder.netlify.app" target="_blank" rel="noopener noreferrer">WayFinder</a><div class="pillRow"><span class="fwPill">Astro</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hallmap-studio.netlify.app" target="_blank" rel="noopener noreferrer">Hallmap Studio</a><div class="pillRow"><span class="fwPill">Streamlit</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-routeforge-console.netlify.app" target="_blank" rel="noopener noreferrer">RouteForge Console</a><div class="pillRow"><span class="fwPill">Streamlit</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">LEDGER / VAULT</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-cuedeck.netlify.app" target="_blank" rel="noopener noreferrer">CueDeck</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-operator-ledger.netlify.app" target="_blank" rel="noopener noreferrer">Operator Ledger</a><div class="pillRow"><span class="fwPill">Desktop</span><span class="fwPill">Download</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-palmledger.netlify.app" target="_blank" rel="noopener noreferrer">PalmLedger</a><div class="pillRow"><span class="fwPill">Node API</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-snapshot-vault.netlify.app" target="_blank" rel="noopener noreferrer">SnapShot Vault</a><div class="pillRow"><span class="fwPill">NestJS</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-remix-vault-key.netlify.app" target="_blank" rel="noopener noreferrer">Remix Vault Key</a><div class="pillRow"><span class="fwPill">Remix</span><span class="fwPill">Encrypted Notes</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-receipt-vault.netlify.app" target="_blank" rel="noopener noreferrer">Receipt Vault</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Firebase</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-pocket-dossier.netlify.app" target="_blank" rel="noopener noreferrer">Pocket Dossier</a><div class="pillRow"><span class="fwPill">Flutter</span><span class="fwPill">Node API</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-room-key.netlify.app" target="_blank" rel="noopener noreferrer">Room Key</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Firebase</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-relayroom.netlify.app" target="_blank" rel="noopener noreferrer">RelayRoom</a><div class="pillRow"><span class="fwPill">NestJS</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">Docs, Specs &amp; Release Libraries</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-eleventy-patch-book.netlify.app" target="_blank" rel="noopener noreferrer">Eleventy Patch Book</a><div class="pillRow"><span class="fwPill">Eleventy</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-eleventy-spec-forge.netlify.app" target="_blank" rel="noopener noreferrer">Eleventy Spec Forge</a><div class="pillRow"><span class="fwPill">Eleventy</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-eleventy-switchboard.netlify.app" target="_blank" rel="noopener noreferrer">Eleventy Switchboard</a><div class="pillRow"><span class="fwPill">Eleventy</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hugo-atlasshelf.netlify.app" target="_blank" rel="noopener noreferrer">Hugo AtlasShelf</a><div class="pillRow"><span class="fwPill">Hugo</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hugo-fieldmanual.netlify.app" target="_blank" rel="noopener noreferrer">Hugo FieldManual</a><div class="pillRow"><span class="fwPill">Hugo</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-hugo-release-gallery.netlify.app" target="_blank" rel="noopener noreferrer">Hugo Release Gallery</a><div class="pillRow"><span class="fwPill">Hugo</span><span class="fwPill">Static</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-patchsmith.netlify.app" target="_blank" rel="noopener noreferrer">PatchSmith</a><div class="pillRow"><span class="fwPill">Gradio</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-repo-pilot.netlify.app" target="_blank" rel="noopener noreferrer">Repo Pilot</a><div class="pillRow"><span class="fwPill">Desktop</span><span class="fwPill">Download</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-swittchboard.netlify.app" target="_blank" rel="noopener noreferrer">Switchboard</a><div class="pillRow"><span class="fwPill">Vue</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div></div></article><article class="catBlock"><h3 class="catTitle beatLine">App Platform Labs &amp; View Infrastructure</h3><div class="appList"><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-nuxt-view-vault.netlify.app" target="_blank" rel="noopener noreferrer">Nuxt View Vault</a><div class="pillRow"><span class="fwPill">Nuxt 3</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-qwik-atlas.netlify.app" target="_blank" rel="noopener noreferrer">Qwik Atlas</a><div class="pillRow"><span class="fwPill">Qwik City</span><span class="fwPill">Functions</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-island-index.netlify.app" target="_blank" rel="noopener noreferrer">Island Index</a><div class="pillRow"><span class="fwPill">Fresh</span><span class="fwPill">Deno</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-draft-relay.netlify.app" target="_blank" rel="noopener noreferrer">Draft Relay</a><div class="pillRow"><span class="fwPill">Fresh</span><span class="fwPill">Deno</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-streamlit.netlify.app" target="_blank" rel="noopener noreferrer">StreamLit</a><div class="pillRow"><span class="fwPill">Streamlit</span><span class="fwPill">Python</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-neonscope.netlify.app" target="_blank" rel="noopener noreferrer">NeonScope</a><div class="pillRow"><span class="fwPill">Streamlit</span><span class="fwPill">Python</span><span class="fwPill">Neon</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-latchlist.netlify.app" target="_blank" rel="noopener noreferrer">LatchList</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Supabase</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-order-of-one.netlify.app" target="_blank" rel="noopener noreferrer">Order of One</a><div class="pillRow"><span class="fwPill">Next.js</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-radar-of-one.netlify.app" target="_blank" rel="noopener noreferrer">Radar of One</a><div class="pillRow"><span class="fwPill">Next.js</span></div></div><div class="appItem"><a class="appLink" href="https://dev-in-portfolio-tagtrellis.netlify.app" target="_blank" rel="noopener noreferrer">TagTrellis</a><div class="pillRow"><span class="fwPill">Next.js</span><span class="fwPill">Supabase</span></div></div></div></article></div>
 </section>
 </main>
-<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+<script defer="defer" src="shared/nexus-topnav-v2.js?v=54"></script>
 <script>
     (async function(){
       const CATEGORY_DATA = [
@@ -1076,7 +1184,7 @@
 
       let dataSource = null;
       try {
-        const res = await fetch("/assets/apps-data.json", { cache: "no-store" });
+        const res = await fetch("assets/apps-data.json", { cache: "no-store" });
         if (res.ok) dataSource = await res.json();
       } catch (_) {}
       const CATEGORY_DATA_SRC = dataSource?.categoryData || CATEGORY_DATA;

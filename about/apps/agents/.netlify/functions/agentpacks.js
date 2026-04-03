@@ -1,24 +1,39 @@
 const fs = require("fs");
 const path = require("path");
 
+const AGENTS_ROOT = path.resolve(__dirname, "..", "..");
+const PUBLIC_BASE = "/apps/agents";
+
 function loadPacks() {
-  // repo root at runtime is the function bundle dir; we walk up to project root
-  const root = path.join(__dirname, "..", "..");
-  const packsPath = path.join(root, "site", "agents", "assets", "data", "packs.json");
-  const raw = fs.readFileSync(packsPath, "utf-8");
-  return JSON.parse(raw);
+  const packsPath = path.join(AGENTS_ROOT, "assets", "data", "packs.json");
+  return JSON.parse(fs.readFileSync(packsPath, "utf-8"));
 }
 
 exports.handler = async function(event, context) {
   try {
-    const packs = loadPacks().map(p => ({
-      slug: p.slug,
-      name: p.name,
-      file: `/agents/assets/packs/${p.slug}.agentpack.zip`,
-      extra: (p.slug === "pack-z") ? { image: "/apps/agents/assets/packs/no-soup-for-you.png" } : undefined
+    const packs = loadPacks().map((pack) => ({
+      slug: pack.slug,
+      name: pack.name,
+      file: `${PUBLIC_BASE}/assets/packs/${pack.slug}.agentpack.zip`,
+      extra:
+        pack.slug === "pack-z"
+          ? { image: `${PUBLIC_BASE}/assets/packs/no-soup-for-you.png` }
+          : undefined,
     }));
-    return { statusCode: 200, headers: { "content-type":"application/json" }, body: JSON.stringify({ packs }) };
-  } catch (e) {
-    return { statusCode: 500, headers: { "content-type":"application/json" }, body: JSON.stringify({ error: "failed_to_load_packs", message: String(e) }) };
+
+    return {
+      statusCode: 200,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ packs }),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        error: "failed_to_load_packs",
+        message: String(error),
+      }),
+    };
   }
 };

@@ -1,17 +1,20 @@
-# Vortex — Help
+# Vortex - User Guide
 
-## Quick start
-- Open the app from the Apps menu.
-- Give it a moment to finish first render, then interact with any visible controls.
+Vortex (VORTEX FIELD) is a dynamic multi-asset tracking interface, presenting a high-tech "terminal" aesthetic for monitoring digital assets.
 
-## Common fixes
-- Refresh once.
-- Check Console for missing files and fix paths first.
-- Check Network to confirm the entry page + primary scripts return 200.
+## Features
+- High-contrast, terminal-style design (JetBrains Mono font).
+- Multi-asset data visualization interface.
+- Real-time updates and interactive tracking elements.
+- Themed color coding for different asset types (e.g., BTC, ETH, SOL).
 
-## Where to look in the code
-- Entry page: `index.html`
+## Step-by-Step Usage
+1. Launch the Vortex application.
+2. Review the main dashboard to see an overview of tracked assets.
+3. Click on specific assets or data points to view detailed metrics.
+4. Utilize any available terminal inputs or interactive panels to filter data.
 
-## Mobile checks
-- Confirm controls are tappable (no overlap / off-screen).
-- Rotate portrait ↔ landscape and confirm layout remains usable.
+## Troubleshooting
+- If the data appears frozen, check your network connection or try refreshing the page.
+- Visual issues with text overlapping can usually be resolved by zooming out in your browser.
+- Ensure custom fonts are allowed in your browser settings for the intended terminal aesthetic.

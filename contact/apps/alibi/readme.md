@@ -1,31 +1,20 @@
-# Alibi
+# Alibi - Developer Documentation
 
-## Overview
-Alibi loads as a standalone page and initializes its UI on load. Entry page: `index.html`.
+Alibi is an interactive kitchen inventory and cost management product built within the Nexus suite.
 
-## What you can do
-- Open the app from the Apps menu (or navigate directly to its route).
-- Use any visible controls, menus, sliders, buttons, or toggles.
-- If the app includes a visual/canvas area, changes should appear as you interact with controls.
+## Architecture & Tech Stack
+- **Frontend**: Vanilla HTML5, CSS3, and JavaScript (`app.js` is the core application logic).
+- **Styling**: Utilizes shared Nexus design tokens (`tokens.css`, `tile-polish.css`, `ui-physics.css`).
+- **Offline-First**: Operates heavily on local storage to ensure rapid, offline-capable kitchen usage where Wi-Fi might be spotty.
+- **PWA Ready**: Includes a `manifest.webmanifest`, service worker capabilities, and iOS touch icons for home-screen installation.
 
-## How it works
-- The app loads its entry page, then initializes scripts and styles referenced by that page.
-- Rendering updates are driven by the app’s internal event handlers (button clicks, input changes, etc.).
+## Core Modules
+- **State Management**: Centralized store in `app.js` managing months, invoices, inventory counts, and recipes.
+- **Analytics Engine**: Calculates COGS%, net sales, and targets in real-time on the client side.
+- **Import/Export**: JSON-based backup system to serialize and deserialize the entire application state.
 
-## Key files (for edits)
-### Pages
-- `index.html`
+## Routing
+- Single Page Application (SPA) architecture. Uses data attributes (`data-goto-tab`) and DOM manipulation to switch panels (`#panel-dashboard`, etc.) without page reloads.
 
-### Scripts
-- `app.js`
-
-### Styles
-- `styles.css`
-
-### Folders
-- `assets/`
-
-## Troubleshooting
-- If something looks stale after deploy: hard refresh (mobile: pull-to-refresh + clear site data if needed).
-- If something looks empty: open the Console and fix missing file errors first (404/failed to load).
-- If input responds but visuals don’t update: refresh once to reinitialize the render loop.
+## DB Integration
+- Purely local-first (Local Storage / IndexedDB). The `runtime-guard.js` script handles environment checks.

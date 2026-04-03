@@ -1,28 +1,24 @@
-# Helios
+# Helios - Developer Documentation
 
-## Overview
-Helios loads as a standalone page and initializes its UI on load. Entry page: `index.html`.
+Helios is a generative visual application that leverages an iframe-based architecture to render a high-performance simulation canvas controlled by an external UI.
 
-## What you can do
-- Open the app from the Apps menu (or navigate directly to its route).
-- Use any visible controls, menus, sliders, buttons, or toggles.
-- If the app includes a visual/canvas area, changes should appear as you interact with controls.
+## Architecture & Tech Stack
+- HTML5 Canvas or WebGL (in an iframe).
+- Vanilla JavaScript (`helios.js`).
+- Custom CSS (`helios.css`) with standard UI components.
 
-## How it works
-- The app loads its entry page, then initializes scripts and styles referenced by that page.
-- Rendering updates are driven by the app’s internal event handlers (button clicks, input changes, etc.).
+## Key Systems / Components
+- `index.html`: The host page containing the UI controls.
+- `canvas.html`: The sandboxed simulation environment.
+- `helios.js`: Orchestrates the UI sliders, capturing input and broadcasting changes.
+- PostMessage API: Facilitates real-time parameter updates from the host page to the iframe.
 
-## Key files (for edits)
-### Pages
-- `index.html`
+## Performance & Accessibility / Development Notes
+- The iframe boundary prevents complex WebGL/Canvas operations from blocking the UI thread.
+- Ensure that the postMessage payload is lightweight to prevent frame drops during rapid slider movement.
+- Maintain readable labels and logical tab flow in the control panel.
 
-### Scripts
-- `helios.js`
-
-### Styles
-- `helios.css`
-
-## Troubleshooting
-- If something looks stale after deploy: hard refresh (mobile: pull-to-refresh + clear site data if needed).
-- If something looks empty: open the Console and fix missing file errors first (404/failed to load).
-- If input responds but visuals don’t update: refresh once to reinitialize the render loop.
+## Integration & DB
+- Ephemeral client-side application.
+- No backend database integration.
+- Parameters are held in local state and reset upon page reload.

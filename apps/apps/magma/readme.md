@@ -1,22 +1,23 @@
-# Magma
+# Magma - Developer Documentation
 
-## Overview
-Magma loads as a standalone page and initializes its UI on load. Entry page: `index.html`.
+Magma (MAGMA OMEGA) is a high-end 3D visualizer leveraging WebGL to render complex, generative atmospheric scenes with interactive controls.
 
-## What you can do
-- Open the app from the Apps menu (or navigate directly to its route).
-- Use any visible controls, menus, sliders, buttons, or toggles.
-- If the app includes a visual/canvas area, changes should appear as you interact with controls.
+## Architecture & Tech Stack
+- WebGL / Three.js (likely, given the 3D nature).
+- Tailwind CSS (via CDN) for structural UI components.
+- `lil-gui` library for the interactive parameter adjustment panel.
 
-## How it works
-- The app loads its entry page, then initializes scripts and styles referenced by that page.
-- Rendering updates are driven by the app’s internal event handlers (button clicks, input changes, etc.).
+## Key Systems / Components
+- 3D Scene Controller: Manages the WebGL context, cameras, lighting, and object rendering.
+- Particle/Shader System: Drives the "magma" visual effects and animations.
+- GUI Integration: The `lil-gui` instance bound to the scene's uniforms and state variables for real-time updates.
 
-## Key files (for edits)
-### Pages
-- `index.html`
+## Performance & Accessibility / Development Notes
+- Due to the intensive rendering, the application must monitor frame rates and ideally scale down visual fidelity on lower-end devices.
+- Keep shader complexity in check; optimize fragment shaders to prevent GPU overheating.
+- Ensure the `lil-gui` overlay does not obstruct essential touch interactions on mobile devices.
 
-## Troubleshooting
-- If something looks stale after deploy: hard refresh (mobile: pull-to-refresh + clear site data if needed).
-- If something looks empty: open the Console and fix missing file errors first (404/failed to load).
-- If input responds but visuals don’t update: refresh once to reinitialize the render loop.
+## Integration & DB
+- Fully client-side application.
+- No backend database integration.
+- Custom parameters might be temporarily stored in local state or URL hashes, but primarily function dynamically.
