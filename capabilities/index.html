@@ -65,6 +65,62 @@
         var(--bg);
       color:var(--text);
     }
+    body.colorblind-friendly{
+      --accent:#FFB000;
+      --accent-rgb:255,176,0;
+      --blue:#6EC8FF;
+      --glow: 0 0 0 1px rgba(255,176,0,.22), 0 0 28px rgba(255,176,0,.18);
+      --glow2: 0 0 0 1px rgba(110,200,255,.18), 0 0 28px rgba(110,200,255,.16);
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(255,176,0,.16), transparent 60%),
+        radial-gradient(900px 600px at 80% 0%, rgba(110,200,255,.18), transparent 55%),
+        radial-gradient(1200px 900px at 50% 100%, rgba(110,200,255,.10), transparent 60%),
+        var(--bg);
+    }
+    body.colorblind-friendly .ambient{
+      background:
+        radial-gradient(800px 420px at 35% 20%, rgba(255,176,0,.14), transparent 70%),
+        radial-gradient(700px 380px at 70% 35%, rgba(110,200,255,.14), transparent 70%);
+    }
+    body.colorblind-friendly .fill,
+    body.colorblind-friendly .miniFill{
+      background:
+        repeating-linear-gradient(135deg,
+          rgba(255,176,0,.96) 0 12px,
+          rgba(110,200,255,.90) 12px 24px);
+    }
+    body.colorblind-friendly .meter,
+    body.colorblind-friendly .miniTrack{
+      border-color: rgba(110,200,255,.22);
+      background: rgba(110,200,255,.06);
+    }
+    body.colorblind-friendly .toggle.on,
+    body.colorblind-friendly .scoreLens.on{
+      border-width:2px;
+    }
+    body.colorblind-friendly .tag.lime{
+      border-color: rgba(255,176,0,.42);
+      color:#FFE3A1;
+      background: rgba(255,176,0,.12);
+    }
+    body.colorblind-friendly .tag.blue{
+      border-color: rgba(110,200,255,.42);
+      color: #D8F3FF;
+      background: rgba(110,200,255,.12);
+    }
+    body.colorblind-friendly .mobileQuick a,
+    body.colorblind-friendly .scopePill,
+    body.colorblind-friendly .scoreReadOrder,
+    body.colorblind-friendly .tour-card .step-count{
+      color:#DDF5FF;
+    }
+    body.colorblind-friendly .tour-spotlight{
+      border-color: var(--blue);
+      filter: drop-shadow(0 0 25px rgba(110,200,255,.45));
+    }
+    body.colorblind-friendly .tour-card.centered{
+      border-color: var(--accent);
+    }
     .ambient{
       position:fixed; inset:-20% -20%;
       pointer-events:none;
@@ -805,6 +861,47 @@
     .tour-btn:hover{ background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.25); }
     .tour-btn.primary{ background:var(--accent); color:#111; border:0; }
     .tour-btn.primary:hover{ transform:translateY(-3px); box-shadow: 0 15px 40px rgba(var(--accent-rgb),.32); }
+    body.tour-open{
+      overflow:hidden;
+    }
+    body.tour-open .wrap,
+    body.tour-open #mask,
+    body.tour-open nav{
+      pointer-events:none;
+      user-select:none;
+    }
+    .proofStackNote{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-size:13.8px;
+      line-height:1.55;
+    }
+    .proofStackMore{
+      margin-top:12px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      background:rgba(255,255,255,.02);
+      overflow:hidden;
+    }
+    .proofStackMore summary{
+      cursor:pointer;
+      list-style:none;
+      padding:12px 14px;
+      font-family:var(--mono);
+      font-size:12.6px;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      color:#CFE3FF;
+    }
+    .proofStackMore summary::-webkit-details-marker{
+      display:none;
+    }
+    .proofStackMore[open] summary{
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .proofStackMoreBody{
+      padding:12px;
+    }
     @media (max-width: 720px){
       .tour-card{
         width:min(92vw, 420px);
@@ -835,6 +932,10 @@
         <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
           <p class="sub small">Tip: press <b>/</b> to focus search · <b>Esc</b> closes drawer · search highlights matches.</p>
           <button id="btnTour" class="toggle" onclick="window.startCapabilitiesTour && window.startCapabilitiesTour()" style="background:rgba(var(--accent-rgb),.08); border-color:rgba(var(--accent-rgb),.25); color:rgba(var(--accent-rgb),.95); padding:6px 12px; font-size:13.2px; font-weight:900; letter-spacing:.05em;">START INTERACTIVE TOUR</button>
+          <div class="toggle" id="tColorblind" role="button" tabindex="0" aria-pressed="false">
+            <span class="dot"></span>
+            Colorblind Mode: Off
+          </div>
         </div>
       </div>
 
@@ -12133,10 +12234,13 @@ const state = {
   q:"",
   compact:false,
   autoScore:true,
+  colorblindFriendly:false,
   scoreboardLens:"pm",
   scoreCategory:null,
   activeRoleSlug:null
 };
+
+const COLORBLIND_STORAGE_KEY = "capabilities_colorblind_v1";
 
 function slugifyRoleTitle(title){
   return String(title || "")
@@ -12875,6 +12979,17 @@ function expandReceipts(baseReceipts, opts={}){
       return "General";
     }
 
+    function applyColorblindMode(enabled){
+      document.body.classList.toggle("colorblind-friendly", !!enabled);
+      const toggle = $("#tColorblind");
+      if (toggle) {
+        toggle.innerHTML = `<span class="dot"></span>Colorblind Mode: ${enabled ? "On" : "Off"}`;
+      }
+      try {
+        localStorage.setItem(COLORBLIND_STORAGE_KEY, enabled ? "1" : "0");
+      } catch (_) {}
+    }
+
     function renderEvidenceMini(rolePool, lens){
       const root = $("#scoreMini");
       if (!root) return;
@@ -12985,6 +13100,9 @@ function expandReceipts(baseReceipts, opts={}){
       const lens = role.lenses[lensKey] || role.lenses[role.lensDefault] || Object.values(role.lenses)[0];
       const ps = lens?.proofStack;
       const receipts = expandReceipts(ps?.receipts, { full:true });
+      const drawerReceiptLimit = 8;
+      const featuredReceipts = receipts.slice(0, drawerReceiptLimit);
+      const remainingReceipts = receipts.slice(drawerReceiptLimit);
       const signals = ps?.signals || [];
       const angleItems = role.briefing?.angle || [];
       const failItems = role.briefing?.fails || [];
@@ -13029,12 +13147,31 @@ function expandReceipts(baseReceipts, opts={}){
       $("#dProofIntro").textContent = `Active lens: ${lensKey.toUpperCase()} · ${lens?.summary || "Proof stack"}`;
 
       const links = $("#dProofLinks"); links.innerHTML="";
-      receipts.forEach(p=>{
+      if (receipts.length > drawerReceiptLimit) {
+        links.appendChild(el("p",{
+          className:"proofStackNote",
+          textContent:`Showing the top ${featuredReceipts.length} receipts first so the strongest evidence is readable. Expand the remainder for the full stack.`
+        }));
+      }
+      featuredReceipts.forEach(p=>{
         const a = el("a",{ className:"proofLink", href:p.href || "#", target:"_blank", rel:"noopener noreferrer" });
         a.innerHTML = `${escapeHtml(p.label)} <span>${escapeHtml(p.note || "")}</span>`;
         a.onclick = (e)=>{ e.stopPropagation(); };
         links.appendChild(a);
       });
+      if (remainingReceipts.length) {
+        const more = el("details",{ className:"proofStackMore" });
+        more.appendChild(el("summary",{ textContent:`Show remaining ${remainingReceipts.length} receipts` }));
+        const moreBody = el("div",{ className:"proofStackMoreBody" });
+        remainingReceipts.forEach(p=>{
+          const a = el("a",{ className:"proofLink", href:p.href || "#", target:"_blank", rel:"noopener noreferrer" });
+          a.innerHTML = `${escapeHtml(p.label)} <span>${escapeHtml(p.note || "")}</span>`;
+          a.onclick = (e)=>{ e.stopPropagation(); };
+          moreBody.appendChild(a);
+        });
+        more.appendChild(moreBody);
+        links.appendChild(more);
+      }
 
       const sig = $("#dProofSignals"); sig.innerHTML="";
       signals.forEach(x=> sig.appendChild(el("li",{ textContent:x })));
@@ -13196,6 +13333,16 @@ function expandReceipts(baseReceipts, opts={}){
       ux: "#ffd59c",
       creative: "#f1b6ff"
     };
+    const CATEGORY_COLORS_COLORBLIND = {
+      product: "#8CCFFF",
+      decision: "#F2B134",
+      agents: "#63D6C8",
+      arch: "#B9A7FF",
+      eval: "#FFB066",
+      ops: "#7AD7FF",
+      ux: "#FFD36E",
+      creative: "#C8B8FF"
+    };
 
     function render(){
       const searchInput = $("#q");
@@ -13212,7 +13359,8 @@ function expandReceipts(baseReceipts, opts={}){
         // Start ALL accordion sections collapsed by default.
         const section = el("div",{ className:"section" });
         section.dataset.category = c.id;
-        section.style.setProperty("--cat-color", CATEGORY_COLORS[c.id] || "rgba(255,255,255,.2)");
+        const categoryColors = state.colorblindFriendly ? CATEGORY_COLORS_COLORBLIND : CATEGORY_COLORS;
+        section.style.setProperty("--cat-color", categoryColors[c.id] || "rgba(255,255,255,.2)");
         if (state.scoreCategory && state.scoreCategory === c.id) section.classList.add("open");
         const head = el("div",{ className:"secHead" });
         head.onclick=()=>{
@@ -13248,7 +13396,13 @@ function expandReceipts(baseReceipts, opts={}){
 
     document.addEventListener("keydown",(e)=>{
       if(e.key==="/"){ e.preventDefault(); $("#q").focus(); }
-      if(e.key==="Escape"){ closeDrawer(); closeGuide(); }
+      if(e.key==="Escape"){
+        if (window.isCapabilitiesTourOpen && window.isCapabilitiesTourOpen()) {
+          window.closeTour?.();
+          return;
+        }
+        closeDrawer();
+      }
     });
 
     $("#q").addEventListener("input",(e)=>{ state.q=e.target.value; render(); });
@@ -13270,7 +13424,10 @@ function expandReceipts(baseReceipts, opts={}){
       });
     });
 
-    function toggleEl(elm, on){ elm.classList.toggle("on", !!on); }
+    function toggleEl(elm, on){
+      elm.classList.toggle("on", !!on);
+      elm.setAttribute("aria-pressed", on ? "true" : "false");
+    }
     function wireToggle(id, getter, setter){
       const t = $(id);
       const click = ()=>{
@@ -13285,6 +13442,7 @@ function expandReceipts(baseReceipts, opts={}){
     }
     wireToggle("#tRecruiter", ()=>state.compact, (v)=>state.compact=v);
     wireToggle("#tAutoScore", ()=>state.autoScore, (v)=>state.autoScore=v);
+    wireToggle("#tColorblind", ()=>state.colorblindFriendly, (v)=>{ state.colorblindFriendly=v; applyColorblindMode(v); });
 
     const params = new URLSearchParams(location.search);
     const lensParam = (params.get("lens") || "").toLowerCase();
@@ -13293,6 +13451,9 @@ function expandReceipts(baseReceipts, opts={}){
     const compactParam = (params.get("compact") || "").toLowerCase();
     const scoreParam = (params.get("score") || "").toLowerCase();
     const roleParam = (params.get("role") || "").toLowerCase();
+    try {
+      state.colorblindFriendly = localStorage.getItem(COLORBLIND_STORAGE_KEY) === "1";
+    } catch (_) {}
     if (SCORE_PRESETS[lensParam]) state.scoreboardLens = lensParam;
     if (catParam && CATS.some((c) => c.id === catParam)) state.scoreCategory = catParam;
     if (qParam) state.q = qParam;
@@ -13300,6 +13461,7 @@ function expandReceipts(baseReceipts, opts={}){
     if (scoreParam === "off" || scoreParam === "0" || scoreParam === "false") state.autoScore = false;
     if (roleParam) state.activeRoleSlug = roleParam;
 
+    applyColorblindMode(state.colorblindFriendly);
     setScoreboard(state.scoreboardLens, ROLES, null);
     render();
   </script>

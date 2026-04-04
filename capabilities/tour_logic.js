@@ -9,10 +9,16 @@ const btnTour = $("#btnTour");
 const tourPrev = $("#tourPrev");
 const tourNext = $("#tourNext");
 const tourEnd = $("#tourEnd");
+const TOUR_FOCUSABLE = [
+  "button:not([disabled])",
+  "[href]",
+  "[tabindex]:not([tabindex='-1'])"
+].join(",");
 
 let currentTourStep = 0;
 let currentPath = [];
 let pathId = "onboarding";
+let tourPreviouslyFocused = null;
 
 function firstSection() {
   return document.querySelector("#sections .section");
@@ -58,6 +64,66 @@ function resetTourState() {
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function getTourFocusable() {
+  return [...tourCard.querySelectorAll(TOUR_FOCUSABLE)]
+    .filter((node) => node.offsetParent !== null && !node.hasAttribute("disabled"));
+}
+
+function setTourOpenState(open) {
+  document.body.classList.toggle("tour-open", open);
+  if (open) {
+    if (!tourPreviouslyFocused) {
+      tourPreviouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    }
+    tourCard.setAttribute("role", "dialog");
+    tourCard.setAttribute("aria-modal", "true");
+    tourCard.setAttribute("tabindex", "-1");
+  } else {
+    document.body.classList.remove("tour-open");
+    tourCard.removeAttribute("aria-modal");
+    if (tourPreviouslyFocused && typeof tourPreviouslyFocused.focus === "function") {
+      tourPreviouslyFocused.focus({ preventScroll: true });
+    }
+    tourPreviouslyFocused = null;
+  }
+}
+
+function focusTourPrimary() {
+  const focusable = getTourFocusable();
+  const preferred = focusable.find((node) => node.id === "tourNext")
+    || focusable.find((node) => node.classList.contains("path-btn"))
+    || focusable[0]
+    || tourCard;
+  preferred.focus({ preventScroll: true });
+}
+
+function handleTourKeydown(e) {
+  if (tourCard.style.display !== "flex") return;
+  if (e.key === "Escape") {
+    e.preventDefault();
+    closeTour();
+    return;
+  }
+  if (e.key !== "Tab") return;
+
+  const focusable = getTourFocusable();
+  if (!focusable.length) {
+    e.preventDefault();
+    tourCard.focus({ preventScroll: true });
+    return;
+  }
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey && (active === first || active === tourCard)) {
+    e.preventDefault();
+    last.focus({ preventScroll: true });
+  } else if (!e.shiftKey && active === last) {
+    e.preventDefault();
+    first.focus({ preventScroll: true });
+  }
 }
 
 function alignTargetIntoView(targetEl, step) {
@@ -285,6 +351,7 @@ function runTour(stepIndex) {
   currentTourStep = stepIndex;
   const step = currentPath[stepIndex];
 
+  setTourOpenState(true);
   tourCard.style.display = "flex";
   tourSpotlight.style.display = step.target ? "block" : "none";
   tourArrow.style.display = step.target && step.arrowDir ? "block" : "none";
@@ -324,9 +391,12 @@ function runTour(stepIndex) {
   } else {
     tourPrev.onclick = () => runTour(currentTourStep - 1);
   }
+
+  requestAnimationFrame(() => focusTourPrimary());
 }
 
 function closeTour() {
+  setTourOpenState(false);
   tourCard.style.display = "none";
   tourSpotlight.style.display = "none";
   tourArrow.style.display = "none";
@@ -340,6 +410,8 @@ function startCapabilitiesTour() {
 
 window.startCapabilitiesTour = startCapabilitiesTour;
 window.runTour = runTour;
+window.closeTour = closeTour;
+window.isCapabilitiesTourOpen = () => tourCard.style.display === "flex";
 
 if (btnTour) {
   btnTour.onclick = startCapabilitiesTour;
@@ -347,6 +419,7 @@ if (btnTour) {
 }
 if (tourNext) tourNext.onclick = () => runTour(currentTourStep + 1);
 if (tourEnd) tourEnd.onclick = closeTour;
+document.addEventListener("keydown", handleTourKeydown, true);
 
 currentPath = PATHS.onboarding;
 
