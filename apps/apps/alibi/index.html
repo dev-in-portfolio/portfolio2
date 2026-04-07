@@ -22,7 +22,7 @@
 <script defer="" src="/shared/toast.js"></script>
 <link href="styles.css" rel="stylesheet"/>
 <script>window.APP_ID="alibi-logged-verified";</script>
-<link href="../../manifest.webmanifest" rel="manifest"/><link href="https://dev-in-portfolio.netlify.app/apps/alibi/" rel="canonical"><link href="../../icon-192.png" rel="icon"/><script src="../../runtime-guard.js"></script>
+<link href="/manifest.webmanifest" rel="manifest"/><link href="https://dev-in-portfolio.netlify.app/apps/alibi/" rel="canonical"><link href="/icon-192.png" rel="icon"/><script src="/runtime-guard.js"></script>
 <link href="/shared/tile-polish.css" rel="stylesheet"/>
 <link href="/shared/tap-physics.css" rel="stylesheet"/>
 <link href="/shared/ui-physics.css" rel="stylesheet"/>
@@ -124,14 +124,32 @@
 <div class="card">
 <div class="card-h">
 <div>
-<div class="card-title">Exceptions</div>
-<div class="card-sub">Stuff that will wreck your numbers</div>
+<div class="card-title">Action Center</div>
+<div class="card-sub">What changed this month and what still needs operator attention</div>
 </div>
 </div>
-<div class="list" id="dashExceptions"></div>
+<div class="list" id="dashActionCenter"></div>
 <div class="row">
-<button class="btn ghost" id="btnFixExceptions" type="button">Review in Reports</button>
+<button class="btn ghost" id="btnFixExceptions" type="button">Open Review Surfaces</button>
 </div>
+</div>
+<div class="card">
+<div class="card-h">
+<div>
+<div class="card-title">Trend Watch</div>
+<div class="card-sub">Recent months compared by COGS%, purchases, and ending inventory</div>
+</div>
+</div>
+<div class="list" id="dashTrendList"></div>
+</div>
+<div class="card">
+<div class="card-h">
+<div>
+<div class="card-title">Variance Drivers</div>
+<div class="card-sub">Where the biggest cost movement is coming from right now</div>
+</div>
+</div>
+<div class="list" id="dashVarianceList"></div>
 </div>
 <div class="card">
 <div class="card-h">
@@ -318,6 +336,24 @@
 <div class="k">COGS% vs Food+NA Net</div><div class="v" id="repCogsPct">—</div>
 </div>
 <div class="hint">Theoretical COGS (Toast PMIX) is next module; recipes are already here.</div>
+</div>
+<div class="card span-3">
+<div class="card-h">
+<div>
+<div class="card-title">Trend &amp; Variance Review</div>
+<div class="card-sub">Use the monthly curve for direction and the mover list for root-cause review</div>
+</div>
+</div>
+<div class="analytics-grid">
+<div>
+<div class="section-label">Trend View</div>
+<div class="list" id="repTrendList"></div>
+</div>
+<div>
+<div class="section-label">Variance Drivers</div>
+<div class="list" id="repVarianceList"></div>
+</div>
+</div>
 </div>
 <div class="card">
 <div class="card-h">

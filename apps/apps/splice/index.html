@@ -111,6 +111,134 @@ body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; 
   background: rgba(255,255,255,0.12) !important;
   border-color: rgba(255,255,255,0.22) !important;
 }
+.spliceSummary{
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.spliceSummaryCard{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 10px 12px;
+}
+.spliceSummaryLabel{
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: rgba(220,230,255,0.45);
+  font-weight: 700;
+}
+.spliceSummaryValue{
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #f0f5ff;
+}
+.spliceSummarySub{
+  margin-top: 4px;
+  font-size: 11px;
+  color: rgba(220,230,255,0.58);
+  line-height: 1.4;
+}
+.spliceBeatPill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.spliceBeatPill::before{
+  content:"";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--beat-color, rgba(255,255,255,0.45));
+  box-shadow: 0 0 16px var(--beat-color, rgba(255,255,255,0.35));
+}
+.spliceTimelineGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:8px;
+}
+.spliceTimelineGrid--timing{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.spliceTimelineTextarea{
+  width:100%;
+  min-height: 68px;
+  resize: vertical;
+  background:#0a0a0a;
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color:#eef3ff;
+  font-size: 11px;
+  font-weight: 600;
+  outline:none;
+}
+.spliceTimelineTextarea:focus{
+  border-color: rgba(99,102,241,0.55);
+}
+.spliceDiagnostic{
+  margin-top: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 12px;
+}
+.spliceDiagnosticTitle{
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: rgba(220,230,255,0.45);
+  font-weight: 700;
+}
+.spliceDiagnosticText{
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: rgba(234,240,255,0.78);
+  white-space: pre-wrap;
+}
+.spliceBriefBox{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.26);
+  border-radius: 16px;
+  padding: 12px;
+}
+.spliceBriefPreview{
+  margin-top: 8px;
+  white-space: pre-wrap;
+  font-size: 11px;
+  line-height: 1.6;
+  color: rgba(234,240,255,0.78);
+  max-height: 220px;
+  overflow: auto;
+}
+@media (max-width: 960px){
+  .spliceSummary{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .spliceTimelineGrid,
+  .spliceTimelineGrid--timing{
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 640px){
+  .spliceSummary,
+  .spliceTimelineGrid,
+  .spliceTimelineGrid--timing{
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 </head>
 
@@ -184,13 +312,42 @@ body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; 
             <div id="clipMeta"></div>
           </div>
 
-          <div class="mt-4">
+            <div class="mt-4">
             <div class="flex items-center justify-between">
               <div>
                 <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Timeline</div>
                 <div class="text-sm font-semibold">Sequence</div>
+                <div class="mt-1 text-[11px] text-zinc-500">Beat markers, pacing controls, and timing metadata live here now.</div>
               </div>
               <button id="clearTimelineBtn" class="text-[11px] text-zinc-400 hover:text-zinc-200">Clear timeline</button>
+            </div>
+
+            <div id="timelineSummary" class="spliceSummary">
+              <div class="spliceSummaryCard">
+                <div class="spliceSummaryLabel">Runtime</div>
+                <div class="spliceSummaryValue">0:00.00</div>
+                <div class="spliceSummarySub">Trimmed sequence duration</div>
+              </div>
+              <div class="spliceSummaryCard">
+                <div class="spliceSummaryLabel">Beats</div>
+                <div class="spliceSummaryValue">0</div>
+                <div class="spliceSummarySub">Structured markers across the cut</div>
+              </div>
+              <div class="spliceSummaryCard">
+                <div class="spliceSummaryLabel">Pacing</div>
+                <div class="spliceSummaryValue">—</div>
+                <div class="spliceSummarySub">Average beat length</div>
+              </div>
+              <div class="spliceSummaryCard">
+                <div class="spliceSummaryLabel">Transitions</div>
+                <div class="spliceSummaryValue">Cut</div>
+                <div class="spliceSummarySub">Dominant handoff mode</div>
+              </div>
+            </div>
+
+            <div id="timelineDiagnostic" class="spliceDiagnostic">
+              <div class="spliceDiagnosticTitle">Pacing Readout</div>
+              <div class="spliceDiagnosticText">Add a few beats and Splice will call out pacing risks, missing structure, and transition balance here.</div>
             </div>
 
             <div id="timelineEmpty" class="mt-3 text-sm text-zinc-500">Timeline is empty. Add clips from the library.</div>
@@ -312,6 +469,17 @@ body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; 
           </div>
           <div id="renderProgressOuter" class="nxProgressOuter rounded-xl mt-2 p-[2px]">
             <div id="renderProgressInner" class="nxProgressInner rounded-lg"></div>
+          </div>
+
+          <div class="spliceBriefBox">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Sequence Brief</div>
+                <div class="text-[11px] text-zinc-300 font-semibold">Exportable story summary</div>
+              </div>
+              <button id="exportBriefBtn" class="rounded-xl nxBtnGhost px-3 py-2 text-[11px] font-semibold transition">Export Brief</button>
+            </div>
+            <div id="briefPreview" class="spliceBriefPreview">Build a sequence and Splice will generate a beat-by-beat brief you can hand to editors, clients, or future-you.</div>
           </div>
 
           <button id="renderBtn" class="w-full py-4 rounded-xl nxBtnPrimary text-black font-black text-[11px] uppercase tracking-[0.2em] transition-all disabled:opacity-20 flex items-center justify-center gap-3">

@@ -115,6 +115,61 @@
         <textarea id="fBody" class="pvTextarea" rows="10" placeholder="Paste your prompt here…"></textarea>
       </label>
 
+      <section class="pvRevisionPanel">
+        <div class="pvRevisionHead">
+          <div>
+            <div class="pvRevisionTitle">Revision History</div>
+            <div class="pvRevisionSub">Every meaningful save becomes a reusable version instead of an overwrite.</div>
+          </div>
+          <div class="pvRevisionMeta" id="revisionMeta">No revisions yet</div>
+        </div>
+        <div class="pvRevisionList" id="revisionList"></div>
+      </section>
+
+      <section class="pvVariantPanel">
+        <div class="pvVariantHead">
+          <div>
+            <div class="pvVariantTitle">Variants</div>
+            <div class="pvVariantSub">Save alternate versions for the same job without breaking the main revision trail.</div>
+          </div>
+          <div class="pvVariantMeta" id="variantMeta">Save the prompt first to branch variants.</div>
+        </div>
+        <div class="pvVariantActions">
+          <button class="pvBtn pvBtnGhost" id="btnSaveVariant" type="button">Save Current Draft As Variant</button>
+        </div>
+        <div class="pvVariantList" id="variantList"></div>
+      </section>
+
+      <section class="pvComparePanel">
+        <div class="pvCompareHead">
+          <div>
+            <div class="pvCompareTitle">Side-by-Side Compare</div>
+            <div class="pvCompareSub">Inspect the current head, a variant, or a revision before deciding what to keep.</div>
+          </div>
+          <div class="pvCompareMeta" id="compareMeta">Pick two versions to compare.</div>
+        </div>
+        <div class="pvCompareControls">
+          <label class="pvField">
+            <span>Left</span>
+            <select id="compareLeft" class="pvInput"></select>
+          </label>
+          <label class="pvField">
+            <span>Right</span>
+            <select id="compareRight" class="pvInput"></select>
+          </label>
+        </div>
+        <div class="pvCompareGrid" id="compareGrid">
+          <div class="pvCompareCard">
+            <div class="pvCompareCardTitle">Left</div>
+            <div class="pvCompareSlot" id="compareLeftSlot"></div>
+          </div>
+          <div class="pvCompareCard">
+            <div class="pvCompareCardTitle">Right</div>
+            <div class="pvCompareSlot" id="compareRightSlot"></div>
+          </div>
+        </div>
+      </section>
+
       <div class="pvFormErr" id="formErr" role="status" aria-live="polite"></div>
 
       <div class="pvModalActions">

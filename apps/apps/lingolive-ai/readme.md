@@ -12,6 +12,7 @@ LingoLive AI is a sophisticated web application built for real-time, AI-driven l
 - `lingolive.js`: The core controller managing state, API interactions, and audio flow.
 - Audio Manager: Handles microphone access, audio streaming, and playback of AI responses.
 - API Integration Layer: Manages requests to the backend AI services, handling authentication (API keys) and streaming responses.
+- Transcript Review Layer: Derives coachable review cards from user messages that contain `feedback`, including correction markup between the original phrase and suggested version.
 
 ## Performance & Accessibility / Development Notes
 - Audio latency is a critical factor; ensure the audio buffers are managed efficiently.

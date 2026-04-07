@@ -26,6 +26,355 @@ const CoverageCompass = window.CoverageCompass || window["CoverageCompass"] || {
 
 const $ = (id) => document.getElementById(id);
 const $all = (sel) => [...document.querySelectorAll(sel)];
+const SNAPSHOT_STORAGE_KEY = 'mde_profile_snapshots';
+
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function getQuestionById(id) {
+  return (CoverageCompass.questions || []).find((q) => q.id === id) || null;
+}
+
+function formatAnswerValue(question, value) {
+  if (value === undefined || value === null || value === '') return 'Skipped';
+  if (!question) return String(value);
+  if (question.type === 'multi') {
+    if (!Array.isArray(value) || !value.length) return 'Skipped';
+    return value.map((idx) => question.options?.[idx] ?? String(idx)).join(', ');
+  }
+  if (question.type === 'dropdown' || question.type === 'single') {
+    return question.options?.[value] ?? String(value);
+  }
+  if (question.type === 'number') return String(value);
+  return String(value);
+}
+
+function formatSnapshotDate(iso) {
+  if (!iso) return 'Unknown time';
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return iso;
+  }
+}
+
+function answerSectionSummary(answers) {
+  const counts = new Map();
+  (CoverageCompass.questions || []).forEach((q) => {
+    if (answers[q.id] === undefined) return;
+    counts.set(q.section, (counts.get(q.section) || 0) + 1);
+  });
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([section, count]) => `${section} (${count})`);
+}
+
+function safeResultClone(result) {
+  return {
+    primary: cloneJson(result.primary || {}),
+    ranked: cloneJson(result.ranked || []),
+    confidence: result.confidence || 'Low'
+  };
+}
+
+function evaluateAnswers(answers) {
+  const originalAnswers = cloneJson(CoverageCompass.state.answers || {});
+  const originalIndex = CoverageCompass.state.i || 0;
+  CoverageCompass.state.answers = cloneJson(answers || {});
+  CoverageCompass.recomputeAll();
+  const result = CoverageCompass.pickWinner();
+  const capture = {
+    result: safeResultClone(result),
+    explanations: cloneJson(CoverageCompass.state.explanations || {}),
+    warnings: cloneJson(CoverageCompass.state.hardWarnings || []),
+    blocks: cloneJson(CoverageCompass.state.hardBlocks || []),
+    axes: cloneJson(CoverageCompass.state.axes || {}),
+    audit: cloneJson(CoverageCompass.state.audit || {})
+  };
+  CoverageCompass.state.answers = originalAnswers;
+  CoverageCompass.state.i = originalIndex;
+  CoverageCompass.recomputeAll();
+  return capture;
+}
+
+function getSnapshots() {
+  try {
+    const data = JSON.parse(localStorage.getItem(SNAPSHOT_STORAGE_KEY));
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+function setSnapshots(items) {
+  localStorage.setItem(SNAPSHOT_STORAGE_KEY, JSON.stringify(items));
+}
+
+function getCurrentSnapshotSelection() {
+  return $('snapshotSelect')?.value || '';
+}
+
+function buildSnapshotRecord(answers) {
+  const evaluation = evaluateAnswers(answers);
+  const answered = Object.keys(answers || {}).length;
+  const primary = evaluation.result.primary || {};
+  return {
+    id: `snap_${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    answers: cloneJson(answers || {}),
+    summary: {
+      answered,
+      recommendation: primary.name || 'Unknown',
+      confidence: evaluation.result.confidence || 'Low',
+      sections: answerSectionSummary(answers)
+    },
+    evaluation
+  };
+}
+
+function renderSnapshotCard(targetId, heading, snapshot, fallbackText) {
+  const el = $(targetId);
+  if (!el) return;
+  if (!snapshot) {
+    el.innerHTML = `<h4>${escapeHtml(heading)}</h4><div class="snapshotEmpty">${escapeHtml(fallbackText)}</div>`;
+    return;
+  }
+  const summary = snapshot.summary || {};
+  const evaluation = snapshot.evaluation || {};
+  const primary = evaluation.result?.primary || {};
+  const sections = (summary.sections || []).length
+    ? `<div><strong>Most answered:</strong> ${escapeHtml(summary.sections.join(' • '))}</div>`
+    : '<div><strong>Most answered:</strong> No section signal yet.</div>';
+  el.innerHTML = `
+    <h4>${escapeHtml(heading)}</h4>
+    <div class="snapshotMeta">
+      <div><strong>Recommendation:</strong> ${escapeHtml(primary.name || summary.recommendation || 'Unknown')}</div>
+      <div><strong>Confidence:</strong> ${escapeHtml(evaluation.result?.confidence || summary.confidence || 'Low')}</div>
+      <div><strong>Answered:</strong> ${escapeHtml(String(summary.answered || 0))}</div>
+      <div><strong>Saved:</strong> ${escapeHtml(formatSnapshotDate(snapshot.createdAt))}</div>
+      ${sections}
+    </div>
+  `;
+}
+
+function buildSnapshotDiff(currentSnapshot, savedSnapshot) {
+  if (!savedSnapshot) return null;
+  const currentAnswers = currentSnapshot.answers || {};
+  const savedAnswers = savedSnapshot.answers || {};
+  const ids = new Set([...Object.keys(currentAnswers), ...Object.keys(savedAnswers)]);
+  const answerChanges = [];
+  ids.forEach((id) => {
+    const before = savedAnswers[id];
+    const after = currentAnswers[id];
+    if (JSON.stringify(before) === JSON.stringify(after)) return;
+    const question = getQuestionById(id);
+    answerChanges.push({
+      id,
+      section: question?.section || 'Other',
+      text: question?.text || id,
+      before: formatAnswerValue(question, before),
+      after: formatAnswerValue(question, after)
+    });
+  });
+  const primaryBefore = savedSnapshot.evaluation?.result?.primary || {};
+  const primaryAfter = currentSnapshot.evaluation?.result?.primary || {};
+  const rankedBefore = savedSnapshot.evaluation?.result?.ranked || [];
+  const rankedAfter = currentSnapshot.evaluation?.result?.ranked || [];
+  const scoreBefore = primaryBefore.score || 0;
+  const scoreAfter = primaryAfter.score || 0;
+  return {
+    recommendationChanged: primaryBefore.name !== primaryAfter.name,
+    confidenceChanged: (savedSnapshot.evaluation?.result?.confidence || 'Low') !== (currentSnapshot.evaluation?.result?.confidence || 'Low'),
+    answerChanges,
+    scoreDelta: scoreAfter - scoreBefore,
+    primaryBefore,
+    primaryAfter,
+    runnerBefore: rankedBefore[1] || null,
+    runnerAfter: rankedAfter[1] || null
+  };
+}
+
+function renderSnapshotDelta(currentSnapshot, savedSnapshot) {
+  const el = $('snapshotDeltaBox');
+  if (!el) return;
+  if (!savedSnapshot) {
+    el.innerHTML = `
+      <h4>Change Summary</h4>
+      <div class="snapshotEmpty">Select a saved snapshot to compare recommendation shifts, confidence changes, and answer deltas.</div>
+    `;
+    return;
+  }
+  const diff = buildSnapshotDiff(currentSnapshot, savedSnapshot);
+  const topChanges = diff.answerChanges.slice(0, 8);
+  const lead = diff.recommendationChanged
+    ? `The recommendation changed from ${savedSnapshot.evaluation.result.primary.name} to ${currentSnapshot.evaluation.result.primary.name}.`
+    : `The recommendation stayed on ${currentSnapshot.evaluation.result.primary.name}, but the underlying profile shifted.`;
+  el.innerHTML = `
+    <h4>Change Summary</h4>
+    <div class="snapshotDeltaLead">${escapeHtml(lead)}</div>
+    <div class="snapshotDeltaGrid">
+      <div class="snapshotDeltaCard">
+        <div class="label">Recommendation</div>
+        <div class="value">${escapeHtml(`${savedSnapshot.evaluation.result.primary.name} → ${currentSnapshot.evaluation.result.primary.name}`)}</div>
+      </div>
+      <div class="snapshotDeltaCard">
+        <div class="label">Confidence</div>
+        <div class="value">${escapeHtml(`${savedSnapshot.evaluation.result.confidence} → ${currentSnapshot.evaluation.result.confidence}`)}</div>
+      </div>
+      <div class="snapshotDeltaCard">
+        <div class="label">Changed Answers</div>
+        <div class="value">${escapeHtml(String(diff.answerChanges.length))}</div>
+      </div>
+    </div>
+    <div class="snapshotMeta">
+      <div><strong>Top score shift:</strong> ${escapeHtml(diff.scoreDelta >= 0 ? `+${diff.scoreDelta.toFixed(2)}` : diff.scoreDelta.toFixed(2))}</div>
+      <div><strong>Previous runner-up:</strong> ${escapeHtml(diff.runnerBefore?.name || 'None')}</div>
+      <div><strong>Current runner-up:</strong> ${escapeHtml(diff.runnerAfter?.name || 'None')}</div>
+    </div>
+    ${topChanges.length ? `<ol class="snapshotDeltaList">${topChanges.map((item) => `<li><strong>${escapeHtml(item.section)}:</strong> ${escapeHtml(item.text)}<br>${escapeHtml(item.before)} → ${escapeHtml(item.after)}</li>`).join('')}</ol>` : '<div class="snapshotEmpty" style="margin-top:10px">No answer changes detected.</div>'}
+  `;
+}
+
+function renderSnapshotComparison() {
+  const currentSnapshot = buildSnapshotRecord(CoverageCompass.state.answers || {});
+  const snapshots = getSnapshots();
+  const select = $('snapshotSelect');
+  if (select) {
+    const previousValue = getCurrentSnapshotSelection();
+    select.innerHTML = '<option value="">Select a saved snapshot</option>' +
+      snapshots.map((snapshot) => `<option value="${escapeHtml(snapshot.id)}">${escapeHtml(`${snapshot.summary?.recommendation || 'Snapshot'} • ${formatSnapshotDate(snapshot.createdAt)}`)}</option>`).join('');
+    if (snapshots.some((snapshot) => snapshot.id === previousValue)) select.value = previousValue;
+  }
+  const selectedSnapshot = snapshots.find((snapshot) => snapshot.id === getCurrentSnapshotSelection()) || null;
+  renderSnapshotCard('currentSnapshotCard', 'Current Profile', currentSnapshot, 'No current profile state available.');
+  renderSnapshotCard('savedSnapshotCard', 'Saved Snapshot', selectedSnapshot, 'Save a snapshot from the current profile, then pick it here for comparison.');
+  renderSnapshotDelta(currentSnapshot, selectedSnapshot);
+}
+
+function buildSensitivityAnalysis() {
+  const answers = cloneJson(CoverageCompass.state.answers || {});
+  const answeredIds = Object.keys(answers);
+  if (!answeredIds.length) return null;
+  const baseline = evaluateAnswers(answers);
+  const baselinePrimary = baseline.result.primary || {};
+  const baselineRunner = baseline.result.ranked?.[1] || null;
+  const items = [];
+
+  answeredIds.forEach((id) => {
+    const question = getQuestionById(id);
+    if (!question) return;
+    const variant = cloneJson(answers);
+    delete variant[id];
+    const next = evaluateAnswers(variant);
+    const nextPrimary = next.result.primary || {};
+    const flip = nextPrimary.name !== baselinePrimary.name;
+    const baselineGap = baselineRunner ? Math.abs((baselinePrimary.score || 0) - (baselineRunner.score || 0)) : 0;
+    const nextRunner = next.result.ranked?.[1] || null;
+    const nextGap = nextRunner ? Math.abs((nextPrimary.score || 0) - (nextRunner.score || 0)) : 0;
+    const impact = Math.abs((baselinePrimary.score || 0) - (nextPrimary.score || 0)) + Math.abs(baselineGap - nextGap);
+    items.push({
+      id,
+      question,
+      currentAnswer: formatAnswerValue(question, answers[id]),
+      flip,
+      nextPrimary: nextPrimary.name || 'Unknown',
+      nextConfidence: next.result.confidence || 'Low',
+      impact,
+      gapDelta: nextGap - baselineGap
+    });
+  });
+
+  items.sort((a, b) => {
+    if (a.flip !== b.flip) return a.flip ? -1 : 1;
+    return b.impact - a.impact;
+  });
+
+  return {
+    baseline,
+    flips: items.filter((item) => item.flip),
+    topDrivers: items.slice(0, 5)
+  };
+}
+
+function renderSensitivityPanel() {
+  const el = $('sensitivityPanel');
+  if (!el) return;
+  const analysis = buildSensitivityAnalysis();
+  if (!analysis) {
+    el.innerHTML = `
+      <h3>Recommendation Sensitivity</h3>
+      <div class="snapshotEmpty">Answer a few questions first to see which answers are doing the most work.</div>
+    `;
+    return;
+  }
+
+  const baselinePrimary = analysis.baseline.result.primary || {};
+  const lead = analysis.flips.length
+    ? `${analysis.flips.length} answered ${analysis.flips.length === 1 ? 'question' : 'questions'} could flip the recommendation if the signal disappeared or changed materially.`
+    : `No single answered question currently flips the recommendation on its own. The result is being held up by the overall profile rather than one fragile input.`;
+
+  el.innerHTML = `
+    <h3>Recommendation Sensitivity</h3>
+    <div class="sensitivityLead">${escapeHtml(lead)}</div>
+    <div class="sensitivityGrid">
+      <div class="sensitivityCard">
+        <div class="label">Current Winner</div>
+        <div class="value">${escapeHtml(baselinePrimary.name || 'Unknown')}</div>
+      </div>
+      <div class="sensitivityCard">
+        <div class="label">Confidence</div>
+        <div class="value">${escapeHtml(analysis.baseline.result.confidence || 'Low')}</div>
+      </div>
+      <div class="sensitivityCard">
+        <div class="label">Potential Flips</div>
+        <div class="value">${escapeHtml(String(analysis.flips.length))}</div>
+      </div>
+    </div>
+    <ol class="sensitivityList">
+      ${analysis.topDrivers.map((item) => `
+        <li>
+          <div class="sensitivityQuestion">${escapeHtml(item.question.text)}</div>
+          <div class="sensitivityMeta">Current answer: ${escapeHtml(item.currentAnswer)}</div>
+          <div class="sensitivityMeta ${item.flip ? 'sensitivityFlip' : ''}">
+            ${escapeHtml(item.flip
+              ? `If this answer moved, the recommendation could flip to ${item.nextPrimary} (${item.nextConfidence} confidence).`
+              : `If this answer disappeared, the recommendation would likely stay on ${baselinePrimary.name || 'the current winner'}, but the margin would tighten.`)}
+          </div>
+        </li>
+      `).join('')}
+    </ol>
+  `;
+}
+
+function saveCurrentSnapshot() {
+  if (!Object.keys(CoverageCompass.state.answers || {}).length) {
+    setSaveStatus('Answer a few questions first');
+    return;
+  }
+  const snapshots = getSnapshots();
+  const record = buildSnapshotRecord(CoverageCompass.state.answers || {});
+  snapshots.unshift(record);
+  setSnapshots(snapshots.slice(0, 5));
+  renderSnapshotComparison();
+  const select = $('snapshotSelect');
+  if (select) select.value = record.id;
+  renderSnapshotComparison();
+  setSaveStatus('Snapshot saved');
+}
+
+function deleteSelectedSnapshot() {
+  const selectedId = getCurrentSnapshotSelection();
+  if (!selectedId) {
+    setSaveStatus('Pick a snapshot first');
+    return;
+  }
+  const next = getSnapshots().filter((snapshot) => snapshot.id !== selectedId);
+  setSnapshots(next);
+  renderSnapshotComparison();
+  setSaveStatus('Snapshot deleted');
+}
 
 function setSaveStatus(text, ttlMs = 900) {
   const el = $('saveStatus');
@@ -659,6 +1008,90 @@ function renderScores(ranked) {
   });
 }
 
+function buildConfidenceModel(out) {
+  const ranked = out.ranked || [];
+  const questions = CoverageCompass.questions || [];
+  const answers = CoverageCompass.state.answers || {};
+  const answered = questions.filter((q) => answers[q.id] !== undefined).length;
+  const unanswered = Math.max(0, questions.length - answered);
+  const gap = ranked[1] ? Math.abs((ranked[0]?.score || 0) - (ranked[1]?.score || 0)) : 999;
+  const warnings = CoverageCompass.state.hardWarnings || [];
+  const blocks = CoverageCompass.state.hardBlocks || [];
+  const uncertaintyDrivers = [];
+
+  if (gap < 1.5) uncertaintyDrivers.push('The top two options are close, so a few preference changes could flip the recommendation.');
+  if (unanswered >= 8) uncertaintyDrivers.push(`You skipped ${unanswered} questions, which reduces how specific the recommendation can be.`);
+  if (warnings.length >= 2) uncertaintyDrivers.push('Multiple risk warnings are active, so the recommendation depends on caution-heavy heuristics.');
+  if ((CoverageCompass.state.trace || []).length < 12) uncertaintyDrivers.push('The engine had limited signal to work with, so the reasoning chain is thinner than ideal.');
+  if (blocks.length) uncertaintyDrivers.push('A hard eligibility or timing constraint is affecting the result.');
+
+  const confidence = String(out.confidence || 'Low').toLowerCase();
+  let body = 'This recommendation has a clear lead and relatively stable reasoning.';
+  if (confidence === 'medium') body = 'This recommendation is directionally solid, but a few answers are still carrying meaningful weight.';
+  if (confidence === 'low') body = 'This is a tentative recommendation. Treat it as a scenario to inspect, not a settled choice.';
+
+  return {
+    confidence,
+    answered,
+    unanswered,
+    gap,
+    uncertaintyDrivers: uncertaintyDrivers.slice(0, 4),
+    body
+  };
+}
+
+function renderConfidenceBanner(out) {
+  const el = $('confidenceBanner');
+  if (!el) return;
+  const model = buildConfidenceModel(out);
+  const title = `${model.confidence.charAt(0).toUpperCase()}${model.confidence.slice(1)} confidence`;
+  el.className = `confidenceBanner ${model.confidence}`;
+  el.innerHTML = `
+    <div class="confidenceTitle">
+      <span>${title}</span>
+      <span class="confidenceTag">${model.answered}/${CoverageCompass.questions.length} answered</span>
+    </div>
+    <div class="confidenceText">${escapeHtml(model.body)}</div>
+    ${model.uncertaintyDrivers.length ? `
+      <ul class="uncertaintyList">
+        ${model.uncertaintyDrivers.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+      </ul>
+    ` : ''}
+  `;
+}
+
+function buildDecisionTrace(out) {
+  const ranked = out.ranked || [];
+  const primary = out.primary || {};
+  const second = ranked[1];
+  const why = [...new Set(CoverageCompass.state.explanations?.why || [])];
+  const tradeoffs = [...new Set(CoverageCompass.state.explanations?.tradeoffs || [])];
+  const changes = [...new Set(CoverageCompass.state.explanations?.changes || [])];
+  const trace = [];
+
+  if (second) {
+    trace.push(`The engine ranked ${primary.name} ahead of ${second.name} by ${Math.abs((primary.score || 0) - (second.score || 0)).toFixed(2)} points.`);
+  } else {
+    trace.push(`The engine produced a single dominant path: ${primary.name}.`);
+  }
+  if (why[0]) trace.push(`Main driver: ${why[0]}`);
+  if (why[1]) trace.push(`Secondary driver: ${why[1]}`);
+  if (tradeoffs[0]) trace.push(`Key tradeoff: ${tradeoffs[0]}`);
+  if (changes[0]) trace.push(`What would change the recommendation: ${changes[0]}`);
+  if ((CoverageCompass.state.hardWarnings || [])[0]) trace.push(`Important caution: ${(CoverageCompass.state.hardWarnings || [])[0]}`);
+
+  return trace.slice(0, 5);
+}
+
+function renderDecisionTrace(out) {
+  const el = $('decisionTraceBox');
+  if (!el) return;
+  const trace = buildDecisionTrace(out);
+  el.innerHTML = trace.length
+    ? `<div class="traceLead">Visible reasoning summary for the current recommendation.</div><ol class="traceList">${trace.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ol>`
+    : '<div class="muted">(no decision trace yet)</div>';
+}
+
 function renderResults() {
   const out = CoverageCompass.pickWinner();
   const primary = out.primary;
@@ -667,7 +1100,11 @@ function renderResults() {
   $('resTitle').textContent = `Recommendation: ${primary.name}`;
   $('resSubtitle').textContent = `Confidence: ${out.confidence}`;
 
+  renderConfidenceBanner(out);
+  renderSnapshotComparison();
+  renderSensitivityPanel();
   renderScores(ranked);
+  renderDecisionTrace(out);
 
   $('whyBox').innerHTML = listToHtml(CoverageCompass.state.explanations?.why);
   $('tradeBox').innerHTML = listToHtml(CoverageCompass.state.explanations?.tradeoffs);
@@ -899,6 +1336,9 @@ $('footLegal').onclick = (e) => { e.preventDefault(); showScreen('screenLegal');
   $('btnCopyExport').onclick = copyExport;
   $('btnDownloadExport').onclick = downloadExport;
   $('btnCopyLink').onclick = copyShareLink;
+  $('btnSaveSnapshot').onclick = saveCurrentSnapshot;
+  $('btnDeleteSnapshot').onclick = deleteSelectedSnapshot;
+  $('snapshotSelect').onchange = renderSnapshotComparison;
 
   $('btnToggleTrace').onclick = () => $('tracePanel').classList.toggle('hidden');
   $('btnCopyAudit').onclick = async () => {

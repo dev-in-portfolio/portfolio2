@@ -9,7 +9,7 @@
 <!-- Favicons / Touch Icons (drop real assets into these paths) -->
 <link href="/assets/icon/string/string-lab-icon.svg" rel="icon" type="image/svg+xml"/>
 <link href="/assets/icon/string/string-lab-icon-32.png" rel="alternate icon" sizes="32x32" type="image/png"/>
-<link href="../../icon-512.png" rel="apple-touch-icon">
+<link href="/icon-512.png" rel="apple-touch-icon">
 <!-- Color scheme + tiny robots.txt hint for reviewers -->
 <meta content="dark only" name="color-scheme"/>
 <!-- robots.txt (mirrored for convenience):
@@ -143,6 +143,79 @@
  }
 .btn:hover { background: rgba(56, 189, 248, 0.25); border-color: var(--accent); }
 .btn-row { display: flex; gap: 8px; margin-top: 4px; }
+.mini-grid {
+ display: grid;
+ grid-template-columns: repeat(2, minmax(0, 1fr));
+ gap: 8px;
+}
+.note-card,
+.compare-card,
+.preset-card {
+ background: rgba(0,0,0,0.22);
+ border: 1px solid rgba(148,163,184,0.18);
+ border-radius: 10px;
+ padding: 10px;
+}
+.mini-kicker {
+ font-size: 0.62rem;
+ letter-spacing: 0.12em;
+ text-transform: uppercase;
+ color: var(--muted);
+}
+.mini-title {
+ margin-top: 4px;
+ font-size: 0.82rem;
+ color: #fff;
+ font-weight: 700;
+}
+.mini-copy {
+ margin-top: 6px;
+ font-size: 0.72rem;
+ line-height: 1.45;
+ color: #cbd5f5;
+}
+.compare-shell {
+ display: flex;
+ flex-direction: column;
+ gap: 10px;
+}
+.compare-head {
+ display: flex;
+ justify-content: space-between;
+ align-items: flex-start;
+ gap: 8px;
+}
+.compare-badge {
+ padding: 3px 8px;
+ border-radius: 999px;
+ border: 1px solid rgba(56,189,248,0.35);
+ color: var(--accent);
+ font-size: 0.62rem;
+ letter-spacing: 0.08em;
+ text-transform: uppercase;
+ white-space: nowrap;
+}
+.snapshot-stat {
+ font-size: 0.68rem;
+ color: var(--muted);
+ line-height: 1.35;
+}
+.snapshot-stat strong {
+ color: #fff;
+}
+.teach-list {
+ display: flex;
+ flex-direction: column;
+ gap: 8px;
+ margin-top: 8px;
+}
+.teach-line {
+ border-left: 2px solid rgba(56,189,248,0.55);
+ padding-left: 10px;
+ font-size: 0.72rem;
+ line-height: 1.4;
+ color: #dbeafe;
+}
 
  /* CHAT CARDS */
 .chat-card {
@@ -1097,6 +1170,67 @@ html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -w
 <button class="btn" id="btnReset">⟲ Reset View</button>
 </div>
 </div>
+<div class="section">
+<div class="section-title">Authored Presets</div>
+<div class="control-row"><span>Preset Story</span><span id="presetLabelReadout">Default Lab</span></div>
+<select id="presetSelect"></select>
+<div class="preset-card">
+<div class="mini-kicker" id="presetKicker">Parameter Story</div>
+<div class="mini-title" id="presetTitle">Default Lab</div>
+<div class="mini-copy" id="presetCopy">Named presets turn raw manifold parameters into authored mathematical stories with clearer intent.</div>
+</div>
+<div class="btn-row">
+<button class="btn" id="btnApplyPreset">Apply Preset</button>
+<button class="btn" id="btnSaveBaseline">Save Live State</button>
+</div>
+</div>
+<div class="section">
+<div class="section-title">Compare Mode</div>
+<div class="compare-shell">
+<div class="compare-card">
+<div class="compare-head">
+<div>
+<div class="mini-kicker">Snapshot A</div>
+<div class="mini-title" id="compareATitle">Empty</div>
+</div>
+<div class="compare-badge" id="compareABadge">Capture</div>
+</div>
+<div class="snapshot-stat" id="compareAStats">No saved state yet.</div>
+<div class="btn-row">
+<button class="btn" id="btnCaptureA">Capture A</button>
+<button class="btn" id="btnApplyA">Apply A</button>
+</div>
+</div>
+<div class="compare-card">
+<div class="compare-head">
+<div>
+<div class="mini-kicker">Snapshot B</div>
+<div class="mini-title" id="compareBTitle">Empty</div>
+</div>
+<div class="compare-badge" id="compareBBadge">Capture</div>
+</div>
+<div class="snapshot-stat" id="compareBStats">No saved state yet.</div>
+<div class="btn-row">
+<button class="btn" id="btnCaptureB">Capture B</button>
+<button class="btn" id="btnApplyB">Apply B</button>
+</div>
+</div>
+<div class="note-card">
+<div class="mini-kicker">Delta Readout</div>
+<div class="mini-title" id="compareDeltaTitle">Waiting for two states</div>
+<div class="mini-copy" id="compareDeltaCopy">Capture two parameter states to see how topology, mode, density, and 4D mix shift the geometry story.</div>
+</div>
+</div>
+</div>
+<div class="section">
+<div class="section-title">Why This Matters</div>
+<div class="note-card">
+<div class="mini-kicker" id="teachKicker">Teaching Layer</div>
+<div class="mini-title" id="teachTitle">A manifold is a story about constraints</div>
+<div class="mini-copy" id="teachCopy">These controls do more than make prettier pictures. They change how much hidden-dimensional structure leaks into the 3D slice you are seeing.</div>
+<div class="teach-list" id="teachList"></div>
+</div>
+</div>
 <!-- RENDERING TECHNIQUES -->
 <div class="section">
 <div class="section-title">Rendering Techniques</div>
@@ -1240,8 +1374,78 @@ html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -w
  // --- Techniques (T155/T168/T159) ---
  t155Enabled: true,
  t168Enabled: false,
- t159Enabled: false
+ t159Enabled: false,
+ activePresetId: "default-lab",
+ compareSlots: { a: null, b: null }
  };
+
+ const AUTHORED_PRESETS = [
+  {
+   id: "default-lab",
+   label: "Default Lab",
+   kicker: "Baseline Story",
+   title: "Balanced manifold slice",
+   copy: "A legible starting point for reading how topology, mode, and 4D mixing affect the projected point cloud.",
+   lesson: [
+    "Topology n changes how many structural repetitions or handles the manifold can suggest.",
+    "String Mode acts like a distortion family, not just a cosmetic toggle.",
+    "4D Mix controls how strongly hidden-dimensional structure bleeds into the 3D slice."
+   ],
+   snapshot: { shapeFamily: "galaxy", n: 5, mode: 3, mix4D: 0.7, densityScale: 1.0 }
+  },
+  {
+   id: "cosmic-orchard",
+   label: "Cosmic Orchard",
+   kicker: "Preset Story",
+   title: "High-genus bloom",
+   copy: "This preset biases toward layered, organic repetition so the viewer can read topology as growth rather than abstraction.",
+   lesson: [
+    "Higher genus often reads as branching or nested passages in the projection.",
+    "Moderate mode distortion preserves family identity while still making the extra-dimensional coupling visible.",
+    "Useful for explaining that mathematical complexity can still produce stable visual motifs."
+   ],
+   snapshot: { shapeFamily: "c8_bifurcation_blossom", n: 8, mode: 6, mix4D: 0.95, densityScale: 1.3 }
+  },
+  {
+   id: "throat-lesson",
+   label: "Throat Lesson",
+   kicker: "Preset Story",
+   title: "Conifold pinch versus resolution",
+   copy: "A sharper preset that makes singular-looking bottlenecks and transitions easier to compare and teach.",
+   lesson: [
+    "Conifold-style presets are useful for explaining what a bottleneck or singular throat means in a geometric story.",
+    "Increasing mix makes the throat feel less like a simple tunnel and more like a higher-dimensional transition zone.",
+    "Compare this against a smoother preset to teach what 'resolution' does conceptually."
+   ],
+   snapshot: { shapeFamily: "c3_epsilon_pinch_singularity", n: 9, mode: 6, mix4D: 0.9, densityScale: 1.3 }
+  },
+  {
+   id: "boundary-decoder",
+   label: "Boundary Decoder",
+   kicker: "Preset Story",
+   title: "Boundary to bulk translation",
+   copy: "This preset is tuned to make the holographic intuition visible: a boundary signal appears to organize interior structure.",
+   lesson: [
+    "The point is not literal physics accuracy. The point is to give a non-specialist a visual intuition for 'boundary data organizing a bulk.'",
+    "Lower density can make the decode easier to see because the pattern stops reading like pure texture.",
+    "This is the right preset when you need a 'why this matters' story instead of a maximal spectacle."
+   ],
+   snapshot: { shapeFamily: "c6_decode_interior_lattice", n: 9, mode: 7, mix4D: 0.85, densityScale: 1.2 }
+  },
+  {
+   id: "flux-knot",
+   label: "Flux Knot",
+   kicker: "Preset Story",
+   title: "Braided cycle transport",
+   copy: "A knot-heavy preset that makes compare mode useful because small parameter shifts noticeably change tension, writhe, and crossing density.",
+   lesson: [
+    "Flux-thread presets are good for teaching that the same family can feel tight, loose, resonant, or chaotic depending on parameter balance.",
+    "Mode changes here are especially useful because they often alter perceived braid structure faster than n alone.",
+    "Capture A and B around this preset to show how a small mode shift changes the whole narrative."
+   ],
+   snapshot: { shapeFamily: "c7_hopf_fibration_field", n: 9, mode: 7, mix4D: 0.85, densityScale: 1.35 }
+  }
+ ];
 
  const PRESET_DEFAULTS = {
  "c1_atlas_shatter_nonclosing": { n: 7, mode: 6, mix4D: 0.85, densityScale: 1.15 },
@@ -1391,6 +1595,29 @@ html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -w
  modeSlider: document.getElementById("modeSlider"),
  mixSlider: document.getElementById("mixSlider"),
  densitySlider: document.getElementById("densitySlider"),
+ presetSelect: document.getElementById("presetSelect"),
+ presetLabelReadout: document.getElementById("presetLabelReadout"),
+ presetKicker: document.getElementById("presetKicker"),
+ presetTitle: document.getElementById("presetTitle"),
+ presetCopy: document.getElementById("presetCopy"),
+ applyPresetBtn: document.getElementById("btnApplyPreset"),
+ saveBaselineBtn: document.getElementById("btnSaveBaseline"),
+ captureABtn: document.getElementById("btnCaptureA"),
+ captureBBtn: document.getElementById("btnCaptureB"),
+ applyABtn: document.getElementById("btnApplyA"),
+ applyBBtn: document.getElementById("btnApplyB"),
+ compareATitle: document.getElementById("compareATitle"),
+ compareAStats: document.getElementById("compareAStats"),
+ compareABadge: document.getElementById("compareABadge"),
+ compareBTitle: document.getElementById("compareBTitle"),
+ compareBStats: document.getElementById("compareBStats"),
+ compareBBadge: document.getElementById("compareBBadge"),
+ compareDeltaTitle: document.getElementById("compareDeltaTitle"),
+ compareDeltaCopy: document.getElementById("compareDeltaCopy"),
+ teachKicker: document.getElementById("teachKicker"),
+ teachTitle: document.getElementById("teachTitle"),
+ teachCopy: document.getElementById("teachCopy"),
+ teachList: document.getElementById("teachList"),
 
  // Techniques
  t155Toggle: document.getElementById("t155Toggle"),
@@ -1418,6 +1645,161 @@ html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -w
  // --- MATH HELPERS ---
  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
  function lerp(a, b, t) { return a + (b - a) * t; }
+ function currentSnapshot() {
+ return {
+ shapeFamily: state.shapeFamily,
+ n: state.n,
+ mode: state.mode,
+ mix4D: Number(state.mix4D),
+ densityScale: Number(state.densityScale)
+ };
+ }
+ function formatSnapshot(snapshot) {
+ if (!snapshot) return "No saved state yet.";
+ return `family ${snapshot.shapeFamily} · n ${snapshot.n} · mode ${snapshot.mode} · mix ${Number(snapshot.mix4D).toFixed(2)} · density ${Number(snapshot.densityScale).toFixed(1)}x`;
+ }
+ function presetById(id) {
+ return AUTHORED_PRESETS.find((preset) => preset.id === id) || AUTHORED_PRESETS[0];
+ }
+ function syncPrimaryControls() {
+ ui.shapeSelect.value = state.shapeFamily;
+ ui.nSlider.value = state.n;
+ ui.readouts.n.textContent = state.n;
+ ui.modeSlider.value = state.mode;
+ ui.readouts.mode.textContent = state.mode;
+ ui.mixSlider.value = state.mix4D;
+ ui.readouts.mix.textContent = Number(state.mix4D).toFixed(2);
+ ui.densitySlider.value = state.densityScale;
+ ui.readouts.density.textContent = Number(state.densityScale).toFixed(1) + "x";
+ }
+ function persistLabState() {
+ try {
+ StateStore.save(window.APP_ID, "stringLabState", {
+ shapeFamily: state.shapeFamily,
+ n: state.n,
+ mode: state.mode,
+ mix4D: state.mix4D,
+ densityScale: state.densityScale,
+ activePresetId: state.activePresetId,
+ compareSlots: state.compareSlots
+ });
+ } catch (_e) {}
+ }
+ function loadLabState() {
+ try {
+ const saved = StateStore.load(window.APP_ID, "stringLabState", null);
+ if (!saved || typeof saved !== "object") return;
+ if (saved.shapeFamily) state.shapeFamily = saved.shapeFamily;
+ if (Number.isFinite(saved.n)) state.n = saved.n;
+ if (Number.isFinite(saved.mode)) state.mode = saved.mode;
+ if (Number.isFinite(saved.mix4D)) state.mix4D = saved.mix4D;
+ if (Number.isFinite(saved.densityScale)) state.densityScale = saved.densityScale;
+ if (saved.activePresetId) state.activePresetId = saved.activePresetId;
+ if (saved.compareSlots && typeof saved.compareSlots === "object") state.compareSlots = saved.compareSlots;
+ } catch (_e) {}
+ }
+ function applySnapshot(snapshot, presetId) {
+ if (!snapshot) return;
+ state.shapeFamily = snapshot.shapeFamily;
+ state.n = snapshot.n;
+ state.mode = snapshot.mode;
+ state.mix4D = snapshot.mix4D;
+ state.densityScale = snapshot.densityScale;
+ if (presetId) state.activePresetId = presetId;
+ syncPrimaryControls();
+ updateGeo();
+ renderNarrativePanels();
+ persistLabState();
+ }
+ function captureCompare(slot) {
+ state.compareSlots[slot] = {
+ label: `${state.shapeFamily} · n${state.n} · m${state.mode}`,
+ snapshot: currentSnapshot()
+ };
+ renderNarrativePanels();
+ persistLabState();
+ }
+ function familyStory(shape) {
+ if (/^c3_/.test(shape)) return "Conifold throat";
+ if (/^c6_/.test(shape)) return "Boundary / bulk decode";
+ if (/^c7_/.test(shape)) return "Flux braid";
+ if (/^c8_/.test(shape)) return "Calabi-Yau slice";
+ if (/^c4_/.test(shape)) return "Brane lattice";
+ if (/galaxy|cloud|storm|orbital/.test(shape)) return "Field structure";
+ if (/knot|braid|mobius|ribbon/.test(shape)) return "Cycle / knot geometry";
+ return "Projected manifold";
+ }
+ function compareSummary() {
+ const a = state.compareSlots.a && state.compareSlots.a.snapshot;
+ const b = state.compareSlots.b && state.compareSlots.b.snapshot;
+ if (!a || !b) {
+ return {
+ title: "Waiting for two states",
+ copy: "Capture two parameter states to see how topology, mode, density, and 4D mix shift the geometry story."
+ };
+ }
+ const deltas = [];
+ if (a.shapeFamily !== b.shapeFamily) deltas.push(`family changes from ${familyStory(a.shapeFamily)} to ${familyStory(b.shapeFamily)}`);
+ if (a.n !== b.n) deltas.push(`topology rises from n ${a.n} to n ${b.n}`);
+ if (a.mode !== b.mode) deltas.push(`string mode shifts from ${a.mode} to ${b.mode}`);
+ if (Number(a.mix4D) !== Number(b.mix4D)) deltas.push(`4D mix moves from ${Number(a.mix4D).toFixed(2)} to ${Number(b.mix4D).toFixed(2)}`);
+ if (Number(a.densityScale) !== Number(b.densityScale)) deltas.push(`density changes from ${Number(a.densityScale).toFixed(1)}x to ${Number(b.densityScale).toFixed(1)}x`);
+ return {
+ title: deltas.length ? "State delta is now legible" : "Snapshots match",
+ copy: deltas.length ? `Compare mode shows that ${deltas.join(", ")}.` : "These two snapshots are effectively the same state, so the compare layer is acting as a confirmation pass."
+ };
+ }
+ function teachingPayload() {
+ const preset = presetById(state.activePresetId);
+ const family = familyStory(state.shapeFamily);
+ const base = preset && preset.snapshot && preset.snapshot.shapeFamily === state.shapeFamily
+ ? preset
+ : {
+   kicker: "Teaching Layer",
+   title: family,
+   copy: `You are looking at a ${family.toLowerCase()} where n=${state.n}, mode=${state.mode}, and mix=${Number(state.mix4D).toFixed(2)} decide how much structure survives the projection.`,
+   lesson: [
+    `At n=${state.n}, the lab is emphasizing structural repetition and handle count more than a minimal baseline would.`,
+    `Mode ${state.mode} changes the distortion family, which often changes the narrative faster than geometry family alone.`,
+    `${Number(state.mix4D).toFixed(2)} mix means the hidden-dimensional contribution is ${state.mix4D > 0.8 ? "strong and obvious" : state.mix4D > 0.45 ? "balanced with the 3D slice" : "subtle and mostly restrained"}.`
+   ]
+  };
+ return base;
+ }
+ function renderNarrativePanels() {
+ const preset = presetById(state.activePresetId);
+ if (ui.presetSelect && !ui.presetSelect.options.length) {
+  AUTHORED_PRESETS.forEach((item) => {
+   const option = document.createElement("option");
+   option.value = item.id;
+   option.textContent = item.label;
+   ui.presetSelect.appendChild(option);
+  });
+ }
+ if (ui.presetSelect) ui.presetSelect.value = preset.id;
+ if (ui.presetLabelReadout) ui.presetLabelReadout.textContent = preset.label;
+ if (ui.presetKicker) ui.presetKicker.textContent = preset.kicker;
+ if (ui.presetTitle) ui.presetTitle.textContent = preset.title;
+ if (ui.presetCopy) ui.presetCopy.textContent = preset.copy;
+
+ const slotA = state.compareSlots.a;
+ const slotB = state.compareSlots.b;
+ if (ui.compareATitle) ui.compareATitle.textContent = slotA ? slotA.label : "Empty";
+ if (ui.compareAStats) ui.compareAStats.textContent = formatSnapshot(slotA && slotA.snapshot);
+ if (ui.compareABadge) ui.compareABadge.textContent = slotA ? "Saved" : "Capture";
+ if (ui.compareBTitle) ui.compareBTitle.textContent = slotB ? slotB.label : "Empty";
+ if (ui.compareBStats) ui.compareBStats.textContent = formatSnapshot(slotB && slotB.snapshot);
+ if (ui.compareBBadge) ui.compareBBadge.textContent = slotB ? "Saved" : "Capture";
+ const cmp = compareSummary();
+ if (ui.compareDeltaTitle) ui.compareDeltaTitle.textContent = cmp.title;
+ if (ui.compareDeltaCopy) ui.compareDeltaCopy.textContent = cmp.copy;
+
+ const teach = teachingPayload();
+ if (ui.teachKicker) ui.teachKicker.textContent = teach.kicker;
+ if (ui.teachTitle) ui.teachTitle.textContent = teach.title;
+ if (ui.teachCopy) ui.teachCopy.textContent = teach.copy;
+ if (ui.teachList) ui.teachList.innerHTML = teach.lesson.map((line) => `<div class="teach-line">${line}</div>`).join("");
+ }
 
  // --- TECHNIQUES ---------------------------------------------------------
  // T155 — Resolution Scaling on Interaction
@@ -2419,6 +2801,8 @@ function generatePoints(shape, n, v) {
  ui.overlays.family.textContent = state.shapeFamily;
  ui.overlays.n.textContent = state.n;
  ui.overlays.mode.textContent = state.mode;
+ renderNarrativePanels();
+ persistLabState();
  
  updateProjection(0);
  }
@@ -2465,6 +2849,8 @@ function generatePoints(shape, n, v) {
 
  // --- CONTROLS ---
  function initUI() {
+ syncPrimaryControls();
+ renderNarrativePanels();
  // Techniques UI
  if (ui.t155Toggle) ui.t155Toggle.checked = !!state.t155Enabled;
  if (ui.t168Toggle) ui.t168Toggle.checked = !!state.t168Enabled;
@@ -2492,6 +2878,7 @@ function generatePoints(shape, n, v) {
 
  ui.shapeSelect.addEventListener("change", e => {
  state.shapeFamily = e.target.value;
+ state.activePresetId = "default-lab";
 
  // Apply per-preset defaults (only for the c1_..c8_ extreme structures)
  const d = PRESET_DEFAULTS[state.shapeFamily];
@@ -2511,12 +2898,38 @@ function generatePoints(shape, n, v) {
  });
  ui.nSlider.addEventListener("input", e => { state.n = parseInt(e.target.value); ui.readouts.n.textContent = state.n; updateGeo(); });
  ui.modeSlider.addEventListener("input", e => { state.mode = parseInt(e.target.value); ui.readouts.mode.textContent = state.mode; updateGeo(); });
- ui.mixSlider.addEventListener("input", e => { state.mix4D = parseFloat(e.target.value); ui.readouts.mix.textContent = state.mix4D; });
+ ui.mixSlider.addEventListener("input", e => { state.mix4D = parseFloat(e.target.value); ui.readouts.mix.textContent = Number(state.mix4D).toFixed(2); renderNarrativePanels(); persistLabState(); });
  ui.densitySlider.addEventListener("input", e => { state.densityScale = parseFloat(e.target.value); ui.readouts.density.textContent = state.densityScale+"x"; updateGeo(); });
+ ui.presetSelect && ui.presetSelect.addEventListener("change", (e) => {
+  state.activePresetId = e.target.value;
+  renderNarrativePanels();
+  persistLabState();
+ });
+ ui.applyPresetBtn && ui.applyPresetBtn.addEventListener("click", () => {
+  const preset = presetById(state.activePresetId);
+  applySnapshot(preset.snapshot, preset.id);
+ });
+ ui.saveBaselineBtn && ui.saveBaselineBtn.addEventListener("click", () => {
+  AUTHORED_PRESETS[0].snapshot = currentSnapshot();
+  state.activePresetId = "default-lab";
+  renderNarrativePanels();
+  persistLabState();
+ });
+ ui.captureABtn && ui.captureABtn.addEventListener("click", () => captureCompare("a"));
+ ui.captureBBtn && ui.captureBBtn.addEventListener("click", () => captureCompare("b"));
+ ui.applyABtn && ui.applyABtn.addEventListener("click", () => {
+  const slot = state.compareSlots.a;
+  if (slot && slot.snapshot) applySnapshot(slot.snapshot);
+ });
+ ui.applyBBtn && ui.applyBBtn.addEventListener("click", () => {
+  const slot = state.compareSlots.b;
+  if (slot && slot.snapshot) applySnapshot(slot.snapshot);
+ });
 
  document.getElementById("btnRandom").addEventListener("click", () => {
  const opts = ui.shapeSelect.options;
  state.shapeFamily = opts[Math.floor(Math.random()*opts.length)].value;
+ state.activePresetId = "default-lab";
  ui.shapeSelect.value = state.shapeFamily;
  state.n = 2 + Math.floor(Math.random()*8);
  ui.nSlider.value = state.n; ui.readouts.n.textContent = state.n;
@@ -2661,6 +3074,7 @@ function generatePoints(shape, n, v) {
  }
 
  // --- BOOT ---
+ loadLabState();
  initThree();
  initUI();
  // P11: force a couple of post-layout resizes (some mobile browsers report 0px on first paint)

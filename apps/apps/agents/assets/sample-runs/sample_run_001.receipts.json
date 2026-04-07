@@ -1,36 +1,156 @@
 {
-  "steps": [
-    {
-      "ts": 0,
-      "event": "agent.start",
-      "agent": "audit-agent"
+  "schemaVersion": "agent-run.v1",
+  "run": {
+    "id": "sample_run_001",
+    "title": "Portfolio structural audit",
+    "status": "completed",
+    "outcome": "success",
+    "agent": {
+      "slug": "audit-agent",
+      "name": "Audit Agent",
+      "pack": "D"
     },
-    {
-      "ts": 1,
-      "event": "scan.files",
-      "count": 42
+    "task": {
+      "summary": "Audit the demo workspace for broken local references and missing assets.",
+      "target": "portfolio sandbox",
+      "templateId": "portfolio-structural-audit"
     },
-    {
-      "ts": 2,
-      "event": "agent.finish",
-      "agent": "audit-agent"
-    }
-  ],
-  "logs": [
-    {
-      "ts": 0,
-      "level": "info",
-      "msg": "Run started",
-      "meta": {
-        "agent": "audit-agent"
+    "policy": {
+      "mode": "enforced",
+      "approval": "not-required",
+      "network": "disabled",
+      "workspace": "/demo/workspaces/portfolio-sandbox"
+    },
+    "startedAt": "2026-04-04T18:22:10Z",
+    "finishedAt": "2026-04-04T18:22:18Z",
+    "durationMs": 8000,
+    "totals": {
+      "steps": 5,
+      "toolCalls": 3,
+      "artifacts": 2,
+      "warnings": 1,
+      "errors": 0
+    },
+    "summary": {
+      "result": "Completed with one warning for relative asset drift in an archived page bundle."
+    },
+    "timeline": [
+      {
+        "id": "step-1",
+        "kind": "phase",
+        "status": "completed",
+        "title": "Initialize run envelope",
+        "detail": "Validated the agent manifest, mounted the allowlisted workspace, and created the run receipt bundle.",
+        "startedAt": "2026-04-04T18:22:10Z",
+        "durationMs": 900,
+        "metrics": {
+          "permissions": 4
+        }
+      },
+      {
+        "id": "step-2",
+        "kind": "tool",
+        "status": "completed",
+        "title": "Enumerate workspace files",
+        "detail": "Indexed the demo workspace to build a local asset map before any checks ran.",
+        "tool": "local.fs.list",
+        "startedAt": "2026-04-04T18:22:11Z",
+        "durationMs": 1600,
+        "metrics": {
+          "files": 42,
+          "directories": 8
+        }
+      },
+      {
+        "id": "step-3",
+        "kind": "tool",
+        "status": "completed",
+        "title": "Scan HTML and CSS references",
+        "detail": "Compared local asset references against discovered files and normalized link targets.",
+        "tool": "local.fs.read",
+        "startedAt": "2026-04-04T18:22:12Z",
+        "durationMs": 2200,
+        "metrics": {
+          "documents": 11,
+          "referencesChecked": 97
+        }
+      },
+      {
+        "id": "step-4",
+        "kind": "decision",
+        "status": "warning",
+        "title": "Flag archived bundle drift",
+        "detail": "One archived page bundle referenced a thumbnail that no longer exists in the sandbox copy.",
+        "startedAt": "2026-04-04T18:22:15Z",
+        "durationMs": 1400,
+        "metrics": {
+          "warnings": 1
+        },
+        "receiptRefs": ["artifacts/audit.report.json"]
+      },
+      {
+        "id": "step-5",
+        "kind": "phase",
+        "status": "completed",
+        "title": "Finalize receipts",
+        "detail": "Bundled the audit report and asset matrix for later review in the inspector.",
+        "startedAt": "2026-04-04T18:22:17Z",
+        "durationMs": 1900,
+        "metrics": {
+          "artifacts": 2
+        }
       }
-    }
-  ],
-  "artifacts": [
-    {
-      "ts": 2,
-      "type": "json",
-      "path": "artifacts/audit.report.json"
-    }
-  ]
+    ],
+    "artifacts": [
+      {
+        "type": "json",
+        "label": "audit.report.json",
+        "path": "artifacts/audit.report.json",
+        "status": "completed",
+        "summary": "Structured audit output with missing references, drift warnings, and remediation notes."
+      },
+      {
+        "type": "csv",
+        "label": "asset-matrix.csv",
+        "path": "artifacts/asset-matrix.csv",
+        "status": "completed",
+        "summary": "Flattened matrix of every inspected file and the local assets it referenced."
+      }
+    ],
+    "logs": [
+      {
+        "level": "info",
+        "msg": "Run started",
+        "meta": {
+          "agent": "audit-agent",
+          "workspace": "portfolio-sandbox"
+        }
+      },
+      {
+        "level": "info",
+        "msg": "Workspace index ready",
+        "meta": {
+          "files": 42,
+          "directories": 8
+        }
+      },
+      {
+        "level": "warning",
+        "msg": "Archived bundle contains one missing thumbnail reference",
+        "meta": {
+          "file": "archive/case-study/index.html"
+        }
+      }
+    ],
+    "checks": [
+      {
+        "label": "Workspace scope enforced",
+        "status": "passed"
+      },
+      {
+        "label": "Network remained disabled",
+        "status": "passed"
+      }
+    ]
+  }
 }

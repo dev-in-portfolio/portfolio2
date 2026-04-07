@@ -8,7 +8,7 @@
 <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
 <meta content="dark" name="color-scheme"/>
 <link href="/assets/icon/transit/transit-3d-orb.svg" rel="icon" type="image/svg+xml"/>
-<link href="../../icon-512.png" rel="apple-touch-icon"/>
+<link href="/icon-512.png" rel="apple-touch-icon"/>
 <!-- Three.js CDN (Primary) -->
 <script onerror="window.threeError=true" src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 <!-- Three.js CDN (Backup) -->
@@ -140,6 +140,293 @@
     .graph-card {
       background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px;
       padding: 10px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .mission-card,
+    .waypoint-card,
+    .context-card {
+      background: rgba(0,0,0,0.34);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .mission-head,
+    .context-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .mission-kicker,
+    .context-kicker,
+    .waypoint-kicker {
+      font-size: 0.66rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .mission-title,
+    .context-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .mission-status-chip,
+    .context-chip {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.45);
+      background: rgba(56,189,248,0.1);
+      color: var(--accent);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .mission-copy,
+    .context-copy,
+    .waypoint-copy {
+      font-size: 0.77rem;
+      line-height: 1.45;
+      color: #cbd5f5;
+    }
+    .mission-metrics,
+    .waypoint-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .mission-metric,
+    .waypoint-pill {
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.24);
+      background: rgba(15,23,42,0.72);
+      padding: 8px 10px;
+    }
+    .mission-metric-label,
+    .waypoint-pill-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .mission-metric-value,
+    .waypoint-pill-value {
+      margin-top: 2px;
+      font-size: 0.82rem;
+      color: #fff;
+      font-weight: 700;
+    }
+    .mission-step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mission-step {
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.18);
+      background: rgba(15,23,42,0.7);
+      padding: 10px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+    .mission-step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.35);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+    .mission-step.active {
+      border-color: rgba(56,189,248,0.55);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.18);
+    }
+    .mission-step.active .mission-step-index {
+      border-color: rgba(56,189,248,0.8);
+      color: #fff;
+      background: rgba(56,189,248,0.18);
+    }
+    .mission-step.done {
+      border-color: rgba(34,197,94,0.45);
+    }
+    .mission-step.done .mission-step-index {
+      border-color: rgba(34,197,94,0.8);
+      color: #dcfce7;
+      background: rgba(34,197,94,0.16);
+    }
+    .mission-step-title {
+      font-size: 0.76rem;
+      color: #fff;
+      font-weight: 700;
+    }
+    .mission-step-copy {
+      margin-top: 3px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .mission-step-hint {
+      margin-top: 4px;
+      font-size: 0.68rem;
+      color: #7dd3fc;
+    }
+    .mission-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mission-note {
+      font-size: 0.7rem;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+    .mission-log {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .mission-log-line {
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.18);
+      background: rgba(15,23,42,0.64);
+      padding: 8px 10px;
+      font-size: 0.68rem;
+      line-height: 1.35;
+      color: #dbeafe;
+    }
+    .mission-log-line strong {
+      color: #fff;
+    }
+    .waypoint-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .waypoint-btn {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.22);
+      background: rgba(15,23,42,0.78);
+      color: #e5e7eb;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .waypoint-btn.active {
+      border-color: rgba(56,189,248,0.62);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.2);
+      background: rgba(8,47,73,0.65);
+    }
+    .waypoint-btn:hover {
+      background: rgba(30,41,59,0.86);
+    }
+    .waypoint-btn-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .waypoint-btn-copy {
+      margin-top: 3px;
+      font-size: 0.69rem;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+    .waypoint-btn-label {
+      font-size: 0.63rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .context-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .context-line {
+      border-left: 2px solid rgba(56,189,248,0.6);
+      padding-left: 10px;
+      font-size: 0.72rem;
+      color: #dbeafe;
+      line-height: 1.35;
+    }
+    .context-focus {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .context-focus-item {
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.22);
+      background: rgba(15,23,42,0.72);
+      padding: 8px 9px;
+    }
+    .context-focus-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .context-focus-value {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .viewport-story {
+      max-width: min(360px, calc(100% - 24px));
+      align-self: flex-end;
+      background: rgba(3, 7, 18, 0.82);
+      border: 1px solid rgba(148,163,184,0.24);
+      border-radius: 16px;
+      padding: 12px 14px;
+      backdrop-filter: blur(12px);
+      pointer-events: auto;
+      box-shadow: 0 18px 45px rgba(2,6,23,0.55);
+    }
+    .viewport-story-kicker {
+      font-size: 0.63rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .viewport-story-title {
+      margin-top: 4px;
+      font-size: 0.86rem;
+      color: #fff;
+      font-weight: 700;
+    }
+    .viewport-story-copy {
+      margin-top: 6px;
+      font-size: 0.73rem;
+      line-height: 1.38;
+      color: #dbeafe;
+    }
+    .viewport-story-meta {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .viewport-story-meta span {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.24);
+      background: rgba(15,23,42,0.8);
+      font-size: 0.64rem;
+      color: #cbd5f5;
     }
     .graph-header { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
     #fluxCanvas { width: 100%; height: 140px; background: #020617; border-radius: 8px; }
@@ -804,6 +1091,15 @@ html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -w
 <div class="badge-row">
 <div class="badge"><div class="dot"></div><span id="sysName">KEPLER-186</span></div>
 </div>
+<div class="viewport-story" id="viewportStory">
+<div class="viewport-story-kicker" id="viewportStoryKicker">Transit Story</div>
+<div class="viewport-story-title" id="viewportStoryTitle">Acquire the crossing</div>
+<div class="viewport-story-copy" id="viewportStoryCopy">Lock onto the planet crossing the stellar disk. When the orbit lines up, the flux trace dips because the planet is removing observable starlight.</div>
+<div class="viewport-story-meta" id="viewportStoryMeta">
+<span id="storyWaypointMeta">Waypoint · Observer deck</span>
+<span id="storyMissionMeta">Mission · Alignment drill</span>
+</div>
+</div>
 <div class="sys-meta" id="sysMeta">M-dwarf · Earth-size planet</div>
 </div>
 </div>
@@ -815,6 +1111,36 @@ html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -w
 <span class="flux-val" id="fluxReadout">1.00000</span>
 </div>
 <canvas id="fluxCanvas"></canvas>
+</div>
+<div class="mission-card">
+<div class="mission-head">
+<div>
+<div class="mission-kicker">Mission Control</div>
+<div class="mission-title" id="missionTitle">Alignment Drill</div>
+</div>
+<div class="mission-status-chip" id="missionStatusChip">Step 1 / 3</div>
+</div>
+<div class="mission-copy" id="missionCopy">Follow the crossing from acquisition to transit dip, then land on the best observer viewpoint.</div>
+<div class="mission-metrics">
+<div class="mission-metric">
+<div class="mission-metric-label">Target</div>
+<div class="mission-metric-value" id="missionTarget">Kepler-186</div>
+</div>
+<div class="mission-metric">
+<div class="mission-metric-label">Status</div>
+<div class="mission-metric-value" id="missionSignal">Awaiting dip</div>
+</div>
+</div>
+<div class="mission-step-list" id="missionStepList"></div>
+<div class="btn-row">
+<button class="btn" id="missionAdvanceBtn" type="button">MARK CHECKPOINT</button>
+<button class="btn" id="missionCycleBtn" type="button">NEXT MISSION</button>
+<button class="btn" id="missionReplayBtn" type="button">CINEMATIC ROUTE</button>
+</div>
+<div class="mission-footer">
+<div class="mission-note" id="missionNote">Complete the current checkpoint naturally, or force a checkpoint if you just want to walk the route.</div>
+<div class="mission-log" id="missionLog"></div>
+</div>
 </div>
 <!-- CONTROLS -->
 <div class="panel-section">
@@ -859,6 +1185,36 @@ html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -w
 <span id="realTargetLabel" style="padding:6px; color:#888;">NASA Data: Loading...</span>
 <button class="btn" onclick="app.cycleReal(1)" style="width:auto;">▶</button>
 </div>
+</div>
+<div class="waypoint-card">
+<div class="waypoint-kicker">Scene States</div>
+<div class="waypoint-copy" id="waypointCopy">Jump between authored viewpoints so the lab feels like a guided route, not a free camera toy.</div>
+<div class="waypoint-list" id="waypointList"></div>
+</div>
+<div class="context-card">
+<div class="context-head">
+<div>
+<div class="context-kicker">Context Overlay</div>
+<div class="context-title" id="contextTitle">Transit geometry online</div>
+</div>
+<div class="context-chip" id="contextChip">Observer deck</div>
+</div>
+<div class="context-copy" id="contextCopy">The current camera angle is showing the full lane. Watch for the flux dip when the planet crosses the brightest part of the star.</div>
+<div class="context-focus">
+<div class="context-focus-item">
+<div class="context-focus-label">Flux</div>
+<div class="context-focus-value" id="contextFlux">1.00000</div>
+</div>
+<div class="context-focus-item">
+<div class="context-focus-label">Impact</div>
+<div class="context-focus-value" id="contextImpact">0.10</div>
+</div>
+<div class="context-focus-item">
+<div class="context-focus-label">Mode</div>
+<div class="context-focus-value" id="contextMode">Calm</div>
+</div>
+</div>
+<div class="context-list" id="contextList"></div>
 </div>
 </aside></div>
 </div>
@@ -980,6 +1336,79 @@ const app = (function(){
     "TRAPPIST-1": { color:0xf97316, starType:"Ultra-cool", desc:"7 Earth-sized planets", rpRs:0.12, baseSpeed:1.4 },
     "HD 209458":  { color:0xfde68a, starType:"Sun-like", desc:"Hot Jupiter + Rings", rpRs:0.15, baseSpeed:0.7 }
   };
+  const WAYPOINTS = {
+    observer: {
+      label: "Observer deck",
+      camera: [0, 2, 12],
+      target: [0, 0.5, 0],
+      summary: "The full lane is visible here, which makes it the cleanest place to understand the whole transit.",
+      telemetry: "Wide geometry",
+      contextTitle: "Observer deck online",
+      contextCopy: "This authored view keeps the whole orbit lane visible so you can see cause and effect: alignment first, brightness dip second."
+    },
+    ingress: {
+      label: "Ingress gate",
+      camera: [5.2, 1.4, 8.2],
+      target: [0.8, 0.15, 0],
+      summary: "A forward angle that emphasizes the moment the planet starts cutting into the stellar disk.",
+      telemetry: "Ingress focus",
+      contextTitle: "Ingress geometry",
+      contextCopy: "From this angle the transit begins to read like an event. You can see the planet approaching the star and anticipate the first measurable loss of flux."
+    },
+    edge: {
+      label: "Edge track",
+      camera: [-7.2, 3.6, 6.6],
+      target: [0, 0.15, 0],
+      summary: "The off-axis track makes the impact parameter obvious: lower crossings produce deeper, cleaner signals.",
+      telemetry: "Impact lane",
+      contextTitle: "Impact parameter view",
+      contextCopy: "This waypoint is about path quality. A low impact transit crosses brighter stellar territory and usually produces a stronger, more legible light-curve dip."
+    },
+    starline: {
+      label: "Stellar face",
+      camera: [0.9, 0.8, 5.4],
+      target: [0, 0.15, 0],
+      summary: "A close front-on lane that makes the crossing and dip feel immediate.",
+      telemetry: "Front transit",
+      contextTitle: "Stellar face transit",
+      contextCopy: "This is the dramatic shot. The planet is large in frame, the stellar disk fills the viewport, and the transit reads as a visible eclipse instead of a remote orbit."
+    }
+  };
+  const MISSIONS = [
+    {
+      id: "alignment-drill",
+      title: "Alignment Drill",
+      target: "Kepler-186",
+      summary: "Follow one clean transit from wide acquisition to the moment the signal dips.",
+      steps: [
+        { title: "Acquire the lane", hint: "Jump to Observer deck and keep the full orbit visible.", waypoint: "observer", signal: "Geometry framed", completeWhen: { system: "Kepler-186", waypoint: "observer" } },
+        { title: "Catch ingress", hint: "Move to Ingress gate and watch the planet approach the stellar face.", waypoint: "ingress", signal: "Ingress forming", completeWhen: { system: "Kepler-186", waypoint: "ingress" } },
+        { title: "Read the dip", hint: "Use Stellar face or wait for flux below 0.995 to confirm the crossing.", waypoint: "starline", signal: "Dip confirmed", completeWhen: { system: "Kepler-186", waypoint: "starline", fluxBelow: 0.995 } }
+      ]
+    },
+    {
+      id: "impact-chase",
+      title: "Impact Chase",
+      target: "TRAPPIST-1",
+      summary: "Stress the transit path and compare a cleaner low-impact pass against a shallower skim.",
+      steps: [
+        { title: "Switch systems", hint: "Load TRAPPIST-1 to tighten cadence and deepen the lab’s rhythm.", system: "TRAPPIST-1", waypoint: "observer", signal: "Fast cadence", completeWhen: { system: "TRAPPIST-1", waypoint: "observer" } },
+        { title: "Inspect the edge", hint: "Visit Edge track and lower impact toward a cleaner lane if needed.", waypoint: "edge", signal: "Impact under review", completeWhen: { system: "TRAPPIST-1", waypoint: "edge" } },
+        { title: "Lock a stronger pass", hint: "Aim for impact 0.20 or lower and let the dip read clearly.", waypoint: "starline", signal: "Low-impact route", completeWhen: { system: "TRAPPIST-1", waypoint: "starline", impactMax: 20, fluxBelow: 0.9955 } }
+      ]
+    },
+    {
+      id: "cinematic-pass",
+      title: "Cinematic Pass",
+      target: "HD 209458",
+      summary: "Turn the lab into a guided showcase with a heavier signal and authored camera jumps.",
+      steps: [
+        { title: "Load the hot Jupiter", hint: "Switch to HD 209458 for the larger, louder transit.", system: "HD 209458", waypoint: "observer", signal: "Heavy target loaded", completeWhen: { system: "HD 209458", waypoint: "observer" } },
+        { title: "Push presentation energy", hint: "Try Extreme mode and keep Auto Cam online.", visualMode: "extreme", waypoint: "ingress", signal: "Presentation energy", completeWhen: { system: "HD 209458", waypoint: "ingress", visualMode: "extreme" } },
+        { title: "Finish on the stellar face", hint: "Use Stellar face to land the close-up and read the dip as a product moment.", waypoint: "starline", signal: "Showcase ready", completeWhen: { system: "HD 209458", waypoint: "starline", visualMode: "extreme", fluxBelow: 0.996 } }
+      ]
+    }
+  ];
   
   const state = {
     sys: "Kepler-186",
@@ -990,7 +1419,13 @@ const app = (function(){
     activePersona: 'coach',
     theme: 'cosmic',
     visualMode: 'calm',
-    log: []
+    log: [],
+    missionIndex: 0,
+    missionStep: 0,
+    activeWaypoint: 'observer',
+    missionProgress: {},
+    missionLog: [],
+    cinematicReplay: false
   };
   const STORAGE_KEY = 'transit3d.lab.v1';
 
@@ -1025,6 +1460,9 @@ const app = (function(){
     "That idea just triggered the anomaly detector.",
     "Results may vary. Your mileage definitely did."
   ];
+  let _lastFlux = 1.0;
+  let _cameraTween = null;
+  let _cinematicTimer = null;
 
   function persistState() {
     try {
@@ -1036,7 +1474,12 @@ const app = (function(){
         presentationMode: !!state.presentationMode,
         theme: state.theme || 'cosmic',
         activePersona: state.activePersona,
-        visualMode: state.visualMode || 'calm'
+        visualMode: state.visualMode || 'calm',
+        missionIndex: state.missionIndex || 0,
+        missionStep: state.missionStep || 0,
+        activeWaypoint: state.activeWaypoint || 'observer',
+        missionProgress: state.missionProgress || {},
+        missionLog: state.missionLog || []
       };
       window.localStorage && localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch (e) {
@@ -1058,6 +1501,11 @@ const app = (function(){
       if (saved.theme) state.theme = saved.theme;
       if (saved.activePersona) state.activePersona = saved.activePersona;
       if (saved.visualMode) state.visualMode = saved.visualMode;
+      if (Number.isInteger(saved.missionIndex)) state.missionIndex = Math.max(0, Math.min(MISSIONS.length - 1, saved.missionIndex));
+      if (Number.isInteger(saved.missionStep)) state.missionStep = Math.max(0, saved.missionStep);
+      if (saved.activeWaypoint && WAYPOINTS[saved.activeWaypoint]) state.activeWaypoint = saved.activeWaypoint;
+      if (saved.missionProgress && typeof saved.missionProgress === 'object') state.missionProgress = saved.missionProgress;
+      if (Array.isArray(saved.missionLog)) state.missionLog = saved.missionLog.slice(0, 8);
     } catch(e) {
       // ignore
     }
@@ -1265,6 +1713,7 @@ const app = (function(){
 
   function animate() {
     requestAnimationFrame(animate);
+    const now = performance.now();
     
     if(!state.paused) {
        const spd = state.params.speed / 2000;
@@ -1285,9 +1734,18 @@ const app = (function(){
        
        const noise = (state.params.noise / 5000) * (Math.random()-0.5);
        flux += noise;
+       _lastFlux = flux;
        
        updateFluxGraph(flux);
        updateFluxAudio(flux);
+       renderContextOverlay(flux);
+    }
+
+    if (_cameraTween && camera && controls) {
+      const t = Math.min(1, (now - _cameraTween.start) / _cameraTween.duration);
+      camera.position.lerpVectors(_cameraTween.fromPos, _cameraTween.toPos, t);
+      controls.target.lerpVectors(_cameraTween.fromTarget, _cameraTween.toTarget, t);
+      if (t >= 1) _cameraTween = null;
     }
 
     if(state.autoOrbit && controls) controls.update();
@@ -1472,17 +1930,21 @@ const app = (function(){
      document.querySelectorAll('.sys-btn').forEach(b => {
         b.classList.toggle('active', b.innerText.includes(key.split(' ')[0].toUpperCase()));
      });
+     renderMissionPanel();
+     renderContextOverlay(_lastFlux);
      try { logEvent('system', key); persistState(); } catch(e){}
   }
 
   function togglePause() {
      state.paused = !state.paused;
+     renderContextOverlay(_lastFlux);
      try { persistState(); } catch(e){}
   }
 
   function toggleAuto() {
      state.autoOrbit = !state.autoOrbit;
      if(controls) controls.autoRotate = state.autoOrbit;
+     renderContextOverlay(_lastFlux);
      try { persistState(); } catch(e){}
   }
 
@@ -1590,7 +2052,281 @@ const app = (function(){
       audio.byteGain.gain.linearRampToValueAtTime(targetByte, now + 0.4);
     }
 
+    renderContextOverlay(_lastFlux);
     try { logEvent('visualMode', mode); persistState(); } catch(e){}
+  }
+
+  function currentMission() {
+    return MISSIONS[state.missionIndex] || MISSIONS[0];
+  }
+
+  function missionRecord(id) {
+    if (!state.missionProgress[id]) {
+      state.missionProgress[id] = { completed: false, completedAt: null, runs: 0, completedSteps: {} };
+    }
+    if (!state.missionProgress[id].completedSteps) state.missionProgress[id].completedSteps = {};
+    return state.missionProgress[id];
+  }
+
+  function clampMissionStep() {
+    const mission = currentMission();
+    if (!mission) return;
+    state.missionStep = Math.max(0, Math.min(mission.steps.length - 1, state.missionStep || 0));
+  }
+
+  function tweenCameraTo(position, target) {
+    if (!camera || !controls || !Array.isArray(position) || !Array.isArray(target)) return;
+    _cameraTween = {
+      start: performance.now(),
+      duration: 900,
+      fromPos: camera.position.clone(),
+      toPos: new THREE.Vector3(position[0], position[1], position[2]),
+      fromTarget: controls.target.clone(),
+      toTarget: new THREE.Vector3(target[0], target[1], target[2])
+    };
+  }
+
+  function jumpToWaypoint(id) {
+    const waypoint = WAYPOINTS[id];
+    if (!waypoint) return;
+    state.activeWaypoint = id;
+    tweenCameraTo(waypoint.camera, waypoint.target);
+    renderWaypoints();
+    renderMissionPanel();
+    renderContextOverlay(_lastFlux);
+    try { logEvent('waypoint', id); persistState(); } catch(e){}
+  }
+
+  function setMission(index) {
+    if (state.cinematicReplay) finishMissionReplay();
+    state.missionIndex = (index + MISSIONS.length) % MISSIONS.length;
+    state.missionStep = 0;
+    const mission = currentMission();
+    const record = missionRecord(mission.id);
+    if (mission && mission.target && SYSTEMS[mission.target]) {
+      setSystem(mission.target);
+    }
+    const firstStep = mission && mission.steps && mission.steps[0];
+    if (firstStep && firstStep.visualMode) setVisualMode(firstStep.visualMode);
+    if (firstStep && firstStep.waypoint) jumpToWaypoint(firstStep.waypoint);
+    renderMissionPanel();
+    renderContextOverlay(_lastFlux);
+    try {
+      if (record.completed) pushMissionLog(`${mission.title}: replay queued.`);
+      logEvent('mission', mission ? mission.id : index);
+      persistState();
+    } catch(e){}
+  }
+
+  function maybeApplyMissionStep(step) {
+    if (!step) return;
+    if (step.system && step.system !== state.sys && SYSTEMS[step.system]) {
+      setSystem(step.system);
+    }
+    if (step.visualMode && step.visualMode !== state.visualMode) {
+      setVisualMode(step.visualMode);
+    }
+    if (step.waypoint && step.waypoint !== state.activeWaypoint) {
+      jumpToWaypoint(step.waypoint);
+    }
+  }
+
+  function stepCriteriaMet(step) {
+    if (!step) return false;
+    const req = step.completeWhen || {};
+    if (req.system && state.sys !== req.system) return false;
+    if (req.waypoint && state.activeWaypoint !== req.waypoint) return false;
+    if (req.visualMode && state.visualMode !== req.visualMode) return false;
+    if (typeof req.impactMax === 'number' && state.params.imp > req.impactMax) return false;
+    if (typeof req.fluxBelow === 'number' && _lastFlux > req.fluxBelow) return false;
+    return true;
+  }
+
+  function pushMissionLog(message) {
+    state.missionLog.unshift({
+      ts: Date.now(),
+      message
+    });
+    state.missionLog = state.missionLog.slice(0, 6);
+  }
+
+  function completeMissionIfNeeded() {
+    const mission = currentMission();
+    const step = mission.steps[state.missionStep];
+    const record = missionRecord(mission.id);
+    if (record.completedSteps[state.missionStep]) return false;
+    if (!stepCriteriaMet(step)) return false;
+    record.completedSteps[state.missionStep] = Date.now();
+    if (state.missionStep < mission.steps.length - 1) {
+      pushMissionLog(`${mission.title}: checkpoint ${state.missionStep + 1} cleared.`);
+      state.missionStep += 1;
+      maybeApplyMissionStep(mission.steps[state.missionStep]);
+    } else {
+      record.completed = true;
+      record.completedAt = Date.now();
+      record.runs = (record.runs || 0) + 1;
+      pushMissionLog(`${mission.title}: route completed.`);
+    }
+    renderMissionPanel();
+    renderContextOverlay(_lastFlux);
+    try { logEvent('mission-complete', `${mission.id}:${state.missionStep}`); persistState(); } catch(e){}
+    return true;
+  }
+
+  function forceCheckpoint() {
+    const mission = currentMission();
+    const record = missionRecord(mission.id);
+    record.completedSteps[state.missionStep] = Date.now();
+    if (state.missionStep < mission.steps.length - 1) {
+      state.missionStep += 1;
+      maybeApplyMissionStep(mission.steps[state.missionStep]);
+      pushMissionLog(`${mission.title}: checkpoint forced forward.`);
+    } else {
+      record.completed = true;
+      record.completedAt = Date.now();
+      record.runs = (record.runs || 0) + 1;
+      pushMissionLog(`${mission.title}: route forced complete.`);
+    }
+    renderMissionPanel();
+    renderContextOverlay(_lastFlux);
+    try { logEvent('mission-force', `${mission.id}:${state.missionStep}`); persistState(); } catch(e){}
+  }
+
+  function advanceMissionStep() {
+    if (completeMissionIfNeeded()) return;
+    forceCheckpoint();
+  }
+
+  function getMissionSignal(step) {
+    if (!step) return 'Awaiting route';
+    if (state.sys !== (step.system || currentMission().target)) return 'Target mismatch';
+    if (step.waypoint && state.activeWaypoint !== step.waypoint) return 'Move to waypoint';
+    if (step.visualMode && state.visualMode !== step.visualMode) return 'Adjust visual mode';
+    if (_lastFlux < 0.995) return 'Dip confirmed';
+    if (state.params.imp <= 20) return step.signal || 'Transit aligned';
+    return step.signal || 'Tracking transit';
+  }
+
+  function renderMissionPanel() {
+    clampMissionStep();
+    const mission = currentMission();
+    if (!mission) return;
+    const record = missionRecord(mission.id);
+    const activeStep = mission.steps[state.missionStep];
+    const title = document.getElementById('missionTitle');
+    const copy = document.getElementById('missionCopy');
+    const chip = document.getElementById('missionStatusChip');
+    const target = document.getElementById('missionTarget');
+    const signal = document.getElementById('missionSignal');
+    const list = document.getElementById('missionStepList');
+    const note = document.getElementById('missionNote');
+    const log = document.getElementById('missionLog');
+    const advanceBtn = document.getElementById('missionAdvanceBtn');
+    const replayBtn = document.getElementById('missionReplayBtn');
+    if (title) title.textContent = mission.title;
+    if (copy) copy.textContent = mission.summary;
+    if (chip) chip.textContent = record.completed ? 'Route complete' : `Step ${state.missionStep + 1} / ${mission.steps.length}`;
+    if (target) target.textContent = mission.target;
+    if (signal) signal.textContent = record.completed ? `Completed ${record.runs || 1}x` : getMissionSignal(activeStep);
+    if (note) {
+      note.textContent = record.completed
+        ? 'This mission is logged as completed. Replay it cinematically or move to the next authored route.'
+        : (stepCriteriaMet(activeStep)
+          ? 'The current checkpoint conditions are met. Mark it to advance cleanly.'
+          : 'Complete the current checkpoint naturally, or force a checkpoint if you just want to walk the route.');
+    }
+    if (advanceBtn) {
+      advanceBtn.textContent = record.completed ? 'REPLAY COMPLETE' : (stepCriteriaMet(activeStep) ? 'MARK CHECKPOINT' : 'FORCE CHECKPOINT');
+    }
+    if (replayBtn) {
+      replayBtn.textContent = state.cinematicReplay ? 'ROUTE RUNNING' : 'CINEMATIC ROUTE';
+      replayBtn.classList.toggle('active', !!state.cinematicReplay);
+    }
+    if (list) {
+      list.innerHTML = mission.steps.map((step, index) => {
+        const isDone = !!record.completedSteps[index] || (record.completed && index === mission.steps.length - 1);
+        const cls = isDone ? 'mission-step done' : (index === state.missionStep ? 'mission-step active' : 'mission-step');
+        return `
+<div class="${cls}">
+  <div class="mission-step-index">${isDone ? '✓' : index + 1}</div>
+  <div>
+    <div class="mission-step-title">${step.title}</div>
+    <div class="mission-step-copy">${step.hint}</div>
+    <div class="mission-step-hint">${step.signal || 'Transit checkpoint'}</div>
+  </div>
+</div>`;
+      }).join('');
+    }
+    if (log) {
+      const entries = state.missionLog.length ? state.missionLog : [{ message: 'No route completions yet. The lab will start logging checkpoints here.', ts: null }];
+      log.innerHTML = entries.map((entry) => {
+        const ts = entry.ts ? new Date(entry.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'LOG';
+        return `<div class="mission-log-line"><strong>${ts}</strong> ${entry.message}</div>`;
+      }).join('');
+    }
+  }
+
+  function renderWaypoints() {
+    const list = document.getElementById('waypointList');
+    if (!list) return;
+    list.innerHTML = Object.entries(WAYPOINTS).map(([id, waypoint]) => `
+<button class="waypoint-btn ${state.activeWaypoint === id ? 'active' : ''}" data-waypoint="${id}" type="button">
+  <div>
+    <div class="waypoint-btn-title">${waypoint.label}</div>
+    <div class="waypoint-btn-copy">${waypoint.summary}</div>
+  </div>
+  <div class="waypoint-btn-label">${waypoint.telemetry}</div>
+</button>`).join('');
+    list.querySelectorAll('[data-waypoint]').forEach((btn) => {
+      btn.addEventListener('click', () => jumpToWaypoint(btn.getAttribute('data-waypoint')));
+    });
+    const active = WAYPOINTS[state.activeWaypoint] || WAYPOINTS.observer;
+    const copy = document.getElementById('waypointCopy');
+    if (copy) copy.textContent = active.summary;
+  }
+
+  function buildContextLines(flux) {
+    const impact = (state.params.imp / 100).toFixed(2);
+    const noise = `${state.params.noise}%`;
+    const dip = (1 - flux) * 100;
+    const mission = currentMission();
+    const activeStep = mission.steps[state.missionStep];
+    return [
+      `Current mission step: ${activeStep.title}.`,
+      dip > 0.25 ? `The light curve is in a live dip, down ${dip.toFixed(2)}% from baseline.` : `Flux is near baseline, so you are still in the setup or post-crossing phase.`,
+      `Impact parameter is ${impact}, which ${state.params.imp <= 20 ? 'supports a cleaner, deeper crossing.' : 'pushes the planet toward a shallower edge track.'}`,
+      `Noise is running at ${noise}, so ${state.params.noise <= 12 ? 'the signal is fairly legible.' : 'the transit story needs more interpretation.'}`
+    ];
+  }
+
+  function renderContextOverlay(flux) {
+    const waypoint = WAYPOINTS[state.activeWaypoint] || WAYPOINTS.observer;
+    const mission = currentMission();
+    const lines = buildContextLines(flux);
+    const title = document.getElementById('contextTitle');
+    const copy = document.getElementById('contextCopy');
+    const chip = document.getElementById('contextChip');
+    const list = document.getElementById('contextList');
+    const fluxEl = document.getElementById('contextFlux');
+    const impactEl = document.getElementById('contextImpact');
+    const modeEl = document.getElementById('contextMode');
+    const storyKick = document.getElementById('viewportStoryKicker');
+    const storyTitle = document.getElementById('viewportStoryTitle');
+    const storyCopy = document.getElementById('viewportStoryCopy');
+    const storyWaypoint = document.getElementById('storyWaypointMeta');
+    const storyMission = document.getElementById('storyMissionMeta');
+    if (title) title.textContent = waypoint.contextTitle;
+    if (copy) copy.textContent = waypoint.contextCopy;
+    if (chip) chip.textContent = waypoint.label;
+    if (fluxEl) fluxEl.textContent = flux.toFixed(5);
+    if (impactEl) impactEl.textContent = (state.params.imp / 100).toFixed(2);
+    if (modeEl) modeEl.textContent = (state.visualMode || 'calm').replace(/^./, (s) => s.toUpperCase());
+    if (list) list.innerHTML = lines.map((line) => `<div class="context-line">${line}</div>`).join('');
+    if (storyKick) storyKick.textContent = `Mission // ${mission.title}`;
+    if (storyTitle) storyTitle.textContent = mission.steps[state.missionStep].title;
+    if (storyCopy) storyCopy.textContent = lines[1];
+    if (storyWaypoint) storyWaypoint.textContent = `Waypoint · ${waypoint.label}`;
+    if (storyMission) storyMission.textContent = `Signal · ${getMissionSignal(mission.steps[state.missionStep])}`;
   }
 
   // --- INPUT WIRING ---
@@ -1649,6 +2385,11 @@ const app = (function(){
 
   function resetLab() {
      state.params = { noise:10, speed:20, rad:100, imp:10 };
+     syncParamsUI();
+     try { logEvent('reset', 'lab'); persistState(); } catch(e){}
+  }
+
+  function syncParamsUI() {
      const bindings = [
        ['noiseSlider','noiseVal','noise', v=>v+'%'],
        ['speedSlider','speedVal','speed', v=>(v/10).toFixed(1)+'x'],
@@ -1662,7 +2403,13 @@ const app = (function(){
         if(el) el.value = val;
         if(lab) lab.textContent = fmt(val);
      });
-     try { logEvent('reset', 'lab'); persistState(); } catch(e){}
+  }
+
+  function setParamValue(key, value) {
+     state.params[key] = value;
+     syncParamsUI();
+     renderContextOverlay(_lastFlux);
+     try { persistState(); } catch(e){}
   }
 
   function sendRobotPrompt(text) {
@@ -1855,7 +2602,14 @@ const app = (function(){
 
      setupCursorGlow();
      setupKonami();
-  }
+
+     const advanceBtn = document.getElementById('missionAdvanceBtn');
+     if (advanceBtn) advanceBtn.addEventListener('click', advanceMissionStep);
+     const cycleBtn = document.getElementById('missionCycleBtn');
+     if (cycleBtn) cycleBtn.addEventListener('click', () => setMission(state.missionIndex + 1));
+     const replayBtn = document.getElementById('missionReplayBtn');
+     if (replayBtn) replayBtn.addEventListener('click', runMissionReplay);
+   }
 
   // Splash helpers
   function showSplashStage2() {
@@ -1880,6 +2634,60 @@ const app = (function(){
   }
 
   let _showtimeRunning = false;
+  function finishMissionReplay() {
+    if (_cinematicTimer) {
+      clearTimeout(_cinematicTimer);
+      _cinematicTimer = null;
+    }
+    state.cinematicReplay = false;
+    renderMissionPanel();
+    try { setStatusPill && setStatusPill('idle', 'LIVE SENSOR FEED'); } catch(e){}
+  }
+
+  function runMissionReplay() {
+    if (state.cinematicReplay) return;
+    const mission = currentMission();
+    const record = missionRecord(mission.id);
+    state.cinematicReplay = true;
+    state.missionStep = 0;
+    renderMissionPanel();
+    try { setStatusPill && setStatusPill('showtime', 'ROUTE REPLAY'); } catch(e){}
+    try { logEvent('route-replay', mission.id); } catch(e){}
+
+    let stepIndex = 0;
+    const playStep = () => {
+      const step = mission.steps[stepIndex];
+      if (!step) {
+        record.completed = true;
+        record.completedAt = Date.now();
+        record.runs = (record.runs || 0) + 1;
+        pushMissionLog(`${mission.title}: cinematic replay completed.`);
+        renderMissionPanel();
+        renderContextOverlay(_lastFlux);
+        finishMissionReplay();
+        try { persistState(); } catch(e){}
+        return;
+      }
+
+      state.missionStep = stepIndex;
+      maybeApplyMissionStep(step);
+      if (step.completeWhen && typeof step.completeWhen.impactMax === 'number' && state.params.imp > step.completeWhen.impactMax) {
+        setParamValue('imp', step.completeWhen.impactMax);
+      }
+      if (step.completeWhen && typeof step.completeWhen.fluxBelow === 'number' && planetGroup) {
+        planetGroup.rotation.y = 0;
+      }
+      record.completedSteps[stepIndex] = Date.now();
+      renderMissionPanel();
+      renderContextOverlay(_lastFlux);
+
+      stepIndex += 1;
+      _cinematicTimer = setTimeout(playStep, step.completeWhen && typeof step.completeWhen.fluxBelow === 'number' ? 1800 : 1300);
+    };
+
+    playStep();
+  }
+
   function runShowtime() {
     if(_showtimeRunning) return;
     _showtimeRunning = true;
@@ -1977,6 +2785,17 @@ const app = (function(){
     try { loadNasaData(); } catch(e){}
     try { setStatusPill('idle', 'LIVE SENSOR FEED'); } catch(e){}
     try { setVisualMode(state.visualMode || 'calm'); } catch(e){}
+    try { renderWaypoints(); } catch(e){}
+    try {
+      clampMissionStep();
+      renderMissionPanel();
+      if (WAYPOINTS[state.activeWaypoint]) {
+        jumpToWaypoint(state.activeWaypoint);
+      } else {
+        jumpToWaypoint('observer');
+      }
+    } catch(e){}
+    try { renderContextOverlay(_lastFlux); } catch(e){}
 
     // Fallback: if Three.js failed, still remove boot and show splash
     try {
@@ -2023,6 +2842,7 @@ const app = (function(){
       resetLab,
       sendRobotPrompt,
       setVisualMode,
+      replayMission: runMissionReplay,
       showtime: runShowtime
     };
     window.__showTransitAbout = showAbout;
@@ -2055,7 +2875,8 @@ const app = (function(){
     togglePresentation,
     resetLab,
     sendRobotPrompt,
-    setVisualMode
+    setVisualMode,
+    replayMission: runMissionReplay
   };
   return api;
 })()

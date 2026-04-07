@@ -10,6 +10,9 @@ Prompt Vault is a privacy-focused, client-side web application designed to manag
 ## Key Systems / Components
 - UI/UX Layer: Manages the display of prompts, modals for passwords, and the storage banner.
 - Storage Manager: Handles saving, loading, importing (parsing JSON), and exporting data.
+- Revision Layer: Normalizes prompt records to include `revisions[]`, appends meaningful saves as new versions, and lets older revisions be restored into the editor without destructive overwrite.
+- Variant Layer: Extends prompt records with `variants[]` so alternate prompt directions can be stored under the same parent record without polluting the main revision trail.
+- Compare Workspace: Builds a local comparison surface in the editor that can inspect the head prompt, the current draft, saved variants, and recent revisions side by side.
 - Security Module: Implements lightweight encryption/decryption routines tied to a user-provided passcode.
 
 ## Performance & Accessibility / Development Notes

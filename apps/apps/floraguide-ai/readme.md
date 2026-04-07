@@ -11,7 +11,8 @@ Flora Forensics is a vanilla JavaScript, local-first web application that integr
 ## Core Logic (`floraguide.js`)
 - **State Management**: A reactive state object tracks the current tab, API key, selected model, chat history, and analysis results.
 - **Storage**: Heavy reliance on `localStorage` for persisting API keys (`floraguide_apiKey_v1`), models, and chat history.
-- **LLM Prompting**: Constructs multipart prompts combining text and base64 encoded images to send to the AI model.
+- **LLM Prompting**: Constructs multipart prompts combining text and base64 encoded images, then normalizes the model response into a ranked diagnosis list with uncertainty metadata.
+- **Backward Compatibility**: Older single-result dossiers are wrapped into the new ranked-candidate model at render time so history and compare continue to work.
 
 ## Security Considerations
 - **API Keys**: API keys are stored in `localStorage` and NEVER synced to the remote backend (`buildBackendPayload` explicitly excludes them).

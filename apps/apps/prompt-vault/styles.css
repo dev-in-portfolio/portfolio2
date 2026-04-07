@@ -303,6 +303,193 @@ body{
 }
 .pvTextarea{ resize: vertical; min-height: 180px; font-family: var(--mono); }
 .pvInput:focus, .pvTextarea:focus{ border-color: rgba(255,27,141,0.55); box-shadow: 0 0 0 3px rgba(255,27,141,0.10); }
+.pvRevisionPanel{
+  margin-top: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 12px;
+}
+.pvRevisionHead{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  margin-bottom:10px;
+}
+.pvRevisionTitle{ font-weight: 760; }
+.pvRevisionSub{ color: var(--muted2); font-size: 12px; margin-top: 4px; line-height: 1.4; }
+.pvRevisionMeta{ color: var(--muted2); font-size: 12px; white-space: nowrap; }
+.pvRevisionList{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-height: 240px;
+  overflow:auto;
+}
+.pvRevisionItem{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+  border-radius: 14px;
+  padding: 10px;
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+}
+.pvRevisionMain{ flex:1; min-width:0; }
+.pvRevisionStamp{ font-size: 12px; color: var(--muted2); margin-bottom: 4px; }
+.pvRevisionText{
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.82);
+  white-space: pre-wrap;
+}
+.pvRevisionEmpty{
+  color: var(--muted2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.pvVariantPanel,
+.pvComparePanel{
+  margin-top: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 12px;
+}
+.pvVariantHead,
+.pvCompareHead{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  margin-bottom:10px;
+}
+.pvVariantTitle,
+.pvCompareTitle{ font-weight: 760; }
+.pvVariantSub,
+.pvCompareSub{
+  color: var(--muted2);
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.pvVariantMeta,
+.pvCompareMeta{
+  color: var(--muted2);
+  font-size: 12px;
+  text-align:right;
+}
+.pvVariantActions{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:10px;
+}
+.pvVariantList{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.pvVariantItem{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+  border-radius: 14px;
+  padding: 10px;
+  display:grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 10px;
+  align-items:flex-start;
+}
+.pvVariantMain{ min-width:0; }
+.pvVariantStamp{
+  font-size: 12px;
+  color: var(--muted2);
+  margin-bottom: 4px;
+}
+.pvVariantName{
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.pvVariantText{
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.82);
+  white-space: pre-wrap;
+}
+.pvVariantTags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:8px;
+}
+.pvVariantButtons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.pvCompareControls{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:10px;
+  margin-bottom:12px;
+}
+.pvCompareGrid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:10px;
+}
+.pvCompareCard{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.18);
+  border-radius: 14px;
+  padding: 10px;
+  min-height: 220px;
+}
+.pvCompareCardTitle{
+  font-size: 12px;
+  color: var(--muted2);
+  margin-bottom: 8px;
+}
+.pvCompareSlot{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.pvCompareBlock{
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 10px;
+}
+.pvCompareLabel{
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted2);
+  margin-bottom: 6px;
+}
+.pvCompareValue{
+  white-space: pre-wrap;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.86);
+  font-size: 13px;
+}
+.pvCompareEmpty{
+  color: var(--muted2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.pvCompareDiff{
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.84);
+  font-size: 13px;
+  line-height: 1.45;
+}
 
 .pvModalActions{
   display:flex;
@@ -349,4 +536,25 @@ body{
   gap:10px;
   margin-top:10px;
   flex-wrap: wrap;
+}
+
+@media (max-width: 760px){
+  .pvVariantItem{
+    grid-template-columns: 1fr;
+  }
+  .pvVariantButtons{
+    justify-content:flex-start;
+  }
+  .pvCompareControls,
+  .pvCompareGrid{
+    grid-template-columns: 1fr;
+  }
+  .pvVariantHead,
+  .pvCompareHead{
+    flex-direction:column;
+  }
+  .pvVariantMeta,
+  .pvCompareMeta{
+    text-align:left;
+  }
 }

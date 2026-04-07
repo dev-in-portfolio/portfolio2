@@ -153,8 +153,10 @@
   }
 
 // ------------------------- Backend Sync (optional) -------------------------
-// Uses shared appdata persistence when this root exposes /api/appdata.
-const APPDATA_APP = "lingolive-ai";
+// Uses Netlify Functions via /api/* redirect. Silent fallback if offline/unconfigured.
+const SERVER = {
+  saveUrl: "/api/lingolive-save",
+};
 
 let _syncTimer = null;
 
@@ -175,7 +177,11 @@ async function serverSaveNow() {
   const clientId = (state.apiKey || "").trim();
   if (!clientId) return;
   try {
-    await window.NexusAppData?.save?.(APPDATA_APP, buildServerPayload(), { clientId });
+    await fetch(SERVER.saveUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ client_id: clientId, payload: buildServerPayload() }),
+    });
   } catch (_) {
     // silent — local-first always works
   }
@@ -192,8 +198,10 @@ async function serverLoadLatest() {
   const clientId = (state.apiKey || "").trim();
   if (!clientId) return;
   try {
-    const data = await window.NexusAppData?.loadLatest?.(APPDATA_APP, { clientId });
-    const p = data?.payload;
+    const res = await fetch(`${SERVER.saveUrl}?client_id=${encodeURIComponent(clientId)}&limit=1`, { method: "GET" });
+    if (!res.ok) return;
+    const data = await res.json().catch(() => null);
+    const p = data?.items?.[0]?.payload;
     if (!p || typeof p !== "object") return;
 
     if (Array.isArray(p.messages)) state.messages = p.messages;
@@ -239,6 +247,87 @@ async function serverLoadLatest() {
     if (window.lucide && typeof window.lucide.createIcons === "function") {
       window.lucide.createIcons();
     }
+  }
+
+  function extractSuggestedPhrase(correctionText, fallbackText) {
+    const text = String(correctionText || "").trim();
+    const quoted = text.match(/[“"](.*?)[”"]/);
+    if (quoted && quoted[1]) return quoted[1].trim();
+    const tryMatch = text.match(/try:\s*(.+)$/i);
+    if (tryMatch && tryMatch[1]) return tryMatch[1].trim();
+    const cleaned = text.replace(/^(tip|note|correction)\s*:\s*/i, "").trim();
+    if (!cleaned) return String(fallbackText || "").trim();
+    const wordCount = cleaned.split(/\s+/).filter(Boolean).length;
+    return wordCount <= 1 ? String(fallbackText || "").trim() : cleaned;
+  }
+
+  function splitTokens(text) {
+    return String(text || "").match(/\w+|[^\w\s]+|\s+/g) || [];
+  }
+
+  function normalizeToken(token) {
+    return String(token || "").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
+  }
+
+  function buildCorrectionMarkup(originalText, suggestedText) {
+    const originalTokens = splitTokens(originalText);
+    const suggestedTokens = splitTokens(suggestedText);
+    const normalizedSuggested = suggestedTokens
+      .filter((token) => !/^\s+$/.test(token))
+      .map(normalizeToken)
+      .filter(Boolean);
+    const remaining = normalizedSuggested.slice();
+
+    const originalHtml = originalTokens.map((token) => {
+      if (/^\s+$/.test(token)) return escapeHtml(token);
+      const normalized = normalizeToken(token);
+      if (!normalized) return escapeHtml(token);
+      const matchIndex = remaining.indexOf(normalized);
+      if (matchIndex >= 0) {
+        remaining.splice(matchIndex, 1);
+        return `<span>${escapeHtml(token)}</span>`;
+      }
+      return `<mark class="bg-amber-100 text-amber-900 px-1 py-0.5 rounded-md">${escapeHtml(token)}</mark>`;
+    }).join("");
+
+    const normalizedOriginal = originalTokens
+      .filter((token) => !/^\s+$/.test(token))
+      .map(normalizeToken)
+      .filter(Boolean);
+    const remainingOriginal = normalizedOriginal.slice();
+    const suggestedHtml = suggestedTokens.map((token) => {
+      if (/^\s+$/.test(token)) return escapeHtml(token);
+      const normalized = normalizeToken(token);
+      if (!normalized) return escapeHtml(token);
+      const matchIndex = remainingOriginal.indexOf(normalized);
+      if (matchIndex >= 0) {
+        remainingOriginal.splice(matchIndex, 1);
+        return `<span>${escapeHtml(token)}</span>`;
+      }
+      return `<mark class="bg-green-100 text-green-900 px-1 py-0.5 rounded-md">${escapeHtml(token)}</mark>`;
+    }).join("");
+
+    return { originalHtml, suggestedHtml };
+  }
+
+  function buildTranscriptReviewEntries() {
+    return state.messages
+      .filter((msg) => msg.role === "user" && msg.feedback)
+      .map((msg) => {
+        const feedback = msg.feedback || {};
+        const originalText = String(feedback.originalText || msg.text || "").trim();
+        const suggestedText = extractSuggestedPhrase(feedback.correction, originalText);
+        return {
+          id: msg.id,
+          msg,
+          score: clampScore(feedback.score),
+          improvement: String(feedback.improvement || "").trim(),
+          correction: String(feedback.correction || "").trim(),
+          originalText,
+          suggestedText,
+          ...buildCorrectionMarkup(originalText, suggestedText),
+        };
+      });
   }
 
   function openHistory() {
@@ -306,6 +395,7 @@ async function serverLoadLatest() {
 
   function renderChat() {
     chatScroll.innerHTML = "";
+    const transcriptReview = buildTranscriptReviewEntries();
 
     const empty = state.messages.length === 0;
     if (empty) {
@@ -350,6 +440,66 @@ async function serverLoadLatest() {
 
         chatScroll.appendChild(wrap);
       }
+    }
+
+    if (transcriptReview.length) {
+      const panel = document.createElement("section");
+      panel.className = "mt-2 rounded-[2rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 shadow-sm overflow-hidden";
+      panel.innerHTML = `
+        <div class="px-6 py-5 border-b border-slate-100 flex items-start justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.24em] text-blue-600">
+              <i data-lucide="file-text" class="w-[16px] h-[16px]"></i>
+              Transcript Review
+            </div>
+            <h3 class="mt-2 text-xl font-black text-slate-900 tracking-tight">See exactly what to keep and what to change</h3>
+            <p class="mt-1 text-sm text-slate-500">Each line shows your original attempt, a corrected version, and the coaching signal behind it.</p>
+          </div>
+          <div class="shrink-0 px-4 py-2 rounded-2xl bg-blue-50 border border-blue-100 text-blue-700 text-xs font-black">
+            ${transcriptReview.length} reviewed lines
+          </div>
+        </div>
+        <div id="transcriptReviewList" class="p-4 md:p-6 space-y-4"></div>
+      `;
+      const list = panel.querySelector("#transcriptReviewList");
+      transcriptReview.forEach((entry) => {
+        const card = document.createElement("article");
+        card.className = "rounded-3xl border border-slate-200 bg-white p-5 shadow-sm";
+        card.innerHTML = `
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <i data-lucide="message-square-quote" class="w-[15px] h-[15px]"></i>
+              Practice line
+            </div>
+            <div class="px-3 py-1 rounded-full border-2 font-black text-xs ${getScoreColor(entry.score)}">${entry.score}%</div>
+          </div>
+          <div class="mt-4 grid gap-4 md:grid-cols-2">
+            <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4">
+              <div class="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700">Original</div>
+              <p class="mt-2 text-sm font-semibold text-slate-800 leading-7">${entry.originalHtml}</p>
+            </div>
+            <div class="rounded-2xl bg-green-50 border border-green-100 p-4">
+              <div class="text-[10px] font-black uppercase tracking-[0.2em] text-green-700">Coach version</div>
+              <p class="mt-2 text-sm font-semibold text-slate-800 leading-7">${entry.suggestedHtml}</p>
+            </div>
+          </div>
+          <div class="mt-4 rounded-2xl bg-slate-50 border border-slate-200 p-4">
+            <div class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Coach note</div>
+            <p class="mt-2 text-sm text-slate-700 font-medium">${escapeHtml(entry.improvement || "Keep the corrected rhythm and repeat it once at natural speed.")}</p>
+            <p class="mt-3 text-sm font-bold text-green-700">${escapeHtml(entry.correction)}</p>
+          </div>
+          <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="text-xs text-slate-500 font-semibold">Marked words show what changed between what you said and what you should repeat.</div>
+            <button class="btnAddPracticeInline px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-black hover:bg-slate-800 transition-colors flex items-center gap-2">
+              <i data-lucide="plus" class="w-[14px] h-[14px]"></i>
+              Add To Mastery Lab
+            </button>
+          </div>
+        `;
+        card.querySelector(".btnAddPracticeInline").addEventListener("click", () => addToPractice(entry.msg));
+        list.appendChild(card);
+      });
+      chatScroll.appendChild(panel);
     }
 
     // Footer controls (demo vs live) match the original layout.

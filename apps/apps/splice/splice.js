@@ -103,6 +103,7 @@ async function fileFromMusicLibrary() {
 
   const toast = $("toast");
   const renderBtn = $("renderBtn");
+  const exportBriefBtn = $("exportBriefBtn");
   const resSel = $("resSel");
   const fmtSel = $("fmtSel");
   const presetBtns = [...document.querySelectorAll(".presetBtn")];
@@ -112,7 +113,7 @@ async function fileFromMusicLibrary() {
   /** @type {{assets: any[], timeline: any[], preset: string, res: string, fmt: string}} */
   const state = {
     assets: [],   // { id, name, url, duration }
-    timeline: [], // { id, assetId, start, end, label }
+    timeline: [], // normalized clip objects with trims, beat markers, timing metadata, and notes
     preset: "Standard",
     res: "720p",
     fmt: "MP4",
@@ -199,8 +200,193 @@ function fmtTime(sec){
     return `${m}:${s.toFixed(2).padStart(5,"0")}`;
   }
 
+  function clampNum(n, a, b){
+    if (!Number.isFinite(n)) return a;
+    return Math.max(a, Math.min(b, n));
+  }
+
+  function clipDuration(clip){
+    return Math.max(0, (clip?.end || 0) - (clip?.start || 0));
+  }
+
+  function clipPlannedDuration(clip){
+    return clipDuration(clip) + Math.max(0, Number(clip?.holdAfter || 0));
+  }
+
+  function guessBeat(idx, label){
+    const text = String(label || "").toLowerCase();
+    if (text.includes("intro") || idx === 0) return "intro";
+    if (text.includes("reveal")) return "reveal";
+    if (text.includes("proof") || text.includes("demo")) return "proof";
+    if (text.includes("cta") || text.includes("close") || text.includes("outro")) return "cta";
+    return "build";
+  }
+
+  function beatColor(beat){
+    switch (beat){
+      case "intro": return "#39FF14";
+      case "build": return "#60A5FA";
+      case "reveal": return "#F59E0B";
+      case "proof": return "#F472B6";
+      case "cta": return "#FB7185";
+      default: return "rgba(255,255,255,0.55)";
+    }
+  }
+
+  function normalizeTimelineClip(raw, asset=null, idx=0){
+    const assetDuration = Number.isFinite(asset?.duration) ? Math.max(0.01, asset.duration) : Math.max(0.01, Number(raw?.end || 0.01));
+    const start = clampNum(Number(raw?.start ?? 0), 0, assetDuration);
+    let end = clampNum(Number(raw?.end ?? assetDuration), 0.01, assetDuration);
+    if (end <= start) end = clampNum(start + 0.25, 0.01, assetDuration);
+    const label = String(raw?.label || "").slice(0, 80);
+    const beat = ["intro","build","reveal","proof","cta"].includes(raw?.beat) ? raw.beat : guessBeat(idx, label || asset?.name);
+    const transition = ["cut","dissolve","hold","punch"].includes(raw?.transition) ? raw.transition : "cut";
+    const transitionSec = clampNum(Number(raw?.transitionSec ?? 0.2), 0, 4);
+    const holdAfter = clampNum(Number(raw?.holdAfter ?? 0), 0, 8);
+    const notes = String(raw?.notes || "").slice(0, 240);
+    return {
+      id: typeof raw?.id === "string" ? raw.id : uid(),
+      assetId: raw?.assetId || asset?.id || "",
+      start,
+      end,
+      label,
+      beat,
+      transition,
+      transitionSec,
+      holdAfter,
+      notes
+    };
+  }
+
+  function normalizeTimeline(){
+    state.timeline = state.timeline
+      .map((clip, idx) => normalizeTimelineClip(clip, state.assets.find(a => a.id === clip.assetId), idx))
+      .filter(clip => clip.assetId);
+  }
+
+  function timelineSummary(){
+    const totalRuntime = state.timeline.reduce((sum, clip) => sum + clipPlannedDuration(clip), 0);
+    const beatCount = state.timeline.length;
+    const averageBeat = beatCount ? totalRuntime / beatCount : 0;
+    const transitionCounts = state.timeline.reduce((acc, clip) => {
+      acc[clip.transition] = (acc[clip.transition] || 0) + 1;
+      return acc;
+    }, {});
+    const dominantTransition = Object.entries(transitionCounts).sort((a,b) => b[1] - a[1])[0]?.[0] || "cut";
+    return {
+      totalRuntime,
+      beatCount,
+      averageBeat,
+      dominantTransition,
+      annotated: state.timeline.filter(clip => clip.notes.trim()).length
+    };
+  }
+
+  function renderTimelineSummary(){
+    const summary = document.getElementById("timelineSummary");
+    if (!summary) return;
+    const stats = timelineSummary();
+    summary.innerHTML = `
+      <div class="spliceSummaryCard">
+        <div class="spliceSummaryLabel">Runtime</div>
+        <div class="spliceSummaryValue">${fmtTime(stats.totalRuntime)}</div>
+        <div class="spliceSummarySub">Trimmed duration plus hold beats</div>
+      </div>
+      <div class="spliceSummaryCard">
+        <div class="spliceSummaryLabel">Beats</div>
+        <div class="spliceSummaryValue">${stats.beatCount}</div>
+        <div class="spliceSummarySub">${stats.annotated} with notes attached</div>
+      </div>
+      <div class="spliceSummaryCard">
+        <div class="spliceSummaryLabel">Pacing</div>
+        <div class="spliceSummaryValue">${stats.beatCount ? fmtTime(stats.averageBeat) : "—"}</div>
+        <div class="spliceSummarySub">Average planned duration per beat</div>
+      </div>
+      <div class="spliceSummaryCard">
+        <div class="spliceSummaryLabel">Transitions</div>
+        <div class="spliceSummaryValue">${stats.dominantTransition}</div>
+        <div class="spliceSummarySub">Most common handoff mode in sequence</div>
+      </div>
+    `;
+  }
+
+  function pacingDiagnostic(){
+    if (!state.timeline.length){
+      return "Add a few beats and Splice will call out pacing risks, missing structure, and transition balance here.";
+    }
+    const stats = timelineSummary();
+    const issues = [];
+    const hasIntro = state.timeline.some(clip => clip.beat === "intro");
+    const hasCta = state.timeline.some(clip => clip.beat === "cta");
+    if (!hasIntro) issues.push("No intro beat yet. The sequence drops viewers directly into the action.");
+    if (!hasCta) issues.push("No CTA beat yet. The sequence has no explicit closing move.");
+
+    state.timeline.forEach((clip, idx) => {
+      const planned = clipPlannedDuration(clip);
+      if (planned < 0.9) issues.push(`Beat ${idx + 1} is under one second planned runtime. It will read as a flash unless that is intentional.`);
+      if (planned > 6) issues.push(`Beat ${idx + 1} runs long at ${fmtTime(planned)}. Consider splitting or tightening it.`);
+      if (clip.transition === "dissolve" && clip.transitionSec > planned * 0.45){
+        issues.push(`Beat ${idx + 1} spends too much of its runtime dissolving. Transition length is dominating the beat.`);
+      }
+    });
+
+    if (stats.averageBeat && stats.averageBeat < 1.4) issues.push("Average pacing is very aggressive. Good for reels, risky for explanation-heavy sequences.");
+    if (stats.averageBeat && stats.averageBeat > 4.5) issues.push("Average pacing is slow. Good for mood, risky for short-form retention.");
+    if (stats.dominantTransition === "cut" && state.timeline.length >= 4) issues.push("Cuts dominate the whole sequence. Add one deliberate contrast beat if you want the pacing to breathe.");
+
+    return issues.length
+      ? issues.join("\n")
+      : "Pacing looks balanced. You have a usable structure, reasonable beat lengths, and no obvious transition imbalance.";
+  }
+
+  function buildSequenceBrief(){
+    if (!state.timeline.length){
+      return "Splice sequence brief\n\nNo timeline beats yet.";
+    }
+    const stats = timelineSummary();
+    const lines = [
+      "Splice sequence brief",
+      "",
+      `Runtime: ${fmtTime(stats.totalRuntime)}`,
+      `Beats: ${stats.beatCount}`,
+      `Average beat: ${stats.averageBeat ? fmtTime(stats.averageBeat) : "—"}`,
+      `Dominant transition: ${stats.dominantTransition}`,
+      "",
+      "Pacing readout:",
+      pacingDiagnostic(),
+      "",
+      "Beat plan:"
+    ];
+
+    state.timeline.forEach((clip, idx) => {
+      const asset = state.assets.find(a => a.id === clip.assetId);
+      lines.push(
+        `${idx + 1}. ${clip.label || asset?.name || "Untitled beat"}`,
+        `   beat: ${clip.beat} | trim: ${fmtTime(clip.start)} -> ${fmtTime(clip.end)} | planned: ${fmtTime(clipPlannedDuration(clip))}`,
+        `   transition: ${clip.transition} (${Number(clip.transitionSec || 0).toFixed(2)}s) | hold: ${Number(clip.holdAfter || 0).toFixed(2)}s`,
+        `   source: ${asset?.name || "(missing asset)"}`,
+        `   note: ${clip.notes?.trim() || "No note"}`
+      );
+    });
+
+    return lines.join("\n");
+  }
+
+  function renderSequenceBrief(){
+    const preview = $("briefPreview");
+    const diagnostic = $("timelineDiagnostic");
+    if (preview) preview.textContent = buildSequenceBrief();
+    if (diagnostic){
+      diagnostic.innerHTML = `
+        <div class="spliceDiagnosticTitle">Pacing Readout</div>
+        <div class="spliceDiagnosticText">${escapeHtml(pacingDiagnostic())}</div>
+      `;
+    }
+  }
+
   function persist(){
     try{
+      normalizeTimeline();
       const slim = {
         assets: state.assets.map(a => ({ id:a.id, name:a.name, url:a.url, duration:a.duration })),
         timeline: state.timeline,
@@ -258,6 +444,9 @@ function fmtTime(sec){
   }
 
   function renderTimeline(){
+    normalizeTimeline();
+    renderTimelineSummary();
+    renderSequenceBrief();
     if (state.timeline.length === 0){
       timelineEmpty.hidden = false;
       timelineList.hidden = true;
@@ -272,6 +461,9 @@ function fmtTime(sec){
       const a = state.assets.find(x => x.id === c.assetId);
       const name = a ? a.name : "(missing asset)";
       const dur = a ? a.duration : 0;
+      const trimDuration = clipDuration(c);
+      const plannedDuration = clipPlannedDuration(c);
+      const sequenceOffset = state.timeline.slice(0, idx).reduce((sum, clip) => sum + clipPlannedDuration(clip), 0);
 
       const row = document.createElement("div");
       row.className = "rounded-2xl border border-white/10 bg-black/30 p-3";
@@ -280,7 +472,13 @@ function fmtTime(sec){
           <div class="min-w-0">
             <div class="text-[11px] font-semibold text-zinc-200 truncate">${escapeHtml(c.label || `Clip ${idx+1}`)}</div>
             <div class="text-[10px] text-zinc-500 truncate">${escapeHtml(name)}</div>
-            <div class="mt-1 text-[10px] text-zinc-500">${fmtTime(c.start)} → ${fmtTime(c.end)} <span class="text-zinc-700">•</span> ${fmtTime(dur)}</div>
+            <div class="mt-2 flex flex-wrap items-center gap-2">
+              <span class="spliceBeatPill" style="--beat-color:${beatColor(c.beat)}">${escapeHtml(c.beat)}</span>
+              <span class="text-[10px] text-zinc-500">Seq ${fmtTime(sequenceOffset)}</span>
+              <span class="text-[10px] text-zinc-500">Trim ${fmtTime(trimDuration)}</span>
+              <span class="text-[10px] text-zinc-500">Planned ${fmtTime(plannedDuration)}</span>
+            </div>
+            <div class="mt-1 text-[10px] text-zinc-500">${fmtTime(c.start)} → ${fmtTime(c.end)} <span class="text-zinc-700">•</span> src ${fmtTime(dur)} <span class="text-zinc-700">•</span> ${escapeHtml(c.transition)} ${Number(c.transitionSec || 0).toFixed(2)}s</div>
           </div>
           <div class="flex items-center gap-2">
             <button class="playClipBtn rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-semibold hover:bg-white/10 transition" data-id="${c.id}">Play</button>
@@ -290,7 +488,7 @@ function fmtTime(sec){
           </div>
         </div>
 
-        <div class="mt-3 grid grid-cols-3 gap-2">
+        <div class="mt-3 spliceTimelineGrid">
           <div>
             <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Start</label>
             <input class="startIn w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50" type="number" step="0.01" min="0" max="${dur}" value="${c.start}" data-id="${c.id}" />
@@ -303,6 +501,41 @@ function fmtTime(sec){
             <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Label</label>
             <input class="labelIn w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50" type="text" value="${escapeAttr(c.label||"")}" placeholder="Optional" data-id="${c.id}" />
           </div>
+        </div>
+
+        <div class="mt-3 spliceTimelineGrid--timing">
+          <div>
+            <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Beat</label>
+            <select class="beatSel w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50 transition-colors cursor-pointer" data-id="${c.id}">
+              <option value="intro" ${c.beat === "intro" ? "selected" : ""}>Intro</option>
+              <option value="build" ${c.beat === "build" ? "selected" : ""}>Build</option>
+              <option value="reveal" ${c.beat === "reveal" ? "selected" : ""}>Reveal</option>
+              <option value="proof" ${c.beat === "proof" ? "selected" : ""}>Proof</option>
+              <option value="cta" ${c.beat === "cta" ? "selected" : ""}>CTA</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Transition</label>
+            <select class="transitionSel w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50 transition-colors cursor-pointer" data-id="${c.id}">
+              <option value="cut" ${c.transition === "cut" ? "selected" : ""}>Cut</option>
+              <option value="dissolve" ${c.transition === "dissolve" ? "selected" : ""}>Dissolve</option>
+              <option value="hold" ${c.transition === "hold" ? "selected" : ""}>Hold</option>
+              <option value="punch" ${c.transition === "punch" ? "selected" : ""}>Punch</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Transition sec</label>
+            <input class="transitionIn w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50" type="number" step="0.05" min="0" max="4" value="${Number(c.transitionSec || 0)}" data-id="${c.id}" />
+          </div>
+          <div>
+            <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Hold after</label>
+            <input class="holdIn w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50" type="number" step="0.05" min="0" max="8" value="${Number(c.holdAfter || 0)}" data-id="${c.id}" />
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Beat notes</label>
+          <textarea class="notesIn spliceTimelineTextarea mt-1" placeholder="Why this beat exists, what should happen here, or what the next cut should emphasize." data-id="${c.id}">${escapeHtml(c.notes || "")}</textarea>
         </div>
       `;
       timelineList.appendChild(row);
@@ -339,7 +572,7 @@ function fmtTime(sec){
       if (!a) continue;
 
       nowPlaying.textContent = `Sequence: ${clip.label || `Clip ${i+1}`}`;
-      clipMeta.textContent = `${fmtTime(clip.start)} → ${fmtTime(clip.end)}`;
+      clipMeta.textContent = `${fmtTime(clip.start)} → ${fmtTime(clip.end)} · ${clip.beat} · ${clip.transition}`;
 
       player.src = a.url;
       await player.play().catch(()=>{});
@@ -361,6 +594,10 @@ function fmtTime(sec){
         player.addEventListener("timeupdate", onTime);
         player.addEventListener("ended", onEnd);
       });
+
+      if (!state._seqStop && Number(clip.holdAfter || 0) > 0){
+        await new Promise((resolve) => window.setTimeout(resolve, Number(clip.holdAfter) * 1000));
+      }
     }
 
     if (!state._seqStop){
@@ -389,7 +626,18 @@ function fmtTime(sec){
       const id = add.dataset.id;
       const a = state.assets.find(x => x.id === id);
       if (!a) return;
-      state.timeline.push({ id: uid(), assetId: a.id, start: 0, end: Math.max(0.01, a.duration), label: "" });
+      state.timeline.push(normalizeTimelineClip({
+        id: uid(),
+        assetId: a.id,
+        start: 0,
+        end: Math.max(0.01, a.duration),
+        label: "",
+        beat: guessBeat(state.timeline.length, a.name),
+        transition: "cut",
+        transitionSec: 0.2,
+        holdAfter: 0,
+        notes: ""
+      }, a, state.timeline.length));
       persist();
       renderTimeline();
       showToast("Added to timeline.");
@@ -438,7 +686,7 @@ function fmtTime(sec){
       const a = state.assets.find(x => x.id === c.assetId);
       if (!a) return;
       nowPlaying.textContent = `Playing: ${c.label || a.name}`;
-      clipMeta.textContent = `${fmtTime(c.start)} → ${fmtTime(c.end)}`;
+      clipMeta.textContent = `${fmtTime(c.start)} → ${fmtTime(c.end)} · ${c.beat} · ${c.transition}`;
       setPlayer(a.url, c.start, c.end, c.label || a.name);
       return;
     }
@@ -449,9 +697,12 @@ function fmtTime(sec){
     const startIn = e.target.closest(".startIn");
     const endIn = e.target.closest(".endIn");
     const labelIn = e.target.closest(".labelIn");
-    if (!startIn && !endIn && !labelIn) return;
+    const transitionIn = e.target.closest(".transitionIn");
+    const holdIn = e.target.closest(".holdIn");
+    const notesIn = e.target.closest(".notesIn");
+    if (!startIn && !endIn && !labelIn && !transitionIn && !holdIn && !notesIn) return;
 
-    const id = (startIn || endIn || labelIn).dataset.id;
+    const id = (startIn || endIn || labelIn || transitionIn || holdIn || notesIn).dataset.id;
     const clip = state.timeline.find(x => x.id === id);
     if (!clip) return;
 
@@ -471,9 +722,37 @@ function fmtTime(sec){
     if (labelIn){
       clip.label = labelIn.value.slice(0, 80);
     }
+    if (transitionIn){
+      clip.transitionSec = clampNum(Number(transitionIn.value), 0, 4);
+    }
+    if (holdIn){
+      clip.holdAfter = clampNum(Number(holdIn.value), 0, 8);
+    }
+    if (notesIn){
+      clip.notes = notesIn.value.slice(0, 240);
+    }
 
     persist();
-    // light re-render not needed on each input, but keeps duration display consistent if clamped
+    if (startIn || endIn || transitionIn || holdIn){
+      renderTimeline();
+    }else{
+      renderTimelineSummary();
+    }
+  });
+
+  timelineList.addEventListener("change", (e) => {
+    const beatSel = e.target.closest(".beatSel");
+    const transitionSel = e.target.closest(".transitionSel");
+    if (!beatSel && !transitionSel) return;
+
+    const id = (beatSel || transitionSel).dataset.id;
+    const clip = state.timeline.find(x => x.id === id);
+    if (!clip) return;
+
+    if (beatSel) clip.beat = beatSel.value;
+    if (transitionSel) clip.transition = transitionSel.value;
+    persist();
+    renderTimeline();
   });
 
 
@@ -874,6 +1153,7 @@ await ffmpeg.load();
       const asset = state.assets.find(a => a.id === item.assetId);
       if (!asset) continue;
       await drawClip(asset, item.start, item.end);
+      if (Number(item.holdAfter || 0) > 0) await sleep(Number(item.holdAfter) * 1000);
     }
 
     // Outro
@@ -922,15 +1202,22 @@ function handleProjectExport(){
       preset,
       res,
       fmt,
+      summary: timelineSummary(),
       timeline: state.timeline.map((c, i) => {
         const a = state.assets.find(x => x.id === c.assetId);
         return {
           order: i + 1,
           label: c.label || "",
           sourceName: a ? a.name : "(missing asset)",
+          beat: c.beat || "build",
+          transition: c.transition || "cut",
+          transitionSec: Number(c.transitionSec || 0),
+          holdAfter: Number(c.holdAfter || 0),
+          notes: c.notes || "",
           start: c.start,
           end: c.end,
-          duration: Math.max(0, c.end - c.start)
+          duration: Math.max(0, c.end - c.start),
+          plannedDuration: clipPlannedDuration(c)
         };
       })
     };
@@ -977,8 +1264,20 @@ function handleProjectExport(){
     }, 900);
   }
 
+  function exportSequenceBrief(){
+    if (!state.timeline.length){
+      showToast("Add clips to timeline before exporting a brief.");
+      return;
+    }
+    const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+    const filename = `splice_sequence_brief_${ts}.txt`;
+    const ok = triggerDownload(filename, "text/plain;charset=utf-8", buildSequenceBrief());
+    showToast(ok ? "Sequence brief downloaded." : "Sequence brief export failed.");
+  }
+
   // Controls
   renderBtn.addEventListener("click", () => renderRealMp4().catch(err => { console.error(err); showToast("Render failed (see console)."); }));
+  exportBriefBtn?.addEventListener("click", exportSequenceBrief);
   clearTimelineBtn.addEventListener("click", () => {
     state.timeline = [];
     persist();
@@ -1001,6 +1300,7 @@ function handleProjectExport(){
     player.load();
     nowPlaying.textContent = "No clip selected.";
     clipMeta.textContent = "";
+    renderTimelineSummary();
     showToast("Reset project.");
   });
   playSeqBtn.addEventListener("click", () => playSequence());
@@ -1055,6 +1355,9 @@ function handleProjectExport(){
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw){
         const data = JSON.parse(raw);
+        if (Array.isArray(data?.timeline)){
+          state.timeline = data.timeline.map((clip, idx) => normalizeTimelineClip(clip, null, idx)).filter(Boolean);
+        }
         if (data?.assets?.length){
           // NOTE: object URLs can't be restored after reload; so we only restore settings + empty assets/timeline
           // This is intentional for privacy + correctness.

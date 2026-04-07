@@ -54,7 +54,6 @@ db.settings = db.settings || {};
 db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
 
 function renderPeriodStatus(){
-  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   const s = document.getElementById('periodStatus');
   if(!s) return;
   if(db.period.locked){
@@ -70,7 +69,6 @@ function renderPeriodStatus(){
 }
 
 function confirmBeginInventory(){
-  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   const inp = document.getElementById('beginInvInput');
   if(!inp) return;
   db.beginInventory = Number(inp.value||0);
@@ -80,7 +78,6 @@ function confirmBeginInventory(){
 }
 
 function lockCurrentPeriod(){
-  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   if(db.period.locked) return;
   db.period.locked = true;
   db.period.lockedAt = Date.now();
@@ -1017,7 +1014,10 @@ function renderVendorChips(vendor){
       date: nowISO(),
       notes: "",
       lines: [],
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      lastEditedAt: new Date().toISOString(),
+      postedAt: null,
+      intakeSource: "manual"
     };
     db.invoices.unshift(inv);
     currentInvoiceId = inv.id;
@@ -1032,6 +1032,8 @@ function renderVendorChips(vendor){
     copy.number = "";
     copy.date = nowISO();
     copy.createdAt = new Date().toISOString();
+    copy.lastEditedAt = new Date().toISOString();
+    copy.postedAt = null;
     copy.lines.forEach(l => l.id = uid());
     db.invoices.unshift(copy);
     currentInvoiceId = copy.id;
@@ -1052,6 +1054,56 @@ function renderVendorChips(vendor){
 
   function getInvoice(){
     return db.invoices.find(i => i.id === currentInvoiceId) || null;
+  }
+
+  function touchInvoice(inv, source){
+    if(!inv) return;
+    inv.lastEditedAt = new Date().toISOString();
+    if(source) inv.intakeSource = source;
+    if(inv.postedAt) inv.postedAt = null;
+  }
+
+  function invoiceLineExtended(line){
+    return (parseNum(line.qty)||0) * (parseNum(line.unitCost)||0);
+  }
+
+  function summarizeInvoiceWorkflow(inv){
+    const lines = inv?.lines || [];
+    const unmatched = lines.filter((ln) => !ln.itemId);
+    const missingCost = lines.filter((ln) => !isFinite(parseNum(ln.unitCost)) || parseNum(ln.unitCost) <= 0);
+    const missingQty = lines.filter((ln) => !isFinite(parseNum(ln.qty)) || parseNum(ln.qty) <= 0);
+    const issues = [];
+    if(!(inv?.vendor || "").trim()) issues.push("Vendor missing");
+    if(!lines.length) issues.push("No invoice lines yet");
+    if(unmatched.length) issues.push(`${unmatched.length} unmatched line${unmatched.length===1?"":"s"}`);
+    if(missingCost.length) issues.push(`${missingCost.length} line${missingCost.length===1?"":"s"} missing cost`);
+    if(missingQty.length) issues.push(`${missingQty.length} line${missingQty.length===1?"":"s"} missing quantity`);
+    const total = lines.reduce((sum, line) => sum + invoiceLineExtended(line), 0);
+    let status = "review";
+    if(inv?.postedAt && issues.length === 0) status = "posted";
+    else if(issues.length === 0) status = "ready";
+    return {
+      status,
+      issues,
+      total,
+      matchedCount: lines.length - unmatched.length,
+      unmatchedCount: unmatched.length,
+      missingCostCount: missingCost.length,
+      missingQtyCount: missingQty.length,
+      lineCount: lines.length
+    };
+  }
+
+  function invoiceStatusTone(status){
+    if(status === "posted") return "ok";
+    if(status === "ready") return "ready";
+    return "review";
+  }
+
+  function invoiceStatusLabel(status){
+    if(status === "posted") return "Posted";
+    if(status === "ready") return "Ready";
+    return "Needs Review";
   }
 
   function applyPaste(){
@@ -1088,6 +1140,7 @@ function renderVendorChips(vendor){
       inv.lines.push(line);
       added++;
     }
+    touchInvoice(inv, "paste");
     saveDBDebounced();
     $("#pasteResult").textContent = `Added ${added} lines.`;
     renderAll();
@@ -1238,6 +1291,263 @@ function renderVendorChips(vendor){
     return db.months[idx+1] || null;
   }
 
+  function formatSignedMoney(n){
+    const value = Number(n || 0);
+    if(!isFinite(value)) return "—";
+    return `${value > 0 ? "+" : ""}${money(value)}`;
+  }
+
+  function formatDeltaPoints(n){
+    const value = Number(n || 0);
+    if(!isFinite(value)) return "Baseline";
+    return `${value > 0 ? "+" : ""}${(value * 100).toFixed(1)} pts`;
+  }
+
+  function trendTone(value){
+    if(!isFinite(value) || Math.abs(value) < 0.0001) return "neutral";
+    return value > 0 ? "bad" : "ok";
+  }
+
+  function computeVarianceMovers(month){
+    const prev = getPrevMonthById(month.id);
+    const beginCounts = prev?.end?.counts || {};
+    const endCounts = month.end?.counts || {};
+    const purchById = new Map();
+    const spendById = new Map();
+
+    db.invoices
+      .filter(inv => inv.monthId === month.id)
+      .forEach(inv => {
+        (inv.lines||[]).forEach(ln => {
+          const itemId = ln.itemId;
+          if(!itemId) return;
+          const qty = parseNum(ln.qty) || 0;
+          const unitCost = parseNum(ln.unitCost) || 0;
+          purchById.set(itemId, (purchById.get(itemId) || 0) + qty);
+          spendById.set(itemId, (spendById.get(itemId) || 0) + (qty * unitCost));
+        });
+      });
+
+    const movers = [];
+    db.items.forEach(it => {
+      if(!(it.group === "ingredients" || it.group === "products")) return;
+      const beginQty = parseNum(beginCounts?.[it.id]?.qty || 0) || 0;
+      const endQty = parseNum(endCounts?.[it.id]?.qty || 0) || 0;
+      const purchaseQty = purchById.get(it.id) || 0;
+      const spend = spendById.get(it.id) || 0;
+      const inferredCost = (purchaseQty > 0 && spend > 0) ? (spend / purchaseQty) : 0;
+      const unitCost = (parseNum(it.defaultCost) || 0) > 0 ? (parseNum(it.defaultCost) || 0) : inferredCost;
+      if(!unitCost) return;
+
+      const usageQty = beginQty + purchaseQty - endQty;
+      const usageVal = usageQty * unitCost;
+      const magnitude = Math.abs(usageVal);
+      if(magnitude < 1) return;
+      movers.push({
+        id: it.id,
+        name: it.name,
+        group: it.group,
+        beginQty,
+        purchaseQty,
+        endQty,
+        usageQty,
+        usageVal,
+        magnitude,
+        unitCost,
+      });
+    });
+
+    return movers.sort((a, b) => b.magnitude - a.magnitude);
+  }
+
+  function computeMonthSnapshot(month){
+    const ing = computeCOGS(month, "ingredients");
+    const prod = computeCOGS(month, "products");
+    const salesFoodNet = Number(month.sales?.foodNet || 0);
+    const salesTotalNet = Number(month.sales?.totalNet || 0);
+    const purchasesIngredients = computePurchasesValue(month, "ingredients");
+    const purchasesProducts = computePurchasesValue(month, "products");
+    const endInventoryIngredients = computeInventoryValue(month, "ingredients");
+    const endInventoryProducts = computeInventoryValue(month, "products");
+    const cogsTotal = ing.cogs + prod.cogs;
+    const purchasesTotal = purchasesIngredients + purchasesProducts;
+    const endInventoryTotal = endInventoryIngredients + endInventoryProducts;
+    const cogsPct = salesFoodNet > 0 ? cogsTotal / salesFoodNet : null;
+    const targetPct = 0.30;
+    const targetCogs = salesFoodNet > 0 ? salesFoodNet * targetPct : null;
+    const deltaTarget = targetCogs == null ? null : cogsTotal - targetCogs;
+    const invoiceQueue = db.invoices
+      .filter(inv => inv.monthId === month.id)
+      .map(summarizeInvoiceWorkflow);
+    const unmatchedLines = getUnmatchedLines(month.id);
+    const missingCostItems = db.items.filter(i => (i.group === "ingredients" || i.group === "products") && (!i.defaultCost || Number(i.defaultCost) <= 0));
+    const topMovers = computeVarianceMovers(month);
+
+    return {
+      month,
+      ing,
+      prod,
+      salesFoodNet,
+      salesTotalNet,
+      purchasesTotal,
+      endInventoryTotal,
+      cogsTotal,
+      cogsPct,
+      targetPct,
+      deltaTarget,
+      invoiceQueue,
+      invoicesNeedingReview: invoiceQueue.filter(x => x.status === "review").length,
+      invoicesReadyToPost: invoiceQueue.filter(x => x.status === "ready").length,
+      invoicesPosted: invoiceQueue.filter(x => x.status === "posted").length,
+      unmatchedCount: unmatchedLines.length,
+      missingCostCount: missingCostItems.length,
+      topMovers,
+      anomalyCount: topMovers.filter(m => m.usageQty < 0).length,
+    };
+  }
+
+  function getMonthTrendWindow(monthId, size = 6){
+    const idx = db.months.findIndex(m => m.id === monthId);
+    const start = idx < 0 ? 0 : idx;
+    return db.months
+      .slice(start, start + size)
+      .reverse()
+      .map(computeMonthSnapshot);
+  }
+
+  function buildActionCenter(snapshot, prevSnapshot){
+    const actions = [];
+
+    if(snapshot.invoicesNeedingReview){
+      actions.push({
+        title: `${snapshot.invoicesNeedingReview} invoices need review`,
+        meta: "Fix missing vendor details, zero-cost lines, or unmatched items before posting.",
+        badge: "Review",
+        tone: "warn",
+        tab: "invoices",
+      });
+    }
+    if(snapshot.invoicesReadyToPost){
+      actions.push({
+        title: `${snapshot.invoicesReadyToPost} invoices are ready to post`,
+        meta: "Posting them now will move cleaner cost memory into this month’s analytics.",
+        badge: "Post",
+        tone: "ok",
+        tab: "invoices",
+      });
+    }
+    if(snapshot.unmatchedCount){
+      actions.push({
+        title: `${snapshot.unmatchedCount} unmatched invoice lines are distorting spend`,
+        meta: "Resolve them so vendor prices and category rollups stop drifting.",
+        badge: "Fix",
+        tone: "warn",
+        tab: "reports",
+      });
+    }
+    if(snapshot.missingCostCount){
+      actions.push({
+        title: `${snapshot.missingCostCount} items still have no cost basis`,
+        meta: "Trend lines are weaker until those defaults are filled in.",
+        badge: "Cost",
+        tone: "warn",
+        tab: "reports",
+      });
+    }
+    if(prevSnapshot && snapshot.cogsPct != null && prevSnapshot.cogsPct != null){
+      const diff = snapshot.cogsPct - prevSnapshot.cogsPct;
+      if(Math.abs(diff) >= 0.015){
+        actions.push({
+          title: `COGS moved ${formatDeltaPoints(diff)} vs ${prevSnapshot.month.label}`,
+          meta: `${money(snapshot.cogsTotal)} this month against ${money(prevSnapshot.cogsTotal)} last month.`,
+          badge: formatDeltaPoints(diff),
+          tone: trendTone(diff),
+          tab: "reports",
+        });
+      }
+
+      const purchaseBase = Math.max(prevSnapshot.purchasesTotal, 1);
+      const purchaseDelta = (snapshot.purchasesTotal - prevSnapshot.purchasesTotal) / purchaseBase;
+      if(Math.abs(purchaseDelta) >= 0.15){
+        actions.push({
+          title: `Purchases ${purchaseDelta > 0 ? "jumped" : "fell"} ${Math.abs(purchaseDelta * 100).toFixed(0)}% vs ${prevSnapshot.month.label}`,
+          meta: `${money(snapshot.purchasesTotal)} vs ${money(prevSnapshot.purchasesTotal)}. Check vendor spikes and ordering changes.`,
+          badge: formatSignedMoney(snapshot.purchasesTotal - prevSnapshot.purchasesTotal),
+          tone: trendTone(purchaseDelta),
+          tab: "reports",
+        });
+      }
+    }
+
+    const topMover = snapshot.topMovers[0];
+    if(topMover){
+      actions.push({
+        title: `${topMover.name} drove ${money(topMover.usageVal)} of movement`,
+        meta: `Begin ${fmtQty(topMover.beginQty)} + Purch ${fmtQty(topMover.purchaseQty)} − End ${fmtQty(topMover.endQty)} = ${fmtQty(topMover.usageQty)}.`,
+        badge: topMover.usageQty < 0 ? "Anomaly" : "Mover",
+        tone: topMover.usageQty < 0 ? "warn" : "neutral",
+        tab: "reports",
+      });
+    }
+
+    return actions.slice(0, 6);
+  }
+
+  function renderInsightList(el, items, emptyTitle, emptyMeta){
+    if(!el) return;
+    el.innerHTML = "";
+    if(!items.length){
+      el.innerHTML = `<div class="item"><div class="left"><div class="title">${escapeHtml(emptyTitle)}</div><div class="meta">${escapeHtml(emptyMeta)}</div></div><span class="badge ok">Stable</span></div>`;
+      return;
+    }
+    items.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "item";
+      const toneClass = item.tone ? ` ${item.tone}` : "";
+      const deltaHtml = item.delta ? `<div class="delta ${item.deltaTone || ""}">${escapeHtml(item.delta)}</div>` : "";
+      row.innerHTML = `
+        <div class="left">
+          <div class="title">${escapeHtml(item.title)}</div>
+          <div class="meta">${escapeHtml(item.meta || "")}</div>
+        </div>
+        <div class="item-stack">
+          ${item.badge ? `<span class="badge${toneClass}">${escapeHtml(item.badge)}</span>` : ""}
+          ${deltaHtml}
+        </div>
+      `;
+      if(item.tab){
+        row.addEventListener("click", () => goTab(item.tab));
+      }
+      el.appendChild(row);
+    });
+  }
+
+  function buildTrendItems(snapshots){
+    return snapshots.map((snapshot, idx) => {
+      const prev = idx > 0 ? snapshots[idx - 1] : null;
+      const diff = (snapshot.cogsPct != null && prev?.cogsPct != null) ? snapshot.cogsPct - prev.cogsPct : null;
+      return {
+        title: snapshot.month.label,
+        meta: `Sales ${money(snapshot.salesFoodNet)} • Purchases ${money(snapshot.purchasesTotal)} • End inv ${money(snapshot.endInventoryTotal)}`,
+        badge: snapshot.cogsPct != null ? `COGS ${pct(snapshot.cogsPct)}` : "COGS —",
+        tone: diff == null ? "neutral" : trendTone(diff),
+        delta: diff == null ? "Baseline" : `${formatDeltaPoints(diff)} vs prior`,
+        deltaTone: diff == null ? "" : (diff > 0 ? "up" : "down"),
+      };
+    });
+  }
+
+  function buildVarianceItems(snapshot){
+    return snapshot.topMovers.slice(0, 5).map(mover => ({
+      title: mover.name,
+      meta: `Begin ${fmtQty(mover.beginQty)} + Purch ${fmtQty(mover.purchaseQty)} − End ${fmtQty(mover.endQty)} = ${fmtQty(mover.usageQty)}`,
+      badge: money(mover.usageVal),
+      tone: mover.usageQty < 0 ? "warn" : "neutral",
+      delta: mover.usageQty < 0 ? "Negative usage anomaly" : `${mover.group === "ingredients" ? "Ingredient" : "Product"} driver`,
+      deltaTone: mover.usageQty < 0 ? "up" : "",
+    }));
+  }
+
   // -------- Rendering --------
   monthSelect.addEventListener("change", () => {
     currentMonthId = monthSelect.value;
@@ -1268,26 +1578,33 @@ function renderVendorChips(vendor){
 
   function renderDashboard(){
     const month = getMonth();
-    $("#dashMonthLabel").textContent = month.label;
-    $("#dashSalesFoodNet").textContent = money(month.sales?.foodNet||0);
-    $("#dashSalesTotalNet").textContent = money(month.sales?.totalNet||0);
+    const snapshot = computeMonthSnapshot(month);
+    const prevMonth = getPrevMonthById(month.id);
+    const prevSnapshot = prevMonth ? computeMonthSnapshot(prevMonth) : null;
+    const trendItems = buildTrendItems(getMonthTrendWindow(month.id, 6));
+    const varianceItems = buildVarianceItems(snapshot);
+    const actionItems = buildActionCenter(snapshot, prevSnapshot);
 
-    const ing = computeCOGS(month, "ingredients");
-    const prod = computeCOGS(month, "products");
+    $("#dashMonthLabel").textContent = month.label;
+    $("#dashSalesFoodNet").textContent = money(snapshot.salesFoodNet);
+    $("#dashSalesTotalNet").textContent = money(snapshot.salesTotalNet);
+
+    const ing = snapshot.ing;
+    const prod = snapshot.prod;
     $("#dashCogsIng").textContent = money(ing.cogs);
     $("#dashCogsProd").textContent = money(prod.cogs);
 
-    const denom = (month.sales?.foodNet||0);
-    $("#dashCogsPct").textContent = denom>0 ? pct((ing.cogs+prod.cogs)/denom) : "—";
+    const denom = snapshot.salesFoodNet;
+    $("#dashCogsPct").textContent = snapshot.cogsPct != null ? pct(snapshot.cogsPct) : "—";
 
     // ---- Phase D: Quick stat tiles ----
-    const cogsTotal = (ing.cogs + prod.cogs);
-    const purchTotal = computePurchasesValue(month, "ingredients") + computePurchasesValue(month, "products");
-    const endInvTotal = computeInventoryValue(month, "ingredients") + computeInventoryValue(month, "products");
+    const cogsTotal = snapshot.cogsTotal;
+    const purchTotal = snapshot.purchasesTotal;
+    const endInvTotal = snapshot.endInventoryTotal;
 
     {
       const e1 = $("#dashTileCogsPctVal");
-      if(e1) e1.textContent = denom>0 ? pct(cogsTotal/denom) : "—";
+      if(e1) e1.textContent = snapshot.cogsPct != null ? pct(snapshot.cogsPct) : "—";
       const e2 = $("#dashTileCogsPctSub");
       if(e2) e2.textContent = denom>0 ? `Food+NA net ${money(denom)}` : "Food+NA net —";
       const e3 = $("#dashTilePurchVal");
@@ -1297,84 +1614,39 @@ function renderVendorChips(vendor){
     }
 
     // Variance vs a default target (safe heuristic; adjustable later)
-    const targetPct = 0.30;
-    const targetCogs = denom>0 ? denom * targetPct : 0;
-    const delta = denom>0 ? (cogsTotal - targetCogs) : 0;
+    const targetPct = snapshot.targetPct;
+    const delta = snapshot.deltaTarget;
     if($("#dashTileDeltaTargetVal")){
-      const sign = delta > 0 ? "+" : "";
-      $("#dashTileDeltaTargetVal").textContent = denom>0 ? `${sign}${money(delta)}` : "—";
+      $("#dashTileDeltaTargetVal").textContent = delta == null ? "—" : formatSignedMoney(delta);
     }
     if($("#dashTileDeltaTargetSub")){
       if(denom>0){
-        const over = delta > 0;
+        const over = (delta || 0) > 0;
         $("#dashTileDeltaTargetSub").textContent = over ? `Over target (${Math.round(targetPct*100)}%)` : `Under target (${Math.round(targetPct*100)}%)`;
       }else{
         $("#dashTileDeltaTargetSub").textContent = `Target ${Math.round(targetPct*100)}% COGS`;
       }
     }
 
+    renderInsightList($("#dashActionCenter"), actionItems, "Nothing urgent moved", "This month looks steady enough to keep counting and posting.");
+    renderInsightList($("#dashTrendList"), trendItems, "No trend history yet", "Add another month to see direction instead of snapshots.");
+    renderInsightList($("#dashVarianceList"), varianceItems, "No major movers yet", "Post invoices and finish end counts to unlock variance review.");
+
     // ---- Phase D: Variance Heat Map (biggest movers) ----
     const heatBox = $("#dashHeatList");
     if(heatBox){
-      const prev = getPrevMonthById(month.id);
-      const beginCounts = prev?.end?.counts || {};
-      const endCounts = month.end?.counts || {};
-
-      // aggregate invoice movement per item
-      const purchById = new Map();
-      const spendById = new Map();
-      db.invoices.filter(inv => inv.monthId === month.id).forEach(inv => {
-        (inv.lines||[]).forEach(ln => {
-          const itemId = ln.itemId;
-          if(!itemId) return;
-          const q = parseNum(ln.qty)||0;
-          const u = parseNum(ln.unitCost)||0;
-          purchById.set(itemId, (purchById.get(itemId)||0) + q);
-          spendById.set(itemId, (spendById.get(itemId)||0) + (q*u));
-        });
-      });
-
-      const movers = [];
-      db.items.forEach(it => {
-        if(!(it.group === "ingredients" || it.group === "products")) return;
-        const bq = parseNum(beginCounts?.[it.id]?.qty || 0) || 0;
-        const eq = parseNum(endCounts?.[it.id]?.qty || 0) || 0;
-        const pq = purchById.get(it.id) || 0;
-        const spend = spendById.get(it.id) || 0;
-
-        const inferred = (pq>0 && spend>0) ? (spend / pq) : 0;
-        const cost = (parseNum(it.defaultCost)||0) > 0 ? (parseNum(it.defaultCost)||0) : inferred;
-        if(!cost) return;
-
-        const usageQty = bq + pq - eq;
-        const usageVal = usageQty * cost;
-        const mag = Math.abs(usageVal);
-        if(mag < 1) return; // ignore tiny noise
-        movers.push({
-          id: it.id,
-          name: it.name,
-          group: it.group,
-          usageQty,
-          usageVal,
-          mag,
-          bq, pq, eq,
-          unitCost: cost
-        });
-      });
-
-      movers.sort((a,b) => b.mag - a.mag);
-      const top = movers.slice(0, 8);
+      const top = snapshot.topMovers.slice(0, 8);
 
       heatBox.innerHTML = "";
       if(top.length === 0){
         heatBox.innerHTML = `<div class="item"><div class="left"><div class="title">No movers yet</div><div class="meta">Add invoices + end counts to see the heat map.</div></div><span class="badge">—</span></div>`;
       }else{
-        const max = top[0].mag || 1;
+        const max = top[0].magnitude || 1;
         top.forEach(r => {
           const el = document.createElement("div");
           el.className = "item heat-item";
 
-          const w = Math.max(4, Math.min(100, Math.round((r.mag / max) * 100)));
+          const w = Math.max(4, Math.min(100, Math.round((r.magnitude / max) * 100)));
           const anomaly = r.usageQty < 0 ? "Anomaly" : "Move";
           const badgeClass = r.usageQty < 0 ? "badge warn" : "badge";
           const groupPill = r.group === "ingredients" ? "Ing" : "Prod";
@@ -1382,7 +1654,7 @@ function renderVendorChips(vendor){
           el.innerHTML = `
             <div class="left">
               <div class="title">${escapeHtml(r.name)} <span class="badge lock">${groupPill}</span></div>
-              <div class="meta">Begin ${fmtQty(r.bq)} + Purch ${fmtQty(r.pq)} − End ${fmtQty(r.eq)} = <b>${fmtQty(r.usageQty)}</b></div>
+              <div class="meta">Begin ${fmtQty(r.beginQty)} + Purch ${fmtQty(r.purchaseQty)} − End ${fmtQty(r.endQty)} = <b>${fmtQty(r.usageQty)}</b></div>
             </div>
             <div class="heat-right">
               <div class="heat-val">${money(r.usageVal)}</div>
@@ -1394,33 +1666,6 @@ function renderVendorChips(vendor){
           heatBox.appendChild(el);
         });
       }
-    }
-
-    // exceptions
-    const exc = [];
-    // missing costs
-    const missingCost = db.items.filter(i => (i.group==="ingredients" || i.group==="products") && (!i.defaultCost || Number(i.defaultCost)<=0));
-    if(missingCost.length) exc.push(`${missingCost.length} items missing cost`);
-    // unmatched invoice lines
-    const um = getUnmatchedLines(month.id);
-    if(um.length) exc.push(`${um.length} unmatched invoice lines`);
-    // items counted but not in master shouldn't happen, but check counts against items
-    const countIds = Object.keys(month.end?.counts||{});
-    const unknown = countIds.filter(id => !db.items.some(i=>i.id===id));
-    if(unknown.length) exc.push(`${unknown.length} unknown counted item IDs`);
-
-    const box = $("#dashExceptions");
-    box.innerHTML = "";
-    if(exc.length === 0){
-      box.innerHTML = `<div class="item"><div class="left"><div class="title">No obvious problems</div><div class="meta">Still… trust but verify.</div></div><span class="badge">OK</span></div>`;
-    }else{
-      exc.forEach(t => {
-        const el = document.createElement("div");
-        el.className = "item";
-        el.innerHTML = `<div class="left"><div class="title">${escapeHtml(t)}</div><div class="meta">Tap Reports to fix</div></div><span class="badge">Fix</span>`;
-        el.addEventListener("click", () => $('[data-tab="reports"]').click());
-        box.appendChild(el);
-      });
     }
   }
 
@@ -1513,15 +1758,16 @@ function renderVendorChips(vendor){
       list.innerHTML = `<div class="hint">No invoices yet for ${escapeHtml(month.label)}. Tap “New Invoice”.</div>`;
     }else{
       invs.forEach(inv => {
-        const total = inv.lines.reduce((s,l)=>s + (parseNum(l.qty)||0)*(parseNum(l.unitCost)||0), 0);
+        const workflow = summarizeInvoiceWorkflow(inv);
         const el = document.createElement("div");
         el.className = "item";
         el.innerHTML = `<div class="left">
             <div class="title">${escapeHtml(inv.vendor || "(Vendor)")}${inv.number ? " • #"+escapeHtml(inv.number) : ""}</div>
-            <div class="meta">${escapeHtml(inv.date || "")} • ${inv.lines.length} line(s)</div>
+            <div class="meta">${escapeHtml(inv.date || "")} • ${workflow.lineCount} line(s) • ${workflow.matchedCount} matched${workflow.unmatchedCount ? " • "+workflow.unmatchedCount+" unmatched" : ""}</div>
           </div>
           <div class="right">
-            <span class="badge">${money(total)}</span>
+            <span class="badge workflow-badge ${invoiceStatusTone(workflow.status)}">${escapeHtml(invoiceStatusLabel(workflow.status))}</span>
+            <span class="badge">${money(workflow.total)}</span>
             <button class="btn ghost">Edit</button>
           </div>`;
         el.querySelector("button").addEventListener("click", () => {
@@ -1553,11 +1799,33 @@ function renderVendorChips(vendor){
     $("#invoiceEditorSub").textContent = "Card-style lines • tap to expand";
 
     const vendorRecents = getVendorRecents(inv.vendor);
-
-    const total = inv.lines.reduce((s,l)=>s + (parseNum(l.qty)||0)*(parseNum(l.unitCost)||0), 0);
+    const workflow = summarizeInvoiceWorkflow(inv);
 
     editor.innerHTML = `
       <div class="card" style="padding:12px; box-shadow:none; border-color: var(--border);">
+        <div class="ingest-summary">
+          <div class="ingest-summary-top">
+            <div>
+              <div class="hint"><b>Ingestion Status</b></div>
+              <div class="ingest-status-line">
+                <span class="badge workflow-badge ${invoiceStatusTone(workflow.status)}">${escapeHtml(invoiceStatusLabel(workflow.status))}</span>
+                <span class="hint">${workflow.issues.length ? escapeHtml(workflow.issues.join(" • ")) : "This invoice is clean enough to post into cost memory."}</span>
+              </div>
+            </div>
+            <div class="ingest-total">
+              <div class="hint"><b>Total</b></div>
+              <div class="ingest-amount">${money(workflow.total)}</div>
+            </div>
+          </div>
+          <div class="ingest-metrics">
+            <div class="ingest-metric"><span class="k">Lines</span><span class="v">${workflow.lineCount}</span></div>
+            <div class="ingest-metric"><span class="k">Matched</span><span class="v">${workflow.matchedCount}</span></div>
+            <div class="ingest-metric"><span class="k">Unmatched</span><span class="v">${workflow.unmatchedCount}</span></div>
+            <div class="ingest-metric"><span class="k">Missing Cost</span><span class="v">${workflow.missingCostCount}</span></div>
+          </div>
+          ${workflow.issues.length ? `<div class="ingest-issues">${workflow.issues.map(issue => `<span class="ingest-issue">${escapeHtml(issue)}</span>`).join("")}</div>` : `<div class="hint">Operator path: finish line matching, verify quantities and costs, then post.</div>`}
+        </div>
+
         <div class="row">
           <label class="grow">Vendor
             <input id="invVendor" class="input" placeholder="e.g., US Foods" value="${escapeAttr(inv.vendor)}"/>
@@ -1578,10 +1846,7 @@ function renderVendorChips(vendor){
             <div class="hint"><b>Vendor Recents:</b> tap to add a line instantly</div>
             <div class="row" id="vendorChips"></div>
           </div>
-          <div>
-            <div class="hint"><b>Total</b></div>
-            <div style="font-weight:900; font-size:20px;">${money(total)}</div>
-          </div>
+          <div class="hint ingest-source">Source: ${escapeHtml(inv.intakeSource || "manual")} • Last edited ${escapeHtml(new Date(inv.lastEditedAt || inv.createdAt).toLocaleString())}</div>
         </div>
 
         <div class="divider"></div>
@@ -1599,10 +1864,10 @@ function renderVendorChips(vendor){
     `;
 
     // header events
-    $("#invVendor")?.addEventListener("input", (e) => { inv.vendor = e.target.value; saveDBDebounced(); renderInvoices(); });
-    $("#invNumber")?.addEventListener("input", (e) => { inv.number = e.target.value; saveDBDebounced(); });
-    $("#invDate")?.addEventListener("input", (e) => { inv.date = e.target.value; saveDBDebounced(); });
-    $("#invNotes")?.addEventListener("input", (e) => { inv.notes = e.target.value; saveDBDebounced(); });
+    $("#invVendor")?.addEventListener("input", (e) => { inv.vendor = e.target.value; touchInvoice(inv); saveDBDebounced(); renderInvoices(); });
+    $("#invNumber")?.addEventListener("input", (e) => { inv.number = e.target.value; touchInvoice(inv); saveDBDebounced(); });
+    $("#invDate")?.addEventListener("input", (e) => { inv.date = e.target.value; touchInvoice(inv); saveDBDebounced(); });
+    $("#invNotes")?.addEventListener("input", (e) => { inv.notes = e.target.value; touchInvoice(inv); saveDBDebounced(); });
 
     // vendor chips
     const chips = $("#vendorChips");
@@ -1613,6 +1878,7 @@ function renderVendorChips(vendor){
       c.textContent = name;
       c.addEventListener("click", () => {
         addInvoiceLine(inv, name);
+        touchInvoice(inv);
         saveDBDebounced(); renderInvoices();
       });
       chips.appendChild(c);
@@ -1623,6 +1889,7 @@ function renderVendorChips(vendor){
 
     $("#btnAddLine")?.addEventListener("click", () => {
       addInvoiceLine(inv, "");
+      touchInvoice(inv);
       saveDBDebounced(); renderInvoices();
     });
 
@@ -1632,6 +1899,12 @@ function renderVendorChips(vendor){
     });
 
     $("#btnApplyToPurchases")?.addEventListener("click", () => {
+      const freshWorkflow = summarizeInvoiceWorkflow(inv);
+      if(freshWorkflow.issues.length){
+        notify(`Fix before posting: ${freshWorkflow.issues[0]}.`);
+        renderInvoices();
+        return;
+      }
       // For v8 MVP: posting means updating item default cost (last cost) and ensuring group/category
       let updated = 0;
       for(const ln of inv.lines){
@@ -1646,6 +1919,7 @@ function renderVendorChips(vendor){
         // keep category if missing
         if(!it.category && ln.category) it.category = ln.category;
       }
+      inv.postedAt = new Date().toISOString();
       saveDBDebounced();
       notify(`Posted. Updated ${updated} item cost(s).`);
       renderAll();
@@ -1838,6 +2112,7 @@ function renderVendorChips(vendor){
       const typed = $("#lnItem").value.trim();
       if(!ln.itemId) ln.rawName = typed;
 
+      touchInvoice(inv);
       saveDBDebounced();
       $("#lineStatus").textContent = "Saved ✅";
       setTimeout(() => $("#pasteModal").classList.add("hidden"), 400);
@@ -1855,6 +2130,7 @@ function renderVendorChips(vendor){
         ln.category = match.category || ln.category;
         ln.unit = ln.unit || match.baseUnit || "ea";
         if(!ln.unitCost) ln.unitCost = match.defaultCost || 0;
+        touchInvoice(inv);
         saveDBDebounced();
         $("#lineStatus").textContent = "Matched ✅";
       }else{
@@ -1863,6 +2139,7 @@ function renderVendorChips(vendor){
         db.items.push(item);
         ln.itemId = item.id;
         ln.rawName = typed;
+        touchInvoice(inv);
         saveDBDebounced();
         $("#lineStatus").textContent = "Created ✅";
       }
@@ -1873,6 +2150,7 @@ function renderVendorChips(vendor){
       if(!confirm("Delete this line?")) return;
       const idx = inv.lines.findIndex(x => x.id === ln.id);
       if(idx>=0) inv.lines.splice(idx,1);
+      touchInvoice(inv);
       saveDBDebounced();
       $("#pasteModal").classList.add("hidden");
       renderInvoices();
@@ -2110,16 +2388,19 @@ function renderVendorChips(vendor){
 
   function renderReports(){
     const month = getMonth();
+    const snapshot = computeMonthSnapshot(month);
+    const trendItems = buildTrendItems(getMonthTrendWindow(month.id, 6));
+    const varianceItems = buildVarianceItems(snapshot);
 
-    const ing = computeCOGS(month, "ingredients");
+    const ing = snapshot.ing;
     $("#repBeginIng").textContent = money(ing.begin);
     $("#repPurchIng").textContent = money(ing.purch);
     $("#repEndIng").textContent = money(ing.endv);
     $("#repCogsIng").textContent = money(ing.cogs);
 
-    const prod = computeCOGS(month, "products");
-    const denom = (month.sales?.foodNet||0);
-    $("#repCogsPct").textContent = denom>0 ? pct((ing.cogs+prod.cogs)/denom) : "—";
+    $("#repCogsPct").textContent = snapshot.cogsPct != null ? pct(snapshot.cogsPct) : "—";
+    renderInsightList($("#repTrendList"), trendItems, "No trend history yet", "Create another month to see pace and direction.");
+    renderInsightList($("#repVarianceList"), varianceItems, "No major variance drivers yet", "Once invoices and counts are cleaner, the biggest movers land here.");
 
     // Findings list
     const fbox = $("#findingsList");
@@ -2186,7 +2467,6 @@ db.settings = db.settings || {};
 db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
 
 function renderPeriodStatus(){
-  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   const s = document.getElementById('periodStatus');
   if(!s) return;
   if(db.period.locked){
@@ -2202,7 +2482,6 @@ function renderPeriodStatus(){
 }
 
 function confirmBeginInventory(){
-  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   const inp = document.getElementById('beginInvInput');
   if(!inp) return;
   db.beginInventory = Number(inp.value||0);
@@ -2212,7 +2491,6 @@ function confirmBeginInventory(){
 }
 
 function lockCurrentPeriod(){
-  db.period = db.period || { locked:false, lockedAt:null, beginConfirmed:false, costSnapshot:{} };
   if(db.period.locked) return;
   db.period.locked = true;
   db.period.lockedAt = Date.now();
@@ -2772,8 +3050,7 @@ function renderVendorChips(vendor){
     }catch(_e){}
   })();
 
-  window.exportZIP = exportZIP;
-  window.emailDraft = emailDraft;
+})();
 
 document.addEventListener('change', (e)=>{
   if(e.target && e.target.id==='invoiceVendor'){
@@ -2876,8 +3153,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     renderMonthlySummary();
   }catch(e){}
 });
-document.getElementById('exportZip')?.addEventListener('click', (...args) => window.exportZIP?.(...args));
-document.getElementById('emailReport')?.addEventListener('click', (...args) => window.emailDraft?.(...args));
+document.getElementById('exportZip')?.addEventListener('click', exportZIP);
+document.getElementById('emailReport')?.addEventListener('click', emailDraft);
 
 document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('confirmBeginInv')?.addEventListener('click', confirmBeginInventory);
@@ -3470,4 +3747,3 @@ document.getElementById("expEmail")?.addEventListener("click", ()=>{
   const body = encodeURIComponent("Attached: exported reports ZIP.");
   if(subject) window.location.href = `mailto:?subject=${subject}&body=${body}`;
 });
-})();

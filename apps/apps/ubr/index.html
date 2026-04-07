@@ -438,7 +438,7 @@ img{ height:auto; }
 
 </style>
 <script>window.APP_ID="ubr-ultimate-broker-routing";</script>
-<link href="../../manifest.webmanifest" rel="manifest"><link href="https://dev-in-portfolio.netlify.app/apps/ubr/" rel="canonical"/><link href="../../icon-192.png" rel="icon"/><script src="../../runtime-guard.js"></script>
+<link href="/manifest.webmanifest" rel="manifest"><link href="https://dev-in-portfolio.netlify.app/apps/ubr/" rel="canonical"/><link href="/icon-192.png" rel="icon"/><script src="/runtime-guard.js"></script>
 <link href="/shared/tile-polish.css" rel="stylesheet"/>
 <link href="/shared/tap-physics.css" rel="stylesheet"/>
 <link href="/shared/ui-physics.css" rel="stylesheet"/>
@@ -663,6 +663,62 @@ img{ height:auto; }
 </div>
 </div>
 <div class="text-xs text-green-400 mt-2 h-4" id="ocrGeoStatus"></div>
+</div>
+</div>
+<div class="card">
+<div class="text-sm font-semibold mb-2">5. Structured Extraction Review</div>
+<div class="text-xs text-slate-400 mb-3">Turn OCR into a normalized load object, then push it into the ready, review, or exception queue before routing.</div>
+<div class="space-y-3">
+<div class="row">
+<button class="btn btn-accent grow" onclick="OCR.extractLoadReview()">Extract Load</button>
+<button class="btn grow" onclick="OCR.saveLoadObject()">Save Load Object</button>
+</div>
+<div class="hidden" id="loadReviewPanel">
+<div class="row mb-2" id="loadReviewBadges"></div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<div>
+<label class="text-xs text-slate-400">Origin</label>
+<input class="input" id="loadOrigin" placeholder="Pickup city / address"/>
+</div>
+<div>
+<label class="text-xs text-slate-400">Destination</label>
+<input class="input" id="loadDestination" placeholder="Delivery city / address"/>
+</div>
+<div>
+<label class="text-xs text-slate-400">Rate</label>
+<input class="input" id="loadRate" placeholder="$2,450"/>
+</div>
+<div>
+<label class="text-xs text-slate-400">Commodity</label>
+<input class="input" id="loadCommodity" placeholder="Dry van / produce / etc"/>
+</div>
+<div>
+<label class="text-xs text-slate-400">Weight</label>
+<input class="input" id="loadWeight" placeholder="43,000 lb"/>
+</div>
+<div>
+<label class="text-xs text-slate-400">Validation State</label>
+<input class="input" id="loadValidationState" readonly=""/>
+</div>
+<div>
+<label class="text-xs text-slate-400">Pickup Window</label>
+<input class="input" id="loadPickupWindow" placeholder="Today 08:00–12:00"/>
+</div>
+<div>
+<label class="text-xs text-slate-400">Delivery Window</label>
+<input class="input" id="loadDeliveryWindow" placeholder="Tomorrow 09:00–17:00"/>
+</div>
+</div>
+<label class="text-xs text-slate-400">Exception Notes</label>
+<textarea class="input" id="loadExceptions" placeholder="Missing pieces, suspicious data, or manual correction notes" rows="3"></textarea>
+</div>
+<div class="text-xs text-slate-400" id="loadReviewStatus">No structured extraction yet.</div>
+</div>
+</div>
+<div class="card">
+<div class="text-sm font-semibold mb-2">Load Queues</div>
+<div class="text-xs text-slate-400 mb-3">Reviewed loads are grouped into ready, review, and exception queues with reopen-for-fix actions.</div>
+<div class="space-y-2" id="loadQueue"></div>
 </div>
 </div>
 </section>

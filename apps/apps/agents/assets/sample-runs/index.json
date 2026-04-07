@@ -1,0 +1,28 @@
+[
+  {
+    "id": "sample_run_001",
+    "title": "Portfolio structural audit",
+    "status": "completed",
+    "agentName": "Audit Agent",
+    "pack": "Pack D",
+    "targetLabel": "portfolio sandbox",
+    "taskSummary": "Audit the demo workspace for broken local references and missing assets.",
+    "startedAt": "2026-04-04T18:22:10Z",
+    "durationMs": 8000,
+    "toolCalls": 3,
+    "artifactCount": 2
+  },
+  {
+    "id": "sample_run_002",
+    "title": "Vendor portal autofill preview",
+    "status": "blocked",
+    "agentName": "Form Autofill Agent",
+    "pack": "Pack B",
+    "targetLabel": "claims portal demo",
+    "taskSummary": "Prepare an autofill preview for a Medicare claims form, then stop at approval.",
+    "startedAt": "2026-04-04T19:04:03Z",
+    "durationMs": 5100,
+    "toolCalls": 2,
+    "artifactCount": 1
+  }
+]

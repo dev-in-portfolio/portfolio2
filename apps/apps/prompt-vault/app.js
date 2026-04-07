@@ -70,10 +70,78 @@ const state = {
   q: "",
   selectedTags: new Set(),
   editingId: null,
+  compareLeft: "head",
+  compareRight: "draft",
 };
 
 function nowISO(){ return new Date().toISOString(); }
 function uid(){ return "pv_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16); }
+
+function normalizeRevision(rev, fallbackPrompt){
+  const title = String(rev?.title || fallbackPrompt?.title || "(untitled)");
+  const tags = Array.isArray(rev?.tags) ? rev.tags.map(t=>String(t).toLowerCase()) : normTags(rev?.tags || fallbackPrompt?.tags || "");
+  const body = String(rev?.body || fallbackPrompt?.body || "");
+  const createdAt = rev?.createdAt || fallbackPrompt?.updatedAt || fallbackPrompt?.createdAt || nowISO();
+  return {
+    id: typeof rev?.id === "string" ? rev.id : uid(),
+    title,
+    tags,
+    body,
+    createdAt,
+    note: String(rev?.note || "")
+  };
+}
+
+function normalizeVariant(variant, fallbackPrompt){
+  const title = String(variant?.title || fallbackPrompt?.title || "(untitled)");
+  const tags = Array.isArray(variant?.tags) ? variant.tags.map(t=>String(t).toLowerCase()) : normTags(variant?.tags || fallbackPrompt?.tags || "");
+  const body = String(variant?.body || fallbackPrompt?.body || "");
+  const createdAt = variant?.createdAt || fallbackPrompt?.updatedAt || fallbackPrompt?.createdAt || nowISO();
+  return {
+    id: typeof variant?.id === "string" ? variant.id : uid(),
+    title,
+    tags,
+    body,
+    createdAt,
+    label: String(variant?.label || title || "Variant"),
+    note: String(variant?.note || "")
+  };
+}
+
+function normalizePromptRecord(p){
+  const title = String(p?.title || "(untitled)");
+  const tags = Array.isArray(p?.tags) ? p.tags.map(t=>String(t).toLowerCase()) : normTags(p?.tags || "");
+  const body = String(p?.body || "");
+  const createdAt = p?.createdAt || nowISO();
+  const updatedAt = p?.updatedAt || createdAt;
+  const base = {
+    id: typeof p?.id === "string" ? p.id : uid(),
+    title,
+    tags,
+    body,
+    createdAt,
+    updatedAt,
+    revisions: [],
+    variants: []
+  };
+  const revisions = Array.isArray(p?.revisions) && p.revisions.length
+    ? p.revisions.map(rev => normalizeRevision(rev, base))
+    : [normalizeRevision({ title, tags, body, createdAt }, base)];
+  revisions.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+  const variants = Array.isArray(p?.variants)
+    ? p.variants.map(variant => normalizeVariant(variant, base))
+    : [];
+  variants.sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
+  return { ...base, revisions, variants };
+}
+
+function normalizePromptCollection(list){
+  return (Array.isArray(list) ? list : [])
+    .filter(Boolean)
+    .map(normalizePromptRecord)
+    .filter(p=>p.body.trim().length > 0)
+    .sort((a,b)=> (b.updatedAt||"").localeCompare(a.updatedAt||""));
+}
 
 function getPass(){
   return localStorage.getItem(LS_PASS) || DEFAULT_PASS;
@@ -132,12 +200,13 @@ function loadPrompts(){
     const raw = localStorage.getItem(LS_DATA);
     if(!raw) return [];
     const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
+    return normalizePromptCollection(data);
   }catch{
     return [];
   }
 }
 function savePrompts(){
+  state.prompts = normalizePromptCollection(state.prompts);
   localStorage.setItem(LS_DATA, JSON.stringify(state.prompts));
   try{ window.NexusAppData?.saveDebounced?.("prompt-vault", { prompts: state.prompts }, 900); }catch(_e){}
 }
@@ -210,6 +279,14 @@ function showStorageWarningBannerIfNeeded() {
 function clamp(s, n){
   if(!s) return "";
   return s.length > n ? (s.slice(0, n) + "…") : s;
+}
+
+function escapeHtml(str){
+  return String(str || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 function normTags(tagStr){
@@ -347,6 +424,11 @@ function openModal(id){
   $("fBody").value = item?.body || "";
   const fe = $("formErr");
   if(fe) fe.textContent = "";
+  state.compareLeft = "head";
+  state.compareRight = "draft";
+  renderRevisionHistory(item);
+  renderVariants(item);
+  renderComparePanel(item);
 
   setTimeout(()=> $("fTitle").focus(), 30);
 }
@@ -354,6 +436,8 @@ function openModal(id){
 function closeModal(){
   $("modal").hidden = true;
   state.editingId = null;
+  state.compareLeft = "head";
+  state.compareRight = "draft";
 }
 
 function upsertPrompt(){
@@ -372,14 +456,62 @@ function upsertPrompt(){
   if(state.editingId){
     const i = state.prompts.findIndex(p=>p.id===state.editingId);
     if(i>=0){
-      state.prompts[i] = { ...state.prompts[i], title, tags, body, updatedAt: ts };
+      const prev = normalizePromptRecord(state.prompts[i]);
+      const changed = prev.title !== title || prev.body !== body || JSON.stringify(prev.tags||[]) !== JSON.stringify(tags);
+      const revisions = Array.isArray(prev.revisions) ? prev.revisions.slice() : [];
+      if(changed){
+        revisions.unshift(normalizeRevision({ title, tags, body, createdAt: ts }, { title, tags, body, updatedAt: ts, createdAt: prev.createdAt }));
+      }
+      state.prompts[i] = { ...prev, title, tags, body, updatedAt: ts, revisions, variants: Array.isArray(prev.variants) ? prev.variants.slice() : [] };
     }
   }else{
-    state.prompts.unshift({ id: uid(), title, tags, body, createdAt: ts, updatedAt: ts });
+    state.prompts.unshift(normalizePromptRecord({
+      id: uid(),
+      title,
+      tags,
+      body,
+      createdAt: ts,
+      updatedAt: ts,
+      revisions: [{ id: uid(), title, tags, body, createdAt: ts }],
+      variants: []
+    }));
   }
   savePrompts();
   closeModal();
   renderAll();
+}
+
+function saveVariant(){
+  if(!state.editingId){
+    const fe = $("formErr");
+    if(fe) fe.textContent = "Save this prompt first, then branch variants from it.";
+    return;
+  }
+  const i = state.prompts.findIndex(p=>p.id===state.editingId);
+  if(i < 0) return;
+  const labelInput = window.prompt("Variant label:", $("fTitle").value.trim() || "Variant");
+  if(labelInput === null) return;
+  const label = labelInput.trim() || "Variant";
+  const title = ($("fTitle").value || "").trim() || "(untitled)";
+  const tags = normTags($("fTags").value);
+  const body = ($("fBody").value || "").trim();
+  if(!body){
+    const fe = $("formErr");
+    if(fe) fe.textContent = "Give the draft a body before saving a variant.";
+    return;
+  }
+  const prompt = normalizePromptRecord(state.prompts[i]);
+  const ts = nowISO();
+  const variants = Array.isArray(prompt.variants) ? prompt.variants.slice() : [];
+  variants.unshift(normalizeVariant({ label, title, tags, body, createdAt: ts }, { title, tags, body, updatedAt: ts, createdAt: prompt.createdAt }));
+  state.prompts[i] = { ...prompt, updatedAt: ts, variants };
+  savePrompts();
+  const saved = normalizePromptRecord(state.prompts[i]);
+  renderVariants(saved);
+  renderComparePanel(saved);
+  renderAll();
+  const fe = $("formErr");
+  if(fe) fe.textContent = `Saved "${label}" as a reusable variant.`;
 }
 
 function deletePrompt(){
@@ -419,21 +551,227 @@ async function importPrompts(file){
   // normalize + merge by id if present
   const incoming = data
     .filter(Boolean)
-    .map(p=>({
-      id: typeof p.id === "string" ? p.id : uid(),
-      title: String(p.title || "(untitled)"),
-      tags: Array.isArray(p.tags) ? p.tags.map(t=>String(t).toLowerCase()) : normTags(p.tags || ""),
-      body: String(p.body || ""),
-      createdAt: p.createdAt || nowISO(),
-      updatedAt: nowISO(),
-    }))
-    .filter(p=>p.body.trim().length > 0);
+    .map(p=>normalizePromptRecord({
+      ...p,
+      updatedAt: p.updatedAt || nowISO(),
+    }));
 
   const map = new Map(state.prompts.map(p=>[p.id,p]));
   incoming.forEach(p=> map.set(p.id, p));
-  state.prompts = Array.from(map.values()).sort((a,b)=> (b.updatedAt||"").localeCompare(a.updatedAt||""));
+  state.prompts = normalizePromptCollection(Array.from(map.values()));
   savePrompts();
   renderAll();
+}
+
+function renderRevisionHistory(item){
+  const meta = $("revisionMeta");
+  const list = $("revisionList");
+  if(!meta || !list) return;
+  if(!item){
+    meta.textContent = "No revisions yet";
+    list.innerHTML = `<div class="pvRevisionEmpty">Save this prompt once and its revision history starts here.</div>`;
+    return;
+  }
+  const prompt = normalizePromptRecord(item);
+  const revisions = prompt.revisions || [];
+  meta.textContent = `${revisions.length} version${revisions.length === 1 ? "" : "s"}`;
+  if(!revisions.length){
+    list.innerHTML = `<div class="pvRevisionEmpty">No saved revisions.</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  revisions.slice(0, 8).forEach((rev, idx)=>{
+    const row = document.createElement("div");
+    row.className = "pvRevisionItem";
+    row.innerHTML = `
+      <div class="pvRevisionMain">
+        <div class="pvRevisionStamp">v${revisions.length - idx} · ${formatDate(rev.createdAt)}</div>
+        <div class="pvRevisionText">${clamp(rev.body, 180)}</div>
+      </div>
+      <button class="pvIconBtn" type="button" title="Restore this version">↺</button>
+    `;
+    row.querySelector("button").addEventListener("click", ()=>{
+      $("fTitle").value = rev.title || "";
+      $("fTags").value = (rev.tags || []).join(", ");
+      $("fBody").value = rev.body || "";
+      const fe = $("formErr");
+      if(fe) fe.textContent = "Loaded revision into the editor. Save to create a new head version.";
+      renderComparePanel(normalizePromptRecord(item));
+    });
+    list.appendChild(row);
+  });
+}
+
+function renderVariants(item){
+  const meta = $("variantMeta");
+  const list = $("variantList");
+  const saveBtn = $("btnSaveVariant");
+  if(!meta || !list || !saveBtn) return;
+  if(!item){
+    meta.textContent = "Save the prompt first to branch variants.";
+    list.innerHTML = `<div class="pvRevisionEmpty">Variants hang off an existing prompt record, so the first save creates the base entry.</div>`;
+    saveBtn.disabled = true;
+    return;
+  }
+  saveBtn.disabled = false;
+  const prompt = normalizePromptRecord(item);
+  const variants = prompt.variants || [];
+  meta.textContent = `${variants.length} variant${variants.length === 1 ? "" : "s"}`;
+  if(!variants.length){
+    list.innerHTML = `<div class="pvRevisionEmpty">No variants yet. Save the current draft as an alternate approach when you want to preserve the main head prompt.</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  variants.forEach((variant)=>{
+    const row = document.createElement("div");
+    row.className = "pvVariantItem";
+    row.innerHTML = `
+      <div class="pvVariantMain">
+        <div class="pvVariantStamp">${formatDate(variant.createdAt)}</div>
+        <div class="pvVariantName">${escapeHtml(variant.label || variant.title || "Variant")}</div>
+        <div class="pvVariantText">${escapeHtml(clamp(variant.body, 180))}</div>
+        <div class="pvVariantTags">${(variant.tags || []).slice(0, 8).map(t=>`<span class="pvTag">${escapeHtml(t)}</span>`).join("")}</div>
+      </div>
+      <div class="pvVariantButtons">
+        <button class="pvIconBtn" type="button" title="Load variant into editor">↺</button>
+        <button class="pvIconBtn" type="button" title="Compare against head">⇄</button>
+      </div>
+    `;
+    const [restoreBtn, compareBtn] = row.querySelectorAll("button");
+    restoreBtn.addEventListener("click", ()=>{
+      $("fTitle").value = variant.title || "";
+      $("fTags").value = (variant.tags || []).join(", ");
+      $("fBody").value = variant.body || "";
+      const fe = $("formErr");
+      if(fe) fe.textContent = `Loaded variant "${variant.label || variant.title || "Variant"}" into the editor. Save to promote it to the head prompt.`;
+      renderComparePanel(prompt);
+    });
+    compareBtn.addEventListener("click", ()=>{
+      state.compareLeft = "head";
+      state.compareRight = `variant:${variant.id}`;
+      renderComparePanel(prompt);
+    });
+    list.appendChild(row);
+  });
+}
+
+function getDraftSnapshot(){
+  return {
+    id: "draft",
+    type: "draft",
+    label: "Current draft",
+    title: ($("fTitle")?.value || "").trim() || "(untitled)",
+    tags: normTags($("fTags")?.value || ""),
+    body: ($("fBody")?.value || "").trim(),
+    createdAt: nowISO()
+  };
+}
+
+function getCompareOptions(prompt){
+  if(!prompt){
+    return [
+      { value: "draft", label: "Current draft" }
+    ];
+  }
+  const options = [
+    { value: "head", label: "Head prompt" },
+    { value: "draft", label: "Current draft" }
+  ];
+  (prompt.variants || []).forEach((variant, idx)=>{
+    options.push({ value: `variant:${variant.id}`, label: `Variant ${idx + 1}: ${variant.label || variant.title}` });
+  });
+  (prompt.revisions || []).slice(0, 6).forEach((rev, idx, arr)=>{
+    options.push({ value: `revision:${rev.id}`, label: `Revision v${arr.length - idx}: ${formatDate(rev.createdAt)}` });
+  });
+  return options;
+}
+
+function resolveCompareItem(prompt, key){
+  if(key === "draft") return getDraftSnapshot();
+  if(key === "head" && prompt){
+    return {
+      id: prompt.id,
+      type: "head",
+      label: "Head prompt",
+      title: prompt.title,
+      tags: prompt.tags || [],
+      body: prompt.body || "",
+      createdAt: prompt.updatedAt || prompt.createdAt
+    };
+  }
+  if(prompt && key.startsWith("variant:")){
+    const variant = (prompt.variants || []).find(v=>`variant:${v.id}` === key);
+    if(variant) return { ...variant, type: "variant", label: variant.label || variant.title || "Variant" };
+  }
+  if(prompt && key.startsWith("revision:")){
+    const revision = (prompt.revisions || []).find(v=>`revision:${v.id}` === key);
+    if(revision) return { ...revision, type: "revision", label: `Revision · ${formatDate(revision.createdAt)}` };
+  }
+  return null;
+}
+
+function joinTags(tags){
+  return (Array.isArray(tags) ? tags : []).join(", ") || "No tags";
+}
+
+function summarizeComparison(left, right){
+  if(!left || !right) return "Pick two saved surfaces to compare.";
+  const changes = [];
+  if((left.title || "") !== (right.title || "")) changes.push("title changed");
+  if(joinTags(left.tags) !== joinTags(right.tags)) changes.push("tags changed");
+  const leftBody = left.body || "";
+  const rightBody = right.body || "";
+  const wordDelta = Math.abs(leftBody.split(/\s+/).filter(Boolean).length - rightBody.split(/\s+/).filter(Boolean).length);
+  if(leftBody !== rightBody) changes.push(`body differs by about ${wordDelta} word${wordDelta === 1 ? "" : "s"}`);
+  if(!changes.length) return "These two versions currently match on title, tags, and body.";
+  return changes.join(" · ");
+}
+
+function renderCompareContent(item){
+  if(!item){
+    return `<div class="pvCompareEmpty">Nothing selected.</div>`;
+  }
+  return `
+    <div class="pvCompareBlock">
+      <div class="pvCompareLabel">Source</div>
+      <div class="pvCompareValue">${escapeHtml(item.label || item.title || item.type || "Version")}</div>
+    </div>
+    <div class="pvCompareBlock">
+      <div class="pvCompareLabel">Title</div>
+      <div class="pvCompareValue">${escapeHtml(item.title || "(untitled)")}</div>
+    </div>
+    <div class="pvCompareBlock">
+      <div class="pvCompareLabel">Tags</div>
+      <div class="pvCompareValue">${escapeHtml(joinTags(item.tags))}</div>
+    </div>
+    <div class="pvCompareBlock">
+      <div class="pvCompareLabel">Body</div>
+      <div class="pvCompareValue">${escapeHtml(item.body || "(empty)")}</div>
+    </div>
+  `;
+}
+
+function renderComparePanel(item){
+  const leftSel = $("compareLeft");
+  const rightSel = $("compareRight");
+  const leftSlot = $("compareLeftSlot");
+  const rightSlot = $("compareRightSlot");
+  const meta = $("compareMeta");
+  if(!leftSel || !rightSel || !leftSlot || !rightSlot || !meta) return;
+  const prompt = item ? normalizePromptRecord(item) : null;
+  const options = getCompareOptions(prompt);
+  const ensureKey = (candidate, fallback) => options.some(opt=>opt.value === candidate) ? candidate : fallback;
+  state.compareLeft = ensureKey(state.compareLeft, options[0]?.value || "draft");
+  state.compareRight = ensureKey(state.compareRight, options.find(opt=>opt.value !== state.compareLeft)?.value || state.compareLeft);
+  leftSel.innerHTML = options.map(opt=>`<option value="${escapeHtml(opt.value)}">${escapeHtml(opt.label)}</option>`).join("");
+  rightSel.innerHTML = options.map(opt=>`<option value="${escapeHtml(opt.value)}">${escapeHtml(opt.label)}</option>`).join("");
+  leftSel.value = state.compareLeft;
+  rightSel.value = state.compareRight;
+  const left = resolveCompareItem(prompt, state.compareLeft);
+  const right = resolveCompareItem(prompt, state.compareRight);
+  leftSlot.innerHTML = renderCompareContent(left);
+  rightSlot.innerHTML = renderCompareContent(right);
+  meta.textContent = summarizeComparison(left, right);
 }
 
 function getAllTags(){
@@ -516,7 +854,9 @@ function renderList(){
 
     const meta = document.createElement("div");
     meta.className="pvItemMeta";
-    meta.textContent = `Updated ${formatDate(p.updatedAt || p.createdAt)}`;
+    const revCount = Array.isArray(p.revisions) ? p.revisions.length : 1;
+    const variantCount = Array.isArray(p.variants) ? p.variants.length : 0;
+    meta.textContent = `Updated ${formatDate(p.updatedAt || p.createdAt)} · ${revCount} version${revCount === 1 ? "" : "s"} · ${variantCount} variant${variantCount === 1 ? "" : "s"}`;
 
     main.appendChild(title);
     main.appendChild(body);
@@ -599,7 +939,7 @@ function init(){
       const remote = await window.NexusAppData?.loadLatest?.("prompt-vault");
       const arr = remote?.payload?.prompts;
       if(Array.isArray(arr) && arr.length){
-        state.prompts = arr;
+        state.prompts = normalizePromptCollection(arr);
         savePrompts();
         renderAll();
       }
@@ -626,8 +966,29 @@ function init(){
       alert("Save failed: " + (e?.message || e));
     }
   });
+  $("btnSaveVariant").addEventListener("click", saveVariant);
   $("btnDelete").addEventListener("click", ()=>{
     if(confirm("Delete this prompt?")) deletePrompt();
+  });
+  ["fTitle", "fTags", "fBody"].forEach((id)=>{
+    $(id).addEventListener("input", ()=>{
+      if(state.editingId){
+        const prompt = state.prompts.find(p=>p.id === state.editingId) || null;
+        renderComparePanel(prompt);
+      }else{
+        renderComparePanel(null);
+      }
+    });
+  });
+  $("compareLeft").addEventListener("change", (e)=>{
+    state.compareLeft = e.target.value;
+    const prompt = state.editingId ? state.prompts.find(p=>p.id === state.editingId) : null;
+    renderComparePanel(prompt || null);
+  });
+  $("compareRight").addEventListener("change", (e)=>{
+    state.compareRight = e.target.value;
+    const prompt = state.editingId ? state.prompts.find(p=>p.id === state.editingId) : null;
+    renderComparePanel(prompt || null);
   });
 
   $("btnExport").addEventListener("click", exportPrompts);

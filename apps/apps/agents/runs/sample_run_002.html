@@ -4,10 +4,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Agents • Overview</title>
-<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
-<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
-<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+<title>Agents • Run sample_run_002</title>
+<link href="../assets/css/agents.css" rel="stylesheet"/>
+<link href="../../../shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="../../../shared/nexus-topnav-v2.js?v=54"></script>
 </head>
 <body>
   <nav class="nxTopNav"></nav>
@@ -29,21 +29,16 @@
 </div>
 <div class="container">
 <div class="hcard">
-<h1>Platform overview</h1>
-<p><b>Store → Package → Local Runner → Tools → Receipts</b></p>
-<div class="code">
-Store (this UI) lists agents and packs.
-Packs are .agentpack.zip files with a manifest + agent code.
-Local Runner installs packs into .agentx/ and runs agents with scoped permissions.
-Tools are the runtime capabilities (fs, exec, browser, secrets, approvals).
-Receipts capture: timeline, logs, artifacts, screenshots, signatures/attestations.
-Runs can now be inspected side by side and replayed from deterministic sample tasks.
-  </div>
+<h1 data-run-title>Run: sample_run_002</h1>
+<p>Timeline, policy envelope, logs, and artifacts for a pre-recorded canonical run.</p>
 <div class="sep"></div>
-<p><b>Demo vs Real</b>: This cloud UI is a demo. The actual execution happens locally via the runner. Browser agents are restricted to the demo targets shipped in this module.</p>
+<div id="runInspector" data-run-id="sample_run_002"><div class="card"><p style="margin:0;color:var(--muted)">Loading run inspector…</p></div></div>
 </div>
 <div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
 </div>
-<script src="/apps/agents/assets/js/agents.js"></script>
+<script src="../assets/js/agents.js"></script>
+<script>
+window.AgentPages.renderRunInspector();
+</script>
 </body>
 </html>

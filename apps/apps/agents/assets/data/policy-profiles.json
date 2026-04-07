@@ -1,0 +1,44 @@
+[
+  {
+    "id": "baseline-observe",
+    "name": "Observe-only baseline",
+    "summary": "Read-first profile for audits, indexing, and preflight analysis with no irreversible actions.",
+    "tags": ["read-only", "network disabled", "low blast radius"],
+    "rules": {
+      "local.fs.read": "allow",
+      "local.fs.write": "deny",
+      "browser.automation": "deny",
+      "approval.required": "n/a",
+      "receipts.bundle.export": "allow",
+      "net.egress": "disabled"
+    }
+  },
+  {
+    "id": "preview-first-browser",
+    "name": "Preview-first browser",
+    "summary": "Allows controlled browser automation but blocks any irreversible submit path until approval exists.",
+    "tags": ["demo-only", "approval gate", "medium blast radius"],
+    "rules": {
+      "local.fs.read": "allow",
+      "local.fs.write": "allow",
+      "browser.automation": "allow-demo-targets",
+      "approval.required": "before-submit",
+      "receipts.bundle.export": "allow",
+      "net.egress": "demo-only"
+    }
+  },
+  {
+    "id": "signed-release-window",
+    "name": "Signed release window",
+    "summary": "High-trust maintenance profile for signed receipts and gated release actions under explicit approval.",
+    "tags": ["signing enabled", "high risk gate", "short-lived window"],
+    "rules": {
+      "local.fs.read": "allow",
+      "local.fs.write": "allow",
+      "browser.automation": "allow-demo-targets",
+      "approval.required": "hardware-token",
+      "receipts.bundle.export": "signed",
+      "net.egress": "scoped"
+    }
+  }
+]

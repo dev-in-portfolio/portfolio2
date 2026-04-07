@@ -1,9 +1,10 @@
 {
   "id": "sample_run_001",
+  "title": "Portfolio structural audit",
   "agent": "audit-agent",
   "pack": "D",
-  "when": "pre-recorded",
-  "artifacts": [
-    "audit.report.json"
-  ]
+  "status": "completed",
+  "startedAt": "2026-04-04T18:22:10Z",
+  "durationMs": 8000,
+  "artifacts": ["audit.report.json", "asset-matrix.csv"]
 }

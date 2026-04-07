@@ -1,0 +1,10 @@
+{
+  "id": "sample_run_002",
+  "title": "Vendor portal autofill preview",
+  "agent": "form-autofill-agent",
+  "pack": "B",
+  "status": "blocked",
+  "startedAt": "2026-04-04T19:04:03Z",
+  "durationMs": 5100,
+  "artifacts": ["preview-before-submit.png"]
+}

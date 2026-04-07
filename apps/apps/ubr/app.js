@@ -9,6 +9,8 @@ const STATE = {
   today: [],
   todayCurrentId: null,
   week: { days: [] },
+  loads: [],
+  ocrReview: null,
   dev: { notes: '' },
   assist: {
     date: '',
@@ -39,6 +41,24 @@ function normalizeStops(arr){
   });
 }
 
+function normalizeLoads(arr){
+  if(!Array.isArray(arr)) return;
+  arr.forEach(load => {
+    if(!load) return;
+    if(!Array.isArray(load.corrections)) load.corrections = [];
+    if(!Array.isArray(load.exceptions)) load.exceptions = [];
+    if(!Array.isArray(load.reviewReasons)) load.reviewReasons = [];
+    if(!('validationState' in load)) load.validationState = 'draft';
+    if(!('confidence' in load)) load.confidence = 0;
+    if(!('queueBucket' in load)) load.queueBucket = 'review';
+    if(!('routeMetrics' in load)) load.routeMetrics = null;
+    if(!('originGeo' in load)) load.originGeo = null;
+    if(!('destinationGeo' in load)) load.destinationGeo = null;
+    if(!('createdAt' in load)) load.createdAt = new Date().toISOString();
+    hydrateLoadState(load);
+  });
+}
+
 /* Helper: Storage */
 function loadStorage(){
   try{
@@ -53,6 +73,8 @@ function loadStorage(){
     }
     if (Array.isArray(data?.today)) STATE.today = data.today;
     if (data?.todayCurrentId) STATE.todayCurrentId = data.todayCurrentId;
+    if (Array.isArray(data?.loads)) STATE.loads = data.loads;
+    if (data?.ocrReview) STATE.ocrReview = data.ocrReview;
     if (data?.dev?.notes) STATE.dev.notes = data.dev.notes;
     if (data?.assist){
       STATE.assist = { ...STATE.assist, ...data.assist };
@@ -61,6 +83,8 @@ function loadStorage(){
     
     normalizeStops(STATE.today);
     ['clients','leads','archived'].forEach(k=> normalizeStops(STATE.book[k]));
+    normalizeLoads(STATE.loads);
+    if(STATE.ocrReview) hydrateLoadState(STATE.ocrReview);
   }catch(e){ console.error('Load error', e); }
 }
 
@@ -75,6 +99,8 @@ function saveStorage(){
       },
       today: STATE.today,
       todayCurrentId: STATE.todayCurrentId,
+      loads: STATE.loads,
+      ocrReview: STATE.ocrReview,
       dev: { notes: STATE.dev.notes },
       assist: STATE.assist,
       assistHistory: STATE.assistHistory
@@ -115,6 +141,206 @@ function makeStop(name, address, lat=null, lon=null, priority='Medium', extras={
     email: (extras.email||'').slice(0,80),
     createdAt: new Date().toISOString()
   };
+}
+
+function makeLoadObject(fields = {}){
+  return {
+    id: fields.id || uuid(),
+    source: fields.source || 'ocr',
+    confidence: fields.confidence || 0,
+    validationState: fields.validationState || 'draft',
+    origin: fields.origin || '',
+    destination: fields.destination || '',
+    rate: fields.rate || '',
+    commodity: fields.commodity || '',
+    weight: fields.weight || '',
+    pickupWindow: fields.pickupWindow || '',
+    deliveryWindow: fields.deliveryWindow || '',
+    exceptionNotes: fields.exceptionNotes || '',
+    corrections: Array.isArray(fields.corrections) ? fields.corrections : [],
+    exceptions: Array.isArray(fields.exceptions) ? fields.exceptions : [],
+    reviewReasons: Array.isArray(fields.reviewReasons) ? fields.reviewReasons : [],
+    queueBucket: fields.queueBucket || 'review',
+    routeMetrics: fields.routeMetrics || null,
+    originGeo: fields.originGeo || null,
+    destinationGeo: fields.destinationGeo || null,
+    createdAt: fields.createdAt || new Date().toISOString()
+  };
+}
+
+function parseMoney(value){
+  const num = Number(String(value || '').replace(/[^0-9.]/g, ''));
+  return Number.isFinite(num) ? num : 0;
+}
+
+function parseWeight(value){
+  const num = Number(String(value || '').replace(/[^0-9.]/g, ''));
+  return Number.isFinite(num) ? num : 0;
+}
+
+function extractField(lines, patterns){
+  for(const line of lines){
+    for(const pattern of patterns){
+      const match = line.match(pattern);
+      if(match && match[1]) return match[1].trim();
+    }
+  }
+  return '';
+}
+
+function detectValidationState(load){
+  const required = [load.origin, load.destination, load.rate];
+  const missing = required.filter(v => !String(v || '').trim()).length;
+  if(missing >= 1) return 'exception';
+  if((load.exceptions?.length || 0) > 0) return 'exception';
+  if(load.confidence < 70) return 'needs-review';
+  if(!String(load.pickupWindow || '').trim() || !String(load.deliveryWindow || '').trim()) return 'needs-review';
+  return 'validated';
+}
+
+function confidenceBadge(conf){
+  if(conf >= 85) return { label: `High ${conf}%`, cls: 'ok' };
+  if(conf >= 65) return { label: `Medium ${conf}%`, cls: 'warn' };
+  return { label: `Low ${conf}%`, cls: 'low' };
+}
+
+function startPointForLoadRouting(){
+  const currentStop = getCurrentStop();
+  if(currentStop?.lat != null && currentStop?.lon != null) return currentStop;
+  if(STATE.settings.home?.lat != null && STATE.settings.home?.lon != null) return STATE.settings.home;
+  return STATE.today.find(s => s?.lat != null && s?.lon != null) || null;
+}
+
+function explainRiskLevel(score){
+  if(score >= 66) return { label: 'High', cls: 'warn' };
+  if(score >= 36) return { label: 'Medium', cls: 'low' };
+  return { label: 'Low', cls: 'ok' };
+}
+
+function collectReviewReasons(load){
+  const reasons = [];
+  if(!String(load.origin || '').trim()) reasons.push('Missing pickup origin');
+  if(!String(load.destination || '').trim()) reasons.push('Missing delivery destination');
+  if(!String(load.rate || '').trim()) reasons.push('Missing linehaul rate');
+  if(load.confidence < 70) reasons.push('OCR confidence below dispatch threshold');
+  if(load.exceptions?.length) reasons.push(...load.exceptions.filter(Boolean));
+  if(load.corrections?.length) reasons.push(`Manual corrections: ${load.corrections.join(', ')}`);
+  if(!load.pickupWindow) reasons.push('Pickup window not confirmed');
+  if(!load.deliveryWindow) reasons.push('Delivery window not confirmed');
+  return Array.from(new Set(reasons));
+}
+
+function determineQueueBucket(load){
+  if(load.validationState === 'exception') return 'exception';
+  if(load.validationState === 'validated') return 'ready';
+  return 'review';
+}
+
+function hydrateLoadState(load){
+  if(!load) return load;
+  load.validationState = detectValidationState(load);
+  load.reviewReasons = collectReviewReasons(load);
+  load.queueBucket = determineQueueBucket(load);
+  return load;
+}
+
+function computeRouteMetrics(load){
+  if(!load) return null;
+  const miPerM = 1 / 1609.34;
+  const rateValue = parseMoney(load.rate);
+  const weightValue = parseWeight(load.weight);
+  const currentStart = startPointForLoadRouting();
+  const laneMiles = load.originGeo && load.destinationGeo
+    ? haversineMeters(load.originGeo, load.destinationGeo) * miPerM * 1.16
+    : 0;
+  const deadheadMiles = currentStart && load.originGeo
+    ? haversineMeters(currentStart, load.originGeo) * miPerM * 1.1
+    : 0;
+  const weightRisk = weightValue >= 44000 ? 14 : weightValue >= 38000 ? 8 : 3;
+  const windowRisk = (!load.pickupWindow ? 10 : 0) + (!load.deliveryWindow ? 10 : 0);
+  const exceptionRisk = (load.exceptions?.length || 0) * 12;
+  const correctionRisk = (load.corrections?.length || 0) * 5;
+  const commodityText = String(load.commodity || '').toLowerCase();
+  let commodityRisk = 5;
+  const riskDrivers = [];
+  if(/hazmat|haz|flammable/.test(commodityText)){
+    commodityRisk += 22;
+    riskDrivers.push('Hazmat handling');
+  }
+  if(/produce|reefer|frozen|temp/.test(commodityText)){
+    commodityRisk += 12;
+    riskDrivers.push('Temperature-sensitive freight');
+  }
+  if(weightValue >= 44000) riskDrivers.push('Heavy payload');
+  if(!load.pickupWindow || !load.deliveryWindow) riskDrivers.push('Schedule windows incomplete');
+  if(load.exceptions?.length) riskDrivers.push('Open extraction exceptions');
+  const riskScore = Math.min(100, 12 + weightRisk + windowRisk + exceptionRisk + correctionRisk + commodityRisk);
+  const operatingCostPerMile = 1.78 + (weightValue ? Math.min(weightValue / 50000, 1) * 0.42 : 0.18);
+  const allMiles = laneMiles + deadheadMiles;
+  const marginDollars = rateValue ? Math.max(0, rateValue - (allMiles * operatingCostPerMile)) : 0;
+  const marginPerMile = allMiles > 0 ? marginDollars / allMiles : 0;
+  const routeMetrics = {
+    laneMiles,
+    deadheadMiles,
+    allMiles,
+    rateValue,
+    weightValue,
+    riskScore,
+    riskDrivers,
+    operatingCostPerMile,
+    marginDollars,
+    marginPerMile
+  };
+  load.routeMetrics = routeMetrics;
+  return routeMetrics;
+}
+
+function formatDistanceMiles(value){
+  if(!Number.isFinite(value) || value <= 0) return 'Pending';
+  return `${Math.round(value)} mi`;
+}
+
+function buildStrategyOptions(load){
+  const metrics = load?.routeMetrics || computeRouteMetrics(load);
+  if(!load || !metrics) return [];
+  const baseRisk = metrics.riskScore;
+  const options = [
+    {
+      id: 'margin',
+      name: 'Margin Guard',
+      summary: 'Keep the load only if payout stays ahead of reposition cost.',
+      why: metrics.deadheadMiles > 0 ? 'Accepts some repositioning to preserve gross margin.' : 'Lane is already aligned with the current route base.',
+      marginDollars: metrics.marginDollars,
+      laneMiles: metrics.laneMiles * 1.02,
+      deadheadMiles: metrics.deadheadMiles * 1.12,
+      riskScore: Math.min(100, baseRisk + 8)
+    },
+    {
+      id: 'balanced',
+      name: 'Balanced Dispatch',
+      summary: 'Most defensible option across payout, service, and repositioning.',
+      why: 'Keeps linehaul and empty miles close to the reviewed baseline.',
+      marginDollars: Math.max(0, metrics.marginDollars - 70),
+      laneMiles: metrics.laneMiles,
+      deadheadMiles: metrics.deadheadMiles,
+      riskScore: baseRisk
+    },
+    {
+      id: 'deadhead',
+      name: 'Deadhead Cut',
+      summary: 'Protect empty miles first, even if gross upside shrinks.',
+      why: metrics.deadheadMiles > 0 ? 'Most useful when the truck is far from pickup.' : 'Minimal repositioning is already available.',
+      marginDollars: Math.max(0, metrics.marginDollars - 140),
+      laneMiles: metrics.laneMiles * 0.97,
+      deadheadMiles: metrics.deadheadMiles * 0.58,
+      riskScore: Math.max(8, baseRisk - 6)
+    }
+  ];
+  options.forEach(option => {
+    option.allMiles = option.laneMiles + option.deadheadMiles;
+    option.marginPerMile = option.allMiles > 0 ? option.marginDollars / option.allMiles : 0;
+  });
+  return options;
 }
 
 function haversineMeters(a,b){
@@ -198,7 +424,6 @@ const Today = {
       const geoStops = STATE.today.filter(s=>s?.lat != null && s?.lon != null);
       const geo = geoStops.length;
 
-      // Start preview from the current stop if possible.
       let startIdx = 0;
       if(STATE.todayCurrentId){
         const idx = STATE.today.findIndex(s=>s.id===STATE.todayCurrentId);
@@ -222,23 +447,18 @@ const Today = {
         `;
       }).join('') : `<div class="text-xs text-gray-500">No stops yet — add from Book or Scan.</div>`;
 
-      // Rough route stats (best-effort; no external routing API)
       const miPerM = 1/1609.34;
-      const mphCity = 25;              // conservative average
-      const stopOverheadMin = 2;       // parking / walk-up buffer
-
-      // Determine a reasonable start point for distance estimation.
+      const mphCity = 25;
+      const stopOverheadMin = 2;
       const currentStop = getCurrentStop();
       let startPoint = null;
       if(currentStop?.lat != null && currentStop?.lon != null) startPoint = currentStop;
       else if(STATE.settings.home?.lat != null && STATE.settings.home?.lon != null) startPoint = STATE.settings.home;
       else startPoint = geoStops[0] || null;
 
-      // Estimate distance across geocoded stops in current order.
       let miles = 0;
       const orderedGeo = STATE.today.filter(s=>s?.lat != null && s?.lon != null);
       if(startPoint && orderedGeo.length){
-        // If the startPoint is not the first geostop, include the first leg.
         const first = orderedGeo[0];
         if(first && (startPoint.id !== first.id)){
           miles += haversineMeters(startPoint, first) * miPerM;
@@ -259,8 +479,67 @@ const Today = {
 
       const milesStr = miles ? `${miles.toFixed(1)} mi` : '—';
       const timeStr = estMin ? `${Math.round(estLo)}–${Math.round(estHi)} min` : '—';
+      const preferredLoad = STATE.loads.find(load => load.queueBucket === 'ready') || STATE.loads[0] || null;
+      let strategyHtml = `<div class="text-xs text-gray-500">No reviewed load object yet — use Lead Scanner to extract one.</div>`;
+      if(preferredLoad){
+        hydrateLoadState(preferredLoad);
+        const routeMetrics = computeRouteMetrics(preferredLoad);
+        const strategies = buildStrategyOptions(preferredLoad);
+        const leaders = strategies.length ? {
+          margin: strategies.reduce((best, current) => current.marginDollars > best.marginDollars ? current : best, strategies[0]).id,
+          distance: strategies.reduce((best, current) => current.laneMiles < best.laneMiles ? current : best, strategies[0]).id,
+          deadhead: strategies.reduce((best, current) => current.deadheadMiles < best.deadheadMiles ? current : best, strategies[0]).id,
+          risk: strategies.reduce((best, current) => current.riskScore < best.riskScore ? current : best, strategies[0]).id
+        } : { margin:'', distance:'', deadhead:'', risk:'' };
+        const riskMeta = explainRiskLevel(routeMetrics?.riskScore || 0);
+        const queueBadgeCls = preferredLoad.queueBucket === 'ready' ? 'ok' : preferredLoad.queueBucket === 'exception' ? 'warn' : 'low';
+        strategyHtml = `
+          <div class="text-sm font-bold text-white mb-2">Load Strategy Compare</div>
+          <div class="text-[0.72rem] text-gray-400 mb-2">Using ${preferredLoad.queueBucket === 'ready' ? 'latest routable load' : 'latest reviewed load'}: ${escapeHtml(preferredLoad.origin || 'Unknown origin')} → ${escapeHtml(preferredLoad.destination || 'Unknown destination')}</div>
+          <div class="row mb-3">
+            <span class="badge ${queueBadgeCls}">${escapeHtml(preferredLoad.queueBucket)}</span>
+            <span class="badge ${riskMeta.cls}">${riskMeta.label} operational risk</span>
+            <span class="badge ${routeMetrics?.deadheadMiles > 120 ? 'warn' : routeMetrics?.deadheadMiles > 0 ? 'low' : 'ok'}">${formatDistanceMiles(routeMetrics?.deadheadMiles)} deadhead baseline</span>
+          </div>
+          ${preferredLoad.queueBucket !== 'ready' ? `<div class="text-xs text-amber-300 mb-3">Routing is still gated by the ${escapeHtml(preferredLoad.queueBucket)} queue. Clear the open review reasons before treating any option as approved.</div>` : ''}
+          ${routeMetrics && (routeMetrics.laneMiles || routeMetrics.deadheadMiles) ? `
+            <div class="text-[0.72rem] text-slate-400 mb-3">
+              Reviewed baseline: ${formatDistanceMiles(routeMetrics.laneMiles)} linehaul • ${formatDistanceMiles(routeMetrics.deadheadMiles)} deadhead • ${routeMetrics.rateValue ? `$${Math.round(routeMetrics.marginDollars).toLocaleString()} est. margin` : 'Rate missing for margin estimate'}
+            </div>
+          ` : `
+            <div class="text-[0.72rem] text-slate-400 mb-3">Distance metrics will sharpen after pickup and delivery locations resolve to map coordinates.</div>
+          `}
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            ${strategies.map(s => {
+              const optionRisk = explainRiskLevel(s.riskScore);
+              return `
+                <div class="route-kpi">
+                  <div class="flex justify-between items-start gap-2">
+                    <div class="route-k">${s.name}</div>
+                    <div class="flex flex-wrap justify-end gap-1">
+                      ${leaders.margin === s.id ? '<span class="badge ok">Best margin</span>' : ''}
+                      ${leaders.distance === s.id ? '<span class="badge low">Shortest lane</span>' : ''}
+                      ${leaders.deadhead === s.id ? '<span class="badge ok">Least deadhead</span>' : ''}
+                      ${leaders.risk === s.id ? '<span class="badge ok">Lowest risk</span>' : ''}
+                    </div>
+                  </div>
+                  <div class="route-v">${s.marginDollars ? `$${Math.round(s.marginDollars).toLocaleString()}` : 'Pending'}</div>
+                  <div class="text-[0.68rem] text-slate-300 mt-1">${s.summary}</div>
+                  <div class="text-[0.68rem] text-slate-500 mt-1">${s.why}</div>
+                  <div class="grid grid-cols-2 gap-2 mt-3 text-[0.68rem]">
+                    <div><div class="route-k">Margin / mi</div><div class="text-white font-semibold">${s.marginPerMile ? `$${s.marginPerMile.toFixed(2)}` : 'Pending'}</div></div>
+                    <div><div class="route-k">Distance</div><div class="text-white font-semibold">${formatDistanceMiles(s.laneMiles)}</div></div>
+                    <div><div class="route-k">Deadhead</div><div class="text-white font-semibold">${formatDistanceMiles(s.deadheadMiles)}</div></div>
+                    <div><div class="route-k">Risk</div><div class="text-white font-semibold"><span class="badge ${optionRisk.cls}">${optionRisk.label}</span></div></div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          ${routeMetrics?.riskDrivers?.length ? `<div class="text-[0.7rem] text-slate-400 mt-3">Risk drivers: ${escapeHtml(routeMetrics.riskDrivers.join(' • '))}</div>` : ''}
+        `;
+      }
 
-      // Update the meta label in the Stops card header (right side)
       const meta = document.getElementById('todayStopsMeta');
       if(meta){
         meta.textContent = total ? `${total} stops • ${geo} geo • ${milesStr}` : '';
@@ -298,6 +577,7 @@ const Today = {
             </div>
             <div class="route-next-list">${nextHtml}</div>
           </div>
+          <div class="card bg-slate-900/60 border border-slate-700">${strategyHtml}</div>
         </div>
       `;
   },
@@ -581,6 +861,17 @@ const OCR = {
         if(this.cropper) { this.cropper.destroy(); this.cropper=null; }
         document.getElementById('ocrText').value = '';
         ['ocrName','ocrAddr','ocrPhone','ocrEmail','ocrNotes'].forEach(id=>document.getElementById(id).value='');
+        ['loadOrigin','loadDestination','loadRate','loadCommodity','loadWeight','loadPickupWindow','loadDeliveryWindow','loadExceptions','loadValidationState'].forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) el.value='';
+        });
+        const panel = document.getElementById('loadReviewPanel');
+        if(panel) panel.classList.add('hidden');
+        const badges = document.getElementById('loadReviewBadges');
+        if(badges) badges.innerHTML = '';
+        const reviewStatus = document.getElementById('loadReviewStatus');
+        if(reviewStatus) reviewStatus.innerText = 'No structured extraction yet.';
+        STATE.ocrReview = null;
         document.getElementById('ocrGeoStatus').innerText = '';
         document.getElementById('ocrFile').value = '';
     },
@@ -610,6 +901,138 @@ const OCR = {
             const addrLines = lines.slice(1,3).join(', ');
             document.getElementById('ocrAddr').value = addrLines.replace(/[^a-zA-Z0-9 ,.-]/g, '');
         }
+    },
+    extractLoadReview(){
+        const txt = document.getElementById('ocrText').value || '';
+        if(!txt.trim()) return notify('Scan text first.');
+        const lines = txt.split('\n').map(l=>l.trim()).filter(Boolean);
+        const routeLine = lines.find(line => /\bto\b/i.test(line) && /,/.test(line)) || '';
+        const routeParts = routeLine ? routeLine.split(/\bto\b/i).map(v=>v.trim()) : [];
+        const origin = extractField(lines, [/origin[:\-]\s*(.+)$/i, /pickup[:\-]\s*(.+)$/i]) || routeParts[0] || '';
+        const destination = extractField(lines, [/destination[:\-]\s*(.+)$/i, /delivery[:\-]\s*(.+)$/i]) || routeParts[1] || '';
+        const rate = extractField(lines, [/rate[:\-]?\s*(\$?[\d,]+(?:\.\d{2})?)/i, /linehaul[:\-]?\s*(\$?[\d,]+(?:\.\d{2})?)/i]);
+        const commodity = extractField(lines, [/commodity[:\-]\s*(.+)$/i, /equipment[:\-]\s*(.+)$/i, /load[:\-]\s*(.+)$/i]);
+        const weight = extractField(lines, [/weight[:\-]?\s*([\d,]+\s?(?:lb|lbs)?)/i]);
+        const pickupWindow = extractField(lines, [/pickup (?:date|window)[:\-]\s*(.+)$/i, /pu[:\-]\s*(.+)$/i]);
+        const deliveryWindow = extractField(lines, [/delivery (?:date|window)[:\-]\s*(.+)$/i, /del[:\-]\s*(.+)$/i]);
+
+        let confidence = 35;
+        [origin, destination, rate, commodity, weight].forEach(v => { if(String(v || '').trim()) confidence += 12; });
+        if(routeLine) confidence += 8;
+        confidence = Math.min(confidence, 96);
+
+        const exceptions = [];
+        if(!origin) exceptions.push('Missing pickup origin');
+        if(!destination) exceptions.push('Missing delivery destination');
+        if(!rate) exceptions.push('Missing linehaul rate');
+
+        const load = makeLoadObject({
+          confidence,
+          origin,
+          destination,
+          rate,
+          commodity,
+          weight,
+          pickupWindow,
+          deliveryWindow,
+          exceptions,
+          exceptionNotes: exceptions.join('; ')
+        });
+        hydrateLoadState(load);
+        STATE.ocrReview = load;
+        this.renderLoadReview();
+        saveStorage();
+        notify('Structured load extracted.');
+    },
+    renderLoadReview(){
+        const load = STATE.ocrReview;
+        const panel = document.getElementById('loadReviewPanel');
+        if(!panel) return;
+        if(!load){
+          panel.classList.add('hidden');
+          return;
+        }
+        hydrateLoadState(load);
+        computeRouteMetrics(load);
+        panel.classList.remove('hidden');
+        document.getElementById('loadOrigin').value = load.origin || '';
+        document.getElementById('loadDestination').value = load.destination || '';
+        document.getElementById('loadRate').value = load.rate || '';
+        document.getElementById('loadCommodity').value = load.commodity || '';
+        document.getElementById('loadWeight').value = load.weight || '';
+        document.getElementById('loadPickupWindow').value = load.pickupWindow || '';
+        document.getElementById('loadDeliveryWindow').value = load.deliveryWindow || '';
+        document.getElementById('loadExceptions').value = load.exceptionNotes || '';
+        document.getElementById('loadValidationState').value = load.validationState || '';
+        const conf = confidenceBadge(load.confidence || 0);
+        const queueLabel = load.queueBucket || determineQueueBucket(load);
+        document.getElementById('loadReviewBadges').innerHTML = `
+          <span class="badge ${conf.cls}">${conf.label}</span>
+          <span class="badge ${queueLabel === 'ready' ? 'ok' : queueLabel === 'exception' ? 'warn' : 'low'}">${queueLabel}</span>
+          <span class="badge ${load.validationState === 'validated' ? 'ok' : load.validationState === 'exception' ? 'warn' : 'low'}">${load.validationState}</span>
+          ${(load.reviewReasons || []).length ? `<span class="badge warn">${load.reviewReasons.length} review item${load.reviewReasons.length > 1 ? 's' : ''}</span>` : '<span class="badge ok">No open review items</span>'}
+        `;
+        document.getElementById('loadReviewStatus').innerText =
+          queueLabel === 'ready'
+            ? 'Ready queue: this load can feed routing once you save it.'
+            : queueLabel === 'exception'
+              ? 'Exception queue: routing blocked until required fields are corrected.'
+              : 'Review queue: confirm the open items before routing.';
+    },
+    async saveLoadObject(){
+        const load = makeLoadObject({
+          ...(STATE.ocrReview || {}),
+          origin: document.getElementById('loadOrigin').value.trim(),
+          destination: document.getElementById('loadDestination').value.trim(),
+          rate: document.getElementById('loadRate').value.trim(),
+          commodity: document.getElementById('loadCommodity').value.trim(),
+          weight: document.getElementById('loadWeight').value.trim(),
+          pickupWindow: document.getElementById('loadPickupWindow').value.trim(),
+          deliveryWindow: document.getElementById('loadDeliveryWindow').value.trim(),
+          exceptionNotes: document.getElementById('loadExceptions').value.trim()
+        });
+        const corrections = [];
+        if(STATE.ocrReview){
+          ['origin','destination','rate','commodity','weight','pickupWindow','deliveryWindow'].forEach(key => {
+            if((STATE.ocrReview[key] || '') !== (load[key] || '')) corrections.push(key);
+          });
+        }
+        if(corrections.length) load.corrections = corrections;
+        load.exceptions = [];
+        if(!load.origin) load.exceptions.push('Missing pickup origin');
+        if(!load.destination) load.exceptions.push('Missing delivery destination');
+        if(!load.rate) load.exceptions.push('Missing linehaul rate');
+        const [originGeo, destinationGeo] = await Promise.all([
+          load.origin ? geocode(load.origin) : Promise.resolve(null),
+          load.destination ? geocode(load.destination) : Promise.resolve(null)
+        ]);
+        load.originGeo = originGeo ? { lat: originGeo.lat, lon: originGeo.lon, display: originGeo.display } : null;
+        load.destinationGeo = destinationGeo ? { lat: destinationGeo.lat, lon: destinationGeo.lon, display: destinationGeo.display } : null;
+        if(load.origin && !load.originGeo) load.exceptions.push('Pickup location did not resolve on map');
+        if(load.destination && !load.destinationGeo) load.exceptions.push('Delivery location did not resolve on map');
+        load.confidence = Math.max(load.confidence || 0, load.exceptions.length ? 64 : 82);
+        hydrateLoadState(load);
+        computeRouteMetrics(load);
+        load.exceptionNotes = [
+          ...load.exceptions,
+          ...load.reviewReasons.filter(reason => !load.exceptions.includes(reason))
+        ].join('; ');
+        STATE.ocrReview = load;
+        STATE.loads = [load, ...STATE.loads.filter(item => item.id !== load.id)].slice(0, 10);
+        saveStorage();
+        this.renderLoadReview();
+        renderLoadQueue();
+        Today.renderSummary();
+        notify('Load object saved.');
+    },
+    loadSavedLoad(id){
+        const load = STATE.loads.find(item => item.id === id);
+        if(!load) return;
+        STATE.ocrReview = makeLoadObject(load);
+        hydrateLoadState(STATE.ocrReview);
+        this.renderLoadReview();
+        showPage('ocr');
+        notify('Load opened for review.');
     },
     async geocodeRefined(){
         const addr = document.getElementById('ocrAddr').value;
@@ -646,9 +1069,72 @@ const OCR = {
         
         saveStorage();
         notify('Saved!');
+        renderLoadQueue();
         this.reset();
     }
 };
+
+function renderLoadQueue(){
+    const el = document.getElementById('loadQueue');
+    if(!el) return;
+    if(!STATE.loads.length){
+      el.innerHTML = '<div class="text-xs text-gray-500">No saved load objects yet.</div>';
+      return;
+    }
+    STATE.loads.forEach(load => {
+      hydrateLoadState(load);
+      computeRouteMetrics(load);
+    });
+    const buckets = {
+      ready: STATE.loads.filter(load => load.queueBucket === 'ready'),
+      review: STATE.loads.filter(load => load.queueBucket === 'review'),
+      exception: STATE.loads.filter(load => load.queueBucket === 'exception')
+    };
+    const renderCard = (load) => {
+      const conf = confidenceBadge(load.confidence || 0);
+      const riskMeta = explainRiskLevel(load.routeMetrics?.riskScore || 0);
+      return `
+        <div class="card bg-slate-900 border-slate-700">
+          <div class="row items-start">
+            <div class="grow">
+              <div class="font-bold text-sm text-white">${escapeHtml(load.origin || 'Unknown origin')} → ${escapeHtml(load.destination || 'Unknown destination')}</div>
+              <div class="text-xs text-slate-400 mt-1">${escapeHtml(load.commodity || 'Commodity pending')} · ${escapeHtml(load.weight || 'Weight pending')} · ${escapeHtml(load.rate || 'Rate pending')}</div>
+              <div class="text-[0.7rem] text-slate-500 mt-1">Corrections: ${(load.corrections || []).length} · ${new Date(load.createdAt).toLocaleString()}</div>
+              <div class="text-[0.7rem] text-slate-400 mt-2">Linehaul ${formatDistanceMiles(load.routeMetrics?.laneMiles)} • Deadhead ${formatDistanceMiles(load.routeMetrics?.deadheadMiles)} • Risk ${riskMeta.label}</div>
+            </div>
+            <div class="row">
+              <span class="badge ${conf.cls}">${conf.label}</span>
+              <span class="badge ${load.queueBucket === 'ready' ? 'ok' : load.queueBucket === 'exception' ? 'warn' : 'low'}">${escapeHtml(load.queueBucket)}</span>
+            </div>
+          </div>
+          ${load.reviewReasons?.length ? `<div class="text-xs text-amber-300 mt-2">${escapeHtml(load.reviewReasons.join(' • '))}</div>` : ''}
+          <div class="row mt-3">
+            <button class="btn-mini" onclick="OCR.loadSavedLoad('${load.id}')">${load.queueBucket === 'ready' ? 'Inspect' : 'Review & Fix'}</button>
+          </div>
+        </div>
+      `;
+    };
+    const renderSection = (title, subtitle, loads, badgeCls) => `
+      <div class="space-y-2">
+        <div class="row items-center">
+          <span class="badge ${badgeCls}">${loads.length}</span>
+          <div class="text-sm font-semibold text-white">${title}</div>
+        </div>
+        <div class="text-xs text-slate-400">${subtitle}</div>
+        ${loads.length ? loads.map(renderCard).join('') : '<div class="text-xs text-slate-500">None in this queue.</div>'}
+      </div>
+    `;
+    el.innerHTML = `
+      <div class="row mb-2">
+        <span class="badge ok">${buckets.ready.length} ready</span>
+        <span class="badge low">${buckets.review.length} review</span>
+        <span class="badge warn">${buckets.exception.length} exception</span>
+      </div>
+      ${renderSection('Ready Queue', 'Validated loads that can feed route comparison immediately.', buckets.ready, 'ok')}
+      ${renderSection('Review Queue', 'Partially complete loads that need operator confirmation before dispatch.', buckets.review, 'low')}
+      ${renderSection('Exception Queue', 'Routing-blocked loads with missing or suspicious data.', buckets.exception, 'warn')}
+    `;
+}
 
 /* =========================
    ASSISTANT
@@ -911,6 +1397,8 @@ function showPage(id){
 
     Book.active = 'leads';
     Today.render();
+    renderLoadQueue();
+    OCR.renderLoadReview();
     Assistant.updateDisplay();
 
     showPage('today');

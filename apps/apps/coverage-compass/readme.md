@@ -11,7 +11,10 @@ Coverage Compass is a purely client-side heuristic engine for Medicare decision 
 ## Key Systems
 - **Scoring Heuristics**: Evaluates cost predictability, provider dependency, and administrative friction.
 - **State-Aware Rules**: Models specific state regulations regarding Medigap underwriting.
-- **Audit Logging**: The engine generates an explanation trace for transparency in its recommendations.
+- **Visible Result Explanation**: The main result now surfaces a confidence banner plus a compact decision trace.
+- **Profile Snapshot Comparison**: `app.js` now stores up to five local profile snapshots and diffs recommendation, confidence, and answer changes against the current state.
+- **Recommendation Sensitivity Layer**: The result view now reruns the current profile with individual answers removed to rank which questions are most responsible for the current winner and which ones can flip it.
+- **Audit Logging**: The engine still generates a deeper explanation trace and raw audit log for transparency.
 
 ## Performance & Accessibility (A11y)
 - Strict adherence to contrast ratios and focus states (Phase 4 of CSS).
@@ -20,3 +23,4 @@ Coverage Compass is a purely client-side heuristic engine for Medicare decision 
 
 ## DB Integration
 - Zero server communication by default to maintain strict privacy. Data is stored in `localStorage` or `sessionStorage`.
+- Snapshot comparison records are stored under a separate local key so scenario memory stays local to the browser.

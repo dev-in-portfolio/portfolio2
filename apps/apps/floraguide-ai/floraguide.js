@@ -16,16 +16,16 @@ function scheduleRemoteSync(){
 async function hydrateFromBackendIfNeeded(){
   try{
     // Only hydrate if local history/chat are empty
-    const hasLocalHistory = !!localStorage.getItem(LS_KEY_HISTORY);
-    const hasLocalChat = !!localStorage.getItem(LS_KEY_CHAT);
+    const hasLocalHistory = !!localStorage.getItem(HISTORY_STORE);
+    const hasLocalChat = !!localStorage.getItem(CHAT_STORE);
     if(hasLocalHistory || hasLocalChat) return false;
 
     const remote = await window.NexusAppData?.loadLatest?.("floraguide-ai");
     const p = remote?.payload;
     if(p && (Array.isArray(p.history) || Array.isArray(p.chatMessages) || p.model)){
-      if(Array.isArray(p.history)) localStorage.setItem(LS_KEY_HISTORY, JSON.stringify(p.history));
-      if(Array.isArray(p.chatMessages)) localStorage.setItem(LS_KEY_CHAT, JSON.stringify(p.chatMessages));
-      if(typeof p.model === 'string') localStorage.setItem(LS_KEY_MODEL, p.model);
+      if(Array.isArray(p.history)) localStorage.setItem(HISTORY_STORE, JSON.stringify(p.history));
+      if(Array.isArray(p.chatMessages)) localStorage.setItem(CHAT_STORE, JSON.stringify(p.chatMessages));
+      if(typeof p.model === 'string') localStorage.setItem(MODEL_STORE, p.model);
       return true;
     }
   }catch(_e){}
@@ -69,6 +69,64 @@ const state = {
 // ---------- Utilities ----------
 function escapeHtml(s=""){
   return s.replace(/[&<>"']/g, (c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c]));
+}
+
+function clampConfidence(v){
+  const n = Number(v);
+  if(!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+function normalizeCare(care){
+  const c = care && typeof care === "object" ? care : {};
+  return {
+    light: c.light || "",
+    water: c.water || "",
+    soil: c.soil || "",
+    temperature: c.temperature || "",
+    humidity: c.humidity || "",
+    fertilizer: c.fertilizer || ""
+  };
+}
+
+function normalizeIssue(issue){
+  const sev = String(issue?.severity || "low").toLowerCase();
+  return {
+    title: String(issue?.title || "Issue"),
+    severity: ["low","medium","high"].includes(sev) ? sev : "low",
+    notes: String(issue?.notes || "")
+  };
+}
+
+function normalizeDiagnosisCandidate(candidate){
+  const indicators = Array.isArray(candidate?.indicators) ? candidate.indicators.map(String).filter(Boolean) : [];
+  const nextSteps = Array.isArray(candidate?.nextSteps) ? candidate.nextSteps.map(String).filter(Boolean) : [];
+  return {
+    name: String(candidate?.name || "Unknown"),
+    scientificName: String(candidate?.scientificName || ""),
+    confidence: clampConfidence(candidate?.confidence),
+    summary: String(candidate?.summary || ""),
+    reasoning: String(candidate?.reasoning || candidate?.summary || ""),
+    indicators,
+    care: normalizeCare(candidate?.care),
+    issues: Array.isArray(candidate?.issues) ? candidate.issues.map(normalizeIssue) : [],
+    nextSteps
+  };
+}
+
+function normalizePlantData(raw){
+  const source = raw && typeof raw === "object" ? raw : {};
+  const fallbackCandidate = normalizeDiagnosisCandidate(source);
+  const diagnoses = Array.isArray(source.diagnoses) && source.diagnoses.length
+    ? source.diagnoses.map(normalizeDiagnosisCandidate)
+    : [fallbackCandidate];
+  diagnoses.sort((a,b)=>b.confidence-a.confidence);
+  return {
+    overview: String(source.overview || source.summary || diagnoses[0]?.summary || ""),
+    uncertainty: String(source.uncertainty || ""),
+    evidenceGaps: Array.isArray(source.evidenceGaps) ? source.evidenceGaps.map(String).filter(Boolean) : [],
+    diagnoses
+  };
 }
 
 function toast(type, title, message){
@@ -187,23 +245,35 @@ You are Flora Forensics — a botanical analyst.
 Return STRICT JSON only (no markdown).
 Schema:
 {
-  "name": string,
-  "scientificName": string,
-  "confidence": number (0-100),
-  "summary": string,
-  "care": {
-    "light": string,
-    "water": string,
-    "soil": string,
-    "temperature": string,
-    "humidity": string,
-    "fertilizer": string
-  },
-  "issues": [{ "title": string, "severity": "low"|"medium"|"high", "notes": string }],
-  "nextSteps": string[]
+  "overview": string,
+  "uncertainty": string,
+  "evidenceGaps": string[],
+  "diagnoses": [
+    {
+      "name": string,
+      "scientificName": string,
+      "confidence": number,
+      "summary": string,
+      "reasoning": string,
+      "indicators": string[],
+      "care": {
+        "light": string,
+        "water": string,
+        "soil": string,
+        "temperature": string,
+        "humidity": string,
+        "fertilizer": string
+      },
+      "issues": [{ "title": string, "severity": "low"|"medium"|"high", "notes": string }],
+      "nextSteps": string[]
+    }
+  ]
 }
+Rules:
+- Return 2 or 3 ranked diagnosis candidates sorted by confidence descending.
+- If the evidence is weak, say so in "uncertainty" and populate "evidenceGaps" with what photos or observations are missing.
+- Keep "reasoning" concrete and visual.
 Mode: ${state.forensicMode === "pathogen" ? "Focus on disease/pathogen signs and treatments." : "General identification and care."}
-If unsure, still fill fields with best effort and set confidence lower.
 `;
     const text = await geminiGenerate([
       { text: instruction },
@@ -225,13 +295,13 @@ If unsure, still fill fields with best effort and set confidence lower.
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
       imageUrl: state.imageDataUrl,
-      plantData: parsed
+      plantData: normalizePlantData(parsed)
     };
 
     state.result = plant;
     state.history = [plant, ...state.history].slice(0, 200);
     saveHistory();
-    toast("success","Archive Updated",`Dossier for ${parsed?.name || "Unknown specimen"} saved.`);
+    toast("success","Archive Updated",`Dossier for ${plant.plantData?.diagnoses?.[0]?.name || "Unknown specimen"} saved.`);
   }catch(e){
     console.error(e);
     toast("error","Identify Failed", (e && e.message) ? e.message : "Unknown error");
@@ -408,6 +478,9 @@ function identifyView(){
         <div class="text-xs text-slate-600 mono">
           Live key required for analysis. ${state.apiKey ? "Key detected ✅" : "No key set."}
         </div>
+        <div class="rounded-2xl border border-slate-900/10 bg-white/55 p-3 text-xs text-slate-700">
+          Result format: 2 to 3 ranked candidates, uncertainty notes, and evidence gaps before any care guidance.
+        </div>
       </div>
     </div>
 
@@ -437,28 +510,60 @@ function loadingPanel(){
 function emptyDossier(){
   return `<div class="rounded-2xl border border-dashed border-slate-900/20 bg-white/40 p-8 text-center text-slate-600">
     <div class="font-semibold">No dossier yet</div>
-    <div class="text-sm">Run an Identify scan to generate plant details.</div>
+    <div class="text-sm">Run an Identify scan to generate ranked diagnosis candidates.</div>
   </div>`;
 }
 
 function renderResult(p){
-  const care = p.care || {};
-  const issues = Array.isArray(p.issues) ? p.issues : [];
-  const next = Array.isArray(p.nextSteps) ? p.nextSteps : [];
+  const normalized = normalizePlantData(p);
+  const top = normalized.diagnoses[0] || normalizeDiagnosisCandidate({});
+  const care = top.care || {};
+  const issues = Array.isArray(top.issues) ? top.issues : [];
+  const next = Array.isArray(top.nextSteps) ? top.nextSteps : [];
 
   return `
     <div class="rounded-2xl border border-slate-900/10 bg-white/55 p-5">
       <div class="flex items-start justify-between gap-3">
         <div>
-          <div class="text-xl font-bold text-slate-900">${escapeHtml(p.name||"Unknown")}</div>
-          <div class="text-sm text-slate-600 italic">${escapeHtml(p.scientificName||"")}</div>
+          <div class="text-xl font-bold text-slate-900">${escapeHtml(top.name||"Unknown")}</div>
+          <div class="text-sm text-slate-600 italic">${escapeHtml(top.scientificName||"")}</div>
         </div>
-        <div class="px-3 py-1.5 rounded-full text-[12px] font-semibold ${(+p.confidence||0)>=70 ? "badgeLive" : "badgeOff"}">
-          Confidence ${escapeHtml(String(p.confidence??"—"))}%
+        <div class="px-3 py-1.5 rounded-full text-[12px] font-semibold ${(top.confidence||0)>=70 ? "badgeLive" : "badgeOff"}">
+          Confidence ${escapeHtml(String(top.confidence??"—"))}%
         </div>
       </div>
 
-      <div class="mt-3 text-sm text-slate-700 leading-relaxed">${escapeHtml(p.summary||"")}</div>
+      <div class="mt-3 text-sm text-slate-700 leading-relaxed">${escapeHtml(normalized.overview || top.summary || "")}</div>
+
+      ${normalized.uncertainty || normalized.evidenceGaps.length ? `
+      <div class="mt-4 rounded-2xl border border-amber-500/20 bg-amber-50/70 p-4">
+        <div class="font-semibold text-slate-900">Uncertainty & missing evidence</div>
+        ${normalized.uncertainty ? `<div class="mt-2 text-sm text-slate-700">${escapeHtml(normalized.uncertainty)}</div>` : ""}
+        ${normalized.evidenceGaps.length ? `
+        <ul class="mt-2 list-disc pl-5 text-sm text-slate-700 space-y-1">
+          ${normalized.evidenceGaps.map(g=>`<li>${escapeHtml(g)}</li>`).join("")}
+        </ul>` : ""}
+      </div>` : ""}
+
+      ${normalized.diagnoses.length ? `
+      <div class="mt-4">
+        <div class="font-semibold text-slate-900 mb-2">Ranked candidates</div>
+        <div class="space-y-2">
+          ${normalized.diagnoses.map((candidate, idx)=>`
+            <div class="rounded-2xl border border-slate-900/10 bg-white/65 p-3">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">${idx+1}. ${escapeHtml(candidate.name)}</div>
+                  <div class="text-xs text-slate-600 italic">${escapeHtml(candidate.scientificName)}</div>
+                </div>
+                <div class="px-2.5 py-1 rounded-full text-[11px] font-semibold ${candidate.confidence>=70 ? "badgeLive" : "badgeOff"}">${candidate.confidence}%</div>
+              </div>
+              <div class="mt-2 text-sm text-slate-700">${escapeHtml(candidate.reasoning || candidate.summary)}</div>
+              ${candidate.indicators.length ? `<div class="mt-2 flex flex-wrap gap-2">${candidate.indicators.map(tag=>`<span class="px-2.5 py-1 rounded-full text-[11px] border border-slate-900/10 bg-white">${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
+            </div>
+          `).join("")}
+        </div>
+      </div>` : ""}
 
       <div class="mt-4 grid sm:grid-cols-2 gap-3">
         ${careItem("Light","fa-sun",care.light)}
@@ -471,7 +576,7 @@ function renderResult(p){
 
       ${issues.length ? `
       <div class="mt-4">
-        <div class="font-semibold text-slate-900 mb-2">Issues</div>
+        <div class="font-semibold text-slate-900 mb-2">Current issues for top candidate</div>
         <div class="space-y-2">
           ${issues.map(i=>issueItem(i)).join("")}
         </div>
@@ -479,7 +584,7 @@ function renderResult(p){
 
       ${next.length ? `
       <div class="mt-4">
-        <div class="font-semibold text-slate-900 mb-2">Next steps</div>
+        <div class="font-semibold text-slate-900 mb-2">Next steps for top candidate</div>
         <ul class="list-disc pl-5 text-sm text-slate-700 space-y-1">
           ${next.map(s=>`<li>${escapeHtml(String(s))}</li>`).join("")}
         </ul>
@@ -529,12 +634,14 @@ function historyView(){
 }
 
 function historyCard(h){
-  const p = h.plantData || {};
+  const p = normalizePlantData(h.plantData || {});
+  const top = p.diagnoses[0] || normalizeDiagnosisCandidate({});
   return `<div class="rounded-3xl border border-slate-900/10 bg-white/65 overflow-hidden">
     ${h.imageUrl ? `<img src="${h.imageUrl}" class="w-full h-40 object-cover" alt="plant"/>` : ""}
     <div class="p-4">
-      <div class="font-bold text-slate-900">${escapeHtml(p.name||"Unknown")}</div>
-      <div class="text-sm text-slate-600 italic">${escapeHtml(p.scientificName||"")}</div>
+      <div class="font-bold text-slate-900">${escapeHtml(top.name||"Unknown")}</div>
+      <div class="text-sm text-slate-600 italic">${escapeHtml(top.scientificName||"")}</div>
+      <div class="mt-2 text-xs text-slate-600">${escapeHtml(p.uncertainty || top.summary || "")}</div>
       <div class="mt-2 flex flex-wrap gap-2">
         <button class="btnGhost rounded-2xl px-3 py-2 text-xs font-semibold" data-compare="${escapeHtml(h.id)}">
           <i class="fa-solid fa-code-compare mr-2"></i>Compare
@@ -819,7 +926,8 @@ function wire(){
         return;
       }
       state.compare.push(item);
-      toast("success","Compare",`Added ${item.plantData?.name||"specimen"}.`);
+      const top = normalizePlantData(item.plantData || {}).diagnoses[0];
+      toast("success","Compare",`Added ${top?.name||"specimen"}.`);
       state.tab="compare";
       render();
     });
@@ -868,10 +976,17 @@ function render(){
 }
 
 // init
-state.history = loadHistory();
-state.chatMessages = loadChat();
+async function init(){
+  const hydrated = await hydrateFromBackendIfNeeded();
+  state.history = loadHistory();
+  state.chatMessages = loadChat();
+  if(hydrated){
+    toast("success","Archive Synced","Recovered local-first plant dossiers from backend sync.");
+  }
+  render();
+}
 
 window.addEventListener("online", ()=>{ state.online=true; toast("success","System Connected","Neural link re-established."); render(); });
 window.addEventListener("offline", ()=>{ state.online=false; toast("warning","System Offline","Local protocol initiated."); render(); });
 
-render();
+init();

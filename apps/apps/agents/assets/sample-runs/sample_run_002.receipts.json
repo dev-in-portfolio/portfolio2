@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "agent-run.v1",
+  "run": {
+    "id": "sample_run_002",
+    "title": "Vendor portal autofill preview",
+    "status": "blocked",
+    "outcome": "approval-required",
+    "agent": {
+      "slug": "form-autofill-agent",
+      "name": "Form Autofill Agent",
+      "pack": "B"
+    },
+    "task": {
+      "summary": "Prepare an autofill preview for a Medicare claims form, then stop at approval.",
+      "target": "claims portal demo",
+      "templateId": "claims-portal-autofill-preview"
+    },
+    "policy": {
+      "mode": "preview-first",
+      "approval": "required-before-submit",
+      "network": "demo-only",
+      "workspace": "/demo/browser-targets/claims-portal"
+    },
+    "startedAt": "2026-04-04T19:04:03Z",
+    "finishedAt": "2026-04-04T19:04:08Z",
+    "durationMs": 5100,
+    "totals": {
+      "steps": 4,
+      "toolCalls": 2,
+      "artifacts": 1,
+      "warnings": 0,
+      "errors": 0
+    },
+    "summary": {
+      "result": "The agent reached a complete preview state and stopped before submit because no approval token was issued."
+    },
+    "timeline": [
+      {
+        "id": "step-1",
+        "kind": "phase",
+        "status": "completed",
+        "title": "Open controlled browser target",
+        "detail": "Launched the claims portal demo target in a sandboxed browser session.",
+        "startedAt": "2026-04-04T19:04:03Z",
+        "durationMs": 1100,
+        "metrics": {
+          "targetPages": 1
+        }
+      },
+      {
+        "id": "step-2",
+        "kind": "tool",
+        "status": "completed",
+        "title": "Populate insured profile fields",
+        "detail": "Filled all required inputs from the prepared claim profile without clicking submit.",
+        "tool": "browser.automation",
+        "startedAt": "2026-04-04T19:04:04Z",
+        "durationMs": 1800,
+        "metrics": {
+          "fieldsFilled": 12
+        }
+      },
+      {
+        "id": "step-3",
+        "kind": "decision",
+        "status": "blocked",
+        "title": "Await user approval",
+        "detail": "Submission policy requires a hardware-backed approval token before any final form action.",
+        "startedAt": "2026-04-04T19:04:06Z",
+        "durationMs": 1500,
+        "metrics": {
+          "approvalTokens": 0
+        }
+      },
+      {
+        "id": "step-4",
+        "kind": "phase",
+        "status": "completed",
+        "title": "Save preview receipt",
+        "detail": "Captured the filled preview and wrote a receipt bundle for review or replay.",
+        "startedAt": "2026-04-04T19:04:07Z",
+        "durationMs": 700,
+        "metrics": {
+          "artifacts": 1
+        }
+      }
+    ],
+    "artifacts": [
+      {
+        "type": "image",
+        "label": "preview-before-submit.png",
+        "path": "artifacts/preview-before-submit.png",
+        "status": "completed",
+        "summary": "Screenshot of the filled claims form saved before any irreversible action."
+      }
+    ],
+    "logs": [
+      {
+        "level": "info",
+        "msg": "Preview session opened",
+        "meta": {
+          "agent": "form-autofill-agent",
+          "target": "claims-portal"
+        }
+      },
+      {
+        "level": "info",
+        "msg": "Required inputs filled successfully",
+        "meta": {
+          "fieldsFilled": 12
+        }
+      },
+      {
+        "level": "warning",
+        "msg": "Approval token missing; submit action blocked by policy",
+        "meta": {
+          "policy": "required-before-submit"
+        }
+      }
+    ],
+    "checks": [
+      {
+        "label": "Demo-only target enforced",
+        "status": "passed"
+      },
+      {
+        "label": "Submit action withheld without approval",
+        "status": "passed"
+      }
+    ]
+  }
+}

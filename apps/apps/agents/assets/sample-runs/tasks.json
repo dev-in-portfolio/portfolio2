@@ -1,0 +1,32 @@
+[
+  {
+    "id": "portfolio-structural-audit",
+    "title": "Portfolio structural audit",
+    "summary": "Run the audit agent against the sandbox workspace and produce a full receipt bundle with drift warnings.",
+    "agentName": "Audit Agent",
+    "pack": "Pack D",
+    "target": "portfolio sandbox",
+    "expectedOutcome": "completed",
+    "runnerCommand": "node agentx.js run audit-agent --workspace ./portfolio-sandbox --task portfolio-structural-audit --emit-receipts",
+    "policyHints": [
+      "network disabled",
+      "workspace allowlist required",
+      "receipt bundle export"
+    ]
+  },
+  {
+    "id": "claims-portal-autofill-preview",
+    "title": "Claims portal autofill preview",
+    "summary": "Replay the form autofill scenario through the controlled browser target and stop at the approval gate.",
+    "agentName": "Form Autofill Agent",
+    "pack": "Pack B",
+    "target": "claims portal demo",
+    "expectedOutcome": "approval-required",
+    "runnerCommand": "node agentx.js run form-autofill-agent --target ./demo-targets/claims-portal --task claims-portal-autofill-preview --preview-only",
+    "policyHints": [
+      "demo-only network egress",
+      "approval required before submit",
+      "screenshot artifact capture"
+    ]
+  }
+]
