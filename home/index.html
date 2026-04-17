@@ -530,6 +530,18 @@
         max-width:none;
         margin:0 auto;
         will-change:auto;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.06) inset,
+          0 10px 24px rgba(0,0,0,.52),
+          0 0 14px color-mix(in srgb, var(--accent, #8dc7ff) 18%, transparent);
+      }
+      .node + .node{
+        margin-top:8px;
+      }
+      /* Mobile: avoid the large animated halo that visually overlaps other nodes. */
+      .node::after{
+        display:none !important;
+        animation:none !important;
       }
       .nodeInner{
         min-height:46px;
@@ -711,7 +723,7 @@
       <div class="brand">
         <span>NEXUS - HOME</span>
       </div>
-      <div class="hint">Tap a node • Absolute links (no subpath traps)</div>
+      <div class="hint">Tap a node</div>
     </div>
     <section class="origin" aria-label="Origin">
       <div class="originHead">
