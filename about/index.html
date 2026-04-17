@@ -39,6 +39,10 @@
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
+    /* Mobile/desktop: prevent padding/overlays from creating horizontal scroll. */
+    *, *::before, *::after{ box-sizing: border-box; }
+    html{ overflow-x: hidden; }
+
     html, body{height:100%;}
     body{
       margin:0;
@@ -62,6 +66,7 @@
       align-items:center;
       justify-content:center;
       padding: 64px 18px 54px;
+      overflow:hidden;
       isolation:isolate;
     }
     .heroBg{
@@ -107,7 +112,7 @@
 
     /* super subtle grain so it feels cinematic, not “teen novel cover” */
     .heroGrain{
-      position:absolute; inset:-40px;
+      position:absolute; inset:0;
       background:
         repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 6px);
       mix-blend-mode: overlay;
