@@ -66,7 +66,7 @@
         radial-gradient(1800px 1200px at 50% 42%, transparent 42%, rgba(0,0,0,.78) 100%),
         linear-gradient(180deg, rgba(0,0,0,.14), rgba(0,0,0,.60));
     }
-    .wrap{ position:relative; width:100%; height:100vh; }
+    .wrap{ position:relative; width:100%; height:100vh; min-height:100vh; }
     .nebula{
       position:absolute;
       inset:-12% -8%;
@@ -434,22 +434,123 @@
     #n-contact{ --accent:#ff9f43; }  /* orange */
 
     @media (max-width: 720px){
-              .node{
-      position:absolute; z-index:3;
-      transform: translate(-50%, -50%);
-      text-decoration:none; color:var(--ink);
-      border-radius:999px;
-      border:2px solid color-mix(in srgb, var(--accent, #8dc7ff) 72%, white 14%);
-      background: linear-gradient(180deg, rgba(8,18,40,.94), rgba(3,8,22,.94));
-      box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 12px 30px rgba(0,0,0,.56), 0 0 24px color-mix(in srgb, var(--accent, #8dc7ff) 22%, transparent);
-      display:flex; align-items:center; gap:10px;
-      min-width:190px; max-width:248px;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-      isolation:isolate;
-      overflow:hidden;
-      opacity: 1;
-      will-change: left, top;
+      html{
+        overflow-x:hidden;
+      }
+      body{
+        min-height:100svh;
+        overflow-x:hidden;
+        overflow-y:auto;
+      }
+      .wrap{
+        height:auto;
+        min-height:100svh;
+        display:flex;
+        flex-direction:column;
+        align-items:stretch;
+        gap:12px;
+        padding:12px 12px 28px;
+        overflow:hidden;
+      }
+      .topbar{
+        position:relative;
+        left:auto;
+        right:auto;
+        top:auto;
+        width:100%;
+        display:grid;
+        grid-template-columns:1fr;
+        gap:8px;
+        padding:10px;
+        border-radius:12px;
+        animation:none;
+      }
+      .brand{
+        min-height:0;
+        padding:0 0 8px;
+        border-right:0;
+        border-bottom:1px solid rgba(175,214,255,.26);
+      }
+      .brand span{
+        font-size:20px;
+        line-height:1.2;
+      }
+      .hint{
+        width:100%;
+        white-space:normal;
+        text-align:center;
+        font-size:10px;
+        line-height:1.35;
+        letter-spacing:.08em;
+        padding:7px 8px;
+      }
+      .origin{
+        position:relative;
+        left:auto;
+        top:auto;
+        transform:none;
+        width:100%;
+        padding:14px;
+        border-radius:12px;
+        animation:none;
+      }
+      .originHead{
+        align-items:flex-start;
+        gap:8px;
+        margin-bottom:8px;
+      }
+      .originTag,
+      .originChip{
+        font-size:10px;
+        letter-spacing:.12em;
+      }
+      .originRail{
+        gap:6px;
+      }
+      .origin b{
+        font-size:24px;
+        line-height:1.18;
+        margin-bottom:8px;
+      }
+      .origin p{
+        font-size:14px;
+        line-height:1.52;
+      }
+      #nexus-connections{
+        display:none;
+      }
+      .node{
+        position:relative !important;
+        left:auto !important;
+        top:auto !important;
+        z-index:3;
+        transform:none !important;
+        width:min(100%, 280px);
+        min-width:0;
+        max-width:none;
+        margin:0 auto;
+        will-change:auto;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.06) inset,
+          0 10px 24px rgba(0,0,0,.52),
+          0 0 14px color-mix(in srgb, var(--accent, #8dc7ff) 18%, transparent);
+      }
+      .node + .node{
+        margin-top:8px;
+      }
+      /* Mobile: avoid the large animated halo that visually overlaps other nodes. */
+      .node::after{
+        display:none !important;
+        animation:none !important;
+      }
+      .nodeInner{
+        min-height:46px;
+        padding:12px 16px 11px;
+      }
+      .label b{
+        font-size:15px;
+        letter-spacing:.12em;
+      }
     }
     @media (prefers-reduced-motion: reduce){
       .sky,
@@ -622,7 +723,7 @@
       <div class="brand">
         <span>NEXUS - HOME</span>
       </div>
-      <div class="hint">Tap a node • Absolute links (no subpath traps)</div>
+      <div class="hint">Tap a node</div>
     </div>
     <section class="origin" aria-label="Origin">
       <div class="originHead">
@@ -681,7 +782,19 @@
         return Math.max(lo, Math.min(hi, v));
       }
 
+      function isStackedLayout() {
+        return window.matchMedia('(max-width: 720px)').matches;
+      }
+
       function layoutNodes() {
+        if (isStackedLayout()) {
+          nodes.forEach((node) => {
+            node.style.left = '';
+            node.style.top = '';
+          });
+          return;
+        }
+
         const wrapRect = wrap.getBoundingClientRect();
         const topbarRect = topbar.getBoundingClientRect();
         const originRect = origin.getBoundingClientRect();
@@ -812,6 +925,12 @@
       setTimeout(layoutNodes, 250);
 
       function animateLevelUp() {
+        if (isStackedLayout()) {
+          if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+          requestAnimationFrame(animateLevelUp);
+          return;
+        }
+
         if (isNaN(mouseX)) mouseX = window.innerWidth / 2;
         if (isNaN(mouseY)) mouseY = window.innerHeight / 2;
         
