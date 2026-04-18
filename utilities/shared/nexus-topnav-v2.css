@@ -34,6 +34,16 @@ nav.nxTopNav{
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255,255,255,0.08);
   pointer-events: auto;
+  /* Keep inner horizontal scrollers from expanding page width. */
+  overflow: hidden;
+}
+
+nav.nxTopNav .nxInner{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 nav.nxTopNav .nxBrand{
@@ -65,6 +75,12 @@ nav.nxTopNav .nxPills{
   flex-wrap: nowrap;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  min-width: 0;
+  touch-action: pan-x;
+  scroll-snap-type: x proximity;
+  /* Subtle edge fade to suggest swipe without showing scrollbars. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
 }
 
 /* Keep the bar in one line without ugly scrollbars */
@@ -85,6 +101,20 @@ nav.nxTopNav .nxPill{
   white-space: nowrap;
   transition: background 120ms ease, transform 120ms ease, color 120ms ease, border-color 120ms ease;
   cursor: pointer;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 480px){
+  nav.nxTopNav{
+    padding: 12px 10px 8px;
+    gap: 8px;
+  }
+  nav.nxTopNav .nxPills{ gap: 6px; }
+  nav.nxTopNav .nxPill{
+    padding: 7px 10px;
+    font-size: 12px;
+  }
 }
 
 /* Logo pill (image-only) */
