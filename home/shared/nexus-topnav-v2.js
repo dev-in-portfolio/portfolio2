@@ -504,8 +504,26 @@ if (!nav) {
 
       // If nav markup isn't present, build it.
       // NOTE: Per request, remove the "✦ NEXUS" brand label from the bar.
+      // Mobile: use a hamburger menu (no sideways-scrolling pill row).
       if (!nav.querySelector(".nxPills")) {
-        nav.innerHTML = '<div class="nxInner"><div class="nxPills"></div></div>';
+        nav.innerHTML =
+          '<div class="nxInner">' +
+            '<button class="nxMenuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nxMobileMenuV2">' +
+              '<span class="nxMenuIcon" aria-hidden="true"></span>' +
+              '<span class="nxMenuLabel">Menu</span>' +
+            '</button>' +
+            '<div class="nxPills"></div>' +
+          '</div>' +
+          '<div class="nxMenuPanel" id="nxMobileMenuV2" hidden>' +
+            '<div class="nxMenuOverlay" data-nx-menu-close="1"></div>' +
+            '<div class="nxMenuSheet" role="dialog" aria-label="Menu">' +
+              '<div class="nxMenuHead">' +
+                '<div class="nxMenuTitle">Menu</div>' +
+                '<button class="nxMenuClose" type="button" data-nx-menu-close="1" aria-label="Close menu">Close</button>' +
+              '</div>' +
+              '<div class="nxMenuList"></div>' +
+            '</div>' +
+          '</div>';
       }
 
       var pillsHost = nav.querySelector(".nxPills");
@@ -532,19 +550,69 @@ if (!nav) {
         a.className = "nxPill";
         a.href = href;
         a.textContent = label;
+        if (isActiveFor(href)) a.classList.add("isActive");
         return a;
       }
 
-      pillsHost.appendChild(mkPill("Home", join(rootPrefix, "")));
+      var navLinks = [
+        { label: "Home", href: join(rootPrefix, "") },
+        { label: "Apps", href: join(rootPrefix, "apps/") },
+        { label: "Utilities", href: join(rootPrefix, "tools/") },
+        { label: "Capabilities", href: join(rootPrefix, "capabilities/") },
+        { label: "About", href: join(rootPrefix, "about/") },
+        { label: "Contact", href: join(rootPrefix, "contact/") }
+      ];
 
-      // Landing hubs (no dropdowns)
-      pillsHost.appendChild(mkPill("Apps", join(rootPrefix, "apps/")));
-      pillsHost.appendChild(mkPill("Utilities", join(rootPrefix, "tools/")));
-      pillsHost.appendChild(mkPill("Capabilities", join(rootPrefix, "capabilities/")));
+      navLinks.forEach(function (it) {
+        pillsHost.appendChild(mkPill(it.label, it.href));
+      });
 
-      // Direct links
-      pillsHost.appendChild(mkPill("About", join(rootPrefix, "about/")));
-      pillsHost.appendChild(mkPill("Contact", join(rootPrefix, "contact/")));
+      // Mobile menu list
+      var menuList = nav.querySelector(".nxMenuList");
+      if (menuList) {
+        menuList.innerHTML = "";
+        navLinks.forEach(function (it) {
+          menuList.appendChild(buildLink(it.href, it.label, "nxMenuLink"));
+        });
+      }
+
+      // Mobile menu interactions (bound once per page)
+      var menuBtn = nav.querySelector(".nxMenuBtn");
+      var menuPanel = nav.querySelector(".nxMenuPanel");
+      if (menuBtn && menuPanel && !menuBtn.__nxMenuBound) {
+        menuBtn.__nxMenuBound = true;
+        var prevFocus = null;
+        var isOpen = false;
+
+        var setOpen = function (open) {
+          isOpen = !!open;
+          nav.setAttribute("data-menu-open", isOpen ? "true" : "false");
+          menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          menuPanel.hidden = !isOpen;
+          try { document.body && document.body.classList.toggle("nxMenuOpen", isOpen); } catch (_) {}
+          if (isOpen) {
+            prevFocus = document.activeElement;
+            var first = menuPanel.querySelector(".nxMenuList a, .nxMenuClose");
+            if (first && first.focus) first.focus();
+          } else {
+            var restore = prevFocus || menuBtn;
+            if (restore && restore.focus) restore.focus();
+            prevFocus = null;
+          }
+        };
+
+        menuBtn.addEventListener("click", function () { setOpen(!isOpen); });
+        menuPanel.addEventListener("click", function (e) {
+          var t = e && e.target;
+          if (!t) return;
+          if (t.closest && t.closest("[data-nx-menu-close]")) { setOpen(false); return; }
+          if (t.tagName === "A") setOpen(false);
+        });
+        document.addEventListener("keydown", function (e) {
+          if (!isOpen) return;
+          if ((e && (e.key === "Escape" || e.key === "Esc"))) setOpen(false);
+        }, { passive: true });
+      }
       // NOTE: Agents lives under the Apps landing hub; no direct pill here (avoids duplicates).
 
       // --- Safe Top Offset Contract ---
