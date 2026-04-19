@@ -1,0 +1,184 @@
+Electron MapStencil — Electron app blueprint (offline map scratchpad + route annotations)
+
+What it is
+
+MapStencil is a desktop offline-first “map scratchpad” where you can load a base map (offline tiles or static raster), then draw/annotate routes and pin notes. It’s not a launcher (Dockyard) and not a receipts vault (ReceiptBox). This is spatial thinking + annotation, built to be used even with no network.
+
+
+---
+
+Core capabilities (MVP)
+
+1) Offline map layer
+
+Two MVP options (pick one and implement fully):
+
+Option A (boring + stable): load a static image map (PNG/JPG) as the base layer (you provide the file)
+
+Option B (richer): offline tile folder (MBTiles) + viewer
+
+
+MVP recommendation: Option A (static base map) — avoids the complexity of MBTiles and keeps it rock solid.
+
+2) Pins + notes
+
+click to drop a pin
+
+pin has:
+
+title
+
+note
+
+tags
+
+optional color
+
+
+
+3) Path drawing
+
+draw a polyline route by clicking points
+
+name the route
+
+compute approximate distance (if you provide scale) or just store geometry
+
+
+4) Layers
+
+toggle visibility for:
+
+pins
+
+routes
+
+freehand drawings (optional later)
+
+
+
+5) Export
+
+export project to:
+
+JSON (pins/routes)
+
+PNG “screenshot” of map with overlays
+
+
+
+
+---
+
+Architecture
+
+Electron main
+
+filesystem access to open/save project files
+
+export image
+
+project autosave
+
+
+Renderer UI
+
+map canvas (HTML canvas or SVG overlay)
+
+tool palette
+
+
+
+---
+
+Storage (local only)
+
+Project file format: *.mapstencil.json
+
+{
+  "version": 1,
+  "baseMap": { "type": "image", "path": "/path/to/map.png", "width": 4000, "height": 3000 },
+  "pins": [
+    { "id": "uuid", "x": 1200, "y": 800, "title": "Stop 1", "note": "Call ahead", "tags": ["routeA"] }
+  ],
+  "routes": [
+    { "id": "uuid", "name": "Day 1", "points": [{"x": 100, "y": 200}, {"x": 300, "y": 400}] }
+  ]
+}
+
+Coordinate system:
+
+store in image pixel coordinates (simple, stable)
+
+later you can add geo-referencing if you want
+
+
+Autosave:
+
+writes every N seconds or on change (debounced)
+
+
+
+---
+
+UI layout (MVP)
+
+Left: tool palette
+
+select
+
+pin
+
+route
+
+erase
+
+
+Center: map view with overlays
+
+Right: layer list + selected item editor (title/note/tags)
+
+Top: Open map / Save project / Export PNG / Export JSON
+
+
+
+---
+
+Safety + guardrails
+
+validate base map exists
+
+keep project portable by allowing “embed base map” option (copy into project folder)
+
+cap pin note length (e.g., 5,000 chars)
+
+undo stack (optional MVP-lite: last action undo)
+
+
+
+---
+
+Smoke tests
+
+1. Open base map image
+
+
+2. Add 5 pins with notes
+
+
+3. Draw a route with 10 points
+
+
+4. Save project, close app, reopen → everything persists
+
+
+5. Export PNG shows overlays
+
+
+
+
+---
+
+Done definition
+
+Done = MapStencil loads an offline base map, supports pins/routes with editable metadata, persists projects locally, and exports JSON + PNG.
