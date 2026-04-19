@@ -1,0 +1,211 @@
+Nuxt CardPress — Nuxt 3 app blueprint (card composer + publish) + Neon backend
+
+What it is
+
+Nuxt CardPress is a Nuxt 3 editor for composing ordered cards (text/image/embed/quote) into pages, saving drafts, and publishing a public read-only URL. Nuxt handles SSR and server routes cleanly, and the editor stays snappy with client-only islands where needed.
+
+
+---
+
+Shared backbone (required in every Neon-backed Nuxt app)
+
+Rule: Neon access server-only via Nitro routes.
+Flow: Nuxt UI → /api/* → Neon
+
+Identity (v1, no auth):
+
+device_key in localStorage
+
+send X-Device-Key
+
+server maps to user_id
+
+
+Server invariants
+
+DATABASE_URL env-only
+
+parameterized SQL only
+
+no pg in client bundle
+
+
+
+---
+
+Stack
+
+Nuxt 3
+
+Nitro server/api/*
+
+Neon Postgres
+
+pg pinned server-side
+
+
+
+---
+
+Data model (Neon Postgres)
+
+sql/002_cardpress.sql
+
+create extension if not exists pgcrypto;
+
+create table if not exists users (
+  id uuid primary key default gen_random_uuid(),
+  device_key text not null unique,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists ncp_pages (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references users(id) on delete cascade,
+  title text not null,
+  slug text not null,
+  status text not null default 'draft' check (status in ('draft','published')),
+  published_slug text null unique,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(user_id, slug)
+);
+
+create table if not exists ncp_cards (
+  id uuid primary key default gen_random_uuid(),
+  page_id uuid not null references ncp_pages(id) on delete cascade,
+  type text not null check (type in ('text','image','embed','quote')),
+  ord int not null,
+  title text not null default '',
+  body text not null default '',
+  image_url text not null default '',
+  embed_url text not null default '',
+  created_at timestamptz not null default now(),
+  unique(page_id, ord)
+);
+
+create index if not exists idx_ncp_pages_user_status on ncp_pages(user_id, status, updated_at desc);
+create index if not exists idx_ncp_cards_page_ord on ncp_cards(page_id, ord);
+
+
+---
+
+Publish rule (MVP)
+
+Publish generates published_slug once (server-side)
+
+Public route: /p/:publishedSlug
+
+Public reflects latest saved state once published (no snapshots)
+
+
+Caps
+
+Max cards/page: 500
+
+Max body/card: 20k chars
+
+Max pages/user: 10k
+
+
+
+---
+
+Nitro API surface
+
+Base: /api/cardpress
+
+Pages
+
+GET /api/cardpress/pages
+
+POST /api/cardpress/pages { title, slug }
+
+GET /api/cardpress/pages/:id (includes cards)
+
+PATCH /api/cardpress/pages/:id { title?, slug?, status? }
+
+DELETE /api/cardpress/pages/:id
+
+
+Cards
+
+POST /api/cardpress/pages/:id/cards
+
+PATCH /api/cardpress/cards/:cardId
+
+DELETE /api/cardpress/cards/:cardId
+
+
+Public
+
+GET /api/cardpress/public/:publishedSlug
+
+
+
+---
+
+Nuxt routes/pages
+
+/ Dashboard
+
+/edit/:id Editor
+
+/p/:publishedSlug Public page (SSR)
+
+
+
+---
+
+UI/UX (MVP)
+
+Dashboard
+
+list drafts + published
+
+create page
+
+
+Editor
+
+left: card list
+
+center: card editor form
+
+right: preview panel
+
+reorder via up/down buttons (boring)
+
+publish bar at top
+
+
+Public
+
+SSR render of page + ordered cards
+
+
+
+---
+
+Smoke tests
+
+1. Create page + 5 cards
+
+
+2. Reorder + reload editor → order persists
+
+
+3. Publish → public URL works in private window
+
+
+4. Edit card → public reflects updates
+
+
+
+
+---
+
+Done definition
+
+Done = Nuxt editor composes ordered pages, persists to Neon through Nitro routes, and publishes SSR public pages.
+
