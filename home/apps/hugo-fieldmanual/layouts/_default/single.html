@@ -1,0 +1,91 @@
+{{ define "main" }}
+{{ $staleDays := int (default 90 .Site.Params.stale_days) }}
+{{ $systems := default (slice) .Params.systems }}
+{{ $symptoms := default (slice) .Params.symptoms }}
+{{ $fixes := default (slice) .Params.fixes }}
+{{ $severity := lower (default "unknown" .Params.severity) }}
+{{ $isChecklist := eq .Section "checklists" }}
+{{ $lv := "" }}
+{{ $ageDays := -1 }}
+{{ with .Params.last_verified }}
+  {{ $lv = . }}
+  {{ $t := time . }}
+  {{ $ageDays = div (sub now.Unix $t.Unix) 86400 }}
+{{ end }}
+
+<article class="article {{ if $isChecklist }}article-checklist{{ end }}">
+  <header class="article-header">
+    <div>
+      <h2>{{ .Title }}</h2>
+      <div class="meta">
+        <span class="badge sev-{{ $severity }}">{{ $severity }}</span>
+        {{ if $lv }}<span class="muted">Last verified: {{ $lv }}</span>{{ end }}
+        {{ if and (ge $ageDays 0) (ge $ageDays $staleDays) }}<span class="badge warn">needs re-verify</span>{{ end }}
+      </div>
+      <div class="tags">
+        {{ range $systems }}<span>{{ . }}</span>{{ end }}
+        {{ range $symptoms }}<span>{{ . }}</span>{{ end }}
+        {{ range $fixes }}<span>{{ . }}</span>{{ end }}
+      </div>
+    </div>
+
+    <div class="article-actions">
+      {{ if $isChecklist }}
+      <button class="btn" id="print-checklist" type="button">Print</button>
+      {{ end }}
+    </div>
+  </header>
+
+  <div class="article-grid">
+    <div class="content">{{ .Content }}</div>
+
+    <aside class="side">
+      <div class="side-card">
+        <h3>Fast Links</h3>
+        <div class="side-links">
+          {{ range $systems }}<a href="{{ (printf "/systems/%s/" (. | urlize)) | relLangURL }}">{{ . }}</a>{{ end }}
+          {{ range $symptoms }}<a href="{{ (printf "/symptoms/%s/" (. | urlize)) | relLangURL }}">{{ . }}</a>{{ end }}
+          {{ range $fixes }}<a href="{{ (printf "/fixes/%s/" (. | urlize)) | relLangURL }}">{{ . }}</a>{{ end }}
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Related</h3>
+        {{ $scratch := newScratch }}
+        {{ $scratch.Set "related" (slice) }}
+        {{ $candidates := where .Site.RegularPages "Permalink" "!=" .Permalink }}
+        {{ range $candidates }}
+          {{ $score := 0 }}
+          {{ $pSystems := default (slice) .Params.systems }}
+          {{ $pSymptoms := default (slice) .Params.symptoms }}
+          {{ $pFixes := default (slice) .Params.fixes }}
+          {{ if gt (len (intersect $systems $pSystems)) 0 }}{{ $score = add $score 3 }}{{ end }}
+          {{ if gt (len (intersect $symptoms $pSymptoms)) 0 }}{{ $score = add $score 2 }}{{ end }}
+          {{ if gt (len (intersect $fixes $pFixes)) 0 }}{{ $score = add $score 1 }}{{ end }}
+          {{ if ge $score 2 }}
+            {{ $scratch.Add "related" (slice (dict "page" . "score" $score)) }}
+          {{ end }}
+        {{ end }}
+        {{ $related := first 6 (sort ($scratch.Get "related") "score" "desc") }}
+        {{ if gt (len $related) 0 }}
+        <ul class="related">
+          {{ range $related }}
+          <li><a href="{{ .page.RelPermalink }}">{{ .page.Title }}</a></li>
+          {{ end }}
+        </ul>
+        {{ else }}
+        <p class="muted">No related docs yet.</p>
+        {{ end }}
+      </div>
+
+      {{ if and (ge $ageDays 0) (ge $ageDays $staleDays) }}
+      <div class="side-card warn-card">
+        <h3>Re-Verify</h3>
+        <p>This doc is {{ $ageDays }} days past last verification.</p>
+        <p class="muted">Update <code>last_verified</code> after confirming commands, dashboards, and symptoms still match reality.</p>
+      </div>
+      {{ end }}
+    </aside>
+  </div>
+</article>
+{{ end }}

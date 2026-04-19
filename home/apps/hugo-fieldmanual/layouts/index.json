@@ -1,0 +1,16 @@
+[
+  {{- range $index, $page := .Site.RegularPages -}}
+  {{- if $index }},{{ end }}
+  {
+    "title": {{ $page.Title | jsonify }},
+    "url": {{ $page.RelPermalink | jsonify }},
+    "summary": {{ $page.Summary | plainify | jsonify }},
+    "systems": {{ $page.Params.systems | jsonify }},
+    "symptoms": {{ $page.Params.symptoms | jsonify }},
+    "fixes": {{ $page.Params.fixes | jsonify }},
+    "severity": {{ $page.Params.severity | jsonify }},
+    "last_verified": {{ $page.Params.last_verified | jsonify }},
+    "section": {{ $page.Section | jsonify }}
+  }
+  {{- end -}}
+]

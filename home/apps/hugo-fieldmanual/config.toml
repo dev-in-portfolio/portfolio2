@@ -1,0 +1,21 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "FieldManual"
+
+[params]
+  description = "Operator field manual: playbooks, runbooks, checklists, and postmortems."
+  stale_days = 90
+
+[taxonomies]
+  tag = "tags"
+  system = "systems"
+  symptom = "symptoms"
+  fix = "fixes"
+
+[outputs]
+  home = ["HTML", "JSON"]
+
+[outputFormats.JSON]
+  mediaType = "application/json"
+  baseName = "search-index"
+  isPlainText = true

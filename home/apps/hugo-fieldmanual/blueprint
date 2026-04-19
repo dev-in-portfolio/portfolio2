@@ -1,0 +1,101 @@
+Hugo FieldManual — static ops handbook + fast search + versioned playbooks
+
+What it is
+
+A Hugo site that acts as a versioned operator handbook: playbooks, runbooks, checklists, incident notes, deploy steps, “known failure modes,” etc. It’s built to be navigated fast, searched instantly, and kept in Git forever.
+
+This is not a blog. It’s a working manual.
+
+
+---
+
+Core features (Hugo)
+
+Content type: playbooks/, runbooks/, checklists/, postmortems/
+
+Front matter fields:
+
+title
+
+severity (optional)
+
+systems (tags)
+
+symptoms (tags)
+
+fixes (tags)
+
+last_verified (date)
+
+
+Full-text search index generated at build-time (JSON)
+
+“Jump” navigation:
+
+by system
+
+by symptom
+
+by severity
+
+
+
+
+---
+
+Key pages
+
+/ Command Center (search + latest verified + hot links)
+
+/systems (tag hub)
+
+/playbooks (browse)
+
+/checklists (print-friendly)
+
+/postmortems (timeline + root cause)
+
+
+
+---
+
+Build approach (boring + stable)
+
+Hugo extended (pinned)
+
+Build-time JS search (lunr/fuse optional; or simple client search with prebuilt index)
+
+No backend required
+
+
+
+---
+
+Smoke tests
+
+1. Add a playbook markdown
+
+
+2. Search finds it
+
+
+3. Tag hubs list it
+
+
+4. Print checklist page renders clean
+
+
+5. Deploy as static output
+
+
+
+
+---
+
+Done definition
+
+Done = a static operator manual that’s actually usable under pressure (search + tags + print checklists).
+
+
+---
+

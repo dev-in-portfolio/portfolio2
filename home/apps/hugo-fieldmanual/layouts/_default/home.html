@@ -1,0 +1,139 @@
+{{ define "main" }}
+{{ $staleDays := int (default 90 .Site.Params.stale_days) }}
+
+<section class="section">
+  <h2 class="section-title">Command Center</h2>
+
+  <div class="search-box">
+    <div class="search-row">
+      <input id="search-input" type="text" placeholder="Search playbooks, symptoms, systems..." autocomplete="off" />
+      <button class="btn" id="incident-toggle" type="button" aria-pressed="false" title="Incident Mode">Incident Mode</button>
+    </div>
+
+    <div class="filters" aria-label="Search filters">
+      <label class="filter">
+        <span>Severity</span>
+        <select id="filter-severity">
+          <option value="">All</option>
+        </select>
+      </label>
+      <label class="filter">
+        <span>System</span>
+        <select id="filter-system">
+          <option value="">All</option>
+        </select>
+      </label>
+      <label class="filter">
+        <span>Symptom</span>
+        <select id="filter-symptom">
+          <option value="">All</option>
+        </select>
+      </label>
+      <label class="filter">
+        <span>Fix</span>
+        <select id="filter-fix">
+          <option value="">All</option>
+        </select>
+      </label>
+      <label class="filter filter-inline">
+        <input id="filter-stale" type="checkbox" />
+        <span>Needs Re-Verify</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="cards" id="search-results" aria-live="polite"></div>
+  <p class="hint">Tip: press <code>/</code> to focus search, <code>Esc</code> to clear, arrows to move results, <code>Enter</code> to open.</p>
+</section>
+
+<section class="section">
+  <h2 class="section-title">High Priority Playbooks</h2>
+  <div class="cards">
+    {{ range first 6 (where (where .Site.RegularPages "Section" "playbooks") "Params.severity" "in" (slice "critical" "high")) }}
+    <article class="card">
+      <div class="card-top">
+        <span class="badge sev-{{ .Params.severity | default "unknown" }}">{{ .Params.severity | default "unknown" }}</span>
+        {{ with .Params.last_verified }}<span class="muted">Verified {{ . }}</span>{{ end }}
+      </div>
+      <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+      <p>{{ .Summary | plainify }}</p>
+      <div class="tags">
+        {{ range .Params.systems }}<span>{{ . }}</span>{{ end }}
+        {{ range .Params.symptoms }}<span>{{ . }}</span>{{ end }}
+      </div>
+    </article>
+    {{ end }}
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Stale Docs Needing Re-Verify</h2>
+  <div class="cards">
+    {{ $candidates := where .Site.RegularPages "Params.last_verified" "!=" nil }}
+    {{ $scratch := newScratch }}
+    {{ $scratch.Set "stale" (slice) }}
+    {{ range $candidates }}
+      {{ $lv := time .Params.last_verified }}
+      {{ $ageDays := div (sub now.Unix $lv.Unix) 86400 }}
+      {{ if ge $ageDays $staleDays }}
+        {{ $scratch.Add "stale" (slice (dict "page" . "age" $ageDays)) }}
+      {{ end }}
+    {{ end }}
+    {{ range first 6 (sort ($scratch.Get "stale") "age" "desc") }}
+    {{ $p := .page }}
+    <article class="card">
+      <div class="card-top">
+        <span class="badge warn">stale</span>
+        <span class="muted">{{ .age }}d</span>
+      </div>
+      <h3><a href="{{ $p.RelPermalink }}">{{ $p.Title }}</a></h3>
+      <p class="muted">Last verified: {{ $p.Params.last_verified }}</p>
+      <div class="tags">
+        {{ range $p.Params.systems }}<span>{{ . }}</span>{{ end }}
+        {{ range $p.Params.symptoms }}<span>{{ . }}</span>{{ end }}
+      </div>
+    </article>
+    {{ end }}
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Recent Postmortems</h2>
+  <div class="cards">
+    {{ range first 6 (sort (where .Site.RegularPages "Section" "postmortems") "Date" "desc") }}
+    <article class="card">
+      <div class="card-top">
+        {{ with .Params.severity }}<span class="badge sev-{{ . }}">{{ . }}</span>{{ end }}
+        <span class="muted">{{ .Date.Format "2006-01-02" }}</span>
+      </div>
+      <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+      <p>{{ .Summary | plainify }}</p>
+    </article>
+    {{ end }}
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Browse By System</h2>
+  <div class="cards">
+    {{ range first 8 .Site.Taxonomies.systems.ByCount }}
+    <article class="card compact">
+      <h3><a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a></h3>
+      <p class="muted">{{ .Count }} entries</p>
+    </article>
+    {{ end }}
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Latest Verified</h2>
+  <div class="cards">
+    {{ range first 6 (sort (where .Site.RegularPages "Params.last_verified" "!=" nil) "Params.last_verified" "desc") }}
+    <article class="card compact">
+      <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+      <p class="muted">Last verified: {{ .Params.last_verified }}</p>
+    </article>
+    {{ end }}
+  </div>
+</section>
+{{ end }}
