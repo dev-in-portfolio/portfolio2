@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Remix VaultKey</title>
+    <style>
+      :root { --bg:#0a1222; --panel:#172440; --panel2:#1f2f50; --text:#ebf2ff; --muted:#a1b6de; --line:rgba(150,176,226,.28); }
+      * { box-sizing:border-box; }
+      body { margin:0; font-family:"Space Grotesk",system-ui,sans-serif; color:var(--text); background:linear-gradient(180deg,#0a1222,#0f1c38); }
+      .wrap { max-width:1050px; margin:0 auto; padding:28px 16px 58px; }
+      .hero,.card { border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:14px; }
+      .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+      .card { background:var(--panel2); }
+      label { display:block; margin:8px 0 4px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+      input,textarea,button { width:100%; border-radius:10px; border:1px solid var(--line); background:#0d1931; color:var(--text); padding:8px 10px; font:inherit; }
+      textarea { min-height:130px; resize:vertical; }
+      .row { display:flex; gap:8px; }
+      .row > * { flex:1; }
+      button { border:0; background:linear-gradient(90deg,#70dcff,#90abff); color:#03152b; font-weight:700; cursor:pointer; }
+      button.secondary { border:1px solid var(--line); background:#172744; color:#dbe9ff; }
+      .list { display:grid; gap:8px; margin-top:8px; max-height:460px; overflow:auto; }
+      .item { border:1px solid var(--line); border-radius:10px; background:#0d1830; padding:10px; }
+      .muted { color:var(--muted); }
+      #msg { min-height:20px; }
+      @media (max-width: 860px) { .grid { grid-template-columns:1fr; } .row { flex-direction:column; } }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="hero">
+        <h1 style="margin:0 0 8px">Remix VaultKey</h1>
+        <p class="muted" style="margin:0">Sealed notes workspace with DB-backed entries and metadata.</p>
+      </section>
+      <section class="grid">
+        <article class="card">
+          <h3 style="margin:0">Create Entry</h3>
+          <label>Title</label>
+          <input id="title" placeholder="Incident timeline notes" />
+          <label>Tags (comma-separated)</label>
+          <input id="tags" placeholder="ops,postmortem,private" />
+          <label>Plaintext</label>
+          <textarea id="plaintext" placeholder="Write secure note content here..."></textarea>
+          <div class="row" style="margin-top:10px">
+            <button id="save">Seal & Save</button>
+            <button id="reload" class="secondary">Reload</button>
+          </div>
+          <p id="msg" class="muted"></p>
+        </article>
+        <article class="card">
+          <h3 style="margin:0">Entries</h3>
+          <div id="list" class="list"></div>
+        </article>
+      </section>
+    </main>
+    <script>
+      const msg = (t, bad = false) => {
+        const el = document.getElementById('msg');
+        el.textContent = t;
+        el.style.color = bad ? '#ffb7b7' : '#a1b6de';
+      };
+      async function api(path, opts = {}) {
+        const res = await fetch(path, {
+          ...opts,
+          headers: { 'content-type': 'application/json', ...(opts.headers || {}) }
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || data.error || `http_${res.status}`);
+        return data;
+      }
+      async function load() {
+        try {
+          const data = await api('/api/entries?limit=100');
+          const root = document.getElementById('list');
+          root.innerHTML = '';
+          for (const item of data.items || []) {
+            const card = document.createElement('div');
+            card.className = 'item';
+            const tags = (item.tags || []).join(', ');
+            card.innerHTML =
+              `<strong>${item.title}</strong>` +
+              `<div class="muted">${new Date(item.createdAt).toLocaleString()}</div>` +
+              `<div class="muted">${tags || 'no tags'}</div>`;
+            const del = document.createElement('button');
+            del.textContent = 'Delete';
+            del.className = 'secondary';
+            del.style.marginTop = '8px';
+            del.onclick = async () => {
+              try {
+                await api(`/api/entries/${item.id}`, { method: 'DELETE' });
+                await load();
+              } catch (e) { msg(e.message, true); }
+            };
+            card.appendChild(del);
+            root.appendChild(card);
+          }
+        } catch (e) { msg(e.message, true); }
+      }
+      document.getElementById('save').onclick = async () => {
+        try {
+          const payload = {
+            title: document.getElementById('title').value.trim(),
+            tags: document.getElementById('tags').value.trim(),
+            plaintext: document.getElementById('plaintext').value
+          };
+          await api('/api/entries', { method: 'POST', body: JSON.stringify(payload) });
+          document.getElementById('title').value = '';
+          document.getElementById('tags').value = '';
+          document.getElementById('plaintext').value = '';
+          msg('Entry stored.');
+          await load();
+        } catch (e) { msg(e.message, true); }
+      };
+      document.getElementById('reload').onclick = load;
+      load();
+    </script>
+  </body>
+</html>
