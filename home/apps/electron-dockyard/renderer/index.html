@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dockyard - Local Project Launchpad</title>
+    <style>
+      :root {
+        --bg: #0f1419;
+        --card: #1a232e;
+        --text: #e8eef2;
+        --muted: #8a9ba8;
+        --primary: #4f8bff;
+        --success: #4caf50;
+        --warning: #ff9800;
+        --danger: #f44336;
+        --border: #2d3a4a;
+      }
+      
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        height: 100vh;
+        overflow: hidden;
+      }
+      
+      /* App Layout */
+      .app {
+        display: grid;
+        grid-template-columns: 280px 1fr 320px;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          "sidebar header header"
+          "sidebar main status";
+        height: 100vh;
+        gap: 0;
+      }
+      
+      /* Sidebar */
+      .sidebar {
+        grid-area: sidebar;
+        background: var(--card);
+        border-right: 1px solid var(--border);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Header */
+      .header {
+        grid-area: header;
+        background: linear-gradient(90deg, #1a232e 0%, #2a3a4a 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      
+      /* Main Area */
+      .main {
+        grid-area: main;
+        background: var(--bg);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Status Bar */
+      .status-bar {
+        grid-area: status;
+        background: var(--card);
+        border-left: 1px solid var(--border);
+        padding: 12px;
+        overflow-y: auto;
+      }
+      
+      /* Common Styles */
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--primary);
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+      }
+      
+      input, textarea, select, button {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #141d28;
+        color: var(--text);
+        padding: 10px;
+        margin-bottom: 8px;
+        font-family: inherit;
+      }
+      
+      button {
+        background: linear-gradient(90deg, var(--primary), #6a9dff);
+        color: white;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(79, 139, 255, 0.3);
+      }
+      
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      .btn-secondary {
+        background: #2a3a4a;
+        color: var(--text);
+      }
+      
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+      
+      .btn-warning {
+        background: var(--warning);
+        color: white;
+      }
+      
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+      
+      /* Status Indicators */
+      .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      
+      .status-running {
+        background: var(--success);
+      }
+      
+      .status-stopped {
+        background: var(--muted);
+      }
+      
+      .status-error {
+        background: var(--danger);
+      }
+      
+      /* Repo Items */
+      .repo-item {
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .repo-item:hover {
+        background: rgba(79, 139, 255, 0.1);
+        border-color: var(--primary);
+      }
+      
+      .repo-item.active {
+        background: rgba(79, 139, 255, 0.2);
+        border-color: var(--primary);
+      }
+      
+      /* Log Styles */
+      .log-box {
+        background: #0a1118;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px;
+        height: 300px;
+        overflow-y: auto;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        white-space: pre-wrap;
+      }
+      
+      /* Tag Styles */
+      .tag {
+        display: inline-block;
+        background: rgba(79, 139, 255, 0.2);
+        border: 1px solid var(--primary);
+        border-radius: 12px;
+        padding: 4px 10px;
+        margin: 2px;
+        font-size: 0.8rem;
+        color: var(--primary);
+      }
+      
+      /* Flex Utilities */
+      .flex {
+        display: flex;
+      }
+      
+      .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .flex-gap {
+        display: flex;
+        gap: 8px;
+      }
+      
+      /* Grid Utilities */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      
+      /* Small Text */
+      .small {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      
+      /* Diagnostic Styles */
+      .diagnostic-item {
+        padding: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      
+      .diagnostic-ok {
+        color: var(--success);
+      }
+      
+      .diagnostic-warn {
+        color: var(--warning);
+      }
+      
+      .diagnostic-error {
+        color: var(--danger);
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 1400px) {
+        .app {
+          grid-template-columns: 240px 1fr;
+          grid-template-areas:
+            "sidebar header"
+            "sidebar main"
+            "status status";
+        }
+        .status-bar {
+          grid-area: status;
+          border-left: none;
+          border-top: 1px solid var(--border);
+        }
+      }
+      
+      @media (max-width: 960px) {
+        .app {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto auto 1fr;
+          grid-template-areas:
+            "header"
+            "sidebar"
+            "main"
+            "status";
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="card">
+          <h2>Dockyard</h2>
+          <p class="small">Local Project Launchpad</p>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Repos</h3>
+          <button id="add-repo">Add Repo</button>
+          <div id="repo-list"></div>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Presets</h3>
+          <div id="presets-list"></div>
+          <button id="add-preset" style="margin-top: 12px;">Add Preset</button>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Workspaces</h3>
+          <div id="workspaces-list"></div>
+          <button id="add-workspace" style="margin-top: 12px;">Add Workspace</button>
+        </div>
+      </aside>
+      
+      <!-- Header -->
+      <header class="header">
+        <h1 id="current-repo-title">Dockyard - Project Launchpad</h1>
+        <div class="flex-gap">
+          <button id="save-config">Save Config</button>
+          <button id="export-config">Export Config</button>
+        </div>
+      </header>
+      
+      <!-- Main Area -->
+      <main class="main">
+        <div id="repo-panel"></div>
+        <div id="detail-panel"></div>
+        <div id="log-panel"></div>
+      </main>
+      
+      <!-- Status Bar -->
+      <aside class="status-bar">
+        <div class="card">
+          <h3 class="section-title">Status</h3>
+          <div id="status-content"></div>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Diagnostics</h3>
+          <div id="diagnostics-content"></div>
+        </div>
+      </aside>
+    </div>
+    
+    <!-- Modals -->
+    <div id="addRepoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+      <div class="card" style="max-width: 600px; margin: 50px auto; position: relative;">
+        <button id="closeAddRepoModal" style="position: absolute; top: 10px; right: 10px;" class="btn-danger">Close</button>
+        <h2>Add Repository</h2>
+        <input id="new-repo-path" placeholder="Repository path" />
+        <input id="new-repo-name" placeholder="Repository name" />
+        <button id="confirm-add-repo" class="btn-success">Add Repository</button>
+      </div>
+    </div>
+    
+    <div id="addPresetModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+      <div class="card" style="max-width: 600px; margin: 50px auto; position: relative;">
+        <button id="closeAddPresetModal" style="position: absolute; top: 10px; right: 10px;" class="btn-danger">Close</button>
+        <h2>Add Preset</h2>
+        <input id="new-preset-name" placeholder="Preset name" />
+        <textarea id="new-preset-vars" rows="6" placeholder="Environment variables (KEY=VALUE per line)"></textarea>
+        <button id="confirm-add-preset" class="btn-success">Add Preset</button>
+      </div>
+    </div>
+    
+    <div id="addWorkspaceModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+      <div class="card" style="max-width: 600px; margin: 50px auto; position: relative;">
+        <button id="closeAddWorkspaceModal" style="position: absolute; top: 10px; right: 10px;" class="btn-danger">Close</button>
+        <h2>Add Workspace</h2>
+        <input id="new-workspace-name" placeholder="Workspace name" />
+        <div style="margin: 12px 0;">
+          <label class="small">Select repos to include</label>
+          <div id="workspace-repo-select" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); padding: 8px; border-radius: 6px;"></div>
+        </div>
+        <button id="confirm-add-workspace" class="btn-success">Add Workspace</button>
+      </div>
+    </div>
+    
+    <script src="renderer.js"></script>
+  </body>
+</html>

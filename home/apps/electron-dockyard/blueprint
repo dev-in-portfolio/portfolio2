@@ -1,0 +1,172 @@
+Electron Dockyard — Electron app blueprint (local multi-repo launcher + env switchboard)
+
+What it is
+
+Dockyard is a desktop “launchpad” for your local projects: pick a repo, pick an environment preset, then launch dev server / build / tests with one click. It also gives you a clean place to store per-repo commands, ports, and notes.
+
+This is not RepoPilot (git cockpit) and not clipboard transforms and not a timeline. This is process orchestration.
+
+
+---
+
+Core capabilities (MVP)
+
+1) Repo registry
+
+Add repo by folder picker
+
+Store:
+
+name
+
+path
+
+framework tag (optional)
+
+default commands:
+
+dev
+
+build
+
+test
+
+lint
+
+
+expected port(s)
+
+
+
+2) Environment presets
+
+Define presets like:
+
+local
+
+neon-dev
+
+neon-prod
+
+
+Each preset stores env vars without secrets by default, and supports:
+
+.env file selection per repo
+
+“inject env overrides” per run
+
+
+3) Launch controls
+
+Per repo:
+
+Start dev server
+
+Stop dev server
+
+Open browser to localhost:port
+
+Tail logs (last N lines)
+
+Copy command to clipboard
+
+
+4) Guardrails
+
+Detect if port already in use
+
+Detect if node_modules missing → prompt to run install
+
+Show process PID and exit status
+
+
+
+---
+
+Architecture
+
+Electron main process
+
+filesystem access
+
+spawn processes (child_process.spawn)
+
+manage running processes per repo
+
+store config file
+
+
+Renderer (UI)
+
+React or plain TS (boring)
+
+repo list + details panel
+
+terminal log panel
+
+
+
+---
+
+Storage (local only)
+
+~/.dockyard/config.json
+
+{
+  "repos": [
+    {
+      "id": "uuid",
+      "name": "micro-exhibits",
+      "path": "/path/to/repo",
+      "commands": { "dev": "npm run dev", "build": "npm run build" },
+      "ports": [3000],
+      "envPresetBindings": { "local": ".env", "neon-dev": ".env.neon" }
+    }
+  ],
+  "presets": [
+    { "name": "local", "vars": { "NODE_ENV": "development" } }
+  ]
+}
+
+
+---
+
+UI layout (MVP)
+
+Left: repo list
+
+Middle: repo detail (commands + presets)
+
+Bottom: log/console panel
+
+Top-right: running status indicators
+
+
+
+---
+
+Smoke tests
+
+1. Add a repo
+
+
+2. Click “Start Dev” → process runs, logs stream
+
+
+3. Stop → process exits cleanly
+
+
+4. Switch preset → env injection works
+
+
+5. Port in use → warning shown
+
+
+
+
+---
+
+Done definition
+
+Done = you can register repos and reliably start/stop dev/build commands with logs and env presets from a single desktop app.
+
