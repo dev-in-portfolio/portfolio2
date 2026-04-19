@@ -1,0 +1,17 @@
+{
+  "name": "specforge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/load-specs.mjs && node scripts/validate-specs.mjs && node scripts/build-index.mjs && eleventy --config=.eleventy.cjs",
+    "dev": "eleventy --config=.eleventy.cjs --serve"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "2.0.1"
+  },
+  "dependencies": {
+    "js-yaml": "4.1.0",
+    "luxon": "^3.4.4"
+  }
+}

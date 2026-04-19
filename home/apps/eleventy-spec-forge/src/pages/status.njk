@@ -1,0 +1,13 @@
+---
+layout: layouts/base.njk
+title: "Status"
+permalink: "/status/index.html"
+---
+<section class="section">
+  <h2>Status Buckets</h2>
+  <div class="tags">
+    {% for s in collections.statusList %}
+      <a href="/status/{{ s }}/">{{ s }}</a>
+    {% endfor %}
+  </div>
+</section>

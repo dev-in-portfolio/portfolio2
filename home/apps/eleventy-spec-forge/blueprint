@@ -1,0 +1,223 @@
+Eleventy SpecForge — 11ty static “spec compiler” (YAML → docs) with schema checks + generated tables
+
+What it is
+
+SpecForge is a static site generator for project specs: you write a structured YAML spec (inputs/outputs/routes/db tables/constraints), and Eleventy compiles it into clean documentation pages with generated tables and cross-links. This is not a link directory (Switchboard) and not a patch vault (PatchBook). It’s structured spec → readable docs.
+
+
+---
+
+Stack (boring + stable)
+
+Eleventy pinned
+
+Node 20 compatible
+
+Minimal dependencies:
+
+YAML parser (pinned) if needed
+
+otherwise use JSON instead of YAML (but this app’s point is YAML)
+
+
+
+No backend.
+
+
+---
+
+Authoring model (source of truth)
+
+Each spec is a YAML file:
+
+src/specs/micro-exhibits.yaml
+
+id: micro-exhibits
+title: Micro-Exhibits
+owner: devin
+status: active
+tags: [astro, neon, museum]
+
+overview: >
+  Exhibit browser with halls, search, favorites, and recent views.
+
+entities:
+  - name: favorites
+    fields:
+      - { name: user_key, type: text, pk: true }
+      - { name: exhibit_slug, type: text, pk: true }
+      - { name: created_at, type: timestamptz, default: now() }
+
+routes:
+  - method: GET
+    path: /api/favorites
+    request: { user_key: text }
+    response: { favorites: array }
+
+constraints:
+  - "No secrets in repo"
+  - "Server-only DB access"
+  - "URL state for filters"
+
+acceptance:
+  - "Favorites persist"
+  - "Search index excludes bodies"
+
+Required fields
+
+id unique
+
+title
+
+overview
+
+at least one of: entities or routes
+
+constraints[]
+
+acceptance[]
+
+
+
+---
+
+Build-time validation (hard fail)
+
+Fail build if:
+
+missing required fields
+
+duplicate id
+
+route entries missing method/path
+
+entity fields missing name/type
+
+acceptance empty
+
+
+Also generate a build report:
+
+spec count
+
+entities count
+
+routes count
+
+validation errors list
+
+
+
+---
+
+Generated pages
+
+/ specs dashboard (search + tags + status)
+
+/specs/ list
+
+/specs/:id/ detail page:
+
+Overview
+
+Entities table
+
+Routes table
+
+Constraints checklist
+
+Acceptance criteria checklist
+
+
+
+Cross-links:
+
+Tag hubs /tags/:tag/
+
+Status hubs /status/:status/
+
+
+
+---
+
+Search index
+
+Build /_spec_index.json with:
+
+id
+
+title
+
+tags
+
+status
+
+excerpt from overview (No full YAML in index)
+
+
+Client-side search + filters:
+
+q, tag, status
+
+
+
+---
+
+File structure (MVP)
+
+eleventy-specforge/
+  src/
+    _data/
+      site.json
+    _includes/
+      layouts/
+        base.njk
+        list.njk
+        spec.njk
+      components/
+        tables.njk
+        search.njk
+    specs/
+      *.yaml
+    pages/
+      index.njk
+      specs.njk
+    tags/
+      tag.njk
+    status/
+      status.njk
+  scripts/
+    load-specs.mjs
+    validate-specs.mjs
+    build-index.mjs
+  .eleventy.js
+  package.json
+  README.md
+
+
+---
+
+Smoke tests
+
+1. Add 2 YAML specs → build passes
+
+
+2. Spec detail page shows entities + routes tables
+
+
+3. Search finds spec by title/tag
+
+
+4. Remove acceptance section → build fails
+
+
+5. Tag hub lists correct specs
+
+
+
+
+---
+
+Done definition
+
+Done = Eleventy compiles YAML specs into validated, searchable documentation with generated tables and cross-links.

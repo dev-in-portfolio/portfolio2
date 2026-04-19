@@ -1,0 +1,28 @@
+id: atlas-shelf
+title: AtlasShelf
+owner: platform
+status: draft
+tags: [catalog, data]
+
+overview: >
+  Data-driven catalog with faceted browsing and static export.
+
+entities:
+  - name: items
+    fields:
+      - { name: slug, type: text, pk: true }
+      - { name: title, type: text }
+      - { name: category, type: text }
+
+routes:
+  - method: GET
+    path: /api/items
+    request: { category: text }
+    response: { items: array }
+
+constraints:
+  - "Static export only"
+
+acceptance:
+  - "Filters persist in URL"
+  - "Search index under 50KB"

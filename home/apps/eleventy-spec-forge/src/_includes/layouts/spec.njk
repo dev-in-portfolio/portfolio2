@@ -1,0 +1,88 @@
+<article class="detail">
+  <div class="sidebar">
+    <h3>Navigation</h3>
+    <ul class="nav">
+      <li><a href="#overview">Overview</a></li>
+      {% if spec.entities %}<li><a href="#entities">Entities</a></li>{% endif %}
+      {% if spec.routes %}<li><a href="#routes">Routes</a></li>{% endif %}
+      <li><a href="#constraints">Constraints</a></li>
+      <li><a href="#acceptance">Acceptance</a></li>
+      {% if spec.related %}<li><a href="#related">Related</a></li>{% endif %}
+    </ul>
+    
+    <div class="meta">
+      <span class="status status-{{ spec.status }}">{{ spec.status }}</span>
+      <span class="owner">{{ spec.owner }}</span>
+      <span class="date">{{ spec.updated_at }}</span>
+    </div>
+    
+    {% if spec.tags %}
+    <div class="tags">
+      {% for tag in spec.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  
+  <div class="content">
+    <h2 id="overview">{{ spec.title }}</h2>
+    <p>{{ spec.overview }}</p>
+
+    {% if spec.entities %}
+    <h3 id="entities">Entities</h3>
+    <table class="table">
+      <thead><tr><th>Name</th><th>Fields</th><th>Required</th></tr></thead>
+      <tbody>
+        {% for entity in spec.entities %}
+        <tr>
+          <td><a name="{{ entity.name }}"></a>{{ entity.name }}</td>
+          <td>
+            {% for field in entity.fields %}
+              <div><strong>{{ field.name }}</strong> ({{ field.type }})</div>
+            {% endfor %}
+          </td>
+          <td>
+            {% for field in entity.fields %}
+              {% if field.required %}✓{% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    {% if spec.routes %}
+    <h3 id="routes">Routes</h3>
+    <table class="table">
+      <thead><tr><th>Method</th><th>Path</th><th>Request</th><th>Response</th></tr></thead>
+      <tbody>
+        {% for route in spec.routes %}
+        <tr>
+          <td><span class="method {{ route.method }}">{{ route.method }}</span></td>
+          <td><code>{{ route.path }}</code></td>
+          <td><pre>{{ route.request | dump | safe }}</pre></td>
+          <td><pre>{{ route.response | dump | safe }}</pre></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+    <h3 id="constraints">Constraints</h3>
+    <ul>
+      {% for item in spec.constraints %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+
+    <h3 id="acceptance">Acceptance</h3>
+    <ul>
+      {% for item in spec.acceptance %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+
+    {% if spec.related %}
+    <h3 id="related">Related Specs</h3>
+    <ul>
+      {% for item in spec.related %}<li><a href="/specs/{{ item }}.html">{{ item }}</a></li>{% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</article>

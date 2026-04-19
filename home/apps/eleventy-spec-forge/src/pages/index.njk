@@ -1,0 +1,41 @@
+---
+layout: layouts/base.njk
+title: "SpecForge"
+permalink: "/index.html"
+---
+<section class="hero">
+  <h2>Specification Library</h2>
+  <p>Build-ready specs with status tracking, metadata tags, and implementation notes.</p>
+  <div class="meta-row">
+    <span class="badge">{{ specs | length }} specs</span>
+    <span class="badge">{{ collections.tagList | length }} tags</span>
+    <span class="badge">{{ collections.statusList | length }} statuses</span>
+    <span class="badge">{{ collections.ownerList | length }} owners</span>
+  </div>
+</section>
+
+<div class="search-box">
+  <input id="search-input" type="text" placeholder="Search specs (press / to focus)" />
+  <select id="status-filter">
+    <option value="">All status</option>
+    {% for status in collections.statusList %}
+      <option value="{{ status }}">{{ status }}</option>
+    {% endfor %}
+  </select>
+  <select id="owner-filter">
+    <option value="">All owners</option>
+    {% for owner in collections.ownerList %}
+      <option value="{{ owner }}">{{ owner }}</option>
+    {% endfor %}
+  </select>
+  <select id="tag-filter">
+    <option value="">All tags</option>
+    {% for tag in collections.tagList %}
+      <option value="{{ tag }}">{{ tag }}</option>
+    {% endfor %}
+  </select>
+</div>
+<div id="search-results"></div>
+
+{% set items = specs | slice(0, 6) %}
+{% include "layouts/list.njk" %}

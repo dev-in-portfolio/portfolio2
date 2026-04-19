@@ -1,0 +1,11 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: collections.statusList
+  size: 1
+  alias: status
+permalink: "status/{{ status }}/index.html"
+---
+{% set items = specs | selectattr("status", "equalto", status) %}
+<h2>Status: {{ status }}</h2>
+{% include "layouts/list.njk" %}

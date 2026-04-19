@@ -1,0 +1,30 @@
+id: micro-exhibits
+title: Micro-Exhibits
+owner: operations
+status: active
+tags: [astro, neon, museum]
+
+overview: >
+  Exhibit browser with halls, search, favorites, and recent views.
+
+entities:
+  - name: favorites
+    fields:
+      - { name: user_key, type: text, pk: true }
+      - { name: exhibit_slug, type: text, pk: true }
+      - { name: created_at, type: timestamptz, default: now() }
+
+routes:
+  - method: GET
+    path: /api/favorites
+    request: { user_key: text }
+    response: { favorites: array }
+
+constraints:
+  - "No secrets in repo"
+  - "Server-only DB access"
+  - "URL state for filters"
+
+acceptance:
+  - "Favorites persist"
+  - "Search index excludes bodies"
