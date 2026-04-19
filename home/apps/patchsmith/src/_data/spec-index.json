@@ -1,0 +1,23 @@
+[
+  {
+    "id": "atlas-shelf",
+    "title": "AtlasShelf",
+    "tags": [
+      "catalog",
+      "data"
+    ],
+    "status": "draft",
+    "excerpt": "Data-driven catalog with faceted browsing and static export.\n"
+  },
+  {
+    "id": "micro-exhibits",
+    "title": "Micro-Exhibits",
+    "tags": [
+      "astro",
+      "neon",
+      "museum"
+    ],
+    "status": "active",
+    "excerpt": "Exhibit browser with halls, search, favorites, and recent views.\n"
+  }
+]

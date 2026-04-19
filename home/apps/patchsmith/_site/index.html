@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PatchBook | PatchBook</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <h1><a href="/">PatchBook</a></h1>
+        <p>Patch library with validated, copy-safe fix blocks.</p>
+      </div>
+      <nav>
+        <a href="/patches/">Patches</a>
+        <a href="/tags/">Tags</a>
+        <a href="/risk/">Risk</a>
+        <a href="/submit/">Add Patch</a>
+      </nav>
+    </header>
+    <main>
+      <section class="hero">
+  <h2>Production Patch Library</h2>
+  <p>Curated, copy-safe fixes for recurring deployment and runtime issues.</p>
+  <div class="meta-row">
+    <span class="badge">13 patches</span>
+    <span class="badge">29 tags</span>
+    <span class="badge">3 risk levels</span>
+    <span class="badge">0 environments</span>
+  </div>
+</section>
+
+<div class="search-box">
+  <input id="search-input" type="text" placeholder="Search patches (press / to focus)" />
+  <select id="risk-filter">
+    <option value="">All risk levels</option>
+    
+      <option value="high">high</option>
+    
+      <option value="low">low</option>
+    
+      <option value="medium">medium</option>
+    
+  </select>
+  <select id="environment-filter">
+    <option value="">All environments</option>
+    
+  </select>
+  <select id="tag-filter">
+    <option value="">All tags</option>
+    
+      <option value="adapter">adapter</option>
+    
+      <option value="api">api</option>
+    
+      <option value="astro">astro</option>
+    
+      <option value="build">build</option>
+    
+      <option value="bundling">bundling</option>
+    
+      <option value="ci">ci</option>
+    
+      <option value="deploy">deploy</option>
+    
+      <option value="deps">deps</option>
+    
+      <option value="ejs">ejs</option>
+    
+      <option value="eleventy">eleventy</option>
+    
+      <option value="env">env</option>
+    
+      <option value="express">express</option>
+    
+      <option value="functions">functions</option>
+    
+      <option value="lockfile">lockfile</option>
+    
+      <option value="migration">migration</option>
+    
+      <option value="neon">neon</option>
+    
+      <option value="netlify">netlify</option>
+    
+      <option value="nextjs">nextjs</option>
+    
+      <option value="nunjucks">nunjucks</option>
+    
+      <option value="pg">pg</option>
+    
+      <option value="plugin">plugin</option>
+    
+      <option value="pnpm">pnpm</option>
+    
+      <option value="postgres">postgres</option>
+    
+      <option value="redirects">redirects</option>
+    
+      <option value="routing">routing</option>
+    
+      <option value="schema">schema</option>
+    
+      <option value="ssr">ssr</option>
+    
+      <option value="sveltekit">sveltekit</option>
+    
+      <option value="vite">vite</option>
+    
+  </select>
+  <select id="version-filter">
+    <option value="">All versions</option>
+    
+  </select>
+</div>
+<div id="search-results"></div>
+
+
+<section class="section">
+  <h2>PatchBook</h2>
+  <div class="cards">
+    
+  </div>
+</section>
+
+
+    </main>
+    <footer>PatchBook • 2026</footer>
+    <script src="/assets/patchbook.js"></script>
+  </body>
+</html>

@@ -1,0 +1,155 @@
+[
+  {
+    "slug": "astro-api-functions-routing",
+    "title": "Astro static site with Netlify functions API routing",
+    "tags": [
+      "astro",
+      "netlify",
+      "functions",
+      "api"
+    ],
+    "risk": "low",
+    "excerpt": "## Symptom\nStatic Astro UI loads, but API-backed features fail.\n\n## Patch\n```patch\nTARGET FILE: netlify.toml\n\nFIND:\n(no functions dir / no api redirect)\n\nREPLAC"
+  },
+  {
+    "slug": "eleventy-config-not-loaded",
+    "title": "Eleventy: custom filters not loaded in CI build",
+    "tags": [
+      "eleventy",
+      "nunjucks",
+      "ci",
+      "build"
+    ],
+    "risk": "low",
+    "excerpt": "## Symptom\nBuild errors like `filter not found: date`.\n\n## Patch\n```patch\nTARGET FILE: package.json scripts\n\nFIND:\n\"build\": \"... && eleventy\"\n\nREPLACE WITH:\n\"bu"
+  },
+  {
+    "slug": "express-function-prefix-normalize",
+    "title": "Express in Netlify function: normalize function URL prefix",
+    "tags": [
+      "express",
+      "netlify",
+      "functions",
+      "routing"
+    ],
+    "risk": "medium",
+    "excerpt": "## Symptom\nRoutes work locally but not behind Netlify function path.\n\n## Patch\n```patch\nTARGET FILE: server entry\n\nFIND:\n(no prefix normalization middleware)\n\nR"
+  },
+  {
+    "slug": "neon-netlify-env-fallback",
+    "title": "Neon + Netlify: DB URL fallback pattern",
+    "tags": [
+      "postgres",
+      "neon",
+      "netlify",
+      "env"
+    ],
+    "risk": "low",
+    "excerpt": "## Symptom\nApp works locally but DB is unavailable on Netlify.\n\n## Patch\n```patch\nTARGET FILE: server db init file\n\nFIND:\nconst url = process.env.DATABASE_URL;\n"
+  },
+  {
+    "slug": "netlify-function-api-redirect",
+    "title": "Netlify: API routes not reaching serverless function",
+    "tags": [
+      "netlify",
+      "redirects",
+      "functions",
+      "api"
+    ],
+    "risk": "low",
+    "excerpt": "## Symptom\nFrontend calls `/api/*` but requests return 404.\n\n## Patch\n```patch\nTARGET FILE: netlify.toml\n\nFIND:\n(no API redirect)\n\nREPLACE WITH:\n[[redirects]]\nf"
+  },
+  {
+    "slug": "netlify-missing-ejs-module",
+    "title": "Netlify Functions: Cannot find module 'ejs'",
+    "tags": [
+      "netlify",
+      "functions",
+      "ejs",
+      "bundling"
+    ],
+    "risk": "medium",
+    "excerpt": "## Symptom\nRuntime fails with `Cannot find module 'ejs'` inside function bundle.\n\n## Patch\n```patch\nTARGET FILE: netlify.toml\n\nFIND:\n[functions]\nnode_bundler = "
+  },
+  {
+    "slug": "netlify-next-plugin-missing",
+    "title": "Next.js on Netlify: plugin not configured",
+    "tags": [
+      "nextjs",
+      "netlify",
+      "build",
+      "plugin"
+    ],
+    "risk": "medium",
+    "excerpt": "## Symptom\nNext app builds locally but Netlify runtime/SSR fails.\n\n## Patch\n```patch\nTARGET FILE: netlify.toml\n\nFIND:\n(no next plugin)\n\nREPLACE WITH:\n[[plugins]"
+  },
+  {
+    "slug": "netlify-pnpm-frozen-lockfile",
+    "title": "Netlify: ERR_PNPM_OUTDATED_LOCKFILE in CI",
+    "tags": [
+      "netlify",
+      "pnpm",
+      "ci",
+      "lockfile"
+    ],
+    "risk": "low",
+    "excerpt": "## Symptom\nNetlify build fails during install with `ERR_PNPM_OUTDATED_LOCKFILE`.\n\n## Patch\n```patch\nTARGET FILE: pnpm-lock.yaml\n\nFIND:\n(package missing from loc"
+  },
+  {
+    "slug": "netlify-vite-missing",
+    "title": "Netlify: vite not found (exit 127)",
+    "tags": [
+      "netlify",
+      "build",
+      "vite",
+      "deps"
+    ],
+    "risk": "low",
+    "excerpt": "## Symptom\nBuild fails with `sh: 1: vite: not found`.\n\n## Patch\n```patch\nTARGET FILE: package.json\n\nFIND:\n\"build\": \"vite build\"\n\nREPLACE WITH:\n\"build\": \"vite bu"
+  },
+  {
+    "slug": "next-missing-chunk",
+    "title": "Next.js: missing server chunk",
+    "tags": [
+      "nextjs",
+      "build"
+    ],
+    "risk": "high",
+    "excerpt": "## Symptom\nServer crashes with missing chunk file in `.next`.\n\n## Patch\n```patch\nACTION: delete .next and rebuild\n\nrm -rf .next\nnpm run build\n```"
+  },
+  {
+    "slug": "pg-pool-commonjs",
+    "title": "Vite SSR: pg Pool CommonJS import",
+    "tags": [
+      "vite",
+      "pg",
+      "ssr"
+    ],
+    "risk": "medium",
+    "excerpt": "## Symptom\nNamed export `Pool` not found when importing `pg` in SSR.\n\n## Patch\n```bash\nimport pkg from 'pg';\nconst { Pool } = pkg;\n```"
+  },
+  {
+    "slug": "postgres-missing-relation-migration",
+    "title": "Postgres: relation does not exist after deploy",
+    "tags": [
+      "postgres",
+      "migration",
+      "deploy",
+      "schema"
+    ],
+    "risk": "high",
+    "excerpt": "## Symptom\nRuntime errors such as `relation \\\"table_name\\\" does not exist`.\n\n## Patch\n```patch\nTARGET FILE: deployment runbook\n\nFIND:\n(no migration step)\n\nREPLA"
+  },
+  {
+    "slug": "sveltekit-adapter-auto-netlify",
+    "title": "SvelteKit: adapter-auto not selecting Netlify reliably",
+    "tags": [
+      "sveltekit",
+      "netlify",
+      "adapter",
+      "build"
+    ],
+    "risk": "medium",
+    "excerpt": "## Symptom\nBuild warns `Could not detect a supported production environment`.\n\n## Patch\n```patch\nTARGET FILE: svelte.config.js\n\nFIND:\nimport adapter from '@svel"
+  }
+]

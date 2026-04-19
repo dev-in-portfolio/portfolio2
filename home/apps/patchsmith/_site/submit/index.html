@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Add Patch | PatchBook</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <h1><a href="/">PatchBook</a></h1>
+        <p>Patch library with validated, copy-safe fix blocks.</p>
+      </div>
+      <nav>
+        <a href="/patches/">Patches</a>
+        <a href="/tags/">Tags</a>
+        <a href="/risk/">Risk</a>
+        <a href="/submit/">Add Patch</a>
+      </nav>
+    </header>
+    <main>
+      <section class="section">
+  <h2>Add a New Patch</h2>
+  <p>PatchBook is content-driven. Add a markdown file in <code>src/patches/</code> and redeploy.</p>
+  <h3>Required frontmatter</h3>
+  <pre><code>---
+slug: your-slug
+title: "Your patch title"
+tags: ["netlify", "build"]
+applies_to: ["node", "netlify"]
+risk: "low"
+permalink: false
+---
+</code></pre>
+  <h3>Where to put it</h3>
+  <p>Create <code>src/patches/your-slug.md</code> and include your patch content below frontmatter.</p>
+</section>
+
+    </main>
+    <footer>PatchBook • 2026</footer>
+    <script src="/assets/patchbook.js"></script>
+  </body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title> | SpecForge</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <h1><a href="/">SpecForge</a></h1>
+        <p>Compile YAML specs into readable documentation.</p>
+      </div>
+      <nav>
+        <a href="/specs/">Specs</a>
+        <a href="/tags/">Tags</a>
+        <a href="/status/">Status</a>
+      </nav>
+    </header>
+    <main>
+      <article class="detail">
+  <div class="sidebar">
+    <h3>Navigation</h3>
+    <ul class="nav">
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#entities">Entities</a></li>
+      <li><a href="#routes">Routes</a></li>
+      <li><a href="#constraints">Constraints</a></li>
+      <li><a href="#acceptance">Acceptance</a></li>
+      
+    </ul>
+    
+    <div class="meta">
+      <span class="status status-active">active</span>
+      <span class="owner">operations</span>
+      <span class="date">2026-04-08</span>
+    </div>
+    
+    
+    <div class="tags">
+      <span class="tag">astro</span><span class="tag">neon</span><span class="tag">museum</span>
+    </div>
+    
+  </div>
+  
+  <div class="content">
+    <h2 id="overview">Micro-Exhibits</h2>
+    <p>Exhibit browser with halls, search, favorites, and recent views.
+</p>
+
+    
+    <h3 id="entities">Entities</h3>
+    <table class="table">
+      <thead><tr><th>Name</th><th>Fields</th><th>Required</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td><a name="favorites"></a>favorites</td>
+          <td>
+            
+              <div><strong>user_key</strong> (text)</div>
+            
+              <div><strong>exhibit_slug</strong> (text)</div>
+            
+              <div><strong>created_at</strong> (timestamptz)</div>
+            
+          </td>
+          <td>
+            
+              
+            
+              
+            
+              
+            
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+    
+
+    
+    <h3 id="routes">Routes</h3>
+    <table class="table">
+      <thead><tr><th>Method</th><th>Path</th><th>Request</th><th>Response</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td><span class="method GET">GET</span></td>
+          <td><code>/api/favorites</code></td>
+          <td><pre>{"user_key":"text"}</pre></td>
+          <td><pre>{"favorites":"array"}</pre></td>
+        </tr>
+        
+      </tbody>
+    </table>
+    
+
+    <h3 id="constraints">Constraints</h3>
+    <ul>
+      <li>No secrets in repo</li><li>Server-only DB access</li><li>URL state for filters</li>
+    </ul>
+
+    <h3 id="acceptance">Acceptance</h3>
+    <ul>
+      <li>Favorites persist</li><li>Search index excludes bodies</li>
+    </ul>
+
+    
+  </div>
+</article>
+
+
+    </main>
+    <footer>SpecForge • 2026</footer>
+    <script src="/assets/specforge.js"></script>
+  </body>
+</html>

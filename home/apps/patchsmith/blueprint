@@ -1,0 +1,181 @@
+PatchSmith — Gradio + Neon blueprint (structured patch writer + approval)
+
+What it is
+
+PatchSmith is a Gradio web tool that helps you create surgical “FIND / REPLACE WITH” patches against stored files/snippets. It’s not a journaling app — it’s an operator tool for generating, reviewing, and approving minimal diffs. Perfect for your “PATCH STANDARD” workflow.
+
+
+---
+
+Shared backbone (required in every Neon-backed Gradio app)
+
+Rule: Gradio runs server-side, so it can connect to Neon from the server. Never expose DATABASE_URL to the browser.
+Flow: Gradio server → Neon Postgres
+
+Identity (v1)
+
+Simple passcode gate: APP_PASSCODE env var.
+
+Session token stored in memory (Streamlit-style guard, but for Gradio).
+
+
+Server invariants
+
+DATABASE_URL in env (or secrets)
+
+Parameterized SQL only
+
+No extra logging of small things; only store what’s required for function
+
+
+
+---
+
+Stack
+
+Python 3.11+
+
+Gradio
+
+Postgres driver: psycopg pinned
+
+Optional: python-dotenv for local dev
+
+
+
+---
+
+Data model (Neon)
+
+sql/001_patchsmith.sql
+
+create extension if not exists pgcrypto;
+
+create table if not exists patch_projects (
+  id uuid primary key default gen_random_uuid(),
+  name text not null unique,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists patch_files (
+  id uuid primary key default gen_random_uuid(),
+  project_id uuid not null references patch_projects(id) on delete cascade,
+  path text not null,
+  content text not null,
+  updated_at timestamptz not null default now(),
+  unique(project_id, path)
+);
+
+create table if not exists patches (
+  id uuid primary key default gen_random_uuid(),
+  project_id uuid not null references patch_projects(id) on delete cascade,
+  file_path text not null,
+  find_text text not null,
+  replace_text text not null,
+  status text not null default 'draft' check (status in ('draft','approved','applied')),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_patches_project_status on patches(project_id, status);
+
+
+---
+
+Core UX (Gradio screens)
+
+1. Project picker
+
+
+
+select or create project
+
+
+2. File ingest
+
+
+
+paste file content or upload text file
+
+save under a path
+
+view current stored version
+
+
+3. Patch builder
+
+
+
+choose file
+
+paste FIND
+
+paste REPLACE WITH
+
+live preview: show before/after excerpt around match
+
+enforce “exact match required” (no fuzzy)
+
+
+4. Approval + export
+
+
+
+mark patch approved
+
+export patch in your exact format:
+
+TARGET FILE:
+
+FIND:
+
+REPLACE WITH:
+
+
+
+Optional: “Apply patch” server-side (only if you want), but MVP can stop at export.
+
+
+---
+
+Safety rules (must enforce)
+
+FIND must match exactly once (default)
+
+if 0 matches → block
+
+if >1 matches → block unless user selects which occurrence
+
+
+Never auto-apply without explicit “Apply” click
+
+Limit file size (e.g., 2MB)
+
+
+
+---
+
+Smoke tests
+
+1. Create project
+
+
+2. Ingest a file path + content
+
+
+3. Create a patch with exact one match
+
+
+4. Preview shows correct replacement
+
+
+5. Export patch block matches required format
+
+
+
+
+---
+
+Done definition
+
+Done = you can store file text, produce exact FIND/REPLACE patches with verified match counts, approve them, and export patch blocks cleanly.
+

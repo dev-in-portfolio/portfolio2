@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PatchSmith - Precision Patch Workbench</title>
+    <style>
+      :root {
+        --bg:#0f1323;
+        --card:#18203a;
+        --txt:#f0f4ff;
+        --m:#a9b8de;
+        --a:#89e4ff;
+        --b:#8ea4ff;
+        --bd:#33497a;
+        --success:#4caf50;
+        --warning:#ff9800;
+        --danger:#f44336;
+        --info:#2196f3;
+      }
+      * { box-sizing:border-box; }
+      body {
+        margin:0;
+        font-family: Inter,system-ui,sans-serif;
+        color:var(--txt);
+        background:radial-gradient(circle at 20% 0,#243a70 0,#0f1323 58%);
+        overflow: hidden;
+      }
+      
+      /* Workbench Layout */
+      .workbench {
+        display: grid;
+        grid-template-columns: 280px 1fr 320px;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          "sidebar header header"
+          "sidebar main export";
+        height: 100vh;
+        gap: 0;
+      }
+      
+      /* Sidebar */
+      .sidebar {
+        grid-area: sidebar;
+        background: var(--card);
+        border-right: 1px solid var(--bd);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Header */
+      .header {
+        grid-area: header;
+        background: linear-gradient(90deg, #1a233a 0%, #243a70 100%);
+        border-bottom: 1px solid var(--bd);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      
+      /* Main Work Area */
+      .main {
+        grid-area: main;
+        background: var(--bg);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Export Panel */
+      .export-panel {
+        grid-area: export;
+        background: var(--card);
+        border-left: 1px solid var(--bd);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Common Styles */
+      .card {
+        border:1px solid var(--bd);
+        border-radius:12px;
+        background:var(--card);
+        padding:16px;
+        margin-bottom: 16px;
+      }
+      
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--a);
+        border-bottom: 1px solid var(--bd);
+        padding-bottom: 8px;
+      }
+      
+      input, textarea, select, button {
+        width: 100%;
+        border: 1px solid #42639e;
+        border-radius: 8px;
+        background: #121a33;
+        color: var(--txt);
+        padding: 10px;
+        margin-bottom: 8px;
+      }
+      
+      button {
+        background: linear-gradient(90deg, var(--a), var(--b));
+        color: #061225;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(137, 228, 255, 0.3);
+      }
+      
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      .btn-secondary {
+        background: #2a3a5a;
+        color: var(--txt);
+      }
+      
+      .btn-success {
+        background: var(--success);
+        color: #061225;
+      }
+      
+      .btn-warning {
+        background: var(--warning);
+        color: #061225;
+      }
+      
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+      
+      /* Status Indicators */
+      .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      
+      .status-draft { background: var(--m); }
+      .status-approved { background: var(--success); }
+      .status-applied { background: var(--info); }
+      .status-rejected { background: var(--danger); }
+      
+      /* Diff Viewer */
+      .diff-container {
+        display: grid;
+        grid-template-columns: 1fr 40px 1fr;
+        gap: 8px;
+        margin: 16px 0;
+      }
+      
+      .diff-line {
+        padding: 4px 8px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        white-space: pre;
+        line-height: 1.4;
+      }
+      
+      .diff-unchanged { color: var(--m); }
+      .diff-removed { background: rgba(244, 67, 54, 0.1); color: var(--danger); }
+      .diff-added { background: rgba(76, 175, 80, 0.1); color: var(--success); }
+      .diff-line-no { color: #666; text-align: right; padding-right: 8px; }
+      
+      /* Match Highlighting */
+      .match-highlight {
+        background: rgba(137, 228, 255, 0.3);
+        border-radius: 2px;
+        padding: 0 2px;
+        position: relative;
+      }
+      
+      .match-highlight::after {
+        content: attr(data-match-no);
+        position: absolute;
+        top: -16px;
+        right: 0;
+        font-size: 0.7rem;
+        background: var(--a);
+        color: #061225;
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-weight: bold;
+      }
+      
+      /* Patch List */
+      .patch-item {
+        padding: 12px;
+        border: 1px solid var(--bd);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .patch-item:hover {
+        background: rgba(137, 228, 255, 0.1);
+        border-color: var(--a);
+      }
+      
+      .patch-item.selected {
+        background: rgba(137, 228, 255, 0.2);
+        border-color: var(--a);
+      }
+      
+      /* File List */
+      .file-item {
+        padding: 10px;
+        border: 1px solid var(--bd);
+        border-radius: 6px;
+        margin-bottom: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .file-item:hover {
+        background: rgba(138, 164, 255, 0.1);
+        border-color: var(--b);
+      }
+      
+      .file-item.selected {
+        background: rgba(138, 164, 255, 0.2);
+        border-color: var(--b);
+      }
+      
+      /* Tabs */
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid var(--bd);
+        margin-bottom: 16px;
+      }
+      
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--m);
+        border-bottom: 2px solid transparent;
+      }
+      
+      .tab.active {
+        color: var(--txt);
+        border-bottom-color: var(--a);
+      }
+      
+      .tab-content {
+        display: none;
+      }
+      
+      .tab-content.active {
+        display: block;
+      }
+      
+      /* Mono font */
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        white-space: pre-wrap;
+        background: #0a0f1a;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid var(--bd);
+      }
+      
+      /* Small text */
+      .small {
+        font-size: 0.8rem;
+        color: var(--m);
+      }
+      
+      /* Flex utilities */
+      .flex {
+        display: flex;
+      }
+      
+      .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .flex-gap {
+        display: flex;
+        gap: 8px;
+      }
+      
+      /* Grid utilities */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      
+      /* Responsive */
+      @media(max-width: 1200px) {
+        .workbench {
+          grid-template-columns: 240px 1fr;
+          grid-template-areas:
+            "sidebar header"
+            "sidebar main"
+            "export export";
+        }
+        .export-panel {
+          grid-area: export;
+          border-left: none;
+          border-top: 1px solid var(--bd);
+        }
+      }
+      
+      @media(max-width: 960px) {
+        .workbench {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto auto 1fr;
+          grid-template-areas:
+            "header"
+            "sidebar"
+            "main"
+            "export";
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid var(--bd);
+        }
+        .diff-container {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="workbench">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="card">
+          <h2>PatchSmith</h2>
+          <p class="small">Precision Patch Workbench</p>
+          <p id="status" class="small">Checking API...</p>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Projects</h3>
+          <input id="projectName" placeholder="Project name" />
+          <button id="createProject">Create Project</button>
+          <select id="projects" size="5" style="height: auto;"></select>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Files</h3>
+          <div id="fileList"></div>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Patch Groups</h3>
+          <div id="patchGroups"></div>
+        </div>
+      </aside>
+      
+      <!-- Header -->
+      <header class="header">
+        <h1 id="currentProjectTitle">PatchSmith Workbench</h1>
+        <div class="flex-gap">
+          <button id="saveFile" class="btn-success">Save File</button>
+          <button id="exportPatches">Export Patches</button>
+        </div>
+      </header>
+      
+      <!-- Main Work Area -->
+      <main class="main">
+        <div class="tabs">
+          <button class="tab active" data-tab="editor">Editor</button>
+          <button class="tab" data-tab="diff">Diff Viewer</button>
+          <button class="tab" data-tab="history">History</button>
+        </div>
+        
+        <!-- Editor Tab -->
+        <div class="tab-content active" data-tab-content="editor">
+          <div class="grid-2">
+            <div class="card">
+              <h3 class="section-title">Source File</h3>
+              <div class="flex-between">
+                <input id="filePath" placeholder="src/file.ts" style="flex: 1;" />
+                <span id="fileVersion" class="small">v1</span>
+              </div>
+              <textarea id="fileContent" rows="20" placeholder="File content"></textarea>
+            </div>
+            
+            <div class="card">
+              <h3 class="section-title">Patch Editor</h3>
+              <input id="findText" placeholder="FIND text" />
+              <textarea id="replaceText" rows="6" placeholder="REPLACE text"></textarea>
+              
+              <div style="margin: 12px 0;">
+                <label class="small">Patch Group</label>
+                <input id="patchGroup" placeholder="Optional group name" />
+              </div>
+              
+              <div style="margin: 12px 0;">
+                <label class="small">Confidence (0-1)</label>
+                <input id="confidence" type="number" min="0" max="1" step="0.1" value="1.0" />
+              </div>
+              
+              <button id="createPatch">Create Patch</button>
+              <div id="matchInfo" class="small"></div>
+            </div>
+          </div>
+          
+          <!-- Patch List -->
+          <div class="card">
+            <h3 class="section-title">Patches</h3>
+            <div id="patchList"></div>
+          </div>
+          
+          <!-- Selected Patch Details -->
+          <div class="card" id="patchDetails" style="display: none;">
+            <h3 class="section-title">Patch Details</h3>
+            <div id="patchDetailsContent"></div>
+            <div class="flex-gap" style="margin-top: 16px;">
+              <button id="approvePatch" class="btn-success">Approve</button>
+              <button id="rejectPatch" class="btn-danger">Reject</button>
+              <button id="applyPatch">Apply Patch</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Diff Viewer Tab -->
+        <div class="tab-content" data-tab-content="diff">
+          <div class="card">
+            <h3 class="section-title">Diff Preview</h3>
+            <div id="diffViewer"></div>
+          </div>
+        </div>
+        
+        <!-- History Tab -->
+        <div class="tab-content" data-tab-content="history">
+          <div class="card">
+            <h3 class="section-title">Patch History</h3>
+            <div id="patchHistory"></div>
+          </div>
+        </div>
+      </main>
+      
+      <!-- Export Panel -->
+      <aside class="export-panel">
+        <div class="card">
+          <h3 class="section-title">Export Options</h3>
+          <div>
+            <label class="small">Status Filter</label>
+            <select id="exportStatusFilter" multiple style="height: 100px;">
+              <option value="approved" selected>Approved</option>
+              <option value="applied" selected>Applied</option>
+              <option value="draft">Draft</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <button id="generateExport" style="margin-top: 12px;">Generate Export</button>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Export Preview</h3>
+          <textarea id="exportPreview" rows="15" readonly class="mono"></textarea>
+          <button id="copyExport" class="btn-secondary">Copy to Clipboard</button>
+          <button id="downloadExport" class="btn-secondary">Download JSON</button>
+        </div>
+      </aside>
+    </div>
+    
+    <script>
+      const key = localStorage.patchsmithKey || (localStorage.patchsmithKey = `patchsmith-${crypto.randomUUID()}`);
+      const headers = {'Content-Type':'application/json','X-Device-Key':key};
+      
+      // State
+      let currentProjectId = null;
+      let currentFile = null;
+      let currentPatch = null;
+      let patches = [];
+      let files = [];
+      let patchGroups = [];
+      
+      // DOM Elements
+      const statusEl = document.getElementById('status');
+      const projectsEl = document.getElementById('projects');
+      const fileListEl = document.getElementById('fileList');
+      const patchListEl = document.getElementById('patchList');
+      const patchDetailsEl = document.getElementById('patchDetails');
+      const patchDetailsContentEl = document.getElementById('patchDetailsContent');
+      const patchHistoryEl = document.getElementById('patchHistory');
+      const diffViewerEl = document.getElementById('diffViewer');
+      const exportPreviewEl = document.getElementById('exportPreview');
+      const patchGroupsEl = document.getElementById('patchGroups');
+      const currentProjectTitleEl = document.getElementById('currentProjectTitle');
+      const fileVersionEl = document.getElementById('fileVersion');
+      const matchInfoEl = document.getElementById('matchInfo');
+      
+      // Tab Management
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.getAttribute('data-tab');
+          
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          tab.classList.add('active');
+          document.querySelector(`[data-tab-content="${tabName}"]`).classList.add('active');
+        });
+      });
+      
+      // API Functions
+      async function health(){
+        try {
+          const res = await fetch('/api/health/db');
+          const data = await res.json();
+          statusEl.textContent = data.ok ? '✓ API connected' : `⚠ API: ${data.error || 'unavailable'}`;
+        } catch (e) {
+          statusEl.textContent = '✗ API unavailable';
+        }
+      }
+      
+      async function loadProjects(){
+        try {
+          const res = await fetch('/api/patchsmith/projects', { headers });
+          const data = await res.json();
+          const rows = Array.isArray(data.projects) ? data.projects : [];
+          
+          projectsEl.innerHTML = rows.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+          
+          if (rows[0]) {
+            await selectProject(rows[0].id, rows[0].name);
+          }
+        } catch (e) {
+          console.error('Failed to load projects:', e);
+        }
+      }
+      
+      async function selectProject(projectId, projectName) {
+        currentProjectId = projectId;
+        currentProjectTitleEl.textContent = projectName || 'PatchSmith';
+        
+        await loadFiles(projectId);
+        await loadPatches(projectId);
+        await loadPatchGroups(projectId);
+      }
+      
+      async function loadFiles(projectId) {
+        try {
+          const res = await fetch(`/api/patchsmith/projects/${projectId}/files`, { headers });
+          const data = await res.json();
+          files = Array.isArray(data.files) ? data.files : [];
+          
+          fileListEl.innerHTML = files.map(f => `
+            <div class="file-item" data-file-id="${f.id}">
+              <span>${f.path}</span>
+              <span class="small">v${f.version}</span>
+            </div>
+          `).join('');
+          
+          // Add click handlers
+          document.querySelectorAll('.file-item').forEach(item => {
+            item.addEventListener('click', () => {
+              const fileId = item.getAttribute('data-file-id');
+              selectFile(fileId);
+            });
+          });
+        } catch (e) {
+          console.error('Failed to load files:', e);
+        }
+      }
+      
+      async function selectFile(fileId) {
+        const file = files.find(f => f.id === fileId);
+        if (!file) return;
+        
+        currentFile = file;
+        
+        // Update UI
+        document.getElementById('filePath').value = file.path;
+        document.getElementById('fileContent').value = file.content;
+        fileVersionEl.textContent = `v${file.version}`;
+        
+        // Highlight selected file
+        document.querySelectorAll('.file-item').forEach(item => {
+          item.classList.remove('selected');
+          if (item.getAttribute('data-file-id') === fileId) {
+            item.classList.add('selected');
+          }
+        });
+      }
+      
+      async function loadPatches(projectId) {
+        try {
+          const res = await fetch(`/api/patchsmith/projects/${projectId}/patches`, { headers });
+          const data = await res.json();
+          patches = Array.isArray(data.patches) ? data.patches : [];
+          
+          renderPatchList();
+        } catch (e) {
+          console.error('Failed to load patches:', e);
+        }
+      }
+      
+      function renderPatchList() {
+        patchListEl.innerHTML = patches.map(p => {
+          const statusDot = `<span class="status-dot status-${p.status}"></span>`;
+          return `
+            <div class="patch-item ${currentPatch?.id === p.id ? 'selected' : ''}" data-patch-id="${p.id}">
+              <div><strong>${p.file_path}</strong></div>
+              <div class="small">${statusDot} ${p.status} • ${p.patch_group || 'No group'}</div>
+              <div class="small">Confidence: ${p.confidence || 1.0}</div>
+            </div>
+          `;
+        }).join('');
+        
+        // Add click handlers
+        document.querySelectorAll('.patch-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const patchId = item.getAttribute('data-patch-id');
+            selectPatch(patchId);
+          });
+        });
+      }
+      
+      async function selectPatch(patchId) {
+        const patch = patches.find(p => p.id === patchId);
+        if (!patch) return;
+        
+        currentPatch = patch;
+        
+        // Load patch details
+        await loadPatchDetails(patchId);
+        await loadPatchHistory(patchId);
+        
+        // Show details panel
+        patchDetailsEl.style.display = 'block';
+        
+        // Highlight selected patch
+        renderPatchList();
+        
+        // Show diff preview
+        showDiffPreview();
+      }
+      
+      async function loadPatchDetails(patchId) {
+        try {
+          const res = await fetch(`/api/patchsmith/projects/${currentProjectId}/files`, { headers });
+          const data = await res.json();
+          const file = data.files.find(f => f.path === currentPatch.file_path);
+          
+          if (file) {
+            const matches = findMatches(file.content, currentPatch.find_text);
+            
+            patchDetailsContentEl.innerHTML = `
+              <div style="margin-bottom: 12px;">
+                <strong>File:</strong> ${currentPatch.file_path}<br>
+                <strong>Status:</strong> <span class="status-dot status-${currentPatch.status}"></span> ${currentPatch.status}<br>
+                <strong>Group:</strong> ${currentPatch.patch_group || 'None'}<br>
+                <strong>Confidence:</strong> ${currentPatch.confidence || 1.0}<br>
+                <strong>Matches:</strong> ${matches.length}
+              </div>
+              
+              <div style="margin: 16px 0;">
+                <strong>Find Text:</strong>
+                <div class="mono" style="margin-top: 8px;">${escapeHtml(currentPatch.find_text)}</div>
+              </div>
+              
+              <div style="margin: 16px 0;">
+                <strong>Replace Text:</strong>
+                <div class="mono" style="margin-top: 8px;">${escapeHtml(currentPatch.replace_text)}</div>
+              </div>
+              
+              ${currentPatch.reviewer_notes ? `
+                <div style="margin: 16px 0; background: rgba(137, 228, 255, 0.1); padding: 12px; border-radius: 8px;">
+                  <strong>Reviewer Notes:</strong>
+                  <div style="margin-top: 8px; white-space: pre-wrap;">${escapeHtml(currentPatch.reviewer_notes)}</div>
+                </div>
+              ` : ''}
+            `;
+          }
+        } catch (e) {
+          console.error('Failed to load patch details:', e);
+        }
+      }
+      
+      async function loadPatchHistory(patchId) {
+        try {
+          const res = await fetch(`/api/patchsmith/patches/${patchId}/history`, { headers });
+          const data = await res.json();
+          const history = Array.isArray(data.history) ? data.history : [];
+          
+          patchHistoryEl.innerHTML = history.map(h => {
+            const statusDot = `<span class="status-dot status-${h.status}"></span>`;
+            return `
+              <div style="padding: 8px; border-bottom: 1px solid var(--bd);">
+                <div><strong>${h.created_at.replace('T', ' ').replace('Z', '')}</strong></div>
+                <div>${statusDot} ${h.status}</div>
+                ${h.reviewer_notes ? `<div class="small" style="margin-top: 4px;">${escapeHtml(h.reviewer_notes)}</div>` : ''}
+              </div>
+            `;
+          }).join('');
+        } catch (e) {
+          console.error('Failed to load patch history:', e);
+        }
+      }
+      
+      function showDiffPreview() {
+        if (!currentPatch || !currentFile) {
+          diffViewerEl.innerHTML = '<p class="small">Select a patch and file to see diff preview</p>';
+          return;
+        }
+        
+        const matches = findMatches(currentFile.content, currentPatch.find_text);
+        if (matches.length === 0) {
+          diffViewerEl.innerHTML = '<p class="small">No matches found in current file</p>';
+          return;
+        }
+        
+        // Create a diff visualization
+        let diffHtml = '<div class="diff-container">';
+        diffHtml += '<div></div><div class="diff-line diff-line-no">Line</div><div></div>';
+        
+        const lines = currentFile.content.split('\n');
+        let lineNo = 1;
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const matchInLine = matches.some(([start, end]) => {
+            const lineStart = lines.slice(0, i).join('\n').length + i;
+            const lineEnd = lineStart + line.length;
+            return start < lineEnd && end > lineStart;
+          });
+          
+          if (matchInLine) {
+            // Show matching line with highlights
+            let processedLine = line;
+            matches.forEach(([start, end], index) => {
+              const lineStart = lines.slice(0, i).join('\n').length + i;
+              const lineEnd = lineStart + line.length;
+              
+              if (start < lineEnd && end > lineStart) {
+                const matchStart = Math.max(0, start - lineStart);
+                const matchEnd = Math.min(line.length, end - lineStart);
+                const before = processedLine.substring(0, matchStart);
+                const match = processedLine.substring(matchStart, matchEnd);
+                const after = processedLine.substring(matchEnd);
+                processedLine = before + `<span class="match-highlight" data-match-no="${index + 1}">${escapeHtml(match)}</span>` + after;
+              }
+            });
+            
+            diffHtml += `
+              <div class="diff-line diff-removed">${processedLine}</div>
+              <div class="diff-line diff-line-no">${lineNo}</div>
+              <div class="diff-line diff-added">${escapeHtml(line.replace(currentPatch.find_text, currentPatch.replace_text))}</div>
+            `;
+          } else {
+            diffHtml += `
+              <div class="diff-line diff-unchanged">${escapeHtml(line)}</div>
+              <div class="diff-line diff-line-no">${lineNo}</div>
+              <div class="diff-line diff-unchanged"></div>
+            `;
+          }
+          lineNo++;
+        }
+        
+        diffHtml += '</div>';
+        diffViewerEl.innerHTML = diffHtml;
+      }
+      
+      async function loadPatchGroups(projectId) {
+        try {
+          const res = await fetch(`/api/patchsmith/projects/${projectId}/patch-groups`, { headers });
+          const data = await res.json();
+          patchGroups = Array.isArray(data.groups) ? data.groups : [];
+          
+          patchGroupsEl.innerHTML = patchGroups.map(group => `
+            <div class="file-item" data-group-name="${group}">
+              <span>${group}</span>
+            </div>
+          `).join('');
+          
+          // Add click handlers
+          document.querySelectorAll('[data-group-name]').forEach(item => {
+            item.addEventListener('click', () => {
+              const groupName = item.getAttribute('data-group-name');
+              filterPatchesByGroup(groupName);
+            });
+          });
+        } catch (e) {
+          console.error('Failed to load patch groups:', e);
+        }
+      }
+      
+      function filterPatchesByGroup(groupName) {
+        const filtered = groupName ? patches.filter(p => p.patch_group === groupName) : patches;
+        
+        // Update patch list
+        patchListEl.innerHTML = filtered.map(p => {
+          const statusDot = `<span class="status-dot status-${p.status}"></span>`;
+          return `
+            <div class="patch-item ${currentPatch?.id === p.id ? 'selected' : ''}" data-patch-id="${p.id}">
+              <div><strong>${p.file_path}</strong></div>
+              <div class="small">${statusDot} ${p.status} • ${p.patch_group || 'No group'}</div>
+              <div class="small">Confidence: ${p.confidence || 1.0}</div>
+            </div>
+          `;
+        }).join('');
+        
+        // Re-add click handlers
+        document.querySelectorAll('.patch-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const patchId = item.getAttribute('data-patch-id');
+            selectPatch(patchId);
+          });
+        });
+      }
+      
+      function findMatches(content, needle) {
+        const out = [];
+        if (!needle) return out;
+        let pos = 0;
+        while (true) {
+          const i = content.indexOf(needle, pos);
+          if (i === -1) break;
+          out.push([i, i + needle.length]);
+          pos = i + needle.length;
+        }
+        return out;
+      }
+      
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+      
+      // Event Handlers
+      document.getElementById('createProject').onclick = async () => {
+        const name = document.getElementById('projectName').value.trim();
+        if (!name) return alert('Project name required');
+        
+        try {
+          const res = await fetch('/api/patchsmith/projects', { 
+            method: 'POST', 
+            headers, 
+            body: JSON.stringify({ name }) 
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || data.detail || 'create project failed');
+          
+          await loadProjects();
+          document.getElementById('projectName').value = '';
+        } catch (e) {
+          alert('Failed to create project: ' + e.message);
+        }
+      };
+      
+      projectsEl.onchange = async () => {
+        const projectId = projectsEl.value;
+        if (!projectId) return;
+        
+        const projectName = projectsEl.options[projectsEl.selectedIndex].text;
+        await selectProject(projectId, projectName);
+      };
+      
+      document.getElementById('saveFile').onclick = async () => {
+        if (!currentProjectId) return alert('Select a project first');
+        
+        const path = document.getElementById('filePath').value.trim();
+        const content = document.getElementById('fileContent').value;
+        
+        if (!path) return alert('File path required');
+        if (!content) return alert('File content required');
+        
+        try {
+          const res = await fetch(`/api/patchsmith/projects/${currentProjectId}/files`, { 
+            method: 'POST', 
+            headers, 
+            body: JSON.stringify({ path, content }) 
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || data.detail || 'save file failed');
+          
+          await loadFiles(currentProjectId);
+          alert('File saved successfully');
+        } catch (e) {
+          alert('Failed to save file: ' + e.message);
+        }
+      };
+      
+      document.getElementById('createPatch').onclick = async () => {
+        if (!currentProjectId) return alert('Select a project first');
+        if (!currentFile) return alert('Save a file first');
+        
+        const findText = document.getElementById('findText').value;
+        const replaceText = document.getElementById('replaceText').value;
+        const patchGroup = document.getElementById('patchGroup').value.trim();
+        const confidence = parseFloat(document.getElementById('confidence').value);
+        
+        if (!findText) return alert('FIND text required');
+        
+        try {
+          const res = await fetch(`/api/patchsmith/projects/${currentProjectId}/patches`, { 
+            method: 'POST', 
+            headers, 
+            body: JSON.stringify({ 
+              file_path: currentFile.path, 
+              find_text: findText, 
+              replace_text: replaceText,
+              patch_group: patchGroup || null,
+              confidence: confidence 
+            }) 
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || data.detail || 'create patch failed');
+          
+          matchInfoEl.textContent = `Patch created. ${data.patch.match_count} matches found.`;
+          
+          await loadPatches(currentProjectId);
+          
+          // Clear form
+          document.getElementById('findText').value = '';
+          document.getElementById('replaceText').value = '';
+          document.getElementById('patchGroup').value = '';
+          document.getElementById('confidence').value = '1.0';
+        } catch (e) {
+          alert('Failed to create patch: ' + e.message);
+        }
+      };
+      
+      document.getElementById('approvePatch').onclick = async () => {
+        if (!currentPatch) return alert('Select a patch first');
+        
+        try {
+          const reviewerNotes = prompt('Enter reviewer notes (optional):');
+          
+          const res = await fetch(`/api/patchsmith/patches/${currentPatch.id}/update`, { 
+            method: 'POST', 
+            headers, 
+            body: JSON.stringify({ 
+              status: 'approved',
+              reviewer_notes: reviewerNotes || '' 
+            }) 
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || data.detail || 'approve failed');
+          
+          await loadPatches(currentProjectId);
+          if (currentPatch.id) await selectPatch(currentPatch.id);
+          
+          alert('Patch approved');
+        } catch (e) {
+          alert('Failed to approve patch: ' + e.message);
+        }
+      };
+      
+      document.getElementById('rejectPatch').onclick = async () => {
+        if (!currentPatch) return alert('Select a patch first');
+        
+        try {
+          const reviewerNotes = prompt('Enter rejection reason:');
+          if (!reviewerNotes) return;
+          
+          const res = await fetch(`/api/patchsmith/patches/${currentPatch.id}/update`, { 
+            method: 'POST', 
+            headers, 
+            body: JSON.stringify({ 
+              status: 'rejected',
+              reviewer_notes: reviewerNotes 
+            }) 
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || data.detail || 'reject failed');
+          
+          await loadPatches(currentProjectId);
+          if (currentPatch.id) await selectPatch(currentPatch.id);
+          
+          alert('Patch rejected');
+        } catch (e) {
+          alert('Failed to reject patch: ' + e.message);
+        }
+      };
+      
+      document.getElementById('applyPatch').onclick = async () => {
+        if (!currentPatch) return alert('Select a patch first');
+        
+        try {
+          const occurrence = prompt('Apply to which occurrence?', '1');
+          if (!occurrence) return;
+          
+          const res = await fetch(`/api/patchsmith/patches/${currentPatch.id}/apply`, { 
+            method: 'POST', 
+            headers, 
+            body: JSON.stringify({ occurrence: parseInt(occurrence) }) 
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || data.detail || 'apply failed');
+          
+          // Refresh file and patches
+          await loadFiles(currentProjectId);
+          await loadPatches(currentProjectId);
+          
+          // If the applied patch was for the current file, update the content
+          if (currentFile && currentFile.path === currentPatch.file_path) {
+            await selectFile(currentFile.id);
+          }
+          
+          if (currentPatch.id) await selectPatch(currentPatch.id);
+          
+          alert('Patch applied successfully');
+        } catch (e) {
+          alert('Failed to apply patch: ' + e.message);
+        }
+      };
+      
+      document.getElementById('exportPatches').onclick = async () => {
+        if (!currentProjectId) return alert('Select a project first');
+        
+        // Show export panel
+        document.querySelector('.export-panel').scrollIntoView({ behavior: 'smooth' });
+      };
+      
+      document.getElementById('generateExport').onclick = async () => {
+        if (!currentProjectId) return alert('Select a project first');
+        
+        try {
+          const statusFilter = Array.from(document.getElementById('exportStatusFilter').selectedOptions).map(opt => opt.value);
+          
+          const res = await fetch(`/api/patchsmith/projects/${currentProjectId}/export`, { 
+            method: 'POST', 
+            headers, 
+            body: JSON.stringify({ status_filter: statusFilter }) 
+          });
+          const data = await res.json();
+          
+          exportPreviewEl.value = JSON.stringify(data, null, 2);
+        } catch (e) {
+          alert('Failed to generate export: ' + e.message);
+        }
+      };
+      
+      document.getElementById('copyExport').onclick = () => {
+        exportPreviewEl.select();
+        document.execCommand('copy');
+        alert('Export copied to clipboard');
+      };
+      
+      document.getElementById('downloadExport').onclick = () => {
+        const blob = new Blob([exportPreviewEl.value], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `patchsmith-export-${currentProjectId}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+      
+      // Initialize
+      health();
+      loadProjects();
+    </script>
+  </body>
+</html>

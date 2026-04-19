@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>All Patches | PatchBook</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <h1><a href="/">PatchBook</a></h1>
+        <p>Patch library with validated, copy-safe fix blocks.</p>
+      </div>
+      <nav>
+        <a href="/patches/">Patches</a>
+        <a href="/tags/">Tags</a>
+        <a href="/risk/">Risk</a>
+        <a href="/submit/">Add Patch</a>
+      </nav>
+    </header>
+    <main>
+      
+<section class="section">
+  <h2>All Patches</h2>
+  <div class="cards">
+    
+    
+    <article class="card">
+      <h3><a href="/patches/sveltekit-adapter-auto-netlify/">SvelteKit: adapter-auto not selecting Netlify reliably</a></h3>
+      <p>Symptom Build warns Could not detect a supported production environment. Patch TARGET FILE: svelte.config.js FIND: import adapter from &#39;@sveltejs/adapter-auto&#39;; REPLACE WITH:...</p>
+      <div class="tags">
+        <span>sveltekit</span><span>netlify</span><span>adapter</span><span>build</span>
+      </div>
+      <span class="pill">medium</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/postgres-missing-relation-migration/">Postgres: relation does not exist after deploy</a></h3>
+      <p>Symptom Runtime errors such as relation &#92;&amp;quot;table_name&#92;&amp;quot; does not exist. Patch TARGET FILE: deployment runbook FIND: (no migration step) REPLACE WITH: Apply schema SQL...</p>
+      <div class="tags">
+        <span>postgres</span><span>migration</span><span>deploy</span><span>schema</span>
+      </div>
+      <span class="pill">high</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/pg-pool-commonjs/">Vite SSR: pg Pool CommonJS import</a></h3>
+      <p>Symptom Named export Pool not found when importing pg in SSR. Patch import pkg from &#39;pg&#39;; const { Pool } = pkg;</p>
+      <div class="tags">
+        <span>vite</span><span>pg</span><span>ssr</span>
+      </div>
+      <span class="pill">medium</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/next-missing-chunk/">Next.js: missing server chunk</a></h3>
+      <p>Symptom Server crashes with missing chunk file in .next. Patch ACTION: delete .next and rebuild rm -rf .next npm run build</p>
+      <div class="tags">
+        <span>nextjs</span><span>build</span>
+      </div>
+      <span class="pill">high</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/netlify-vite-missing/">Netlify: vite not found (exit 127)</a></h3>
+      <p>Symptom Build fails with sh: 1: vite: not found. Patch TARGET FILE: package.json FIND: &amp;quot;build&amp;quot;: &amp;quot;vite build&amp;quot; REPLACE WITH: &amp;quot;build&amp;quot;: &amp;quot;vite...</p>
+      <div class="tags">
+        <span>netlify</span><span>build</span><span>vite</span><span>deps</span>
+      </div>
+      <span class="pill">low</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/netlify-pnpm-frozen-lockfile/">Netlify: ERR_PNPM_OUTDATED_LOCKFILE in CI</a></h3>
+      <p>Symptom Netlify build fails during install with ERR_PNPM_OUTDATED_LOCKFILE. Patch TARGET FILE: pnpm-lock.yaml FIND: (package missing from lockfile) REPLACE WITH: Regenerate...</p>
+      <div class="tags">
+        <span>netlify</span><span>pnpm</span><span>ci</span><span>lockfile</span>
+      </div>
+      <span class="pill">low</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/netlify-next-plugin-missing/">Next.js on Netlify: plugin not configured</a></h3>
+      <p>Symptom Next app builds locally but Netlify runtime/SSR fails. Patch TARGET FILE: netlify.toml FIND: (no next plugin) REPLACE WITH: [[plugins]] package =...</p>
+      <div class="tags">
+        <span>nextjs</span><span>netlify</span><span>build</span><span>plugin</span>
+      </div>
+      <span class="pill">medium</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/netlify-missing-ejs-module/">Netlify Functions: Cannot find module &#39;ejs&#39;</a></h3>
+      <p>Symptom Runtime fails with Cannot find module &#39;ejs&#39; inside function bundle. Patch TARGET FILE: netlify.toml FIND: [functions] node_bundler = &amp;quot;esbuild&amp;quot; REPLACE WITH:...</p>
+      <div class="tags">
+        <span>netlify</span><span>functions</span><span>ejs</span><span>bundling</span>
+      </div>
+      <span class="pill">medium</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/netlify-function-api-redirect/">Netlify: API routes not reaching serverless function</a></h3>
+      <p>Symptom Frontend calls /api/* but requests return 404. Patch TARGET FILE: netlify.toml FIND: (no API redirect) REPLACE WITH: [[redirects]] from = &amp;quot;/api/*&amp;quot; to =...</p>
+      <div class="tags">
+        <span>netlify</span><span>redirects</span><span>functions</span><span>api</span>
+      </div>
+      <span class="pill">low</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/neon-netlify-env-fallback/">Neon + Netlify: DB URL fallback pattern</a></h3>
+      <p>Symptom App works locally but DB is unavailable on Netlify. Patch TARGET FILE: server db init file FIND: const url = process.env.DATABASE_URL; REPLACE WITH: const url =...</p>
+      <div class="tags">
+        <span>postgres</span><span>neon</span><span>netlify</span><span>env</span>
+      </div>
+      <span class="pill">low</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/express-function-prefix-normalize/">Express in Netlify function: normalize function URL prefix</a></h3>
+      <p>Symptom Routes work locally but not behind Netlify function path. Patch TARGET FILE: server entry FIND: (no prefix normalization middleware) REPLACE WITH: app.use((req, _res, next)...</p>
+      <div class="tags">
+        <span>express</span><span>netlify</span><span>functions</span><span>routing</span>
+      </div>
+      <span class="pill">medium</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/eleventy-config-not-loaded/">Eleventy: custom filters not loaded in CI build</a></h3>
+      <p>Symptom Build errors like filter not found: date. Patch TARGET FILE: package.json scripts FIND: &amp;quot;build&amp;quot;: &amp;quot;... &amp;amp;&amp;amp; eleventy&amp;quot; REPLACE WITH:...</p>
+      <div class="tags">
+        <span>eleventy</span><span>nunjucks</span><span>ci</span><span>build</span>
+      </div>
+      <span class="pill">low</span>
+    </article>
+    
+    
+    <article class="card">
+      <h3><a href="/patches/astro-api-functions-routing/">Astro static site with Netlify functions API routing</a></h3>
+      <p>Symptom Static Astro UI loads, but API-backed features fail. Patch TARGET FILE: netlify.toml FIND: (no functions dir / no api redirect) REPLACE WITH: [functions] directory =...</p>
+      <div class="tags">
+        <span>astro</span><span>netlify</span><span>functions</span><span>api</span>
+      </div>
+      <span class="pill">low</span>
+    </article>
+    
+  </div>
+</section>
+
+
+    </main>
+    <footer>PatchBook • 2026</footer>
+    <script src="/assets/patchbook.js"></script>
+  </body>
+</html>
