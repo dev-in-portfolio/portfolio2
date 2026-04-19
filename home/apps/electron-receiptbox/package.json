@@ -1,0 +1,17 @@
+{
+  "name": "receiptbox",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "31.2.1",
+    "electron-packager": "17.1.2"
+  },
+  "dependencies": {
+    "archiver": "6.0.2"
+  }
+}

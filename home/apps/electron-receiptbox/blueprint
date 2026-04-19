@@ -1,0 +1,215 @@
+Electron ReceiptBox — Electron app blueprint (local “receipts” vault for screenshots/logs/diffs)
+
+What it is
+
+ReceiptBox is a desktop vault that ingests “proof artifacts” (screenshots, logs, exported zips, diffs) and organizes them into cases with tags, timeline, and quick export bundles. This is not an orchestrator (Dockyard) and not Git cockpit — it’s artifact capture + packaging.
+
+You’ll use it whenever you want:
+
+“here’s exactly what happened”
+
+“here are the logs + screenshot + diff”
+
+“bundle this into a zip for review”
+
+
+
+---
+
+Core capabilities (MVP)
+
+1) Case folders
+
+Create a “case”:
+
+title
+
+project
+
+tags
+
+date range (auto)
+
+
+Each case contains entries:
+
+screenshot
+
+log file
+
+text note
+
+diff/patch file
+
+zip artifact
+
+
+2) Fast ingest
+
+Add artifacts by:
+
+drag/drop file into the app
+
+“watch folder” (optional)
+
+paste image from clipboard (screenshot paste)
+
+
+Store a copy into the case folder and keep original path reference.
+
+3) Metadata + tagging
+
+Each entry stores:
+
+type
+
+tags
+
+notes
+
+captured_at
+
+hash (sha256) for dedupe
+
+
+4) Export bundles
+
+Select a case → export bundle:
+
+creates a zip with:
+
+/artifacts/*
+
+MANIFEST.json
+
+README.md summary
+
+
+Optional “redaction mode” (later)
+
+
+
+---
+
+Architecture
+
+Electron main process
+
+file ingest + copying
+
+hashing
+
+zip bundling
+
+watch folder support (optional)
+
+
+Renderer UI
+
+case list
+
+case detail
+
+artifact preview panes
+
+
+
+---
+
+Storage (local)
+
+Folder structure:
+
+~/ReceiptBox/
+  cases/
+    2026-02-26__netlify-build-fail__micro-exhibits/
+      artifacts/
+        001_screenshot.png
+        002_buildlog.txt
+        003_patch.diff
+      manifest.json
+      notes.md
+  config.json
+
+SQLite (optional) OR JSON index (MVP: SQLite is cleaner for queries) Tables if SQLite:
+
+cases
+
+artifacts
+
+tags
+
+
+
+---
+
+Manifest schema (export)
+
+MANIFEST.json
+
+{
+  "case": { "title": "...", "project": "...", "created_at": "..." },
+  "artifacts": [
+    {
+      "filename": "001_screenshot.png",
+      "type": "image",
+      "sha256": "...",
+      "captured_at": "...",
+      "tags": ["netlify","deploy"],
+      "notes": "..."
+    }
+  ]
+}
+
+
+---
+
+UI layout (MVP)
+
+Left: cases list + search
+
+Middle: artifacts list for selected case
+
+Right: preview (image/text) + metadata editor
+
+Top: export bundle button
+
+
+
+---
+
+Dedupe rules
+
+compute sha256
+
+if same hash already exists in same case, prompt “skip/keep both”
+
+
+
+---
+
+Smoke tests
+
+1. Create case
+
+
+2. Drop 3 files (png/log/diff)
+
+
+3. Preview each file
+
+
+4. Add tags + notes
+
+
+5. Export zip includes manifest + artifacts
+
+
+
+
+---
+
+Done definition
+
+Done = ReceiptBox ingests artifacts into cases, dedupes by hash, previews them, and exports a clean zip bundle with manifest.
+
