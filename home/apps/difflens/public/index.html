@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DiffLens - Deterministic Diff Workbench</title>
+    <style>
+      :root { 
+        --bg:#0a1222; 
+        --panel:#17233b; 
+        --panel2:#1e2c49; 
+        --text:#eaf1ff; 
+        --muted:#9eb2db; 
+        --line:rgba(147,174,224,.26);
+        --primary:#66deff;
+        --secondary:#8ca6ff;
+        --success:#4caf50;
+        --warning:#ff9800;
+        --danger:#f44336;
+        --border:#2a3a5a;
+      }
+      * { box-sizing:border-box; }
+      body { 
+        margin:0; 
+        font-family:"Space Grotesk",system-ui,sans-serif; 
+        color:var(--text); 
+        background:linear-gradient(180deg,#0a1222,#0f1b35);
+        overflow: hidden;
+      }
+      
+      /* Workbench Layout */
+      .workbench {
+        display: grid;
+        grid-template-columns: 300px 1fr 300px;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          "sidebar header header"
+          "sidebar main detail";
+        height: 100vh;
+        gap: 0;
+      }
+      
+      /* Sidebar */
+      .sidebar {
+        grid-area: sidebar;
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Header */
+      .header {
+        grid-area: header;
+        background: linear-gradient(90deg, #17233b 0%, #1e2c49 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      
+      /* Main Work Area */
+      .main {
+        grid-area: main;
+        background: var(--bg);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Detail Panel */
+      .detail-panel {
+        grid-area: detail;
+        background: var(--panel);
+        border-left: 1px solid var(--border);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Common Styles */
+      .card {
+        border:1px solid var(--border);
+        border-radius:12px;
+        background:var(--panel2);
+        padding:16px;
+        margin-bottom: 16px;
+      }
+      
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--primary);
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+      }
+      
+      label {
+        display:block; 
+        margin:8px 0 4px; 
+        font-size:12px; 
+        color:var(--muted); 
+        text-transform:uppercase; 
+        letter-spacing:.06em; 
+      }
+      
+      select,textarea,input,button {
+        width:100%; 
+        border-radius:10px; 
+        border:1px solid var(--border); 
+        background:#0d1830; 
+        color:var(--text); 
+        padding:8px 10px; 
+        font:inherit; 
+        margin-bottom: 8px;
+      }
+      
+      textarea {
+        min-height:170px; 
+        resize:vertical; 
+      }
+      
+      button {
+        border:0; 
+        background:linear-gradient(90deg,var(--primary),var(--secondary)); 
+        color:#05162c; 
+        font-weight:700; 
+        cursor:pointer; 
+        padding:10px;
+      }
+      
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(102, 222, 255, 0.3);
+      }
+      
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      .btn-secondary {
+        border:1px solid var(--border); 
+        background:#15233f; 
+        color:#dbe9ff; 
+      }
+      
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+      
+      .btn-warning {
+        background: var(--warning);
+        color: white;
+      }
+      
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+      
+      /* Flex and Grid */
+      .row {
+        display:flex; 
+        gap:8px; 
+      }
+      
+      .row > * {
+        flex:1; 
+      }
+      
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      
+      /* List Styles */
+      .list {
+        display:grid; 
+        gap:8px; 
+        margin-top:10px; 
+        max-height:420px; 
+        overflow:auto; 
+      }
+      
+      .item {
+        border:1px solid var(--border);
+        border-radius:10px; 
+        padding:10px; 
+        background:#0d182f; 
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .item:hover {
+        background: rgba(102, 222, 255, 0.1);
+        border-color: var(--primary);
+      }
+      
+      .item.active {
+        background: rgba(102, 222, 255, 0.2);
+        border-color: var(--primary);
+      }
+      
+      /* Mono font */
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        white-space: pre-wrap;
+      }
+      
+      /* Diff visualization */
+      .diff-line {
+        padding: 4px 8px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        white-space: pre;
+        line-height: 1.4;
+      }
+      
+      .diff-unchanged {
+        color: var(--muted);
+      }
+      
+      .diff-removed {
+        background: rgba(244, 67, 54, 0.1);
+        color: var(--danger);
+      }
+      
+      .diff-added {
+        background: rgba(76, 175, 80, 0.1);
+        color: var(--success);
+      }
+      
+      .diff-line-no {
+        color: #666;
+        text-align: right;
+        padding-right: 8px;
+      }
+      
+      /* Analysis visualization */
+      .analysis-metric {
+        background: rgba(102, 222, 255, 0.1);
+        border: 1px solid var(--primary);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+      }
+      
+      .complexity-low {
+        color: var(--success);
+      }
+      
+      .complexity-medium {
+        color: var(--warning);
+      }
+      
+      .complexity-high {
+        color: var(--danger);
+      }
+      
+      /* Small text */
+      .small {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      
+      /* Status indicators */
+      .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      
+      .status-running {
+        background: var(--success);
+      }
+      
+      .status-stopped {
+        background: var(--muted);
+      }
+      
+      /* Tabs */
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 16px;
+      }
+      
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        border-bottom: 2px solid transparent;
+      }
+      
+      .tab.active {
+        color: var(--text);
+        border-bottom-color: var(--primary);
+      }
+      
+      .tab-content {
+        display: none;
+      }
+      
+      .tab-content.active {
+        display: block;
+      }
+      
+      /* Responsive */
+      @media (max-width: 1400px) {
+        .workbench {
+          grid-template-columns: 260px 1fr;
+          grid-template-areas:
+            "sidebar header"
+            "sidebar main"
+            "detail detail";
+        }
+        .detail-panel {
+          grid-area: detail;
+          border-left: none;
+          border-top: 1px solid var(--border);
+        }
+      }
+      
+      @media (max-width: 960px) {
+        .workbench {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto auto 1fr;
+          grid-template-areas:
+            "header"
+            "sidebar"
+            "main"
+            "detail";
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="workbench">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="card">
+          <h2>DiffLens</h2>
+          <p class="small">Deterministic Diff Workbench</p>
+          <p id="status" class="small">Checking API...</p>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Quick Actions</h3>
+          <button id="new-diff" style="margin-bottom: 8px;">New Diff</button>
+          <button id="reload-history">Reload History</button>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">History</h3>
+          <div id="history" class="list"></div>
+        </div>
+      </aside>
+      
+      <!-- Header -->
+      <header class="header">
+        <h1>DiffLens - Deterministic Diff Analysis</h1>
+        <div class="row">
+          <button id="export-json">Export JSON</button>
+          <button id="export-unified">Export Unified</button>
+        </div>
+      </header>
+      
+      <!-- Main Work Area -->
+      <main class="main">
+        <div class="tabs">
+          <button class="tab active" data-tab="diff">Diff</button>
+          <button class="tab" data-tab="batch">Batch</button>
+          <button class="tab" data-tab="analysis">Analysis</button>
+        </div>
+        
+        <!-- Diff Tab -->
+        <div class="tab-content active" data-tab-content="diff">
+          <div class="card">
+            <h3 class="section-title">Diff Input</h3>
+            
+            <div class="grid-2">
+              <div>
+                <label>Mode</label>
+                <select id="mode">
+                  <option value="text">Text</option>
+                  <option value="json">JSON</option>
+                </select>
+              </div>
+              <div>
+                <label>Granularity</label>
+                <select id="granularity">
+                  <option value="line">Line</option>
+                  <option value="word">Word</option>
+                  <option value="path">Path (JSON)</option>
+                </select>
+              </div>
+            </div>
+            
+            <label>Input A</label>
+            <textarea id="a" class="mono">hello
+world</textarea>
+            
+            <label>Input B</label>
+            <textarea id="b" class="mono">hello
+WORLD</textarea>
+            
+            <div class="row" style="margin-top:10px">
+              <button id="run">Run Diff</button>
+              <button id="validate" class="btn-secondary">Validate</button>
+              <button id="compare" class="btn-secondary">Compare</button>
+            </div>
+            
+            <p id="msg"></p>
+            
+            <div id="output" class="list"></div>
+          </div>
+        </div>
+        
+        <!-- Batch Tab -->
+        <div class="tab-content" data-tab-content="batch">
+          <div class="card">
+            <h3 class="section-title">Batch Diff</h3>
+            
+            <label>Items (JSON array)</label>
+            <textarea id="batch-items" class="mono" rows="10">[
+  {"mode": "text", "a": "hello", "b": "world"},
+  {"mode": "text", "a": "foo", "b": "bar"}
+]</textarea>
+            
+            <button id="run-batch">Run Batch</button>
+            
+            <div id="batch-results" class="list"></div>
+          </div>
+        </div>
+        
+        <!-- Analysis Tab -->
+        <div class="tab-content" data-tab-content="analysis">
+          <div class="card">
+            <h3 class="section-title">Diff Analysis</h3>
+            <p class="small">Select a run from history to analyze</p>
+            <div id="analysis-results"></div>
+          </div>
+        </div>
+      </main>
+      
+      <!-- Detail Panel -->
+      <aside class="detail-panel">
+        <div class="card" id="detail-panel">
+          <h3 class="section-title">Run Details</h3>
+          <p class="small">Select a run from history to view details</p>
+          <div id="detail-content"></div>
+        </div>
+      </aside>
+    </div>
+    
+    <script>
+      const keyName = 'difflens_device_key';
+      let userKey = localStorage.getItem(keyName);
+      if (!userKey && crypto.randomUUID) {
+        userKey = crypto.randomUUID();
+        localStorage.setItem(keyName, userKey);
+      }
+
+      let currentRunId = null;
+      
+      // DOM Elements
+      const statusEl = document.getElementById('status');
+      const msgEl = document.getElementById('msg');
+      const historyEl = document.getElementById('history');
+      const outputEl = document.getElementById('output');
+      const detailContentEl = document.getElementById('detail-content');
+      const analysisResultsEl = document.getElementById('analysis-results');
+      const batchResultsEl = document.getElementById('batch-results');
+
+      // Tab Management
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.getAttribute('data-tab');
+          
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          tab.classList.add('active');
+          document.querySelector(`[data-tab-content="${tabName}"]`).classList.add('active');
+        });
+      });
+
+      function msg(text, bad = false) {
+        msgEl.textContent = text;
+        msgEl.style.color = bad ? '#ffb8b8' : '#9eb2db';
+      }
+
+      async function api(path, opts = {}) {
+        const res = await fetch(path, {
+          ...opts,
+          headers: {
+            'content-type': 'application/json',
+            'x-user-key': userKey,
+            ...(opts.headers || {}),
+          },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || data.error || `http_${res.status}`);
+        return data;
+      }
+
+      function payload() {
+        return {
+          mode: document.getElementById('mode').value,
+          granularity: document.getElementById('granularity').value,
+          a: document.getElementById('a').value,
+          b: document.getElementById('b').value,
+          options: { contextLines: 2, maxDiffChunks: 200 },
+        };
+      }
+
+      function renderDiff(data) {
+        const root = outputEl;
+        root.innerHTML = '';
+        
+        const top = document.createElement('div');
+        top.className = 'item';
+        top.innerHTML = `<strong>Run ${data.id || ''}</strong><div class="mono">${JSON.stringify(data.summary)}</div>`;
+        root.appendChild(top);
+        
+        // Show comparison if available
+        if (data.comparison) {
+          const compDiv = document.createElement('div');
+          compDiv.className = 'item';
+          compDiv.innerHTML = `<strong>Comparison Analysis</strong>
+            <div class="mono">Complexity: ${data.comparison.complexity}</div>
+            <div class="mono">Chunks: ${JSON.stringify(data.comparison.chunk_counts)}</div>
+            <div class="mono">Line Impact: ${data.comparison.line_impact} lines</div>`;
+          root.appendChild(compDiv);
+        }
+        
+        // Show diff chunks
+        for (const chunk of data.diff.slice(0, 120)) {
+          const el = document.createElement('div');
+          el.className = 'item mono';
+          el.textContent = JSON.stringify(chunk, null, 2);
+          root.appendChild(el);
+        }
+      }
+
+      function renderBatchResults(data) {
+        const root = batchResultsEl;
+        root.innerHTML = `<div class="item"><strong>Batch Results: ${data.count} items</strong></div>`;
+        
+        for (const result of data.results) {
+          if (result.error) {
+            const el = document.createElement('div');
+            el.className = 'item';
+            el.innerHTML = `<strong style="color: var(--danger)">Error</strong>
+              <div class="mono">${result.error}</div>
+              <div class="mono small">${JSON.stringify(result.item)}</div>`;
+            root.appendChild(el);
+          } else {
+            const el = document.createElement('div');
+            el.className = 'item';
+            el.innerHTML = `<strong>Run ${result.id}</strong>
+              <div class="mono">${JSON.stringify(result.summary)}</div>
+              <div class="mono small">${result.diff.length} chunks</div>`;
+            el.onclick = async () => {
+              try {
+                const run = await api(`/api/runs/${result.id}`);
+                renderDiff({ id: run.id, summary: run.result.summary, diff: run.result.diff });
+                currentRunId = run.id;
+                loadRunDetails(run.id);
+              } catch (e) {
+                msg(e.message, true);
+              }
+            };
+            root.appendChild(el);
+          }
+        }
+      }
+
+      function renderAnalysis(data) {
+        const root = analysisResultsEl;
+        root.innerHTML = `<div class="item"><strong>Analysis for Run ${data.run_id}</strong></div>`;
+        
+        const metrics = data.analysis.metrics;
+        const complexity = data.analysis.complexity;
+        
+        const metricsDiv = document.createElement('div');
+        metricsDiv.className = 'analysis-metric';
+        metricsDiv.innerHTML = `
+          <h4>Metrics</h4>
+          <div><strong>Total Chunks:</strong> ${metrics.total_chunks}</div>
+          <div><strong>Lines Added:</strong> ${metrics.lines_added}</div>
+          <div><strong>Lines Removed:</strong> ${metrics.lines_removed}</div>
+          <div><strong>Lines Changed:</strong> ${metrics.lines_changed}</div>
+          <div><strong>Total Impact:</strong> ${metrics.total_lines_impacted} lines</div>
+        `;
+        root.appendChild(metricsDiv);
+        
+        const complexityDiv = document.createElement('div');
+        complexityDiv.className = `analysis-metric complexity-${complexity.level}`;
+        complexityDiv.innerHTML = `
+          <h4>Complexity Analysis</h4>
+          <div><strong>Score:</strong> ${complexity.score}</div>
+          <div><strong>Level:</strong> <span class="complexity-${complexity.level}">${complexity.level.toUpperCase()}</span></div>
+          ${data.analysis.recommendations.length > 0 ? `<div style="margin-top: 8px;"><strong>Recommendations:</strong><ul>${data.analysis.recommendations.map(r => `<li>${r}</li>`).join('')}</ul></div>` : ''}
+        `;
+        root.appendChild(complexityDiv);
+      }
+
+      async function loadRunDetails(runId) {
+        try {
+          const run = await api(`/api/runs/${runId}`);
+          
+          detailContentEl.innerHTML = `
+            <div class="item">
+              <strong>Run ID:</strong> ${run.id}<br>
+              <strong>Mode:</strong> ${run.mode}<br>
+              <strong>Granularity:</strong> ${run.granularity}<br>
+              <strong>Created:</strong> ${new Date(run.createdAt).toLocaleString()}
+            </div>
+            
+            <div class="item" style="margin-top: 8px;">
+              <strong>Summary:</strong>
+              <div class="mono">${JSON.stringify(run.result.summary, null, 2)}</div>
+            </div>
+            
+            <button id="export-run-json" style="margin-top: 8px;">Export JSON</button>
+            <button id="export-run-unified" style="margin-top: 8px;">Export Unified</button>
+            <button id="analyze-run" style="margin-top: 8px;">Analyze</button>
+          `;
+          
+          // Add event listeners for export buttons
+          document.getElementById('export-run-json').onclick = async () => {
+            try {
+              const exportData = await api(`/api/runs/${runId}/export`, {
+                method: 'POST',
+                body: JSON.stringify({ format: 'json' })
+              });
+              
+              const blob = new Blob([JSON.stringify(exportData.run, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `difflens-run-${runId}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            } catch (e) {
+              msg(e.message, true);
+            }
+          };
+          
+          document.getElementById('export-run-unified').onclick = async () => {
+            try {
+              const exportData = await api(`/api/runs/${runId}/export`, {
+                method: 'POST',
+                body: JSON.stringify({ format: 'unified' })
+              });
+              
+              const blob = new Blob([exportData.diff], { type: 'text/plain' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `difflens-run-${runId}.diff`;
+              a.click();
+              URL.revokeObjectURL(url);
+            } catch (e) {
+              msg(e.message, true);
+            }
+          };
+          
+          document.getElementById('analyze-run').onclick = async () => {
+            try {
+              const analysis = await api(`/api/runs/${runId}/analysis`);
+              renderAnalysis(analysis);
+              
+              // Switch to analysis tab
+              document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+              document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+              document.querySelector('.tab[data-tab="analysis"]').classList.add('active');
+              document.querySelector('.tab-content[data-tab-content="analysis"]').classList.add('active');
+            } catch (e) {
+              msg(e.message, true);
+            }
+          };
+        } catch (e) {
+          detailContentEl.innerHTML = `<div class="item"><strong style="color: var(--danger)">Error loading run details</strong><div class="mono">${e.message}</div></div>`;
+        }
+      }
+
+      async function loadHistory() {
+        try {
+          const data = await api('/api/history?limit=30');
+          historyEl.innerHTML = '';
+          
+          for (const item of data.items || []) {
+            const el = document.createElement('button');
+            el.className = 'item mono';
+            el.style.textAlign = 'left';
+            el.innerHTML = `<strong>${item.mode}/${item.granularity}</strong>
+              <div>${new Date(item.createdAt).toLocaleString()}</div>
+              <div class="small">${JSON.stringify(item.summary)}</div>`;
+            el.onclick = async () => {
+              try {
+                const run = await api(`/api/runs/${item.id}`);
+                renderDiff({ id: run.id, summary: run.result.summary, diff: run.result.diff });
+                currentRunId = run.id;
+                loadRunDetails(run.id);
+              } catch (e) {
+                msg(e.message, true);
+              }
+            };
+            historyEl.appendChild(el);
+          }
+        } catch (e) {
+          msg(e.message, true);
+        }
+      }
+
+      // Event Handlers
+      document.getElementById('run').onclick = async () => {
+        try {
+          const data = await api('/api/diff', { method: 'POST', body: JSON.stringify(payload()) });
+          renderDiff(data);
+          msg('Diff run saved.');
+          await loadHistory();
+        } catch (e) { msg(e.message, true); }
+      };
+
+      document.getElementById('validate').onclick = async () => {
+        try {
+          const data = await api('/api/diff/validate', { method: 'POST', body: JSON.stringify(payload()) });
+          msg(`Payload valid (${data.mode}/${data.granularity}).`);
+        } catch (e) { msg(e.message, true); }
+      };
+
+      document.getElementById('compare').onclick = async () => {
+        try {
+          const data = await api('/api/diff/compare', { method: 'POST', body: JSON.stringify(payload()) });
+          renderDiff(data);
+          msg('Comparison diff with analysis.');
+          await loadHistory();
+        } catch (e) { msg(e.message, true); }
+      };
+
+      document.getElementById('run-batch').onclick = async () => {
+        try {
+          const itemsText = document.getElementById('batch-items').value;
+          const items = JSON.parse(itemsText);
+          const data = await api('/api/diff/batch', { method: 'POST', body: JSON.stringify({ items }) });
+          renderBatchResults(data);
+          msg(`Batch completed: ${data.count} items processed.`);
+          await loadHistory();
+        } catch (e) { msg(e.message, true); }
+      };
+
+      document.getElementById('reload-history').onclick = loadHistory;
+      document.getElementById('new-diff').onclick = () => {
+        document.getElementById('a').value = 'hello\nworld';
+        document.getElementById('b').value = 'hello\nWORLD';
+        document.getElementById('mode').value = 'text';
+        document.getElementById('granularity').value = 'line';
+        outputEl.innerHTML = '';
+        msg('Ready for new diff');
+      };
+
+      document.getElementById('export-json').onclick = async () => {
+        if (!currentRunId) {
+          msg('No run selected for export', true);
+          return;
+        }
+        
+        try {
+          const exportData = await api(`/api/runs/${currentRunId}/export`, {
+            method: 'POST',
+            body: JSON.stringify({ format: 'json' })
+          });
+          
+          const blob = new Blob([JSON.stringify(exportData.run, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `difflens-run-${currentRunId}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          msg('JSON export downloaded');
+        } catch (e) {
+          msg(e.message, true);
+        }
+      };
+
+      document.getElementById('export-unified').onclick = async () => {
+        if (!currentRunId) {
+          msg('No run selected for export', true);
+          return;
+        }
+        
+        try {
+          const exportData = await api(`/api/runs/${currentRunId}/export`, {
+            method: 'POST',
+            body: JSON.stringify({ format: 'unified' })
+          });
+          
+          const blob = new Blob([exportData.diff], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `difflens-run-${currentRunId}.diff`;
+          a.click();
+          URL.revokeObjectURL(url);
+          msg('Unified diff exported');
+        } catch (e) {
+          msg(e.message, true);
+        }
+      };
+
+      // Health check
+      async function checkHealth() {
+        try {
+          const health = await api('/health');
+          const dbHealth = await api('/health/db');
+          statusEl.textContent = dbHealth.ok ? '✓ API + DB connected' : '⚠ API connected, DB unavailable';
+        } catch (e) {
+          statusEl.textContent = '✗ API unavailable';
+        }
+      }
+
+      // Initialize
+      checkHealth();
+      loadHistory();
+    </script>
+  </body>
+</html>

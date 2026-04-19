@@ -1,0 +1,442 @@
+BLUEPRINT: DiffLens (FastAPI + Neon)
+
+Purpose
+
+DiffLens compares two inputs and returns a structured diff + summary counts. Supports:
+
+text diffs (line or word granularity)
+
+json diffs (key-path adds/removes/changes) Stores each run in Neon per anonymous user_key (via x-user-key header).
+
+
+
+---
+
+Repo deliverable
+
+Repo name: difflens
+Runtime: Python 3.11+
+API: FastAPI
+DB: Neon Postgres
+DB driver: psycopg[binary] (sync, boring)
+Run style: API-first, no UI required
+
+
+---
+
+File tree
+
+difflens/
+  pyproject.toml
+  .env.example
+  README.md
+
+  sql/
+    001_init.sql
+
+  app/
+    __init__.py
+    main.py
+    settings.py
+    db.py
+    security.py
+    models.py
+    routes.py
+    diff_text.py
+    diff_json.py
+    utils.py
+
+
+---
+
+Dependencies (pin exact)
+
+fastapi
+
+uvicorn[standard]
+
+psycopg[binary]
+
+pydantic
+
+python-dotenv (optional but useful in Termux)
+
+
+(Keep it minimal. No ORMs.)
+
+
+---
+
+Environment variables
+
+.env.example
+
+DATABASE_URL=REDACTED_NEON_POSTGRES_URL
+APP_ENV=development
+PORT=8000
+
+
+---
+
+Database schema
+
+sql/001_init.sql
+
+create extension if not exists pgcrypto;
+
+create table if not exists diff_runs (
+  id uuid primary key default gen_random_uuid(),
+  user_key text not null,
+  mode text not null check (mode in ('text','json')),
+  granularity text not null default 'line' check (granularity in ('line','word','path')),
+  a_hash text not null,
+  b_hash text not null,
+  a_size int not null,
+  b_size int not null,
+  result jsonb not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_diff_runs_user_time
+  on diff_runs(user_key, created_at desc);
+
+create index if not exists idx_diff_runs_hashes
+  on diff_runs(a_hash, b_hash);
+
+
+---
+
+Identity model (anonymous user key)
+
+Client must send header: x-user-key: <uuid>
+If missing/invalid → 400.
+
+app/security.py
+
+Validate header exists
+
+Length cap (<= 200)
+
+Attach to request scope / dependency return
+
+
+
+---
+
+API surface (contracts)
+
+1) Health
+
+GET /health Response:
+
+{ "ok": true }
+
+2) Create diff run
+
+POST /diff
+
+Headers
+
+x-user-key: <uuid>
+
+
+Body
+
+{
+  "mode": "text",
+  "granularity": "line",
+  "a": "string (non-empty)",
+  "b": "string (non-empty)",
+  "options": {
+    "contextLines": 3,
+    "maxDiffChunks": 200
+  }
+}
+
+Response
+
+{
+  "id": "uuid",
+  "summary": {
+    "mode": "text",
+    "granularity": "line",
+    "adds": 12,
+    "removes": 9,
+    "changes": 4
+  },
+  "diff": {
+    "chunks": [
+      {
+        "type": "change",
+        "aStart": 10,
+        "aEnd": 14,
+        "bStart": 10,
+        "bEnd": 15,
+        "a": ["old line 1", "old line 2"],
+        "b": ["new line 1", "new line 2"]
+      }
+    ]
+  }
+}
+
+3) History
+
+GET /history?limit=50 Headers: x-user-key
+
+Response:
+
+{
+  "items": [
+    { "id":"uuid", "mode":"text", "granularity":"line", "createdAt":"...", "aHash":"...", "bHash":"...", "summary": { "adds":1,"removes":2,"changes":0 } }
+  ]
+}
+
+4) Read one run
+
+GET /runs/{id} Headers: x-user-key
+
+Response:
+
+{ "id":"uuid", "mode":"text", "granularity":"line", "result": { ... }, "createdAt":"..." }
+
+5) Delete
+
+DELETE /runs/{id} Headers: x-user-key
+
+Response:
+
+{ "ok": true }
+
+
+---
+
+Diff engines
+
+Text diff (deterministic)
+
+app/diff_text.py
+
+Use Python stdlib difflib.SequenceMatcher
+
+Support:
+
+line: splitlines(keepends=False)
+
+word: split on whitespace while preserving basic punctuation boundaries (simple tokenization)
+
+
+Build diff “chunks”:
+
+group adjacent opcodes into chunks
+
+cap chunk count: maxDiffChunks
+
+
+Summary counts:
+
+adds: number of inserted lines/tokens
+
+removes: number removed
+
+changes: replacements count (or replaced token count; define and keep consistent)
+
+
+
+JSON diff (deterministic key-path changes)
+
+app/diff_json.py
+
+Parse a and b as JSON objects/arrays
+
+Canonicalize with stable ordering for dict keys
+
+Produce operations list:
+
+add (path, value)
+
+remove (path, oldValue)
+
+change (path, oldValue, newValue)
+
+
+Paths in JSON Pointer-ish format:
+
+/a/b/0/c
+
+
+Summary counts: add/remove/change operation counts
+
+
+Limits/sanity:
+
+max input size (bytes)
+
+max JSON depth (e.g., 40)
+
+max operations returned (e.g., 5000) to prevent explosive diffs
+
+
+
+---
+
+Database layer (boring, safe)
+
+app/db.py
+
+Create psycopg connection per request OR a small global pool.
+
+Safest boring approach for Neon:
+
+use psycopg.connect(DATABASE_URL) inside a context manager per request for writes/reads
+
+keep queries small and parameterized
+
+
+
+Store result JSON exactly as returned payload, plus summary embedded inside result so history rendering is easy.
+
+Hashing:
+
+a_hash = sha256(a.encode('utf-8'))
+
+b_hash = sha256(b.encode('utf-8')) Store sizes:
+
+a_size = len(a)
+
+b_size = len(b)
+
+
+
+---
+
+Validation rules (no surprises)
+
+app/models.py (Pydantic)
+
+mode in {text,json}
+
+granularity:
+
+if mode=text → {line,word}
+
+if mode=json → {path} (or allow granularity ignored)
+
+
+a and b non-empty, max length (recommend: 250k chars)
+
+options.contextLines 0–10
+
+options.maxDiffChunks 1–500
+
+
+
+---
+
+FastAPI wiring
+
+app/main.py
+
+load settings
+
+include router
+
+add /health
+
+run on 0.0.0.0 so Android can hit it
+
+
+app/routes.py
+
+endpoints /diff, /history, /runs/{id}, delete
+
+use dependency get_user_key() from security.py
+
+call diff engines
+
+persist and return response
+
+
+
+---
+
+README.md must include (Termux exact)
+
+Create venv + install
+
+Load env
+
+Run server
+
+Run SQL
+
+Curl examples
+
+
+Termux commands
+
+pkg install python git openssl
+python -m venv .venv
+source .venv/bin/activate
+pip install -U pip
+pip install -e .
+cp .env.example .env
+# edit .env to set DATABASE_URL
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+SQL
+
+Run sql/001_init.sql in Neon SQL editor
+
+
+Curl example
+
+curl -s http://localhost:8000/health
+
+curl -s -X POST http://localhost:8000/diff \
+  -H "content-type: application/json" \
+  -H "x-user-key: test-user-123" \
+  -d '{"mode":"text","granularity":"line","a":"hello\nworld\n","b":"hello\nWORLD\n"}'
+
+
+---
+
+Smoke tests (must include)
+
+Android Chrome
+
+1. Start server in Termux
+
+
+2. Open http://127.0.0.1:8000/docs
+
+
+3. Run /diff with mode=text line
+
+
+4. Confirm response includes chunks[] and non-zero summary counts
+
+
+5. Call /history and verify stored
+
+
+
+Desktop Chrome
+
+1. JSON diff: compare objects with added/changed nested keys
+
+
+2. Verify path operations correct and deterministic across repeated calls
+
+
+3. Delete run and ensure it disappears from history
+
+
+
+
+---
+
+Done definition
+
+Done = API runs, /docs works, diffs are deterministic, runs persist in Neon, history/read/delete respect x-user-key.
+
+
