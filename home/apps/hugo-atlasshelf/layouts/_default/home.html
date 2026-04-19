@@ -1,0 +1,63 @@
+{{ define "main" }}
+{{ $categories := slice }}
+{{ $tags := slice }}
+{{ range .Site.Data.items }}
+  {{ $categories = $categories | append .category }}
+  {{ range .tags }}
+    {{ $tags = $tags | append . }}
+  {{ end }}
+{{ end }}
+
+<section class="hero-panel">
+  <div class="hero-copy">
+    <p class="eyebrow">AtlasShelf reference atlas</p>
+    <h2>Operational tools, laid out like annotated field plates.</h2>
+    <p class="lede">
+      Move through the catalog by category, scan tags at a glance, and open each item as a concise reference page.
+    </p>
+    <div class="hero-actions">
+      <a class="button button-primary" href="{{ "/items/" | relLangURL }}">Open catalog</a>
+      <a class="button button-secondary" href="{{ "/categories/" | relLangURL }}">Browse categories</a>
+    </div>
+  </div>
+  <aside class="hero-aside">
+    <div class="hero-stat">
+      <span class="hero-stat-label">Items</span>
+      <strong>{{ len .Site.Data.items }}</strong>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-label">Categories</span>
+      <strong>{{ len (uniq $categories) }}</strong>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-label">Tags</span>
+      <strong>{{ len (uniq $tags) }}</strong>
+    </div>
+  </aside>
+</section>
+
+<section class="section">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Featured plates</p>
+      <h3>Selected items from the shelf</h3>
+    </div>
+    <a class="section-link" href="{{ "/items/" | relLangURL }}">See the full index</a>
+  </div>
+  <div class="cards featured-grid">
+    {{ range $index, $item := first 6 .Site.Data.items }}
+    <article class="card catalog-card">
+      <div class="card-topline">
+        <span class="card-kicker">{{ $item.category }}</span>
+        <span class="card-index">{{ printf "%02d" (add $index 1) }}</span>
+      </div>
+      <h3><a href="{{ printf "/items/%s/" $item.slug | relLangURL }}">{{ $item.title }}</a></h3>
+      <p>{{ $item.summary }}</p>
+      <div class="tags">
+        {{ range $item.tags }}<span>{{ . }}</span>{{ end }}
+      </div>
+    </article>
+    {{ end }}
+  </div>
+</section>
+{{ end }}

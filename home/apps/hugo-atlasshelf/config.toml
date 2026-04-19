@@ -1,0 +1,19 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "AtlasShelf"
+
+[params]
+  description = "An atlas-style catalog of operational tools and reference pages."
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+[outputs]
+  home = ["HTML"]
+  section = ["HTML", "JSON"]
+
+[outputFormats.JSON]
+  mediaType = "application/json"
+  baseName = "items-index"
+  isPlainText = true

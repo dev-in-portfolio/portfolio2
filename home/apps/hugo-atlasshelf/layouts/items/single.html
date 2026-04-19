@@ -1,0 +1,33 @@
+{{ define "main" }}
+<section class="detail-shell">
+  <article class="detail">
+    <div class="detail-header">
+      <div>
+        <p class="eyebrow">Field plate</p>
+        <h2>{{ .Title }}</h2>
+        <p class="lede">{{ .Params.summary }}</p>
+      </div>
+      <aside class="detail-meta">
+        <span class="card-kicker">{{ .Params.category }}</span>
+        <div class="tags">
+          {{ range .Params.tags }}<span>{{ . }}</span>{{ end }}
+        </div>
+      </aside>
+    </div>
+
+    {{ with .Params.images }}
+    <div class="images">
+      {{ range . }}<img src="{{ . }}" alt="Image for {{ $.Title }}" />{{ end }}
+    </div>
+    {{ end }}
+
+    <div class="content">
+      {{ if .Content }}
+        {{ .Content }}
+      {{ else }}
+        <p>{{ .Params.summary }}</p>
+      {{ end }}
+    </div>
+  </article>
+</section>
+{{ end }}

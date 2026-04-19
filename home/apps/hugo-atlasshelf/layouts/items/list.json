@@ -1,0 +1,12 @@
+[
+  {{- range $index, $item := .Site.Data.items -}}
+  {{- if $index }},{{ end }}
+  {
+    "title": {{ $item.title | jsonify }},
+    "slug": {{ $item.slug | jsonify }},
+    "summary": {{ $item.summary | jsonify }},
+    "tags": {{ $item.tags | jsonify }},
+    "category": {{ $item.category | jsonify }}
+  }
+  {{- end -}}
+]

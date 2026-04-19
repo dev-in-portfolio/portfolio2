@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ block "title" . }}{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}{{ end }}</title>
+    <link rel="stylesheet" href="{{ "css/styles.css" | relURL }}" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand-lockup">
+        <a class="brand-name" href="{{ "/" | relLangURL }}">AtlasShelf</a>
+        <p class="brand-note">{{ .Site.Params.description }}</p>
+      </div>
+      <nav class="site-nav">
+        <a class="nav-chip" href="{{ "/items/" | relLangURL }}">Catalog</a>
+        <a class="nav-chip" href="{{ "/categories/" | relLangURL }}">Categories</a>
+        <a class="nav-chip" href="{{ "/tags/" | relLangURL }}">Tags</a>
+      </nav>
+    </header>
+
+    <main>
+      {{ block "main" . }}{{ end }}
+    </main>
+
+    <footer>
+      <small>AtlasShelf • {{ now.Format "2006" }}</small>
+    </footer>
+    <script src="{{ "js/catalog.js" | relURL }}"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+{{ range .Site.Data.items }}
+{{ $page := dict
+  "path" .slug
+  "title" .title
+  "content" (dict "mediaType" "text/markdown" "value" (default "" .body))
+  "params" (dict
+    "summary" .summary
+    "tags" .tags
+    "category" .category
+    "images" .images
+  )
+}}
+{{ $.AddPage $page }}
+{{ end }}

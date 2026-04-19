@@ -1,0 +1,102 @@
+Hugo AtlasShelf — static catalog generator (ingest JSON → pages) + faceted browsing
+
+What it is
+
+A Hugo site that ingests a big JSON dataset and generates a browsable catalog with filters and detail pages. Think: exhibit catalog, facility directory, tools index, API catalog—anything.
+
+This is static data product building.
+
+
+---
+
+Core features (Hugo)
+
+Input: data/items.json (or multiple JSON files)
+
+Hugo generates:
+
+/items list page
+
+/items/<slug> detail pages
+
+tag pages
+
+category pages
+
+
+Build-time index JSON:
+
+title
+
+category
+
+tags
+
+summary
+
+slug
+
+
+Client-side filtering (no backend) with URL params
+
+
+
+---
+
+Content contract (JSON)
+
+Each item requires:
+
+slug
+
+title
+
+summary
+
+tags[]
+
+category
+
+optional images[]
+
+
+
+---
+
+Performance strategy
+
+Pagination on list pages
+
+Lightweight search index (no bodies)
+
+Detail pages hold full bodies/images
+
+
+
+---
+
+Smoke tests
+
+1. Drop in 200 items JSON
+
+
+2. Build generates pages
+
+
+3. Filter by category/tag works
+
+
+4. Search works without loading full bodies
+
+
+5. Pages link correctly
+
+
+
+
+---
+
+Done definition
+
+Done = Hugo reliably turns big JSON into a fast browsable catalog with filter/search.
+

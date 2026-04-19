@@ -1,0 +1,63 @@
+{{ define "main" }}
+{{ $categories := slice }}
+{{ $tags := slice }}
+{{ range .Pages }}
+  {{ $categories = $categories | append .Params.category }}
+  {{ range .Params.tags }}
+    {{ $tags = $tags | append . }}
+  {{ end }}
+{{ end }}
+
+<section class="catalog-hero">
+  <div>
+    <p class="eyebrow">Catalog index</p>
+    <h2>Find the right plate quickly.</h2>
+    <p class="lede">Search by title, summary, or tags. Filter by category when you want a narrower shelf view.</p>
+  </div>
+  <div class="catalog-metrics">
+    <div class="metric">
+      <span>Items</span>
+      <strong>{{ len .Pages }}</strong>
+    </div>
+    <div class="metric">
+      <span>Categories</span>
+      <strong>{{ len (uniq $categories) }}</strong>
+    </div>
+    <div class="metric">
+      <span>Tags</span>
+      <strong>{{ len (uniq $tags) }}</strong>
+    </div>
+  </div>
+</section>
+
+<section class="section catalog-frame">
+  <div class="search-box catalog-controls">
+    <input id="search-input" type="text" placeholder="Search title, summary, or tags" />
+    <select id="category-filter">
+      <option value="">All categories</option>
+      {{ range uniq $categories }}
+        <option value="{{ . }}">{{ . }}</option>
+      {{ end }}
+    </select>
+  </div>
+  <div class="cards catalog-grid" id="catalog-results">
+    {{ $paginator := .Paginate .Pages 10 }}
+    {{ range $index, $page := $paginator.Pages }}
+    <article class="card catalog-card">
+      <div class="card-topline">
+        <span class="card-kicker">{{ $page.Params.category }}</span>
+        <span class="card-index">{{ printf "%02d" (add $index 1) }}</span>
+      </div>
+      <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+      <p>{{ .Params.summary }}</p>
+      <div class="tags">
+        {{ range .Params.tags }}<span>{{ . }}</span>{{ end }}
+      </div>
+    </article>
+    {{ end }}
+  </div>
+  <div id="pagination-controls">
+    {{ template "_internal/pagination.html" . }}
+  </div>
+</section>
+{{ end }}
