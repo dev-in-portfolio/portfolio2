@@ -1,0 +1,211 @@
+RecallGrid — Gradio + Neon blueprint (semantic library + retrieval UI)
+
+What it is
+
+RecallGrid is a Gradio tool for storing “knowledge chunks” (snippets, docs, prompts, specs) and retrieving them with search and semantic similarity. It’s a practical RAG-style personal library UI — not micro-logging — and it’s clean portfolio proof of backend design + retrieval UX.
+
+
+---
+
+Shared backbone (required in every Neon-backed Gradio app)
+
+Rule: Gradio connects to Neon only from the server process.
+Flow: Gradio server → Neon Postgres
+
+Identity (v1)
+
+Passcode gate via APP_PASSCODE
+
+Single-user/private tool
+
+
+Server invariants
+
+DATABASE_URL env-only
+
+Parameterized SQL only
+
+No logging of small things: only store user-submitted chunks and explicit metadata
+
+
+
+---
+
+Stack
+
+Python 3.11+
+
+Gradio
+
+Postgres driver: psycopg pinned
+
+Embeddings: one of two boring options:
+
+Option A (no external services): pg_trgm + full-text search only (fast, simplest)
+
+Option B (semantic): store embeddings (vector) computed server-side (requires embedding provider or local model)
+
+
+
+MVP recommendation: Option A first (still very useful).
+
+
+---
+
+Data model (Neon) — Option A (MVP: text search)
+
+sql/001_recallgrid.sql
+
+create extension if not exists pgcrypto;
+create extension if not exists pg_trgm;
+
+create table if not exists chunks (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  source text not null default '',
+  tags text[] not null default '{}',
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+-- full-text
+alter table chunks
+  add column if not exists body_tsv tsvector
+  generated always as (to_tsvector('english', coalesce(title,'') || ' ' || coalesce(body,''))) stored;
+
+create index if not exists idx_chunks_tsv on chunks using gin(body_tsv);
+create index if not exists idx_chunks_tags_gin on chunks using gin(tags);
+create index if not exists idx_chunks_title_trgm on chunks using gin(title gin_trgm_ops);
+
+
+---
+
+Retrieval behavior (MVP)
+
+User query q:
+
+FTS match via body_tsv @@ plainto_tsquery('english', q)
+
+fallback fuzzy title match via trigram similarity
+
+optional tag filter tags @> ARRAY['x']
+
+
+Sort:
+
+primarily by ts_rank for FTS matches
+
+then by recency
+
+
+
+---
+
+API/logic (internal to Gradio server)
+
+Since Gradio is the server, you can keep it simple:
+
+add_chunk(title, body, tags[], source)
+
+search_chunks(q, tags[], limit)
+
+get_chunk(id)
+
+delete_chunk(id)
+
+export_chunks(format=json|csv)
+
+
+
+---
+
+UI layout (Gradio)
+
+Tabs:
+
+Tab 1 — Add
+
+title input
+
+tags input (comma separated)
+
+source input (optional)
+
+body text area
+
+save button
+
+
+Tab 2 — Search
+
+query input
+
+tag filter multiselect
+
+limit slider
+
+results list (title + snippet + tags)
+
+click result → detail viewer
+
+
+Tab 3 — Detail
+
+full body viewer
+
+copy to clipboard
+
+delete button
+
+
+Tab 4 — Export
+
+download JSON
+
+download CSV
+
+
+
+---
+
+Safety rules
+
+body non-empty
+
+max body size (e.g., 200k chars per chunk)
+
+tags normalized (trim + lowercase)
+
+no execution of stored text
+
+
+
+---
+
+Smoke tests
+
+1. Add chunk “Patch Standard” with body text
+
+
+2. Add chunk “Neon Setup” with tags db, neon
+
+
+3. Search “patch” returns Patch Standard
+
+
+4. Tag filter neon returns Neon Setup
+
+
+5. Export JSON downloads all chunks
+
+
+
+
+---
+
+Done definition
+
+Done = RecallGrid stores chunks in Neon and retrieves them via fast full-text and tag filtering with a clean Gradio UI—no unnecessary logging, no leaked secrets.
+
+
+---

@@ -1,0 +1,1086 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RecalGrid - Knowledge Retrieval Workbench</title>
+    <style>
+      :root {
+        --bg:#101322;
+        --card:#19223d;
+        --txt:#eff4ff;
+        --m:#a8b7dc;
+        --a:#8de8ff;
+        --b:#8fa4ff;
+        --bd:#324a79;
+        --success:#4caf50;
+        --warning:#ff9800;
+        --danger:#f44336;
+        --info:#2196f3;
+      }
+      * { box-sizing:border-box; }
+      body {
+        margin:0;
+        font-family: Inter,system-ui,sans-serif;
+        color:var(--txt);
+        background:radial-gradient(circle at 20% 0,#244173 0,#101322 58%);
+        overflow: hidden;
+      }
+      
+      /* Workbench Layout */
+      .workbench {
+        display: grid;
+        grid-template-columns: 300px 1fr 300px;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          "sidebar header header"
+          "sidebar main detail";
+        height: 100vh;
+        gap: 0;
+      }
+      
+      /* Sidebar */
+      .sidebar {
+        grid-area: sidebar;
+        background: var(--card);
+        border-right: 1px solid var(--bd);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Header */
+      .header {
+        grid-area: header;
+        background: linear-gradient(90deg, #1a253a 0%, #244173 100%);
+        border-bottom: 1px solid var(--bd);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      
+      /* Main Work Area */
+      .main {
+        grid-area: main;
+        background: var(--bg);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Detail Panel */
+      .detail-panel {
+        grid-area: detail;
+        background: var(--card);
+        border-left: 1px solid var(--bd);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Common Styles */
+      .card {
+        border:1px solid var(--bd);
+        border-radius:12px;
+        background:var(--card);
+        padding:16px;
+        margin-bottom: 16px;
+      }
+      
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--a);
+        border-bottom: 1px solid var(--bd);
+        padding-bottom: 8px;
+      }
+      
+      input, textarea, select, button {
+        width: 100%;
+        border: 1px solid #42639e;
+        border-radius: 8px;
+        background: #121b35;
+        color: var(--txt);
+        padding: 10px;
+        margin-bottom: 8px;
+      }
+      
+      button {
+        background: linear-gradient(90deg, var(--a), var(--b));
+        color: #061225;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(141, 232, 255, 0.3);
+      }
+      
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      .btn-secondary {
+        background: #2a3a5a;
+        color: var(--txt);
+      }
+      
+      .btn-success {
+        background: var(--success);
+        color: #061225;
+      }
+      
+      .btn-warning {
+        background: var(--warning);
+        color: #061225;
+      }
+      
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+      
+      /* Status Indicators */
+      .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      
+      .status-pinned { background: var(--warning); }
+      
+      /* Result Items */
+      .result-item {
+        padding: 12px;
+        border: 1px solid var(--bd);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .result-item:hover {
+        background: rgba(141, 232, 255, 0.1);
+        border-color: var(--a);
+      }
+      
+      .result-item.selected {
+        background: rgba(141, 232, 255, 0.2);
+        border-color: var(--a);
+      }
+      
+      /* Tag Styles */
+      .tag {
+        display: inline-block;
+        background: rgba(141, 164, 255, 0.2);
+        border: 1px solid var(--b);
+        border-radius: 12px;
+        padding: 4px 10px;
+        margin: 2px;
+        font-size: 0.8rem;
+        color: var(--b);
+      }
+      
+      /* Match Highlighting */
+      .match-highlight {
+        background: rgba(141, 232, 255, 0.3);
+        border-radius: 2px;
+        padding: 0 2px;
+      }
+      
+      /* Tabs */
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid var(--bd);
+        margin-bottom: 16px;
+      }
+      
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--m);
+        border-bottom: 2px solid transparent;
+      }
+      
+      .tab.active {
+        color: var(--txt);
+        border-bottom-color: var(--a);
+      }
+      
+      .tab-content {
+        display: none;
+      }
+      
+      .tab-content.active {
+        display: block;
+      }
+      
+      /* Mono font */
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        white-space: pre-wrap;
+        background: #0a0f1a;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid var(--bd);
+      }
+      
+      /* Small text */
+      .small {
+        font-size: 0.8rem;
+        color: var(--m);
+      }
+      
+      /* Flex utilities */
+      .flex {
+        display: flex;
+      }
+      
+      .flex-between {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .flex-gap {
+        display: flex;
+        gap: 8px;
+      }
+      
+      /* Grid utilities */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      
+      /* Relationship visualization */
+      .relationship-diagram {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+      }
+      
+      .relationship-item {
+        background: rgba(141, 164, 255, 0.1);
+        border: 1px solid var(--b);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      
+      .relationship-type {
+        font-weight: 600;
+        color: var(--a);
+        margin-bottom: 8px;
+      }
+      
+      /* Responsive */
+      @media(max-width: 1400px) {
+        .workbench {
+          grid-template-columns: 260px 1fr;
+          grid-template-areas:
+            "sidebar header"
+            "sidebar main"
+            "detail detail";
+        }
+        .detail-panel {
+          grid-area: detail;
+          border-left: none;
+          border-top: 1px solid var(--bd);
+        }
+      }
+      
+      @media(max-width: 960px) {
+        .workbench {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto auto 1fr;
+          grid-template-areas:
+            "header"
+            "sidebar"
+            "main"
+            "detail";
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid var(--bd);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="workbench">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="card">
+          <h2>RecalGrid</h2>
+          <p class="small">Knowledge Retrieval Workbench</p>
+          <p id="status" class="small">Checking API...</p>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Add Chunk</h3>
+          <input id="title" placeholder="Title" />
+          <input id="source" placeholder="Source (optional)" />
+          <input id="tags" placeholder="tags comma-separated" />
+          <textarea id="body" rows="6" placeholder="Body"></textarea>
+          <div style="margin: 12px 0;">
+            <label class="small">Notes</label>
+            <textarea id="notes" rows="3" placeholder="Optional notes"></textarea>
+          </div>
+          <div style="margin: 12px 0;">
+            <label class="small">Confidence (0-1)</label>
+            <input id="confidence" type="number" min="0" max="1" step="0.1" value="1.0" />
+          </div>
+          <div style="margin: 12px 0;">
+            <label class="small">Pinned</label>
+            <select id="pinned">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </div>
+          <button id="save">Save Chunk</button>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Collections</h3>
+          <div id="collectionsList"></div>
+          <button id="newCollection" style="margin-top: 12px;">New Collection</button>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Saved Searches</h3>
+          <div id="savedSearchesList"></div>
+        </div>
+      </aside>
+      
+      <!-- Header -->
+      <header class="header">
+        <h1>Knowledge Retrieval Workbench</h1>
+        <div class="flex-gap">
+          <button id="exportJson">Export JSON</button>
+          <button id="exportCsv">Export CSV</button>
+        </div>
+      </header>
+      
+      <!-- Main Work Area -->
+      <main class="main">
+        <div class="tabs">
+          <button class="tab active" data-tab="search">Search</button>
+          <button class="tab" data-tab="browse">Browse</button>
+          <button class="tab" data-tab="explain">Explain</button>
+        </div>
+        
+        <!-- Search Tab -->
+        <div class="tab-content active" data-tab-content="search">
+          <div class="card">
+            <h3 class="section-title">Search</h3>
+            <input id="query" placeholder="Search query" />
+            <input id="searchTags" placeholder="Required tags comma-separated" />
+            <input id="limit" type="number" value="15" min="1" max="100" />
+            <button id="search">Search</button>
+            <div id="results" class="m"></div>
+          </div>
+        </div>
+        
+        <!-- Browse Tab -->
+        <div class="tab-content" data-tab-content="browse">
+          <div class="card">
+            <h3 class="section-title">Browse All Chunks</h3>
+            <button id="loadAll">Load All</button>
+            <div id="browseResults"></div>
+          </div>
+        </div>
+        
+        <!-- Explain Tab -->
+        <div class="tab-content" data-tab-content="explain">
+          <div class="card">
+            <h3 class="section-title">Explainable Search</h3>
+            <input id="explainQuery" placeholder="Search query" />
+            <input id="explainTags" placeholder="Required tags comma-separated" />
+            <input id="explainLimit" type="number" value="15" min="1" max="100" />
+            <button id="explainSearch">Explain Search</button>
+            <div id="explainResults"></div>
+          </div>
+        </div>
+      </main>
+      
+      <!-- Detail Panel -->
+      <aside class="detail-panel">
+        <div class="card" id="chunkDetail" style="display: none;">
+          <h3 class="section-title">Chunk Detail</h3>
+          <div id="chunkDetailContent"></div>
+          <div class="flex-gap" style="margin-top: 16px;">
+            <button id="editChunk">Edit</button>
+            <button id="deleteChunk" class="btn-danger">Delete</button>
+          </div>
+        </div>
+        
+        <div class="card" id="relationshipsPanel" style="display: none;">
+          <h3 class="section-title">Relationships</h3>
+          <div id="relationshipsContent"></div>
+          <div style="margin-top: 16px;">
+            <input id="relationshipChunkId" placeholder="Related chunk ID" />
+            <input id="relationshipType" placeholder="Relationship type" />
+            <input id="relationshipDescription" placeholder="Description (optional)" />
+            <button id="addRelationship">Add Relationship</button>
+          </div>
+        </div>
+        
+        <div class="card" id="collectionsPanel" style="display: none;">
+          <h3 class="section-title">Collections</h3>
+          <div id="collectionsContent"></div>
+          <div style="margin-top: 16px;">
+            <select id="addToCollectionSelect"></select>
+            <button id="addToCollection">Add to Collection</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+    
+    <!-- Modals -->
+    <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
+      <div class="card" style="max-width: 800px; margin: 50px auto; position: relative;">
+        <button id="closeEditModal" style="position: absolute; top: 10px; right: 10px; background: var(--danger);" class="btn-danger">Close</button>
+        <h2>Edit Chunk</h2>
+        <input id="editTitle" placeholder="Title" />
+        <input id="editSource" placeholder="Source" />
+        <input id="editTags" placeholder="tags comma-separated" />
+        <textarea id="editBody" rows="10" placeholder="Body"></textarea>
+        <div style="margin: 12px 0;">
+          <label class="small">Notes</label>
+          <textarea id="editNotes" rows="3" placeholder="Optional notes"></textarea>
+        </div>
+        <div style="margin: 12px 0;">
+          <label class="small">Confidence (0-1)</label>
+          <input id="editConfidence" type="number" min="0" max="1" step="0.1" value="1.0" />
+        </div>
+        <div style="margin: 12px 0;">
+          <label class="small">Pinned</label>
+          <select id="editPinned">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+        <button id="saveEdit" class="btn-success">Save Changes</button>
+      </div>
+    </div>
+    
+    <div id="newCollectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+      <div class="card" style="max-width: 600px; margin: 50px auto; position: relative;">
+        <button id="closeNewCollectionModal" style="position: absolute; top: 10px; right: 10px; background: var(--danger);" class="btn-danger">Close</button>
+        <h2>New Collection</h2>
+        <input id="collectionName" placeholder="Collection name" />
+        <textarea id="collectionDescription" rows="4" placeholder="Description (optional)"></textarea>
+        <button id="createCollection" class="btn-success">Create Collection</button>
+      </div>
+    </div>
+    
+    <script>
+      const key = localStorage.recalgridKey || (localStorage.recalgridKey = `recalgrid-${crypto.randomUUID()}`);
+      const headers = {'Content-Type':'application/json','X-Device-Key':key};
+      
+      // State
+      let currentChunk = null;
+      let chunks = [];
+      let collections = [];
+      let savedSearches = [];
+      let relationships = [];
+      
+      // DOM Elements
+      const statusEl = document.getElementById('status');
+      const resultsEl = document.getElementById('results');
+      const browseResultsEl = document.getElementById('browseResults');
+      const explainResultsEl = document.getElementById('explainResults');
+      const chunkDetailEl = document.getElementById('chunkDetail');
+      const chunkDetailContentEl = document.getElementById('chunkDetailContent');
+      const relationshipsContentEl = document.getElementById('relationshipsContent');
+      const collectionsContentEl = document.getElementById('collectionsContent');
+      const collectionsListEl = document.getElementById('collectionsList');
+      const savedSearchesListEl = document.getElementById('savedSearchesList');
+      const addToCollectionSelectEl = document.getElementById('addToCollectionSelect');
+      
+      // Tab Management
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.getAttribute('data-tab');
+          
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          tab.classList.add('active');
+          document.querySelector(`[data-tab-content="${tabName}"]`).classList.add('active');
+        });
+      });
+      
+      // API Functions
+      async function health(){
+        try {
+          const res = await fetch('/api/health/db');
+          const data = await res.json();
+          statusEl.textContent = data.ok ? '✓ API connected' : `⚠ API: ${data.error || 'unavailable'}`;
+        } catch (e) {
+          statusEl.textContent = '✗ API unavailable';
+        }
+      }
+      
+      function parseTags(v){ 
+        if (Array.isArray(v)) return [...new Set(v.map((t) => String(t).trim().toLowerCase()).filter(Boolean))].sort();
+        return [...new Set(String(v || '').split(',').map((t) => t.trim().toLowerCase()).filter(Boolean))].sort();
+      }
+      
+      function renderResults(rows, container) {
+        if(!rows.length){ 
+          container.innerHTML='<div class="small">No results.</div>';
+          return;
+        }
+        container.innerHTML = rows.map(r=>{
+          const pinnedDot = r.pinned ? '<span class="status-dot status-pinned" title="Pinned"></span>' : '';
+          const confidenceBadge = r.confidence ? `<span class="tag" title="Confidence: ${r.confidence}">${Math.round(r.confidence * 100)}%</span>` : '';
+          return `<div class="result-item" data-chunk-id="${r.id}">
+            <div class="flex-between">
+              <strong>${pinnedDot}${r.title}</strong>
+              ${confidenceBadge}
+            </div>
+            <div class='small'>${(r.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')} | ${r.source||'—'}</div>
+            <p>${r.body.slice(0,220)}${r.body.length>220?'...':''}</p>
+            ${r.match_explanation ? `<div class="small" style="color: var(--a); margin-top: 8px;">${r.match_explanation}</div>` : ''}
+            ${r.notes ? `<div class="small" style="background: rgba(141, 232, 255, 0.1); padding: 8px; border-radius: 6px; margin-top: 8px;">Notes: ${r.notes}</div>` : ''}
+          </div>`;
+        }).join('');
+        
+        // Add click handlers
+        container.querySelectorAll('.result-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const chunkId = item.getAttribute('data-chunk-id');
+            selectChunk(chunkId);
+          });
+        });
+      }
+      
+      async function loadCollections() {
+        try {
+          const res = await fetch('/api/recalgrid/collections', { headers });
+          const data = await res.json();
+          collections = Array.isArray(data.collections) ? data.collections : [];
+          
+          collectionsListEl.innerHTML = collections.map(c => `
+            <div class="result-item" data-collection-id="${c.id}">
+              <div><strong>${c.name}</strong></div>
+              <div class="small">${c.description || 'No description'}</div>
+            </div>
+          `).join('');
+          
+          // Update add to collection dropdown
+          addToCollectionSelectEl.innerHTML = collections.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+          
+          // Add click handlers
+          document.querySelectorAll('[data-collection-id]').forEach(item => {
+            item.addEventListener('click', () => {
+              const collectionId = item.getAttribute('data-collection-id');
+              viewCollection(collectionId);
+            });
+          });
+        } catch (e) {
+          console.error('Failed to load collections:', e);
+        }
+      }
+      
+      async function loadSavedSearches() {
+        try {
+          const res = await fetch('/api/recalgrid/saved-searches', { headers });
+          const data = await res.json();
+          savedSearches = Array.isArray(data.searches) ? data.searches : [];
+          
+          savedSearchesListEl.innerHTML = savedSearches.map(s => `
+            <div class="result-item" data-search-id="${s.id}">
+              <div><strong>${s.name}</strong></div>
+              <div class="small">Query: ${s.search_query || 'None'} | Tags: ${(s.search_tags || []).join(', ')}</div>
+            </div>
+          `).join('');
+          
+          // Add click handlers
+          document.querySelectorAll('[data-search-id]').forEach(item => {
+            item.addEventListener('click', () => {
+              const searchId = item.getAttribute('data-search-id');
+              runSavedSearch(searchId);
+            });
+          });
+        } catch (e) {
+          console.error('Failed to load saved searches:', e);
+        }
+      }
+      
+      async function selectChunk(chunkId) {
+        try {
+          const res = await fetch(`/api/recalgrid/chunks/${chunkId}`, { headers });
+          const data = await res.json();
+          if (!res.ok || !data.chunk) return alert('Chunk not found');
+          
+          currentChunk = data.chunk;
+          
+          // Show detail panel
+          chunkDetailEl.style.display = 'block';
+          relationshipsPanel.style.display = 'block';
+          collectionsPanel.style.display = 'block';
+          
+          // Render chunk details
+          const confidenceBadge = currentChunk.confidence ? `<span class="tag" title="Confidence: ${currentChunk.confidence}">${Math.round(currentChunk.confidence * 100)}%</span>` : '';
+          const pinnedDot = currentChunk.pinned ? '<span class="status-dot status-pinned" title="Pinned"></span>' : '';
+          
+          chunkDetailContentEl.innerHTML = `
+            <div style="margin-bottom: 12px;">
+              <div class="flex-between">
+                <h3>${pinnedDot}${currentChunk.title}</h3>
+                ${confidenceBadge}
+              </div>
+              <div class="small">${currentChunk.source || 'No source'} • ${new Date(currentChunk.created_at).toLocaleString()}</div>
+              ${currentChunk.tags && currentChunk.tags.length > 0 ? `<div style="margin: 8px 0;">${currentChunk.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+            </div>
+            
+            <div style="margin: 16px 0;">
+              <strong>Body:</strong>
+              <div class="mono" style="margin-top: 8px;">${escapeHtml(currentChunk.body)}</div>
+            </div>
+            
+            ${currentChunk.notes ? `
+              <div style="margin: 16px 0; background: rgba(141, 232, 255, 0.1); padding: 12px; border-radius: 8px;">
+                <strong>Notes:</strong>
+                <div style="margin-top: 8px; white-space: pre-wrap;">${escapeHtml(currentChunk.notes)}</div>
+              </div>
+            ` : ''}
+          `;
+          
+          // Load relationships
+          await loadRelationships(chunkId);
+          
+          // Load collections containing this chunk
+          await loadCollectionsForChunk(chunkId);
+          
+        } catch (e) {
+          console.error('Failed to load chunk:', e);
+          alert('Failed to load chunk: ' + e.message);
+        }
+      }
+      
+      async function loadRelationships(chunkId) {
+        try {
+          const res = await fetch(`/api/recalgrid/chunks/${chunkId}/relationships`, { headers });
+          const data = await res.json();
+          relationships = Array.isArray(data.relationships) ? data.relationships : [];
+          
+          if (relationships.length === 0) {
+            relationshipsContentEl.innerHTML = '<div class="small">No relationships yet.</div>';
+            return;
+          }
+          
+          relationshipsContentEl.innerHTML = relationships.map(r => `
+            <div class="relationship-item">
+              <div class="relationship-type">${r.relationship_type}</div>
+              <div><strong>${r.related_chunk_title}</strong> ${r.related_chunk_source ? `<span class="small">(${r.related_chunk_source})</span>` : ''}</div>
+              ${r.description ? `<div class="small" style="margin-top: 4px;">${escapeHtml(r.description)}</div>` : ''}
+              <button class="btn-danger" style="margin-top: 8px;" data-rel-id="${r.id}">Remove</button>
+            </div>
+          `).join('');
+          
+          // Add click handlers for related chunks
+          document.querySelectorAll('.relationship-item strong').forEach(el => {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', () => {
+              const chunkId = el.closest('.relationship-item').querySelector('[data-rel-id]').getAttribute('data-rel-id').split('-')[0];
+              selectChunk(chunkId);
+            });
+          });
+          
+          // Add click handlers for remove buttons
+          document.querySelectorAll('[data-rel-id]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const relId = btn.getAttribute('data-rel-id');
+              deleteRelationship(relId);
+            });
+          });
+        } catch (e) {
+          console.error('Failed to load relationships:', e);
+        }
+      }
+      
+      async function loadCollectionsForChunk(chunkId) {
+        try {
+          // This would require a new endpoint to get collections containing a specific chunk
+          // For now, we'll just show the add to collection interface
+          collectionsContentEl.innerHTML = '<div class="small">Add this chunk to a collection:</div>';
+        } catch (e) {
+          console.error('Failed to load collections for chunk:', e);
+        }
+      }
+      
+      async function viewCollection(collectionId) {
+        try {
+          const res = await fetch(`/api/recalgrid/collections/${collectionId}`, { headers });
+          const data = await res.json();
+          if (!res.ok) return alert('Collection not found');
+          
+          // Show collection contents in main area
+          browseResultsEl.innerHTML = `
+            <div style="margin-bottom: 16px;">
+              <h3>${data.collection.name}</h3>
+              <p class="small">${data.collection.description || 'No description'}</p>
+            </div>
+            ${data.items.map(item => {
+              const confidenceBadge = item.confidence ? `<span class="tag" title="Confidence: ${item.confidence}">${Math.round(item.confidence * 100)}%</span>` : '';
+              const pinnedDot = item.pinned ? '<span class="status-dot status-pinned" title="Pinned"></span>' : '';
+              return `<div class="result-item" data-chunk-id="${item.id}">
+                <div class="flex-between">
+                  <strong>${pinnedDot}${item.title}</strong>
+                  ${confidenceBadge}
+                </div>
+                <div class='small'>${(item.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')} | ${item.source||'—'}</div>
+                <p>${item.body.slice(0,150)}${item.body.length>150?'...':''}</p>
+              </div>`;
+            }).join('')}
+          `;
+          
+          // Add click handlers
+          browseResultsEl.querySelectorAll('.result-item').forEach(item => {
+            item.addEventListener('click', () => {
+              const chunkId = item.getAttribute('data-chunk-id');
+              selectChunk(chunkId);
+            });
+          });
+          
+          // Switch to browse tab
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.querySelector('.tab[data-tab="browse"]').classList.add('active');
+          document.querySelector('.tab-content[data-tab-content="browse"]').classList.add('active');
+        } catch (e) {
+          console.error('Failed to load collection:', e);
+          alert('Failed to load collection: ' + e.message);
+        }
+      }
+      
+      async function runSavedSearch(searchId) {
+        try {
+          const res = await fetch(`/api/recalgrid/saved-searches/${searchId}/run`, { headers });
+          const data = await res.json();
+          if (!res.ok) return alert('Failed to run saved search');
+          
+          renderResults(data.results || [], resultsEl);
+          
+          // Switch to search tab
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.querySelector('.tab[data-tab="search"]').classList.add('active');
+          document.querySelector('.tab-content[data-tab-content="search"]').classList.add('active');
+        } catch (e) {
+          console.error('Failed to run saved search:', e);
+          alert('Failed to run saved search: ' + e.message);
+        }
+      }
+      
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+      
+      // Event Handlers
+      document.getElementById('save').onclick = async () => {
+        const payload = {
+          title: document.getElementById('title').value.trim(),
+          source: document.getElementById('source').value.trim(),
+          tags: parseTags(document.getElementById('tags').value),
+          body: document.getElementById('body').value,
+          notes: document.getElementById('notes').value.trim(),
+          confidence: parseFloat(document.getElementById('confidence').value),
+          pinned: document.getElementById('pinned').value === 'true'
+        };
+        
+        try {
+          const res = await fetch('/api/recalgrid/chunks', { method:'POST', headers, body: JSON.stringify(payload) });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'save failed');
+          
+          // Clear form
+          document.getElementById('title').value='';
+          document.getElementById('source').value='';
+          document.getElementById('tags').value='';
+          document.getElementById('body').value='';
+          document.getElementById('notes').value='';
+          document.getElementById('confidence').value='1.0';
+          document.getElementById('pinned').value='false';
+          
+          // Refresh
+          document.getElementById('search').click();
+          await loadCollections();
+        } catch (e) {
+          alert('Failed to save chunk: ' + e.message);
+        }
+      };
+      
+      document.getElementById('search').onclick = async () => {
+        const payload = {
+          query: document.getElementById('query').value.trim(),
+          tags: parseTags(document.getElementById('searchTags').value),
+          limit: Number(document.getElementById('limit').value || 15)
+        };
+        
+        try {
+          const res = await fetch('/api/recalgrid/search', { method:'POST', headers, body: JSON.stringify(payload) });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'search failed');
+          renderResults(data.results || [], resultsEl);
+        } catch (e) {
+          alert('Failed to search: ' + e.message);
+        }
+      };
+      
+      document.getElementById('loadAll').onclick = async () => {
+        try {
+          const res = await fetch('/api/recalgrid/search', { 
+            method:'POST', 
+            headers, 
+            body: JSON.stringify({ query: '', tags: [], limit: 50 })
+          });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'load failed');
+          renderResults(data.results || [], browseResultsEl);
+        } catch (e) {
+          alert('Failed to load all chunks: ' + e.message);
+        }
+      };
+      
+      document.getElementById('explainSearch').onclick = async () => {
+        const payload = {
+          query: document.getElementById('explainQuery').value.trim(),
+          tags: parseTags(document.getElementById('explainTags').value),
+          limit: Number(document.getElementById('explainLimit').value || 15)
+        };
+        
+        try {
+          const res = await fetch('/api/recalgrid/search/explain', { method:'POST', headers, body: JSON.stringify(payload) });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'explain failed');
+          renderResults(data.results || [], explainResultsEl);
+        } catch (e) {
+          alert('Failed to explain search: ' + e.message);
+        }
+      };
+      
+      document.getElementById('exportJson').onclick = async () => {
+        try {
+          const res = await fetch('/api/recalgrid/export?format=json', { headers });
+          const txt = await res.text();
+          const blob = new Blob([txt], { type: 'application/json' });
+          const a = document.createElement('a'); 
+          a.href = URL.createObjectURL(blob); 
+          a.download = 'recalgrid_export.json'; 
+          a.click();
+        } catch (e) {
+          alert('Failed to export JSON: ' + e.message);
+        }
+      };
+      
+      document.getElementById('exportCsv').onclick = async () => {
+        try {
+          const res = await fetch('/api/recalgrid/export?format=csv', { headers });
+          const txt = await res.text();
+          const blob = new Blob([txt], { type: 'text/csv' });
+          const a = document.createElement('a'); 
+          a.href = URL.createObjectURL(blob); 
+          a.download = 'recalgrid_export.csv'; 
+          a.click();
+        } catch (e) {
+          alert('Failed to export CSV: ' + e.message);
+        }
+      };
+      
+      document.getElementById('editChunk').onclick = () => {
+        if (!currentChunk) return alert('No chunk selected');
+        
+        // Populate edit form
+        document.getElementById('editTitle').value = currentChunk.title;
+        document.getElementById('editSource').value = currentChunk.source || '';
+        document.getElementById('editTags').value = (currentChunk.tags || []).join(', ');
+        document.getElementById('editBody').value = currentChunk.body;
+        document.getElementById('editNotes').value = currentChunk.notes || '';
+        document.getElementById('editConfidence').value = currentChunk.confidence || 1.0;
+        document.getElementById('editPinned').value = currentChunk.pinned ? 'true' : 'false';
+        
+        // Show modal
+        document.getElementById('editModal').style.display = 'block';
+      };
+      
+      document.getElementById('closeEditModal').onclick = () => {
+        document.getElementById('editModal').style.display = 'none';
+      };
+      
+      document.getElementById('saveEdit').onclick = async () => {
+        if (!currentChunk) return alert('No chunk selected');
+        
+        const payload = {
+          title: document.getElementById('editTitle').value.trim(),
+          source: document.getElementById('editSource').value.trim(),
+          tags: parseTags(document.getElementById('editTags').value),
+          body: document.getElementById('editBody').value,
+          notes: document.getElementById('editNotes').value.trim(),
+          confidence: parseFloat(document.getElementById('editConfidence').value),
+          pinned: document.getElementById('editPinned').value === 'true'
+        };
+        
+        try {
+          const res = await fetch(`/api/recalgrid/chunks/${currentChunk.id}`, { 
+            method:'PUT', 
+            headers, 
+            body: JSON.stringify(payload) 
+          });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'update failed');
+          
+          // Close modal and refresh
+          document.getElementById('editModal').style.display = 'none';
+          await selectChunk(currentChunk.id);
+          
+          // Refresh search results if this chunk is in current results
+          if (document.querySelector('.tab.active').getAttribute('data-tab') === 'search') {
+            document.getElementById('search').click();
+          }
+        } catch (e) {
+          alert('Failed to update chunk: ' + e.message);
+        }
+      };
+      
+      document.getElementById('deleteChunk').onclick = async () => {
+        if (!currentChunk) return alert('No chunk selected');
+        if (!confirm('Are you sure you want to delete this chunk?')) return;
+        
+        try {
+          const res = await fetch(`/api/recalgrid/chunks/${currentChunk.id}`, { method:'DELETE', headers });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'delete failed');
+          
+          // Clear detail panel and refresh
+          chunkDetailEl.style.display = 'none';
+          relationshipsPanel.style.display = 'none';
+          collectionsPanel.style.display = 'none';
+          currentChunk = null;
+          
+          // Refresh search results
+          if (document.querySelector('.tab.active').getAttribute('data-tab') === 'search') {
+            document.getElementById('search').click();
+          }
+        } catch (e) {
+          alert('Failed to delete chunk: ' + e.message);
+        }
+      };
+      
+      document.getElementById('newCollection').onclick = () => {
+        document.getElementById('newCollectionModal').style.display = 'block';
+      };
+      
+      document.getElementById('closeNewCollectionModal').onclick = () => {
+        document.getElementById('newCollectionModal').style.display = 'none';
+      };
+      
+      document.getElementById('createCollection').onclick = async () => {
+        const name = document.getElementById('collectionName').value.trim();
+        const description = document.getElementById('collectionDescription').value.trim();
+        
+        if (!name) return alert('Collection name required');
+        
+        try {
+          const res = await fetch('/api/recalgrid/collections', { 
+            method:'POST', 
+            headers, 
+            body: JSON.stringify({ name, description }) 
+          });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'create failed');
+          
+          // Close modal and refresh
+          document.getElementById('newCollectionModal').style.display = 'none';
+          document.getElementById('collectionName').value = '';
+          document.getElementById('collectionDescription').value = '';
+          await loadCollections();
+        } catch (e) {
+          alert('Failed to create collection: ' + e.message);
+        }
+      };
+      
+      document.getElementById('addToCollection').onclick = async () => {
+        if (!currentChunk) return alert('No chunk selected');
+        const collectionId = addToCollectionSelectEl.value;
+        if (!collectionId) return alert('Select a collection');
+        
+        try {
+          const res = await fetch(`/api/recalgrid/collections/${collectionId}/items`, { 
+            method:'POST', 
+            headers, 
+            body: JSON.stringify({ chunk_id: currentChunk.id }) 
+          });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'add failed');
+          
+          alert('Chunk added to collection');
+          await loadCollectionsForChunk(currentChunk.id);
+        } catch (e) {
+          alert('Failed to add to collection: ' + e.message);
+        }
+      };
+      
+      document.getElementById('addRelationship').onclick = async () => {
+        if (!currentChunk) return alert('No chunk selected');
+        
+        const toChunkId = document.getElementById('relationshipChunkId').value.trim();
+        const relationshipType = document.getElementById('relationshipType').value.trim();
+        const description = document.getElementById('relationshipDescription').value.trim();
+        
+        if (!toChunkId) return alert('Related chunk ID required');
+        if (!relationshipType) return alert('Relationship type required');
+        
+        try {
+          const res = await fetch(`/api/recalgrid/chunks/${currentChunk.id}/relationships`, { 
+            method:'POST', 
+            headers, 
+            body: JSON.stringify({ to_chunk_id: toChunkId, relationship_type: relationshipType, description }) 
+          });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'add failed');
+          
+          // Clear form and refresh
+          document.getElementById('relationshipChunkId').value = '';
+          document.getElementById('relationshipType').value = '';
+          document.getElementById('relationshipDescription').value = '';
+          await loadRelationships(currentChunk.id);
+        } catch (e) {
+          alert('Failed to add relationship: ' + e.message);
+        }
+      };
+      
+      async function deleteRelationship(relId) {
+        try {
+          const res = await fetch(`/api/recalgrid/relationships/${relId}`, { method:'DELETE', headers });
+          const data = await res.json();
+          if(!res.ok) throw new Error(data.error || data.detail || 'delete failed');
+          
+          await loadRelationships(currentChunk.id);
+        } catch (e) {
+          alert('Failed to delete relationship: ' + e.message);
+        }
+      }
+      
+      // Initialize
+      health();
+      document.getElementById('search').click();
+      loadCollections();
+      loadSavedSearches();
+    </script>
+  </body>
+</html>
