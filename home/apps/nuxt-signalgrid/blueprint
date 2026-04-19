@@ -1,0 +1,198 @@
+Nuxt SignalGrid — Nuxt 3 app blueprint (status tiles + rules + polling) + Neon backend
+
+What it is
+
+Nuxt SignalGrid is a Nuxt 3 control board: define signals (metrics/status items), attach threshold rules, update values, and the board highlights OK/WARN/BAD. It’s a real operator dashboard with persistence and server-owned rule evaluation.
+
+
+---
+
+Shared backbone (required in every Neon-backed Nuxt app)
+
+Rule: Neon access server-only via Nitro routes.
+Flow: Nuxt UI → /api/* → Neon
+
+Identity (v1, no auth):
+
+device_key UUID in localStorage
+
+send X-Device-Key
+
+server maps to user_id
+
+
+Server invariants
+
+DATABASE_URL env-only
+
+parameterized SQL only
+
+no DB libs in client bundle
+
+
+
+---
+
+Data model (Neon Postgres)
+
+sql/003_signalgrid.sql
+
+create extension if not exists pgcrypto;
+
+create table if not exists users (
+  id uuid primary key default gen_random_uuid(),
+  device_key text not null unique,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists nsg_signals (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references users(id) on delete cascade,
+  name text not null,
+  kind text not null default 'generic',
+  status text not null default 'ok' check (status in ('ok','warn','bad')),
+  note text not null default '',
+  value_num numeric(14,4) null,
+  value_unit text not null default '',
+  updated_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  unique(user_id, name)
+);
+
+create table if not exists nsg_rules (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references users(id) on delete cascade,
+  signal_id uuid not null references nsg_signals(id) on delete cascade,
+  warn_if_gt numeric(14,4) null,
+  warn_if_lt numeric(14,4) null,
+  bad_if_gt numeric(14,4) null,
+  bad_if_lt numeric(14,4) null,
+  created_at timestamptz not null default now(),
+  unique(user_id, signal_id)
+);
+
+create index if not exists idx_nsg_signals_user_status on nsg_signals(user_id, status);
+create index if not exists idx_nsg_signals_user_updated on nsg_signals(user_id, updated_at desc);
+
+
+---
+
+Rule evaluation (server-owned)
+
+When updating value_num, server computes status:
+
+BAD if bad_if_gt / bad_if_lt breached
+
+WARN if warn thresholds breached
+
+else OK If no rule/value: allow manual status override.
+
+
+
+---
+
+Nitro API surface
+
+Base: /api/signalgrid
+
+Board
+
+GET /api/signalgrid/board → signals sorted by severity then updated_at
+
+
+Signals
+
+POST /api/signalgrid/signals { name, kind?, note?, valueNum?, valueUnit? }
+
+PATCH /api/signalgrid/signals/:id { note?, valueNum?, valueUnit?, status? }
+
+DELETE /api/signalgrid/signals/:id
+
+
+Rules
+
+GET /api/signalgrid/signals/:id/rule
+
+POST /api/signalgrid/signals/:id/rule { warnIfGt?, warnIfLt?, badIfGt?, badIfLt? } (upsert)
+
+DELETE /api/signalgrid/signals/:id/rule
+
+
+Caps
+
+Max signals/user: 5,000
+
+Note length: 2,000
+
+
+
+---
+
+Nuxt pages (MVP)
+
+/ Board (tiles)
+
+/signal/:id Detail (edit + thresholds)
+
+/manage Bulk create (paste list)
+
+
+
+---
+
+UI/UX (MVP)
+
+Board
+
+tile grid (responsive)
+
+filters: status/kind
+
+sorting: severity vs recently updated
+
+polling: fetch /board every 15 seconds with pause toggle
+
+
+Detail
+
+edit name/kind/unit
+
+set thresholds
+
+manual status override
+
+
+Manage
+
+paste newline list → creates signals in batch
+
+bulk delete by filter (confirm)
+
+
+
+---
+
+Smoke tests
+
+1. Create “API latency ms”
+
+
+2. Set warn>200 bad>500
+
+
+3. Update value 250 → WARN tile
+
+
+4. Update value 700 → BAD tile on top
+
+
+5. Reload board → persists from Neon
+
+
+
+
+---
+
+Done definition
+
+Done = Nuxt SignalGrid persists signals and threshold rules in Neon via Nitro, evaluates status server-side, and provides a polling dashboard UI.
