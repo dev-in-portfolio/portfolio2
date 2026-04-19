@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RelayRoom</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #080c11;
+        --panel: #121a23;
+        --panel-2: #192534;
+        --line: #324357;
+        --text: #f4f8fc;
+        --muted: #9eb0c3;
+        --relay: #8de3ff;
+        --note: #bca7ff;
+        --owner: #ffd166;
+        --danger: #ff7f95;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        background:
+          linear-gradient(120deg, rgba(141, 227, 255, 0.1), transparent 32%),
+          radial-gradient(circle at 84% 6%, rgba(188, 167, 255, 0.12), transparent 30%),
+          var(--bg);
+      }
+      button, input, textarea, select { font: inherit; }
+      button {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: var(--panel-2);
+        color: var(--text);
+        cursor: pointer;
+      }
+      button.primary {
+        border: 0;
+        background: linear-gradient(135deg, var(--relay), #d7f6ff);
+        color: #051018;
+        font-weight: 800;
+      }
+      input, textarea, select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #08121b;
+        color: var(--text);
+        padding: 10px 12px;
+      }
+      textarea { min-height: 140px; resize: vertical; line-height: 1.5; }
+      label { display: block; margin: 0 0 6px; color: var(--muted); font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; }
+      h1, h2, h3, p { margin-top: 0; }
+      .wrap { width: min(1200px, calc(100vw - 28px)); margin: 0 auto; padding: 30px 0 52px; }
+      .hero { display: grid; grid-template-columns: 1fr minmax(300px, 0.75fr); gap: 18px; align-items: end; margin-bottom: 14px; }
+      h1 { margin: 0; font-size: clamp(2.6rem, 6vw, 5.8rem); letter-spacing: -0.08em; }
+      .eyebrow { margin: 0 0 8px; color: var(--relay); font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; }
+      .muted { color: var(--muted); line-height: 1.55; }
+      .room-card, .panel { border: 1px solid var(--line); border-radius: 20px; background: rgba(18, 26, 35, 0.9); }
+      .room-card { padding: 16px; }
+      .invite { color: var(--owner); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.15rem; }
+      .grid { display: grid; grid-template-columns: 0.9fr 1.15fr; gap: 14px; align-items: start; }
+      .panel { padding: 18px; }
+      .row { display: grid; grid-template-columns: 1fr 140px; gap: 10px; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+      #msg { margin-left: auto; min-height: 24px; color: var(--muted); }
+      .list { display: grid; gap: 9px; max-height: 560px; overflow: auto; }
+      .room-option, .note {
+        border: 1px solid var(--line);
+        border-left: 5px solid var(--note);
+        border-radius: 14px;
+        padding: 12px;
+        background: #0b121a;
+      }
+      .room-option { cursor: pointer; border-left-color: var(--relay); text-align: left; }
+      .room-option.active { border-color: var(--relay); background: #102030; }
+      .note-title { display: flex; justify-content: space-between; gap: 12px; }
+      .tag { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.8rem; }
+      .note-body { white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 0; }
+      .empty { color: var(--muted); border: 1px dashed var(--line); border-radius: 14px; padding: 16px; }
+      @media (max-width: 920px) {
+        .hero, .grid, .row { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Private relay workspace</p>
+          <h1>RelayRoom</h1>
+          <p class="muted">Create invite-code rooms, join shared bridges, and keep coordination notes scoped to room membership.</p>
+        </div>
+        <article class="room-card">
+          <p class="muted" style="margin-bottom:8px">Active room</p>
+          <h2 id="active-name" style="margin-bottom:4px">No room selected</h2>
+          <div id="active-code" class="invite">--------</div>
+        </article>
+      </header>
+
+      <section class="grid">
+        <article class="panel">
+          <h2>Rooms</h2>
+          <div class="row">
+            <div><label>New room name</label><input id="roomName" placeholder="Incident Bridge" /></div>
+            <div style="align-self:end"><button id="createRoom" class="primary">Create</button></div>
+          </div>
+          <label style="margin-top:14px">Join by invite code</label>
+          <div class="row">
+            <input id="inviteCode" placeholder="AB12CD34" />
+            <button id="joinRoom">Join</button>
+          </div>
+          <div class="actions">
+            <button id="reload">Refresh Rooms</button>
+            <span id="msg"></span>
+          </div>
+          <h3 style="margin-top:20px">Available rooms</h3>
+          <div id="rooms" class="list"></div>
+        </article>
+
+        <article class="panel">
+          <h2>Notes</h2>
+          <label>Title</label>
+          <input id="noteTitle" placeholder="Shift handoff" />
+          <label style="margin-top:12px">Body</label>
+          <textarea id="noteBody">Room notes and coordination updates...</textarea>
+          <div class="actions">
+            <button id="postNote" class="primary">Post Note</button>
+            <button id="reloadNotes">Reload Notes</button>
+          </div>
+          <div id="notes" class="list" style="margin-top:14px"></div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const keyName = "relayroom_device_key";
+      const deviceKey = localStorage.getItem(keyName) || crypto.randomUUID();
+      localStorage.setItem(keyName, deviceKey);
+      let rooms = [];
+      let activeRoom = "";
+
+      function setMessage(text, bad = false) {
+        const el = document.getElementById("msg");
+        el.textContent = text;
+        el.style.color = bad ? "var(--danger)" : "var(--muted)";
+      }
+
+      async function api(path, options = {}) {
+        const response = await fetch(path, {
+          ...options,
+          headers: {
+            "content-type": "application/json",
+            "X-Device-Key": deviceKey,
+            ...(options.headers || {}),
+          },
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.detail || data.error || `HTTP ${response.status}`);
+        return data;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function setActiveRoom(roomId) {
+        activeRoom = roomId;
+        const room = rooms.find((item) => item.id === activeRoom);
+        document.getElementById("active-name").textContent = room?.name || "No room selected";
+        document.getElementById("active-code").textContent = room?.invite_code || "--------";
+        renderRooms();
+        loadNotes().catch((error) => setMessage(error.message, true));
+      }
+
+      function renderRooms() {
+        const root = document.getElementById("rooms");
+        root.innerHTML = "";
+        if (!rooms.length) {
+          root.innerHTML = "<p class='empty'>No rooms yet. Create one or join by invite code.</p>";
+          return;
+        }
+        for (const room of rooms) {
+          const button = document.createElement("button");
+          button.className = `room-option ${room.id === activeRoom ? "active" : ""}`;
+          button.innerHTML = `
+            <strong>${escapeHtml(room.name)}</strong>
+            <div class="tag">${escapeHtml(room.invite_code)} · ${room.members || 1} member${Number(room.members || 1) === 1 ? "" : "s"}</div>
+          `;
+          button.onclick = () => setActiveRoom(room.id);
+          root.appendChild(button);
+        }
+      }
+
+      async function loadRooms() {
+        const data = await api("/api/relayroom/rooms");
+        rooms = data.rooms || [];
+        if (!activeRoom && rooms[0]) activeRoom = rooms[0].id;
+        if (activeRoom && !rooms.some((room) => room.id === activeRoom)) activeRoom = rooms[0]?.id || "";
+        const room = rooms.find((item) => item.id === activeRoom);
+        document.getElementById("active-name").textContent = room?.name || "No room selected";
+        document.getElementById("active-code").textContent = room?.invite_code || "--------";
+        renderRooms();
+        if (activeRoom) await loadNotes();
+      }
+
+      async function loadNotes() {
+        const root = document.getElementById("notes");
+        root.innerHTML = "";
+        if (!activeRoom) {
+          root.innerHTML = "<p class='empty'>Select a room to read notes.</p>";
+          return;
+        }
+        const data = await api(`/api/relayroom/rooms/${activeRoom}/notes`);
+        for (const note of data.notes || []) {
+          const div = document.createElement("div");
+          div.className = "note";
+          div.innerHTML = `
+            <div class="note-title">
+              <strong>${escapeHtml(note.title || "Untitled note")}</strong>
+              <span class="tag">${new Date(note.created_at).toLocaleString()}</span>
+            </div>
+            <p class="note-body">${escapeHtml(note.body)}</p>
+          `;
+          root.appendChild(div);
+        }
+        if (!root.children.length) root.innerHTML = "<p class='empty'>No notes in this room yet.</p>";
+      }
+
+      document.getElementById("createRoom").onclick = async () => {
+        try {
+          const out = await api("/api/relayroom/rooms", {
+            method: "POST",
+            body: JSON.stringify({ name: document.getElementById("roomName").value.trim() }),
+          });
+          setMessage("Room created.");
+          await loadRooms();
+          setActiveRoom(out.room.id);
+        } catch (error) {
+          setMessage(error.message, true);
+        }
+      };
+
+      document.getElementById("joinRoom").onclick = async () => {
+        try {
+          const out = await api("/api/relayroom/join", {
+            method: "POST",
+            body: JSON.stringify({ inviteCode: document.getElementById("inviteCode").value.trim() }),
+          });
+          setMessage("Joined room.");
+          await loadRooms();
+          setActiveRoom(out.room.id);
+        } catch (error) {
+          setMessage(error.message, true);
+        }
+      };
+
+      document.getElementById("postNote").onclick = async () => {
+        try {
+          if (!activeRoom) throw new Error("Select a room first.");
+          await api(`/api/relayroom/rooms/${activeRoom}/notes`, {
+            method: "POST",
+            body: JSON.stringify({
+              title: document.getElementById("noteTitle").value.trim(),
+              body: document.getElementById("noteBody").value,
+            }),
+          });
+          setMessage("Note posted.");
+          await loadNotes();
+        } catch (error) {
+          setMessage(error.message, true);
+        }
+      };
+
+      document.getElementById("reload").onclick = () => loadRooms().catch((error) => setMessage(error.message, true));
+      document.getElementById("reloadNotes").onclick = () => loadNotes().catch((error) => setMessage(error.message, true));
+      loadRooms().catch((error) => setMessage(error.message, true));
+    </script>
+  </body>
+</html>

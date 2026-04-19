@@ -1,0 +1,248 @@
+RelayRoom — NestJS + Neon blueprint (role-based rooms + invites)
+
+What it is
+
+RelayRoom is a clean “rooms” backend: create rooms, invite by code, manage members with roles, and store room-scoped messages/notes. It’s a pure backend portfolio piece: authentication-lite identity, relational permissions, and strict API design.
+
+
+---
+
+Shared backbone (required in every Neon-backed NestJS app)
+
+Rule: Clients never connect to Neon directly.
+Flow: Client → NestJS API → Neon (Postgres)
+
+Identity (v1, no auth system):
+
+Client generates and stores device_key (UUID).
+
+Every request includes header: X-Device-Key: <uuid>.
+
+API maps device_key → user_id in Postgres and uses user_id for all queries.
+
+
+Server invariants:
+
+Node 20
+
+No secrets committed; .env.example with REDACTED
+
+Parameterized queries only
+
+Basic limits (rate + row caps)
+
+“Boring mode” architecture: Controllers → Services → DB layer
+
+
+
+---
+
+Stack (pinned, boring)
+
+NestJS (TypeScript)
+
+Postgres: Neon
+
+DB library: pg (server-only)
+
+Validation: class-validator + class-transformer (Nest standard)
+
+Config: @nestjs/config
+
+
+
+---
+
+Data model (Neon Postgres)
+
+sql/001_relayroom.sql
+
+create extension if not exists pgcrypto;
+
+create table if not exists users (
+  id uuid primary key default gen_random_uuid(),
+  device_key text not null unique,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists rooms (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references users(id) on delete cascade,
+  name text not null,
+  invite_code text not null unique,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists room_members (
+  room_id uuid not null references rooms(id) on delete cascade,
+  user_id uuid not null references users(id) on delete cascade,
+  role text not null check (role in ('owner','member')),
+  created_at timestamptz not null default now(),
+  primary key(room_id, user_id)
+);
+
+create table if not exists room_notes (
+  id uuid primary key default gen_random_uuid(),
+  room_id uuid not null references rooms(id) on delete cascade,
+  user_id uuid not null references users(id) on delete cascade,
+  title text not null default '',
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_members_user on room_members(user_id);
+create index if not exists idx_notes_room_time on room_notes(room_id, created_at desc);
+
+
+---
+
+Authorization rules
+
+Any request must resolve device_key → user_id
+
+Room operations require membership
+
+Owner-only operations: delete room, change invite code, remove members
+
+
+
+---
+
+API surface
+
+Base: /api
+
+Rooms
+
+POST /rooms { name } → creates room, owner membership, invite_code
+
+GET /rooms → rooms where user is member
+
+GET /rooms/:id → room detail (member only)
+
+DELETE /rooms/:id → owner only
+
+
+Invites
+
+POST /rooms/join { inviteCode } → joins room as member
+
+
+Members (optional v1)
+
+GET /rooms/:id/members → owner or member (read)
+
+DELETE /rooms/:id/members/:userId → owner only
+
+
+Notes
+
+POST /rooms/:id/notes { title?, body } → member
+
+GET /rooms/:id/notes?limit=50&cursor= → member
+
+DELETE /notes/:noteId → owner OR note author (pick one; enforce)
+
+
+
+---
+
+NestJS module layout
+
+src/
+  main.ts
+  app.module.ts
+
+  db/
+    db.module.ts
+    db.service.ts           # pg Pool + query helper
+
+  authlite/
+    device-key.guard.ts     # reads X-Device-Key, ensures user, attaches userId
+    user.service.ts         # ensureUser(deviceKey)
+
+  rooms/
+    rooms.module.ts
+    rooms.controller.ts
+    rooms.service.ts
+    dto/
+      create-room.dto.ts
+      join-room.dto.ts
+
+  notes/
+    notes.module.ts
+    notes.controller.ts
+    notes.service.ts
+    dto/
+      create-note.dto.ts
+
+
+---
+
+DB access pattern (boring)
+
+DbService owns Pool
+
+Services call db.query(text, params)
+
+Always filter by user_id and membership checks
+
+
+
+---
+
+Required guard behavior
+
+DeviceKeyGuard:
+
+1. reads X-Device-Key
+
+
+2. rejects if missing/invalid
+
+
+3. calls ensureUser(deviceKey) to get userId
+
+
+4. attaches req.userId
+
+
+
+
+---
+
+Env
+
+.env.example
+
+DATABASE_URL=REDACTED_NEON_URL
+PORT=3000
+
+
+---
+
+Smoke tests
+
+1. Call POST /rooms with device_key A → room created
+
+
+2. Call POST /rooms/join with device_key B + invite_code → joins
+
+
+3. B can GET /rooms/:id/notes and POST /rooms/:id/notes
+
+
+4. B cannot delete room
+
+
+5. A can delete room
+
+
+
+
+---
+
+Done definition
+
+Done = invite + membership + room-scoped notes work with correct permission checks, and all data is isolated by resolved user identity.
+
