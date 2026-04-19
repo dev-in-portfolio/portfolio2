@@ -1,0 +1,13 @@
+<article class="detail">
+  <aside class="sidebar">
+    <h4>Tags</h4>
+    <div class="tags">
+      {% for tag in tags %}<span>{{ tag }}</span>{% endfor %}
+    </div>
+    <h4>Risk</h4>
+    <span class="pill">{{ risk }}</span>
+  </aside>
+  <div class="content">
+    {{ content | safe }}
+  </div>
+</article>

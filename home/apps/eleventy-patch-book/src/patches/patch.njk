@@ -1,0 +1,9 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: collections.patches
+  size: 1
+  alias: patch
+permalink: "patches/{{ patch.fileSlug }}/index.html"
+---
+{% include "layouts/patch.njk" %}

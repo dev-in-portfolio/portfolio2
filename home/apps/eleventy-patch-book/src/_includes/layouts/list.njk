@@ -1,0 +1,16 @@
+<section class="section">
+  <h2>{{ title }}</h2>
+  <div class="cards">
+    {% for item in items %}
+    {% set patchPath = '/patches/' + (item.data.slug or item.fileSlug) + '/' %}
+    <article class="card">
+      <h3><a href="{{ patchPath }}">{{ item.data.title }}</a></h3>
+      <p>{{ item.templateContent | striptags | truncate(180) }}</p>
+      <div class="tags">
+        {% for tag in item.data.tags %}<span>{{ tag }}</span>{% endfor %}
+      </div>
+      <span class="pill">{{ item.data.risk }}</span>
+    </article>
+    {% endfor %}
+  </div>
+</section>

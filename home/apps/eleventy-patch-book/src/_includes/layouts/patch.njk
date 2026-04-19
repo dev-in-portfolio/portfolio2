@@ -1,0 +1,52 @@
+<article class="detail">
+  <aside class="sidebar">
+    <h4>Metadata</h4>
+    <div class="meta">
+      <div><strong>Risk:</strong> <span class="risk-{{ risk }}">{{ risk }}</span></div>
+      {% if environment %}<div><strong>Environment:</strong> {{ environment }}</div>{% endif %}
+      {% if version_range %}<div><strong>Version:</strong> {{ version_range }}</div>{% endif %}
+      {% if confidence %}<div><strong>Confidence:</strong> {{ confidence }}%</div>{% endif %}
+      {% if verified_at %}<div><strong>Verified:</strong> {{ verified_at }}</div>{% endif %}
+    </div>
+    
+    <h4>Tags</h4>
+    <div class="tags">
+      {% for tag in tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+    </div>
+    
+    {% if applies_to %}
+    <h4>Applies To</h4>
+    <ul class="applies-to">
+      {% for item in applies_to %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    
+    {% if rollback %}
+    <h4>Rollback</h4>
+    <div class="rollback">
+      {{ rollback | safe }}
+    </div>
+    {% endif %}
+  </aside>
+  
+  <div class="content">
+    <h2>{{ title }}</h2>
+    
+    {% if summary %}
+    <div class="summary">
+      {{ summary | safe }}
+    </div>
+    {% endif %}
+    
+    <div class="patch-content">
+      {{ content | safe }}
+    </div>
+    
+    {% if notes %}
+    <div class="notes">
+      <h4>Notes</h4>
+      {{ notes | safe }}
+    </div>
+    {% endif %}
+  </div>
+</article>

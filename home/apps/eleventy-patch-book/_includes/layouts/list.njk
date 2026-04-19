@@ -1,0 +1,15 @@
+<section class="section">
+  <h2>{{ title }}</h2>
+  <div class="cards">
+    {% for item in items %}
+    <article class="card">
+      <h3><a href="{{ item.url }}">{{ item.data.title }}</a></h3>
+      <p>{{ item.templateContent | truncate(140) }}</p>
+      <div class="tags">
+        {% for tag in item.data.tags %}<span>{{ tag }}</span>{% endfor %}
+      </div>
+      <span class="pill">{{ item.data.risk }}</span>
+    </article>
+    {% endfor %}
+  </div>
+</section>

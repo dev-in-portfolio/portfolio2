@@ -1,0 +1,11 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: collections.riskList
+  size: 1
+  alias: risk
+permalink: "risk/{{ risk }}/index.html"
+---
+{% set items = collections.patches | selectattr("data.risk", "equalto", risk) %}
+<h2>Risk: {{ risk }}</h2>
+{% include "layouts/list.njk" %}

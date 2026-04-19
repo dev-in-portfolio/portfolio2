@@ -1,0 +1,167 @@
+Eleventy PatchBook — 11ty static “patch library” (FIND/REPLACE vault) with categorization + safe copy blocks
+
+What it is
+
+PatchBook is a static site that stores your reusable patch patterns (your “PATCH STANDARD” blocks, deployment fixes, Termux one-liners, Netlify fixes, schema patches, etc.) as versioned entries you can search, filter, and copy instantly.
+
+This is not Switchboard (links directory). It’s a patch knowledge base optimized for copy/paste correctness.
+
+
+---
+
+Stack (boring + stable)
+
+Eleventy pinned
+
+Node 20 compatible
+
+No backend
+
+Minimal dependencies
+
+
+
+---
+
+Content model
+
+Each patch is a markdown file with front matter.
+
+Example: src/patches/netlify-vite-missing.md
+
+---
+slug: netlify-vite-missing
+title: "Netlify: vite not found (exit 127)"
+tags: ["netlify", "build", "vite", "deps"]
+applies_to: ["node", "netlify"]
+risk: "low" # low|medium|high
+---
+
+## Symptom
+Build fails with `sh: 1: vite: not found`.
+
+## Patch
+```patch
+TARGET FILE: package.json
+
+FIND:
+"build": "vite build"
+
+REPLACE WITH:
+"build": "vite build"
+
+Notes
+
+Ensure vite exists in dependencies, not only devDependencies.
+
+
+**Required fields**
+- `slug` unique
+- `title`
+- `tags[]` non-empty
+- `risk` enum low|medium|high
+- Patch content must contain at least one fenced block labeled `patch` or `bash`
+
+---
+
+### Generated pages
+- `/` Search + recent patches
+- `/patches/` list
+- `/patches/:slug/` detail
+- `/tags/:tag/`
+- `/risk/:level/`
+
+---
+
+### Copy-first UX (MVP)
+- Every code block gets:
+  - “Copy” button
+  - visible language label
+- Sticky right sidebar:
+  - tags
+  - risk
+  - quick jump links inside page
+
+---
+
+### Build-time validation
+Fail build if:
+- missing required front matter
+- duplicate slug
+- no patch/code block present
+- tags empty
+
+---
+
+### Search index
+Build-time `/_patch_index.json` containing:
+- slug
+- title
+- tags
+- risk
+- excerpt (first 160 chars)
+(No full bodies in index)
+
+Client-side search:
+- keyword + tag filters
+- URL params persist (`?q=&tag=&risk=`)
+
+---
+
+### File structure (MVP)
+```text
+eleventy-patchbook/
+  src/
+    _data/
+      site.json
+    _includes/
+      layouts/
+        base.njk
+        list.njk
+        patch.njk
+      components/
+        search.njk
+        codeblock.njk
+    patches/
+      *.md
+    pages/
+      index.njk
+      patches.njk
+    tags/
+      tag.njk
+    risk/
+      risk.njk
+  scripts/
+    validate-patches.mjs
+    build-index.mjs
+  .eleventy.js
+  package.json
+  README.md
+
+
+---
+
+Smoke tests
+
+1. Add 3 patch files → build generates pages
+
+
+2. Copy button copies exact code block text
+
+
+3. Search finds patches by title/tag
+
+
+4. Missing tags → build fails
+
+
+5. Risk filter pages show correct entries
+
+
+
+
+---
+
+Done definition
+
+Done = Eleventy produces a searchable patch library where every patch is validated, categorized, and copy-safe.

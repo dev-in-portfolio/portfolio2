@@ -1,0 +1,47 @@
+---
+layout: layouts/base.njk
+title: "PatchBook"
+permalink: "/index.html"
+---
+<section class="hero">
+  <h2>Production Patch Library</h2>
+  <p>Curated, copy-safe fixes for recurring deployment and runtime issues.</p>
+  <div class="meta-row">
+    <span class="badge">{{ collections.patches | length }} patches</span>
+    <span class="badge">{{ collections.tagList | length }} tags</span>
+    <span class="badge">{{ collections.riskList | length }} risk levels</span>
+    <span class="badge">{{ collections.environmentList | length }} environments</span>
+  </div>
+</section>
+
+<div class="search-box">
+  <input id="search-input" type="text" placeholder="Search patches (press / to focus)" />
+  <select id="risk-filter">
+    <option value="">All risk levels</option>
+    {% for risk in collections.riskList %}
+      <option value="{{ risk }}">{{ risk }}</option>
+    {% endfor %}
+  </select>
+  <select id="environment-filter">
+    <option value="">All environments</option>
+    {% for env in collections.environmentList %}
+      <option value="{{ env }}">{{ env }}</option>
+    {% endfor %}
+  </select>
+  <select id="tag-filter">
+    <option value="">All tags</option>
+    {% for tag in collections.tagList %}
+      <option value="{{ tag }}">{{ tag }}</option>
+    {% endfor %}
+  </select>
+  <select id="version-filter">
+    <option value="">All versions</option>
+    {% for version in collections.versionList %}
+      <option value="{{ version }}">{{ version }}</option>
+    {% endfor %}
+  </select>
+</div>
+<div id="search-results"></div>
+
+{% set items = collections.patches | reverse | slice(0, 6) %}
+{% include "layouts/list.njk" %}
