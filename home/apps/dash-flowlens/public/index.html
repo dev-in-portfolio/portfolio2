@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dash FlowLens</title>
+    <style>
+      :root {
+        --bg: #07101e;
+        --bg-2: #0c1729;
+        --panel: rgba(12, 20, 38, 0.92);
+        --panel-2: rgba(18, 29, 53, 0.96);
+        --text: #eef4ff;
+        --muted: #9db0d7;
+        --line: rgba(131, 165, 228, 0.24);
+        --line-2: rgba(131, 165, 228, 0.14);
+        --cyan: #75e6ff;
+        --blue: #8b9dff;
+        --green: #5ce6a4;
+        --amber: #ffd166;
+        --red: #ff7f7f;
+        --shadow: 0 20px 50px rgba(0, 0, 0, 0.34);
+        --radius: 8px;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 15% 0%, rgba(117, 230, 255, 0.16), transparent 22%),
+          radial-gradient(circle at 85% 8%, rgba(139, 157, 255, 0.15), transparent 20%),
+          linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+        min-height: 100vh;
+      }
+      a { color: inherit; text-decoration: none; }
+      button, input, select, textarea { font: inherit; }
+      .shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 20px 56px;
+        display: grid;
+        gap: 18px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: rgba(8, 13, 24, 0.84);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+      .brand {
+        display: grid;
+        gap: 4px;
+      }
+      .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      h1, h2, h3, p { margin: 0; }
+      .brand h1 {
+        font-size: clamp(28px, 3vw, 42px);
+        line-height: 1;
+        letter-spacing: -0.03em;
+      }
+      .brand p {
+        color: var(--muted);
+        max-width: 70ch;
+        line-height: 1.45;
+      }
+      .top-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
+        padding: 0 14px;
+        border-radius: var(--radius);
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .pill.primary {
+        border-color: rgba(117, 230, 255, 0.38);
+        background: linear-gradient(90deg, rgba(117, 230, 255, 0.16), rgba(139, 157, 255, 0.12));
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
+        gap: 18px;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+      .panel.pad { padding: 18px; }
+      .hero-main {
+        padding: 24px;
+        display: grid;
+        gap: 18px;
+        background:
+          radial-gradient(circle at top left, rgba(117, 230, 255, 0.14), transparent 28%),
+          linear-gradient(180deg, rgba(255,255,255,0.02), transparent 28%),
+          var(--panel);
+      }
+      .hero-copy {
+        display: grid;
+        gap: 12px;
+      }
+      .hero-copy h2 {
+        font-size: clamp(34px, 4vw, 56px);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+        max-width: 12ch;
+      }
+      .hero-copy p {
+        color: var(--muted);
+        max-width: 64ch;
+        line-height: 1.5;
+        font-size: 15px;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .metric {
+        padding: 16px;
+        border: 1px solid var(--line-2);
+        border-radius: var(--radius);
+        background: rgba(255,255,255,0.03);
+      }
+      .metric span {
+        display: block;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .metric strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 28px;
+        letter-spacing: -0.04em;
+      }
+      .metric small { color: var(--muted); display: block; margin-top: 4px; line-height: 1.35; }
+      .hero-aside {
+        padding: 18px;
+        display: grid;
+        gap: 12px;
+      }
+      .hero-aside .eyebrow { color: var(--cyan); }
+      .note {
+        border: 1px solid var(--line-2);
+        border-radius: var(--radius);
+        background: rgba(255,255,255,0.02);
+        padding: 14px;
+      }
+      .note strong {
+        display: block;
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+      .note p {
+        color: var(--muted);
+        line-height: 1.45;
+        font-size: 14px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.92fr);
+        gap: 18px;
+      }
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .section-title h3 {
+        font-size: 16px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .section-title span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .composer {
+        padding: 18px;
+        display: grid;
+        gap: 14px;
+      }
+      .stack {
+        display: grid;
+        gap: 10px;
+      }
+      label {
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      input, select, textarea {
+        width: 100%;
+        border: 1px solid rgba(131, 165, 228, 0.24);
+        border-radius: var(--radius);
+        background: #091323;
+        color: var(--text);
+        padding: 11px 12px;
+        outline: none;
+      }
+      input:focus, select:focus, textarea:focus {
+        border-color: rgba(117, 230, 255, 0.54);
+        box-shadow: 0 0 0 3px rgba(117, 230, 255, 0.12);
+      }
+      button {
+        width: 100%;
+        border: 0;
+        border-radius: var(--radius);
+        min-height: 42px;
+        background: linear-gradient(90deg, var(--cyan), var(--blue));
+        color: #05101f;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      button.secondary {
+        border: 1px solid rgba(131, 165, 228, 0.24);
+        background: rgba(255,255,255,0.03);
+        color: var(--text);
+      }
+      .buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .hint { color: var(--muted); font-size: 13px; line-height: 1.45; }
+      .filters {
+        padding: 18px;
+        display: grid;
+        gap: 14px;
+      }
+      .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .kpi-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .kpi {
+        padding: 14px;
+        border-radius: var(--radius);
+        border: 1px solid var(--line-2);
+        background: rgba(255,255,255,0.03);
+        display: grid;
+        gap: 5px;
+      }
+      .kpi span { font-size: 11px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+      .kpi strong { font-size: 22px; letter-spacing: -0.04em; }
+      .kpi small { color: var(--muted); line-height: 1.35; }
+      .summary {
+        padding: 18px;
+        display: grid;
+        gap: 16px;
+      }
+      .flow-rail {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(140px, 1fr);
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+      .flow-rail::-webkit-scrollbar { height: 8px; }
+      .flow-rail::-webkit-scrollbar-thumb { background: rgba(131,165,228,.3); border-radius: 999px; }
+      .flow-step {
+        border: 1px solid rgba(131, 165, 228, 0.22);
+        border-radius: var(--radius);
+        background: rgba(255,255,255,0.03);
+        padding: 12px;
+        min-height: 112px;
+        display: grid;
+        gap: 8px;
+      }
+      .flow-step .label {
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 11px;
+      }
+      .flow-step strong {
+        font-size: 24px;
+        line-height: 1;
+      }
+      .bar {
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        overflow: hidden;
+      }
+      .bar > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--cyan), var(--blue));
+      }
+      .tables {
+        display: grid;
+        gap: 14px;
+      }
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .table-card {
+        padding: 14px;
+        border-radius: var(--radius);
+        border: 1px solid var(--line-2);
+        background: rgba(255,255,255,0.03);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        text-align: left;
+        padding: 8px 6px;
+        border-bottom: 1px solid rgba(131, 165, 228, 0.14);
+        font-size: 13px;
+      }
+      th {
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 11px;
+      }
+      .status-line {
+        font-size: 13px;
+        color: var(--muted);
+        min-height: 20px;
+      }
+      .status-line.ok { color: var(--green); }
+      .status-line.warn { color: var(--amber); }
+      .status-line.err { color: var(--red); }
+      @media (max-width: 1024px) {
+        .hero, .layout { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 840px) {
+        .metrics, .kpi-row, .card-grid, .filter-grid { grid-template-columns: 1fr; }
+        .topbar { flex-direction: column; align-items: stretch; }
+        .top-actions { justify-content: stretch; }
+        .top-actions .pill { justify-content: center; }
+        .buttons { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="eyebrow">Dash FlowLens</div>
+          <h1>Pipeline flow analytics.</h1>
+          <p>Track throughput, dwell, and stage drop-off with a cleaner control surface and a stronger read on bottlenecks.</p>
+        </div>
+        <div class="top-actions">
+          <a class="pill primary" href="#summary">View summary</a>
+          <a class="pill" href="#composer">Log event</a>
+          <a class="pill" href="#tables">Stage tables</a>
+        </div>
+      </header>
+
+      <section class="hero">
+        <article class="panel hero-main">
+          <div class="hero-copy">
+            <div class="eyebrow">Flow health</div>
+            <h2>See where entities move, stall, and fall off.</h2>
+            <p>
+              FlowLens turns raw stage events into a compact operations view. Add events, pull a live summary, and use the summary cards to spot bottlenecks without squinting at a spreadsheet.
+            </p>
+          </div>
+          <div class="metrics" id="metrics">
+            <div class="metric"><span>Throughput</span><strong id="metric-throughput">—</strong><small>Total events in the current window.</small></div>
+            <div class="metric"><span>Slowest stage</span><strong id="metric-slowest">—</strong><small>Highest average dwell time.</small></div>
+            <div class="metric"><span>Active links</span><strong id="metric-links">—</strong><small>Observed stage-to-stage transitions.</small></div>
+          </div>
+        </article>
+        <aside class="panel hero-aside">
+          <div class="eyebrow">Now live</div>
+          <div class="note">
+            <strong id="live-status">Checking API…</strong>
+            <p id="status" class="status-line">Connecting to the database and loading the last summary window.</p>
+          </div>
+          <div class="note">
+            <strong>What changed</strong>
+            <p>Cleaner spacing, stronger hierarchy, more contrast, and summaries that read like an actual analytics dashboard instead of a basic form page.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="layout">
+        <article id="composer" class="panel composer">
+          <div class="section-title"><h3>Add Flow Event</h3><span>Record a stage transition</span></div>
+          <div class="stack">
+            <label for="entity">Entity ID</label>
+            <input id="entity" placeholder="entity_1024" />
+          </div>
+          <div class="stack">
+            <label for="stage">Stage</label>
+            <input id="stage" placeholder="queued, processed, shipped" />
+          </div>
+          <div class="filter-grid">
+            <div class="stack">
+              <label for="entered">Entered At</label>
+              <input id="entered" type="datetime-local" />
+            </div>
+            <div class="stack">
+              <label for="exited">Exited At</label>
+              <input id="exited" type="datetime-local" />
+            </div>
+          </div>
+          <div class="buttons">
+            <button id="add">Add Event</button>
+            <button id="refresh" class="secondary">Refresh Summary</button>
+          </div>
+          <div class="hint">Tip: use the same entity ID across stages to populate the transition graph and drop-off view.</div>
+        </article>
+
+        <aside class="panel filters">
+          <div class="section-title"><h3>Filters</h3><span>Window + stage scope</span></div>
+          <div class="filter-grid">
+            <div class="stack">
+              <label for="days">Lookback days</label>
+              <input id="days" type="number" min="1" max="180" value="30" />
+            </div>
+            <div class="stack">
+              <label for="stageFilter">Stage filter</label>
+              <input id="stageFilter" placeholder="optional" />
+            </div>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi"><span>Events</span><strong id="kpi-events">—</strong><small>Records in scope.</small></div>
+            <div class="kpi"><span>Stages</span><strong id="kpi-stages">—</strong><small>Unique stages seen.</small></div>
+            <div class="kpi"><span>Transitions</span><strong id="kpi-transitions">—</strong><small>Observed links.</small></div>
+            <div class="kpi"><span>Dwell avg</span><strong id="kpi-dwell">—</strong><small>Minutes across all stages.</small></div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="summary" class="panel summary">
+        <div class="section-title"><h3>Flow Summary</h3><span>Current window</span></div>
+        <div class="flow-rail" id="flow-rail"></div>
+        <div class="tables" id="tables">
+          <div class="card-grid">
+            <div class="table-card" id="table-throughput"></div>
+            <div class="table-card" id="table-dwell"></div>
+            <div class="table-card" id="table-transitions"></div>
+            <div class="table-card" id="table-dropoff"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const key = localStorage.dashFlowlensKey || (localStorage.dashFlowlensKey = `dash-flowlens-${crypto.randomUUID()}`);
+      const headers = { 'Content-Type': 'application/json', 'X-Device-Key': key };
+
+      const statusEl = document.getElementById('status');
+      const liveStatusEl = document.getElementById('live-status');
+      const flowRail = document.getElementById('flow-rail');
+      const summaryCards = {
+        throughput: document.getElementById('metric-throughput'),
+        slowest: document.getElementById('metric-slowest'),
+        links: document.getElementById('metric-links'),
+        events: document.getElementById('kpi-events'),
+        stages: document.getElementById('kpi-stages'),
+        transitions: document.getElementById('kpi-transitions'),
+        dwell: document.getElementById('kpi-dwell')
+      };
+
+      const tableEls = {
+        throughput: document.getElementById('table-throughput'),
+        dwell: document.getElementById('table-dwell'),
+        transitions: document.getElementById('table-transitions'),
+        dropoff: document.getElementById('table-dropoff')
+      };
+
+      const isoFromLocal = (v) => v ? new Date(v).toISOString() : null;
+      const esc = (value) => String(value ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+
+      function renderTable(title, rows, cols) {
+        if (!rows.length) {
+          return `<h3>${esc(title)}</h3><p class="status-line">No rows in the current window.</p>`;
+        }
+        return `
+          <h3>${esc(title)}</h3>
+          <table>
+            <thead><tr>${cols.map((c) => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+            <tbody>
+              ${rows.map((row) => `<tr>${cols.map((c) => `<td>${esc(row[c] ?? '')}</td>`).join('')}</tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function renderFlowRail(rows) {
+        if (!rows.length) {
+          flowRail.innerHTML = '<div class="status-line">No throughput data yet. Add a few events to light up the flow lane.</div>';
+          return;
+        }
+        const top = rows.slice(0, 6);
+        const max = Math.max(...top.map((r) => Number(r.count || 0)), 1);
+        flowRail.innerHTML = top.map((row) => {
+          const width = Math.max(10, Math.round((Number(row.count || 0) / max) * 100));
+          return `
+            <div class="flow-step">
+              <div class="label">${esc(row.stage)}</div>
+              <strong>${esc(row.count)}</strong>
+              <div class="bar"><span style="width:${width}%"></span></div>
+              <small class="status-line">Events in the current window</small>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function setStatus(text, kind = '') {
+        statusEl.textContent = text;
+        statusEl.className = `status-line ${kind}`.trim();
+        liveStatusEl.textContent = kind === 'err' ? 'Backend attention needed' : (kind === 'warn' ? 'Database warning' : 'Connected');
+      }
+
+      async function health() {
+        const res = await fetch('/api/health/db');
+        const data = await res.json();
+        if (data.ok) {
+          setStatus('API connected to database and ready to summarize.', 'ok');
+        } else {
+          setStatus(`API warning: ${data.error || 'unavailable'}`, 'warn');
+        }
+      }
+
+      function updateKpis(data) {
+        const throughput = data.throughput || [];
+        const dwell = data.dwell || [];
+        const transitions = data.transitions || [];
+        const totalEvents = throughput.reduce((sum, row) => sum + Number(row.count || 0), 0);
+        const uniqueStages = throughput.length;
+        const slowest = [...dwell].sort((a, b) => Number(b.avg_minutes || 0) - Number(a.avg_minutes || 0))[0];
+
+        summaryCards.throughput.textContent = totalEvents || '0';
+        summaryCards.slowest.textContent = slowest ? `${slowest.stage} · ${slowest.avg_minutes}` : '—';
+        summaryCards.links.textContent = String(transitions.length || 0);
+        summaryCards.events.textContent = String(totalEvents || 0);
+        summaryCards.stages.textContent = String(uniqueStages || 0);
+        summaryCards.transitions.textContent = String(transitions.length || 0);
+        summaryCards.dwell.textContent = dwell.length ? `${Math.round(dwell.reduce((sum, row) => sum + Number(row.avg_minutes || 0), 0) / dwell.length)} min` : '—';
+      }
+
+      async function refresh() {
+        const days = Number(document.getElementById('days').value || 30);
+        const stageFilter = document.getElementById('stageFilter').value.trim();
+        const qs = new URLSearchParams({ days: String(days) });
+        if (stageFilter) qs.set('stage', stageFilter);
+        const res = await fetch(`/api/flowlens/summary?${qs.toString()}`, { headers });
+        const data = await res.json();
+        if (!res.ok) {
+          const text = data.error || data.detail || 'Failed to load summary';
+          setStatus(text, 'err');
+          flowRail.innerHTML = `<div class="status-line err">${esc(text)}</div>`;
+          return;
+        }
+
+        updateKpis(data);
+        renderFlowRail(data.throughput || []);
+        tableEls.throughput.innerHTML = renderTable('Throughput', data.throughput || [], ['stage', 'count']);
+        tableEls.dwell.innerHTML = renderTable('Average Dwell (minutes)', data.dwell || [], ['stage', 'avg_minutes']);
+        tableEls.transitions.innerHTML = renderTable('Transitions', data.transitions || [], ['from', 'to', 'count']);
+        tableEls.dropoff.innerHTML = renderTable('Drop-off', data.dropoff || [], ['stage', 'next_stage', 'completion_rate']);
+      }
+
+      document.getElementById('add').onclick = async () => {
+        const payload = {
+          entity_id: document.getElementById('entity').value.trim(),
+          stage: document.getElementById('stage').value.trim(),
+          entered_at: isoFromLocal(document.getElementById('entered').value),
+          exited_at: isoFromLocal(document.getElementById('exited').value)
+        };
+        const res = await fetch('/api/flowlens/events', { method: 'POST', headers, body: JSON.stringify(payload) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setStatus(data.error || data.detail || 'Failed to add event', 'err');
+          return;
+        }
+        setStatus('Event saved and summary refreshed.', 'ok');
+        await refresh();
+      };
+
+      document.getElementById('refresh').onclick = refresh;
+
+      health().catch(() => setStatus('API unavailable.', 'err'));
+      refresh();
+    </script>
+  </body>
+</html>

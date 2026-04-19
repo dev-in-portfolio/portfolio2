@@ -1,0 +1,190 @@
+Dash FlowLens — Dash app blueprint (flow visualization + bottleneck detection) + Neon backend
+
+What it is
+
+FlowLens is a Python Dash app that visualizes throughput across stages in a pipeline (sales funnel, job queue, route processing, claims flow, etc.) and highlights bottlenecks, delays, and drop-offs. This is a flow analytics tool — not a dashboard clone.
+
+
+---
+
+Why Dash fits
+
+Dash excels at:
+
+✔ real-time visualization
+✔ interactive charts
+✔ analytical controls
+✔ rapid operator insights
+
+
+---
+
+Architecture
+
+Flow:
+
+Dash UI
+→ Dash callbacks
+→ Neon Postgres
+→ aggregation queries
+→ charts update
+
+Server-side Python handles queries and analytics.
+
+
+---
+
+Data model (Neon Postgres)
+
+sql/001_flowlens.sql
+
+create extension if not exists pgcrypto;
+
+create table if not exists flow_events (
+  id uuid primary key default gen_random_uuid(),
+  entity_id text not null,
+  stage text not null,
+  entered_at timestamptz not null,
+  exited_at timestamptz,
+  metadata jsonb not null default '{}'::jsonb
+);
+
+create index if not exists idx_flow_entity on flow_events(entity_id);
+create index if not exists idx_flow_stage on flow_events(stage);
+create index if not exists idx_flow_time on flow_events(entered_at);
+
+
+---
+
+Core metrics
+
+Throughput
+
+count per stage
+
+
+Dwell time
+
+exited_at - entered_at
+
+Drop-off rate
+
+entities not reaching next stage
+
+Bottleneck detection
+
+highlight stage with longest average dwell time
+
+
+---
+
+UI layout
+
+Top controls
+
+date range
+
+entity filter
+
+stage filter
+
+aggregation window
+
+
+
+---
+
+Visual panels
+
+1️⃣ Sankey flow diagram
+
+Shows flow between stages.
+
+2️⃣ Bottleneck heatmap
+
+Stages vs average dwell time.
+
+3️⃣ Throughput bar chart
+
+Stage counts.
+
+4️⃣ Drop-off table
+
+Stage → next-stage completion rate.
+
+
+---
+
+Dash callbacks
+
+Triggers:
+
+filter changes
+
+date range
+
+stage selection
+
+
+Callbacks update:
+
+sankey data
+
+dwell metrics
+
+charts
+
+
+
+---
+
+Performance strategy
+
+aggregate in SQL
+
+index timestamps
+
+limit date range
+
+cache results for identical queries (optional)
+
+
+
+---
+
+Safety caps
+
+max query window default 30 days
+
+max rows per query cap
+
+sanitize stage inputs
+
+
+
+---
+
+Smoke tests
+
+1. Insert test flow data
+
+
+2. Sankey shows stage flow
+
+
+3. Heatmap highlights longest stage
+
+
+4. Drop-off table calculates correctly
+
+
+5. Filters update visuals instantly
+
+
+
+
+---
+
+Done definition
+
+Done = FlowLens reveals pipeline bottlenecks, dwell times, and drop-offs using Neon-backed flow events.
