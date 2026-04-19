@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QueueGauge - Queue Control Board</title>
+    <style>
+      :root { 
+        --bg:#0a1222; 
+        --panel:#172440; 
+        --panel2:#1f2f50; 
+        --text:#ebf2ff; 
+        --muted:#a1b6de; 
+        --line:rgba(150,176,226,.28);
+        --primary:#70dcff;
+        --secondary:#90abff;
+        --success:#4caf50;
+        --warning:#ff9800;
+        --danger:#f44336;
+        --border:#2a3a5a;
+      }
+      * { box-sizing:border-box; }
+      body { 
+        margin:0; 
+        font-family:"Space Grotesk",system-ui,sans-serif; 
+        color:var(--text); 
+        background:linear-gradient(180deg,#0a1222,#0f1c38);
+        overflow: hidden;
+      }
+      
+      /* Workbench Layout */
+      .workbench {
+        display: grid;
+        grid-template-columns: 300px 1fr 300px;
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+          "sidebar header header"
+          "sidebar main detail";
+        height: 100vh;
+        gap: 0;
+      }
+      
+      /* Sidebar */
+      .sidebar {
+        grid-area: sidebar;
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Header */
+      .header {
+        grid-area: header;
+        background: linear-gradient(90deg, #172440 0%, #1f2f50 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      
+      /* Main Work Area */
+      .main {
+        grid-area: main;
+        background: var(--bg);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Detail Panel */
+      .detail-panel {
+        grid-area: detail;
+        background: var(--panel);
+        border-left: 1px solid var(--border);
+        padding: 16px;
+        overflow-y: auto;
+      }
+      
+      /* Common Styles */
+      .card {
+        border:1px solid var(--border);
+        border-radius:12px;
+        background:var(--panel2);
+        padding:16px;
+        margin-bottom: 16px;
+      }
+      
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--primary);
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+      }
+      
+      label {
+        display:block; 
+        margin:8px 0 4px; 
+        font-size:12px; 
+        color:var(--muted); 
+        text-transform:uppercase; 
+        letter-spacing:.06em; 
+      }
+      
+      select,textarea,input,button {
+        width:100%; 
+        border-radius:10px; 
+        border:1px solid var(--border); 
+        background:#0d1931; 
+        color:var(--text); 
+        padding:8px 10px; 
+        font:inherit; 
+        margin-bottom: 8px;
+      }
+      
+      textarea {
+        min-height:90px; 
+        resize:vertical; 
+      }
+      
+      button {
+        border:0; 
+        background:linear-gradient(90deg,var(--primary),var(--secondary)); 
+        color:#03152b; 
+        font-weight:700; 
+        cursor:pointer; 
+        padding:10px;
+      }
+      
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(112, 220, 255, 0.3);
+      }
+      
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      .btn-secondary {
+        border:1px solid var(--border); 
+        background:#172744; 
+        color:#dbe9ff; 
+      }
+      
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+      
+      .btn-warning {
+        background: var(--warning);
+        color: white;
+      }
+      
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+      
+      /* Flex and Grid */
+      .row {
+        display:flex; 
+        gap:8px; 
+      }
+      
+      .row > * {
+        flex:1; 
+      }
+      
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      
+      /* List Styles */
+      .list {
+        display:grid; 
+        gap:8px; 
+        margin-top:8px; 
+        max-height:440px; 
+        overflow:auto; 
+      }
+      
+      .item {
+        border:1px solid var(--border);
+        border-radius:10px; 
+        padding:10px; 
+        background:#0d1830; 
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .item:hover {
+        background: rgba(112, 220, 255, 0.1);
+        border-color: var(--primary);
+      }
+      
+      .item.active {
+        background: rgba(112, 220, 255, 0.2);
+        border-color: var(--primary);
+      }
+      
+      /* Status indicators */
+      .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+      }
+      
+      .status-queued { background: var(--muted); }
+      .status-leased { background: var(--warning); }
+      .status-succeeded { background: var(--success); }
+      .status-failed { background: var(--danger); }
+      .status-cancelled { background: #666; }
+      
+      /* Tag Styles */
+      .tag {
+        display: inline-block;
+        background: rgba(112, 220, 255, 0.2);
+        border: 1px solid var(--primary);
+        border-radius: 12px;
+        padding: 4px 10px;
+        margin: 2px;
+        font-size: 0.8rem;
+        color: var(--primary);
+      }
+      
+      /* Metric Styles */
+      .metric-card {
+        background: rgba(112, 220, 255, 0.1);
+        border: 1px solid var(--primary);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+      }
+      
+      .metric-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+      }
+      
+      .metric-label {
+        font-size: 0.9rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      
+      /* Small text */
+      .small {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      
+      /* Tabs */
+      .tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 16px;
+      }
+      
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        border-bottom: 2px solid transparent;
+      }
+      
+      .tab.active {
+        color: var(--text);
+        border-bottom-color: var(--primary);
+      }
+      
+      .tab-content {
+        display: none;
+      }
+      
+      .tab-content.active {
+        display: block;
+      }
+      
+      /* Responsive */
+      @media (max-width: 1400px) {
+        .workbench {
+          grid-template-columns: 260px 1fr;
+          grid-template-areas:
+            "sidebar header"
+            "sidebar main"
+            "detail detail";
+        }
+        .detail-panel {
+          grid-area: detail;
+          border-left: none;
+          border-top: 1px solid var(--border);
+        }
+      }
+      
+      @media (max-width: 960px) {
+        .workbench {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto auto 1fr;
+          grid-template-areas:
+            "header"
+            "sidebar"
+            "main"
+            "detail";
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="workbench">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="card">
+          <h2>QueueGauge</h2>
+          <p class="small">Queue Control Board</p>
+          <p id="status" class="small">Checking API...</p>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Quick Actions</h3>
+          <button id="reload-all" style="margin-bottom: 8px;">Reload All</button>
+          <button id="export-csv">Export CSV</button>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Filters</h3>
+          <select id="status-filter" style="margin-bottom: 8px;">
+            <option value="">All Statuses</option>
+            <option value="queued">Queued</option>
+            <option value="leased">Leased</option>
+            <option value="succeeded">Succeeded</option>
+            <option value="failed">Failed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select id="type-filter">
+            <option value="">All Types</option>
+          </select>
+        </div>
+        
+        <div class="card">
+          <h3 class="section-title">Tags</h3>
+          <div id="tags-list" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
+      </aside>
+      
+      <!-- Header -->
+      <header class="header">
+        <h1>QueueGauge - Queue Control Board</h1>
+        <div class="row">
+          <button id="export-json">Export JSON</button>
+          <button id="export-summary">Export Summary</button>
+        </div>
+      </header>
+      
+      <!-- Main Work Area -->
+      <main class="main">
+        <div class="tabs">
+          <button class="tab active" data-tab="enqueue">Enqueue</button>
+          <button class="tab" data-tab="worker">Worker</button>
+          <button class="tab" data-tab="search">Search</button>
+          <button class="tab" data-tab="metrics">Metrics</button>
+        </div>
+        
+        <!-- Enqueue Tab -->
+        <div class="tab-content active" data-tab-content="enqueue">
+          <div class="card">
+            <h3 class="section-title">Enqueue Job</h3>
+            
+            <label>Type</label>
+            <input id="type" value="email.send" />
+            
+            <label>Priority</label>
+            <input id="priority" type="number" value="0" />
+            
+            <label>Payload JSON</label>
+            <textarea id="payload">{"to":"ops@example.com","template":"incident"}</textarea>
+            
+            <label>Max Attempts</label>
+            <input id="max-attempts" type="number" value="3" min="1" max="20" />
+            
+            <label>Run After (ISO datetime, optional)</label>
+            <input id="run-after" type="datetime-local" />
+            
+            <label>Tags (comma-separated)</label>
+            <input id="tags" placeholder="urgent,email,notification" />
+            
+            <label>Metadata JSON (optional)</label>
+            <textarea id="metadata" rows="3">{"source":"ui","version":"1.0"}</textarea>
+            
+            <div class="row" style="margin-top:8px">
+              <button id="enqueue">Enqueue Job</button>
+              <button id="enqueue-bulk" class="btn-secondary">Bulk Enqueue</button>
+            </div>
+            
+            <p id="msg" class="small"></p>
+          </div>
+          
+          <div class="card">
+            <h3 class="section-title">Stats</h3>
+            <div id="stats"></div>
+          </div>
+        </div>
+        
+        <!-- Worker Tab -->
+        <div class="tab-content" data-tab-content="worker">
+          <div class="card">
+            <h3 class="section-title">Worker</h3>
+            
+            <label>Worker Name</label>
+            <input id="worker-name" value="ui-worker" />
+            
+            <label>Lease TTL (seconds)</label>
+            <input id="lease-ttl" type="number" value="90" />
+            
+            <label>Job Type Filter (optional)</label>
+            <input id="job-type-filter" placeholder="email.send" />
+            
+            <button id="lease">Lease Next Job</button>
+            
+            <div id="leased" class="list"></div>
+          </div>
+          
+          <div class="card">
+            <h3 class="section-title">Recent Jobs</h3>
+            <div id="jobs" class="list"></div>
+          </div>
+        </div>
+        
+        <!-- Search Tab -->
+        <div class="tab-content" data-tab-content="search">
+          <div class="card">
+            <h3 class="section-title">Advanced Search</h3>
+            
+            <label>Status</label>
+            <select id="search-status">
+              <option value="">All Statuses</option>
+              <option value="queued">Queued</option>
+              <option value="leased">Leased</option>
+              <option value="succeeded">Succeeded</option>
+              <option value="failed">Failed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            
+            <label>Type</label>
+            <input id="search-type" placeholder="email.send" />
+            
+            <label>Tag</label>
+            <input id="search-tag" placeholder="urgent" />
+            
+            <button id="search-jobs">Search Jobs</button>
+            
+            <div id="search-results" class="list"></div>
+          </div>
+        </div>
+        
+        <!-- Metrics Tab -->
+        <div class="tab-content" data-tab-content="metrics">
+          <div class="card">
+            <h3 class="section-title">Queue Metrics</h3>
+            <div id="metrics-content"></div>
+          </div>
+          
+          <div class="card">
+            <h3 class="section-title">Recent Activity</h3>
+            <div id="recent-activity" class="list"></div>
+          </div>
+        </div>
+      </main>
+      
+      <!-- Detail Panel -->
+      <aside class="detail-panel">
+        <div class="card" id="detail-panel">
+          <h3 class="section-title">Job Details</h3>
+          <p class="small">Select a job to view details</p>
+          <div id="detail-content"></div>
+        </div>
+      </aside>
+    </div>
+    
+    <!-- Bulk Enqueue Modal -->
+    <div id="bulkModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+      <div class="card" style="max-width: 800px; margin: 50px auto; position: relative;">
+        <button id="closeBulkModal" style="position: absolute; top: 10px; right: 10px;" class="btn-danger">Close</button>
+        <h2>Bulk Enqueue</h2>
+        
+        <label>Jobs (JSON array)</label>
+        <textarea id="bulk-jobs" class="mono" rows="15">[
+  {"type": "email.send", "payload": {"to": "user1@example.com"}, "priority": 1},
+  {"type": "email.send", "payload": {"to": "user2@example.com"}, "priority": 1}
+]</textarea>
+        
+        <button id="run-bulk-enqueue" class="btn-success">Enqueue All</button>
+        <div id="bulk-results" style="margin-top: 16px;"></div>
+      </div>
+    </div>
+    
+    <script>
+      const keyName = 'queuegauge_device_key';
+      let deviceKey = localStorage.getItem(keyName);
+      if (!deviceKey && crypto.randomUUID) { 
+        deviceKey = crypto.randomUUID(); 
+        localStorage.setItem(keyName, deviceKey);
+      }
+
+      let currentJobId = null;
+      let jobTypes = [];
+      let allTags = [];
+
+      // DOM Elements
+      const statusEl = document.getElementById('status');
+      const msgEl = document.getElementById('msg');
+      const statsEl = document.getElementById('stats');
+      const jobsEl = document.getElementById('jobs');
+      const leasedEl = document.getElementById('leased');
+      const searchResultsEl = document.getElementById('search-results');
+      const metricsContentEl = document.getElementById('metrics-content');
+      const recentActivityEl = document.getElementById('recent-activity');
+      const detailContentEl = document.getElementById('detail-content');
+      const typeFilterEl = document.getElementById('type-filter');
+      const tagsListEl = document.getElementById('tags-list');
+
+      // Tab Management
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const tabName = tab.getAttribute('data-tab');
+          
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          
+          tab.classList.add('active');
+          document.querySelector(`[data-tab-content="${tabName}"]`).classList.add('active');
+        });
+      });
+
+      function msg(text, bad = false) {
+        msgEl.textContent = text;
+        msgEl.style.color = bad ? '#ffb7b7' : '#a1b6de';
+      }
+
+      async function api(path, opts = {}) {
+        const res = await fetch(path, {
+          ...opts,
+          headers: {
+            'content-type': 'application/json',
+            'X-Device-Key': deviceKey,
+            ...(opts.headers || {}),
+          },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || data.error || `http_${res.status}`);
+        return data;
+      }
+
+      async function loadStats() {
+        try {
+          const data = await api('/api/queuegauge/stats');
+          statsEl.innerHTML = '';
+          for (const s of data.items || []) {
+            const c = document.createElement('div');
+            c.className = 'item';
+            const statusDot = `<span class="status-dot status-${s.status}"></span>`;
+            c.innerHTML = `${statusDot}<strong>${s.status}</strong>: ${s.count}`;
+            statsEl.appendChild(c);
+          }
+        } catch (e) {
+          msg(e.message, true);
+        }
+      }
+
+      async function loadJobs() {
+        try {
+          const statusFilter = document.getElementById('status-filter').value;
+          const typeFilter = document.getElementById('type-filter').value;
+          
+          let url = '/api/queuegauge/jobs?limit=40';
+          if (statusFilter) url += `&status=${encodeURIComponent(statusFilter)}`;
+          if (typeFilter) url += `&type=${encodeURIComponent(typeFilter)}`;
+          
+          const data = await api(url);
+          jobsEl.innerHTML = '';
+          
+          for (const j of data.items || []) {
+            const c = document.createElement('div');
+            c.className = 'item';
+            c.dataset.jobId = j.id;
+            
+            const statusDot = `<span class="status-dot status-${j.status}"></span>`;
+            const tagsHtml = j.tags && j.tags.length > 0 ? j.tags.map(t => `<span class="tag">${t}</span>`).join('') : '';
+            
+            c.innerHTML = `
+              ${statusDot}<strong>${j.type}</strong>
+              <div class="small">${j.status} • attempts ${j.attempts}/${j.max_attempts}</div>
+              ${tagsHtml}
+            `;
+            
+            c.onclick = () => showJobDetails(j.id);
+            jobsEl.appendChild(c);
+          }
+        } catch (e) {
+          msg(e.message, true);
+        }
+      }
+
+      async function loadTags() {
+        try {
+          const data = await api('/api/queuegauge/tags');
+          allTags = data.tags || [];
+          tagsListEl.innerHTML = allTags.map(tag => `
+            <span class="tag" style="cursor: pointer;" data-tag="${tag}">${tag}</span>
+          `).join('');
+          
+          // Add click handlers for tag filtering
+          document.querySelectorAll('[data-tag]').forEach(el => {
+            el.addEventListener('click', () => {
+              document.getElementById('search-tag').value = el.getAttribute('data-tag');
+              document.querySelector('.tab[data-tab="search"]').click();
+              document.getElementById('search-jobs').click();
+            });
+          });
+        } catch (e) {
+          console.error('Failed to load tags:', e);
+        }
+      }
+
+      async function loadJobTypes() {
+        try {
+          const data = await api('/api/queuegauge/jobs?limit=100');
+          const types = [...new Set(data.items.map(j => j.type))].sort();
+          
+          // Update type filters
+          const typeFilterHtml = ['<option value="">All Types</option>'];
+          types.forEach(type => {
+            typeFilterHtml.push(`<option value="${type}">${type}</option>`);
+          });
+          typeFilterEl.innerHTML = typeFilterHtml.join('');
+          
+          // Update search type filter
+          const searchTypeEl = document.getElementById('search-type');
+          searchTypeEl.innerHTML = ['<option value="">All Types</option>', ...types.map(t => `<option value="${t}">${t}</option>`)].join('');
+        } catch (e) {
+          console.error('Failed to load job types:', e);
+        }
+      }
+
+      async function loadMetrics() {
+        try {
+          const data = await api('/api/queuegauge/metrics');
+          
+          // Status distribution
+          metricsContentEl.innerHTML = '<h4>Status Distribution</h4>';
+          for (const item of data.statusDistribution) {
+            const metricCard = document.createElement('div');
+            metricCard.className = 'metric-card';
+            const statusDot = `<span class="status-dot status-${item.status}"></span>`;
+            metricCard.innerHTML = `
+              ${statusDot}
+              <div class="metric-value">${item.count}</div>
+              <div class="metric-label">${item.status}</div>
+            `;
+            metricsContentEl.appendChild(metricCard);
+          }
+          
+          // Add separator
+          metricsContentEl.innerHTML += '<div style="margin: 16px 0; border-bottom: 1px solid var(--border);"></div>';
+          
+          // Key metrics
+          metricsContentEl.innerHTML += '<h4 style="margin-top: 16px;">Key Metrics</h4>';
+          
+          const metrics = [
+            { label: 'Total Jobs', value: data.totalJobs },
+            { label: 'Failed Jobs', value: data.failedJobs },
+            { label: 'Failure Rate', value: `${data.failureRate}%` },
+          ];
+          
+          for (const metric of metrics) {
+            const metricCard = document.createElement('div');
+            metricCard.className = 'metric-card';
+            metricCard.innerHTML = `
+              <div class="metric-value">${metric.value}</div>
+              <div class="metric-label">${metric.label}</div>
+            `;
+            metricsContentEl.appendChild(metricCard);
+          }
+          
+          // Oldest queued job
+          if (data.oldestQueuedJob) {
+            metricsContentEl.innerHTML += '<div style="margin: 16px 0; border-bottom: 1px solid var(--border);"></div>';
+            metricsContentEl.innerHTML += '<h4 style="margin-top: 16px;">Oldest Queued Job</h4>';
+            const oldestCard = document.createElement('div');
+            oldestCard.className = 'metric-card';
+            oldestCard.innerHTML = `
+              <div><strong>${data.oldestQueuedJob.type}</strong></div>
+              <div class="small">Queued: ${new Date(data.oldestQueuedJob.created_at).toLocaleString()}</div>
+              <div class="small">Age: ${calculateAge(data.oldestQueuedJob.created_at)}</div>
+            `;
+            metricsContentEl.appendChild(oldestCard);
+          }
+          
+          // Recent activity
+          recentActivityEl.innerHTML = '';
+          if (data.recentActivity && data.recentActivity.length > 0) {
+            for (const activity of data.recentActivity) {
+              const item = document.createElement('div');
+              item.className = 'item';
+              const statusDot = `<span class="status-dot status-${activity.status}"></span>`;
+              item.innerHTML = `
+                ${statusDot}<strong>${activity.status}</strong>
+                <div class="small">${activity.hour} • ${activity.count} jobs</div>
+              `;
+              recentActivityEl.appendChild(item);
+            }
+          } else {
+            recentActivityEl.innerHTML = '<div class="item"><p class="small">No recent activity</p></div>';
+          }
+        } catch (e) {
+          msg(e.message, true);
+        }
+      }
+
+      function calculateAge(isoDate) {
+        const now = new Date();
+        const created = new Date(isoDate);
+        const diffMs = now - created;
+        const diffSec = Math.floor(diffMs / 1000);
+        const diffMin = Math.floor(diffSec / 60);
+        const diffHour = Math.floor(diffMin / 60);
+        const diffDay = Math.floor(diffHour / 24);
+        
+        if (diffDay > 0) return `${diffDay} days`;
+        if (diffHour > 0) return `${diffHour} hours`;
+        if (diffMin > 0) return `${diffMin} minutes`;
+        return `${diffSec} seconds`;
+      }
+
+      async function showJobDetails(jobId) {
+        try {
+          const data = await api(`/api/queuegauge/jobs/${jobId}`);
+          currentJobId = jobId;
+          
+          detailContentEl.innerHTML = `
+            <div class="item">
+              <strong>Job ID:</strong> ${data.id}<br>
+              <strong>Type:</strong> ${data.type}<br>
+              <strong>Status:</strong> <span class="status-dot status-${data.status}"></span> ${data.status}<br>
+              <strong>Priority:</strong> ${data.priority}<br>
+              <strong>Attempts:</strong> ${data.attempts}/${data.max_attempts}<br>
+              <strong>Created:</strong> ${new Date(data.created_at).toLocaleString()}
+            </div>
+            
+            <div class="item" style="margin-top: 8px;">
+              <strong>Payload:</strong>
+              <div class="mono" style="margin-top: 8px;">${JSON.stringify(data.payload, null, 2)}</div>
+            </div>
+            
+            ${data.tags && data.tags.length > 0 ? `
+              <div class="item" style="margin-top: 8px;">
+                <strong>Tags:</strong>
+                <div style="margin-top: 8px;">${data.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+              </div>
+            ` : ''}
+            
+            ${data.metadata && Object.keys(data.metadata).length > 0 ? `
+              <div class="item" style="margin-top: 8px;">
+                <strong>Metadata:</strong>
+                <div class="mono" style="margin-top: 8px;">${JSON.stringify(data.metadata, null, 2)}</div>
+              </div>
+            ` : ''}
+            
+            ${data.last_error ? `
+              <div class="item" style="margin-top: 8px; background: rgba(244, 67, 54, 0.1);">
+                <strong>Last Error:</strong>
+                <div class="mono" style="margin-top: 8px; color: var(--danger);">${data.last_error}</div>
+              </div>
+            ` : ''}
+            
+            <div class="item" style="margin-top: 8px;">
+              <strong>Actions:</strong>
+              <div class="row" style="margin-top: 8px;">
+                ${data.status === 'failed' ? `<button id="retry-job" class="btn-warning">Retry</button>` : ''}
+                ${data.status === 'queued' ? `<button id="cancel-job" class="btn-secondary">Cancel</button>` : ''}
+                <button id="update-priority" class="btn-secondary">Priority</button>
+                <button id="add-notes" class="btn-secondary">Notes</button>
+                <button id="add-tags" class="btn-secondary">Tags</button>
+              </div>
+            </div>
+          `;
+          
+          // Add event listeners for action buttons
+          if (data.status === 'failed') {
+            document.getElementById('retry-job').onclick = async () => {
+              try {
+                await api(`/api/queuegauge/jobs/${jobId}/retry`, {
+                  method: 'POST',
+                  body: JSON.stringify({ delaySeconds: 30 })
+                });
+                msg('Job retried successfully');
+                await loadJobs();
+                await loadStats();
+                await showJobDetails(jobId);
+              } catch (e) {
+                msg(e.message, true);
+              }
+            };
+          }
+          
+          if (data.status === 'queued') {
+            document.getElementById('cancel-job').onclick = async () => {
+              try {
+                await api(`/api/queuegauge/jobs/${jobId}/cancel`, { method: 'POST' });
+                msg('Job cancelled successfully');
+                await loadJobs();
+                await loadStats();
+                await showJobDetails(jobId);
+              } catch (e) {
+                msg(e.message, true);
+              }
+            };
+          }
+          
+          document.getElementById('update-priority').onclick = async () => {
+            const newPriority = prompt('Enter new priority:', data.priority);
+            if (newPriority !== null) {
+              try {
+                await api(`/api/queuegauge/jobs/${jobId}/priority`, {
+                  method: 'POST',
+                  body: JSON.stringify({ priority: Number(newPriority) })
+                });
+                msg('Priority updated successfully');
+                await showJobDetails(jobId);
+              } catch (e) {
+                msg(e.message, true);
+              }
+            }
+          };
+          
+          document.getElementById('add-notes').onclick = async () => {
+            const notes = prompt('Enter notes:', data.notes || '');
+            if (notes !== null) {
+              try {
+                await api(`/api/queuegauge/jobs/${jobId}/notes`, {
+                  method: 'POST',
+                  body: JSON.stringify({ notes })
+                });
+                msg('Notes updated successfully');
+                await showJobDetails(jobId);
+              } catch (e) {
+                msg(e.message, true);
+              }
+            }
+          };
+          
+          document.getElementById('add-tags').onclick = async () => {
+            const tags = prompt('Enter tags (comma-separated):', data.tags ? data.tags.join(', ') : '');
+            if (tags !== null) {
+              try {
+                await api(`/api/queuegauge/jobs/${jobId}/tags`, {
+                  method: 'POST',
+                  body: JSON.stringify({ tags: tags.split(',').map(t => t.trim()) })
+                });
+                msg('Tags updated successfully');
+                await showJobDetails(jobId);
+              } catch (e) {
+                msg(e.message, true);
+              }
+            }
+          };
+        } catch (e) {
+          detailContentEl.innerHTML = `<div class="item"><strong style="color: var(--danger)">Error loading job details</strong><div class="mono">${e.message}</div></div>`;
+        }
+      }
+
+      async function searchJobs() {
+        try {
+          const status = document.getElementById('search-status').value;
+          const type = document.getElementById('search-type').value;
+          const tag = document.getElementById('search-tag').value;
+          
+          let url = '/api/queuegauge/jobs/search?limit=50';
+          if (status) url += `&status=${encodeURIComponent(status)}`;
+          if (type) url += `&type=${encodeURIComponent(type)}`;
+          if (tag) url += `&tag=${encodeURIComponent(tag)}`;
+          
+          const data = await api(url);
+          searchResultsEl.innerHTML = '';
+          
+          if (data.items.length === 0) {
+            searchResultsEl.innerHTML = '<div class="item"><p class="small">No jobs found</p></div>';
+            return;
+          }
+          
+          for (const j of data.items) {
+            const c = document.createElement('div');
+            c.className = 'item';
+            c.dataset.jobId = j.id;
+            
+            const statusDot = `<span class="status-dot status-${j.status}"></span>`;
+            const tagsHtml = j.tags && j.tags.length > 0 ? j.tags.map(t => `<span class="tag">${t}</span>`).join('') : '';
+            
+            c.innerHTML = `
+              ${statusDot}<strong>${j.type}</strong>
+              <div class="small">${j.status} • attempts ${j.attempts}/${j.max_attempts}</div>
+              ${tagsHtml}
+            `;
+            
+            c.onclick = () => showJobDetails(j.id);
+            searchResultsEl.appendChild(c);
+          }
+        } catch (e) {
+          msg(e.message, true);
+        }
+      }
+
+      // Event Handlers
+      document.getElementById('enqueue').onclick = async () => {
+        try {
+          const payload = JSON.parse(document.getElementById('payload').value || '{}');
+          const response = await api('/api/queuegauge/jobs', {
+            method: 'POST',
+            body: JSON.stringify({
+              type: document.getElementById('type').value.trim(),
+              priority: Number(document.getElementById('priority').value),
+              payload: payload,
+              maxAttempts: Number(document.getElementById('max-attempts').value),
+              runAfter: document.getElementById('run-after').value || null,
+              tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(Boolean),
+              metadata: JSON.parse(document.getElementById('metadata').value || '{}')
+            })
+          });
+          msg('Job queued successfully');
+          await loadJobs();
+          await loadStats();
+        } catch (e) { msg(e.message, true); }
+      };
+
+      document.getElementById('enqueue-bulk').onclick = () => {
+        document.getElementById('bulkModal').style.display = 'block';
+      };
+
+      document.getElementById('closeBulkModal').onclick = () => {
+        document.getElementById('bulkModal').style.display = 'none';
+      };
+
+      document.getElementById('run-bulk-enqueue').onclick = async () => {
+        try {
+          const jobsText = document.getElementById('bulk-jobs').value;
+          const jobs = JSON.parse(jobsText);
+          
+          if (!Array.isArray(jobs) || jobs.length === 0 || jobs.length > 50) {
+            msg('Please provide 1-50 jobs in JSON array format', true);
+            return;
+          }
+          
+          const response = await api('/api/queuegauge/jobs/bulk', {
+            method: 'POST',
+            body: JSON.stringify({ jobs })
+          });
+          
+          const bulkResultsEl = document.getElementById('bulk-results');
+          bulkResultsEl.innerHTML = `<div class="item"><strong>Bulk Enqueue Results</strong></div>`;
+          
+          response.results.forEach(result => {
+            const item = document.createElement('div');
+            item.className = 'item';
+            if (result.success) {
+              item.innerHTML = `<strong style="color: var(--success)">✓ Success</strong>: ${result.job.type} (${result.job.id})`;
+            } else {
+              item.innerHTML = `<strong style="color: var(--danger)">✗ Error</strong>: ${result.error}`;
+            }
+            bulkResultsEl.appendChild(item);
+          });
+          
+          msg(`Bulk enqueue completed: ${response.successCount}/${response.totalCount} successful`);
+          await loadJobs();
+          await loadStats();
+        } catch (e) {
+          msg(e.message, true);
+        }
+      };
+
+      document.getElementById('lease').onclick = async () => {
+        try {
+          const out = await api('/api/queuegauge/lease/filtered', {
+            method: 'POST',
+            body: JSON.stringify({
+              owner: document.getElementById('worker-name').value.trim(),
+              ttlSeconds: Number(document.getElementById('lease-ttl').value),
+              type: document.getElementById('job-type-filter').value.trim() || null
+            })
+          });
+          
+          leasedEl.innerHTML = '';
+          if (!out.leased) {
+            msg('No queued jobs available');
+            return;
+          }
+          
+          const c = document.createElement('div');
+          c.className = 'item';
+          c.dataset.jobId = out.leased.id;
+          
+          const statusDot = `<span class="status-dot status-${out.leased.status}"></span>`;
+          const tagsHtml = out.leased.tags && out.leased.tags.length > 0 ? out.leased.tags.map(t => `<span class="tag">${t}</span>`).join('') : '';
+          
+          c.innerHTML = `
+            ${statusDot}<strong>${out.leased.type}</strong>
+            <div class="small">Leased until: ${new Date(out.leased.leased_until).toLocaleTimeString()}</div>
+            <div class="small">Priority: ${out.leased.priority} • Attempts: ${out.leased.attempts}/${out.leased.max_attempts}</div>
+            ${tagsHtml}
+          `;
+          
+          const row = document.createElement('div');
+          row.className = 'row';
+          row.style.marginTop = '8px';
+          
+          const ok = document.createElement('button');
+          ok.textContent = 'Complete';
+          ok.onclick = async () => {
+            try {
+              await api(`/api/queuegauge/jobs/${out.leased.id}/complete`, { method: 'POST' });
+              msg('Job completed successfully');
+              await loadJobs();
+              await loadStats();
+              leasedEl.innerHTML = '';
+            } catch (e) {
+              msg(e.message, true);
+            }
+          };
+          
+          const fail = document.createElement('button');
+          fail.className = 'secondary';
+          fail.textContent = 'Fail';
+          fail.onclick = async () => {
+            try {
+              const error = prompt('Enter error reason:', 'manual fail');
+              if (error) {
+                await api(`/api/queuegauge/jobs/${out.leased.id}/fail`, {
+                  method: 'POST',
+                  body: JSON.stringify({ error })
+                });
+                msg('Job failed');
+                await loadJobs();
+                await loadStats();
+                leasedEl.innerHTML = '';
+              }
+            } catch (e) {
+              msg(e.message, true);
+            }
+          };
+          
+          row.appendChild(ok);
+          row.appendChild(fail);
+          c.appendChild(row);
+          leasedEl.appendChild(c);
+        } catch (e) {
+          msg(e.message, true);
+        }
+      };
+
+      document.getElementById('reload-all').onclick = async () => {
+        await loadStats();
+        await loadJobs();
+        await loadTags();
+        await loadJobTypes();
+        msg('All data reloaded');
+      };
+
+      document.getElementById('search-jobs').onclick = searchJobs;
+
+      document.getElementById('export-json').onclick = async () => {
+        try {
+          const data = await api('/api/queuegauge/export', {
+            method: 'POST',
+            body: JSON.stringify({ format: 'json' })
+          });
+          
+          const blob = new Blob([JSON.stringify(data.jobs, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `queuegauge-export-${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          msg('JSON export downloaded');
+        } catch (e) {
+          msg(e.message, true);
+        }
+      };
+
+      document.getElementById('export-csv').onclick = async () => {
+        try {
+          const data = await api('/api/queuegauge/export', {
+            method: 'POST',
+            body: JSON.stringify({ format: 'csv' })
+          });
+          
+          // This will trigger file download automatically
+          msg('CSV export started');
+        } catch (e) {
+          msg(e.message, true);
+        }
+      };
+
+      document.getElementById('export-summary').onclick = async () => {
+        try {
+          const data = await api('/api/queuegauge/export', {
+            method: 'POST',
+            body: JSON.stringify({ format: 'summary' })
+          });
+          
+          const blob = new Blob([JSON.stringify(data.jobs, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `queuegauge-summary-${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          msg('Summary export downloaded');
+        } catch (e) {
+          msg(e.message, true);
+        }
+      };
+
+      // Status filter change handler
+      document.getElementById('status-filter').addEventListener('change', loadJobs);
+      document.getElementById('type-filter').addEventListener('change', loadJobs);
+
+      // Health check
+      async function checkHealth() {
+        try {
+          const health = await api('/health');
+          const dbHealth = await api('/health/db');
+          statusEl.textContent = dbHealth.ok ? '✓ API + DB connected' : '⚠ API connected, DB unavailable';
+        } catch (e) {
+          statusEl.textContent = '✗ API unavailable';
+        }
+      }
+
+      // Initialize
+      checkHealth();
+      loadStats();
+      loadJobs();
+      loadTags();
+      loadJobTypes();
+      loadMetrics();
+    </script>
+  </body>
+</html>
