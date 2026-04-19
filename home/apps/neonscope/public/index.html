@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NeonScope</title>
+    <style>
+      :root{--bg:#0a1220;--card:#131d35;--bd:#35507f;--txt:#edf3ff;--muted:#a7b7dc;--a:#78ecff;--b:#90a1ff}*{box-sizing:border-box}
+      body{margin:0;background:radial-gradient(circle at 16% 0,#2b4f7f 0,#0a1220 56%);color:var(--txt);font-family:Inter,system-ui,sans-serif}
+      .wrap{max-width:1120px;margin:0 auto;padding:24px}.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px}
+      .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}input,textarea,button{width:100%;padding:10px;border-radius:10px;border:1px solid #3e6297;background:#111a35;color:var(--txt)}
+      button{border:none;background:linear-gradient(90deg,var(--a),var(--b));color:#05152d;font-weight:700;cursor:pointer}.muted{color:var(--muted);font-size:.9rem}
+      @media(max-width:960px){.row{grid-template-columns:1fr}}
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="card"><h1>NeonScope</h1><p class="muted">Read-only SQL workbench with saved queries and audit trail.</p><p id="status" class="muted">Checking API...</p></section>
+      <section class="row">
+        <article class="card">
+          <h2>Query</h2>
+          <input id="name" placeholder="Query name (optional)" />
+          <textarea id="sql" rows="10" placeholder="select * from ns_saved_queries"></textarea>
+          <input id="limit" type="number" value="50" min="1" max="200" />
+          <button id="run">Run Query</button>
+          <button id="save">Save Query</button>
+          <div id="queryOut" class="muted"></div>
+        </article>
+        <article class="card">
+          <h2>Explorer</h2>
+          <button id="tables">List Tables</button>
+          <button id="saved">Load Saved Queries</button>
+          <button id="audit">Load Audit Log</button>
+          <input id="deleteId" placeholder="saved query id to delete" />
+          <button id="deleteSaved">Delete Saved Query</button>
+          <div id="infoOut" class="muted"></div>
+        </article>
+      </section>
+    </main>
+    <script>
+      const status=document.getElementById('status');
+      const queryOut=document.getElementById('queryOut');
+      const infoOut=document.getElementById('infoOut');
+      const esc=(s)=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+      const show=(el,d)=>{ el.innerHTML=`<pre>${esc(JSON.stringify(d,null,2))}</pre>`; };
+      const val=(id)=>document.getElementById(id).value.trim();
+
+      async function health(){ const r=await fetch('/api/health/db'); const d=await r.json(); status.textContent=d.ok?'API connected to database.':`API warning: ${d.error||'unavailable'}`; }
+
+      document.getElementById('run').onclick=async()=>{
+        const body={name:val('name'),sql:val('sql'),limit:Number(val('limit')||50)};
+        const r=await fetch('/api/neonscope/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        show(queryOut, await r.json().catch(()=>({error:'bad_response'})));
+      };
+      document.getElementById('save').onclick=async()=>{
+        const body={name:val('name'),sql:val('sql')};
+        const r=await fetch('/api/neonscope/saved',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        show(queryOut, await r.json().catch(()=>({error:'bad_response'})));
+      };
+      document.getElementById('tables').onclick=async()=>{ const r=await fetch('/api/neonscope/tables'); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
+      document.getElementById('saved').onclick=async()=>{ const r=await fetch('/api/neonscope/saved'); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
+      document.getElementById('audit').onclick=async()=>{ const r=await fetch('/api/neonscope/audit'); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
+      document.getElementById('deleteSaved').onclick=async()=>{ const r=await fetch(`/api/neonscope/saved/${encodeURIComponent(val('deleteId'))}`,{method:'DELETE'}); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
+
+      health().catch(()=>status.textContent='API unavailable.');
+    </script>
+  </body>
+</html>

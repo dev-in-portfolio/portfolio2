@@ -1,0 +1,175 @@
+NeonScope — Streamlit + Neon blueprint (Postgres explorer + safe query runner)
+
+What it is
+
+NeonScope is a Streamlit dashboard that lets you explore your Neon Postgres schema, browse tables, preview rows, and run safe parameterized queries from a curated library (not arbitrary “type SQL and pray”). It’s a real operator tool, not a micro-log app.
+
+
+---
+
+Shared backbone (required in every Neon-backed Streamlit app)
+
+Rule: Streamlit is the client and server here, so it can connect to Neon directly from the server process. Never expose DATABASE_URL to the browser.
+Flow: Streamlit server → Neon Postgres
+
+Identity (v1)
+
+Single-user / private tool by default.
+
+Optional passcode gate via env var APP_PASSCODE (simple protection).
+
+
+Server invariants
+
+DATABASE_URL only in env (.streamlit/secrets.toml or environment)
+
+Parameterized SQL only
+
+Read-only mode toggle (default ON)
+
+
+
+---
+
+Stack
+
+Python 3.11+
+
+Streamlit
+
+Postgres driver: psycopg (or psycopg2) pinned
+
+Optional: sqlparse for formatting (not required)
+
+
+
+---
+
+Features (MVP)
+
+1. Connection status panel
+
+
+
+shows connected DB name, server version, current schema
+
+
+2. Schema explorer
+
+
+
+list schemas (filtered to public by default)
+
+list tables + row counts (estimated)
+
+click table → columns + types + indexes
+
+
+3. Data preview
+
+
+
+select table → preview 100 rows
+
+server-side pagination with limit/offset
+
+
+4. Saved queries library
+
+
+
+curated query dropdown (e.g., “Top tables by size”, “Recent rows”, “Missing indexes”)
+
+parameters form generated per query
+
+executes parameterized query and returns dataframe
+
+
+5. Export
+
+
+
+download current dataframe as CSV
+
+
+
+---
+
+Data model
+
+No new tables required. This app reads Postgres system catalogs:
+
+information_schema.columns
+
+pg_catalog.pg_tables
+
+pg_stat_user_tables
+
+pg_indexes
+
+
+
+---
+
+Repo structure
+
+neonscope/
+  README.md
+  requirements.txt
+  app.py
+  db.py
+  queries.py
+  .streamlit/
+    secrets.toml.example
+
+
+---
+
+Env
+
+.streamlit/secrets.toml.example
+
+DATABASE_URL="REDACTED_NEON_URL"
+APP_PASSCODE="REDACTED_OPTIONAL"
+READ_ONLY="true"
+
+
+---
+
+Core safety rules (must enforce)
+
+Block any non-SELECT if READ_ONLY=true
+
+If allowing raw SQL at all, validate it is SELECT-only
+
+Always use server-side parameter binding
+
+
+
+---
+
+Smoke tests
+
+1. App loads with valid DATABASE_URL
+
+
+2. Schema explorer lists public tables
+
+
+3. Table preview shows rows
+
+
+4. Run saved query “Largest tables” returns dataframe
+
+
+5. Download CSV works
+
+
+
+
+---
+
+Done definition
+
+Done = you can inspect schema + preview tables + run safe saved queries against Neon without exposing secrets or allowing destructive writes.
+
