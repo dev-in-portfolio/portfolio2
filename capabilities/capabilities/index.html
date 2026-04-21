@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Capabilities · Roles Map · V2</title>
+  <link rel="icon" href="./favicon.ico" sizes="any" />
   <style>
     :root{
       --bg:#070A10;
@@ -13,32 +14,119 @@
       --stroke2: rgba(255,255,255,.08);
       --text:#E7ECF7;
       --muted:#AAB6D3;
-      --lime:#39FF14;
-      --pink:#FF1B8D;
+      --accent:#E8C27A;
+      --accent-rgb:232,194,122;
+      --blue:#00E5FF;
       --radius:18px;
       --shadow: 0 12px 40px rgba(0,0,0,.45);
       --shadow2: 0 14px 60px rgba(0,0,0,.55);
-      --glow: 0 0 0 1px rgba(57,255,20,.10), 0 0 28px rgba(57,255,20,.10);
-      --glow2: 0 0 0 1px rgba(255,27,141,.10), 0 0 28px rgba(255,27,141,.10);
+      --glow: 0 0 0 1px rgba(var(--accent-rgb),.14), 0 0 28px rgba(var(--accent-rgb),.12);
+      --glow2: 0 0 0 1px rgba(0,229,255,.10), 0 0 28px rgba(0,229,255,.10);
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
+    /* --- INTERACTIVE TOUR SYSTEM --- */
+    .tour-spotlight{
+      position:fixed; z-index:9998;
+      pointer-events:none;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.75);
+      border-radius:18px;
+      transition: all .35s cubic-bezier(.2,.9,.2,1);
+      display:none;
+    }
+    .tour-card{
+      position:fixed; z-index:9999;
+      width: min(420px, 90vw);
+      background: linear-gradient(180deg, #0E1422, #070A10);
+      border: 1px solid rgba(var(--accent-rgb),.4);
+      box-shadow: 0 20px 80px rgba(0,0,0,.8), 0 0 40px rgba(var(--accent-rgb),.1);
+      border-radius: 20px;
+      padding: 24px;
+      display:none;
+      flex-direction: column; gap: 16px;
+      transition: all .35s cubic-bezier(.2,.9,.2,1);
+    }
+    .tour-card h4{ margin:0; color:var(--accent); font-size:20.7px; letter-spacing:-.01em; }
+    .tour-card p{ margin:0; color:var(--muted); line-height:1.6; font-size:16.1px; }
+    .tour-card .step-count{ font-family:var(--mono); font-size:12.6px; color:rgba(255,255,255,.4); }
+    .tour-btns{ display:flex; gap:10px; margin-top:10px; }
+    .tour-btn{
+      flex:1; padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.05); color:var(--text); cursor:pointer; font-weight:700; font-size:14.9px;
+    }
+    .tour-btn.primary{ background:var(--accent); color:#111; border:0; }
     *{ box-sizing:border-box; }
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       background:
-        radial-gradient(1200px 700px at 20% 10%, rgba(57,255,20,.08), transparent 60%),
-        radial-gradient(900px 600px at 80% 0%, rgba(255,27,141,.10), transparent 55%),
+        radial-gradient(1200px 700px at 20% 10%, rgba(var(--accent-rgb),.08), transparent 60%),
+        radial-gradient(900px 600px at 80% 0%, rgba(0,229,255,.10), transparent 55%),
         radial-gradient(1200px 900px at 50% 100%, rgba(100,140,255,.06), transparent 60%),
         var(--bg);
       color:var(--text);
+    }
+    body.colorblind-friendly{
+      --accent:#FFB000;
+      --accent-rgb:255,176,0;
+      --blue:#6EC8FF;
+      --glow: 0 0 0 1px rgba(255,176,0,.22), 0 0 28px rgba(255,176,0,.18);
+      --glow2: 0 0 0 1px rgba(110,200,255,.18), 0 0 28px rgba(110,200,255,.16);
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(255,176,0,.16), transparent 60%),
+        radial-gradient(900px 600px at 80% 0%, rgba(110,200,255,.18), transparent 55%),
+        radial-gradient(1200px 900px at 50% 100%, rgba(110,200,255,.10), transparent 60%),
+        var(--bg);
+    }
+    body.colorblind-friendly .ambient{
+      background:
+        radial-gradient(800px 420px at 35% 20%, rgba(255,176,0,.14), transparent 70%),
+        radial-gradient(700px 380px at 70% 35%, rgba(110,200,255,.14), transparent 70%);
+    }
+    body.colorblind-friendly .fill,
+    body.colorblind-friendly .miniFill{
+      background:
+        repeating-linear-gradient(135deg,
+          rgba(255,176,0,.96) 0 12px,
+          rgba(110,200,255,.90) 12px 24px);
+    }
+    body.colorblind-friendly .meter,
+    body.colorblind-friendly .miniTrack{
+      border-color: rgba(110,200,255,.22);
+      background: rgba(110,200,255,.06);
+    }
+    body.colorblind-friendly .toggle.on,
+    body.colorblind-friendly .scoreLens.on{
+      border-width:2px;
+    }
+    body.colorblind-friendly .tag.lime{
+      border-color: rgba(255,176,0,.42);
+      color:#FFE3A1;
+      background: rgba(255,176,0,.12);
+    }
+    body.colorblind-friendly .tag.blue{
+      border-color: rgba(110,200,255,.42);
+      color: #D8F3FF;
+      background: rgba(110,200,255,.12);
+    }
+    body.colorblind-friendly .mobileQuick a,
+    body.colorblind-friendly .scopePill,
+    body.colorblind-friendly .scoreReadOrder,
+    body.colorblind-friendly .tour-card .step-count{
+      color:#DDF5FF;
+    }
+    body.colorblind-friendly .tour-spotlight{
+      border-color: var(--blue);
+      filter: drop-shadow(0 0 25px rgba(110,200,255,.45));
+    }
+    body.colorblind-friendly .tour-card.centered{
+      border-color: var(--accent);
     }
     .ambient{
       position:fixed; inset:-20% -20%;
       pointer-events:none;
       background:
-        radial-gradient(800px 420px at 35% 20%, rgba(57,255,20,.08), transparent 70%),
-        radial-gradient(700px 380px at 70% 35%, rgba(255,27,141,.08), transparent 70%);
+        radial-gradient(800px 420px at 35% 20%, rgba(var(--accent-rgb),.08), transparent 70%),
+        radial-gradient(700px 380px at 70% 35%, rgba(0,229,255,.08), transparent 70%);
       filter: blur(18px);
       opacity:.55;
       animation: floaty 18s ease-in-out infinite alternate;
@@ -51,8 +139,30 @@
     .wrap{ position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:26px 18px 92px; }
     .hero{ display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; }
     h1{ margin:0; font-size: clamp(26px, 3.6vw, 46px); letter-spacing:-.02em; }
-    .sub{ margin:10px 0 0; color:var(--muted); line-height:1.6; max-width:90ch; font-size:14.5px; }
-    .sub.small{ font-size:12.5px; opacity:.95; }
+    .heroKicker{
+      margin: 0 0 8px;
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: clamp(26px, 4.2vw, 54px);
+      line-height: .92;
+      letter-spacing: -.06em;
+      font-weight: 900;
+      background: linear-gradient(180deg, #FFFFFF 0%, #E5EDFF 45%, #92B4FF 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 22px rgba(140,179,255,.12), 0 0 44px rgba(232,194,122,.08);
+    }
+    .heroKicker .heroSpacer{
+      display:inline-block;
+      margin: 0 .08em;
+      transform: translateY(-.04em);
+      color: rgba(232,194,122,.96);
+      text-shadow: 0 0 16px rgba(232,194,122,.25);
+      font-size: .55em;
+      letter-spacing: 0;
+    }
+    .sub{ margin:10px 0 0; color:var(--muted); line-height:1.6; max-width:90ch; font-size:16.7px; }
+    .sub.small{ font-size:14.4px; opacity:.95; }
     .toolbar{ display:flex; gap:10px; flex-wrap:wrap; width:min(820px,100%); margin-top:10px; align-items:center; }
     .search{
       flex:1 1 260px;
@@ -64,9 +174,9 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
       backdrop-filter: blur(10px);
     }
-    .search input{ width:100%; background:transparent; border:0; outline:none; color:var(--text); font-size:14px; }
+    .search input{ width:100%; background:transparent; border:0; outline:none; color:var(--text); font-size:16.1px; }
     .search kbd{
-      font-size:11px; color:var(--muted);
+      font-size:12.6px; color:var(--muted);
       border:1px solid var(--stroke);
       padding:2px 6px; border-radius:8px;
       background:rgba(0,0,0,.18);
@@ -81,14 +191,14 @@
       border-radius:999px;
       cursor:pointer;
       user-select:none;
-      font-size:12.7px;
+      font-size:14.6px;
       transition: transform .12s ease, border-color .12s ease, color .12s ease, box-shadow .12s ease;
       display:inline-flex; gap:8px; align-items:center;
       backdrop-filter: blur(10px);
     }
-    .toggle:hover{ transform: translateY(-1px); border-color: rgba(57,255,20,.30); color:var(--text); }
+    .toggle:hover{ transform: translateY(-1px); border-color: rgba(var(--accent-rgb),.30); color:var(--text); }
     .toggle.on{
-      border-color: rgba(57,255,20,.55);
+      border-color: rgba(var(--accent-rgb),.55);
       color: var(--text);
       box-shadow: var(--glow);
     }
@@ -97,7 +207,7 @@
       background: rgba(255,255,255,.25);
       box-shadow: 0 0 0 2px rgba(0,0,0,.30);
     }
-    .toggle.on .dot{ background: rgba(57,255,20,.95); box-shadow: 0 0 0 2px rgba(57,255,20,.20), 0 0 16px rgba(57,255,20,.25); }
+    .toggle.on .dot{ background: rgba(var(--accent-rgb),.95); box-shadow: 0 0 0 2px rgba(var(--accent-rgb),.20), 0 0 16px rgba(var(--accent-rgb),.25); }
     .score{
       margin-top:14px;
       border:1px solid var(--stroke);
@@ -118,14 +228,23 @@
     }
     .scoreTitle .pill{
       font-family: var(--mono);
-      font-size:11px;
+      font-size:12.6px;
       color: var(--muted);
       border:1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.18);
       padding:4px 10px;
       border-radius:999px;
     }
-    .scoreHint{ color:var(--muted); font-size:12.8px; line-height:1.5; max-width:78ch; }
+    .scoreHint{ color:var(--muted); font-size:14.7px; line-height:1.5; max-width:78ch; }
+    .scoreReadOrder{
+      margin-top:8px;
+      font-family:var(--mono);
+      font-size:12.6px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#CFE3FF;
+      opacity:.92;
+    }
     .scoreControls{
       display:flex;
       flex-wrap:wrap;
@@ -140,29 +259,29 @@
       border-radius:999px;
       padding:6px 10px;
       font-family:var(--mono);
-      font-size:11px;
+      font-size:12.6px;
       letter-spacing:.06em;
       text-transform:uppercase;
       cursor:pointer;
     }
     .scoreLens.on{
-      border-color: rgba(57,255,20,.5);
+      border-color: rgba(var(--accent-rgb),.5);
       color: var(--text);
       box-shadow: var(--glow);
     }
     .scoreMeta{
       margin-left:auto;
-      font-size:12px;
+      font-size:13.8px;
       color:var(--muted);
       font-family:var(--mono);
     }
     .scoreMini{ display:grid; gap:8px; padding:0 16px 12px; }
-    .miniRow{ display:grid; grid-template-columns: 140px 1fr; gap:10px; align-items:center; font-size:12px; color:var(--muted); }
+    .miniRow{ display:grid; grid-template-columns: 140px 1fr; gap:10px; align-items:center; font-size:13.8px; color:var(--muted); }
     .miniTrack{ height:8px; border-radius:999px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.08); overflow:hidden; }
-    .miniFill{ height:100%; width:0%; background:linear-gradient(90deg, rgba(57,255,20,.9), rgba(100,180,255,.55)); }
-    .scopeDetails{ margin:4px 16px 14px; border:1px solid rgba(255,255,255,.09); border-radius:12px; background:rgba(0,0,0,.16); padding:10px 12px; color:var(--muted); font-size:12.5px; }
+    .miniFill{ height:100%; width:0%; background:linear-gradient(90deg, rgba(var(--accent-rgb),.92), rgba(100,180,255,.55)); }
+    .scopeDetails{ margin:4px 16px 14px; border:1px solid rgba(255,255,255,.09); border-radius:12px; background:rgba(0,0,0,.16); padding:10px 12px; color:var(--muted); font-size:14.4px; }
     .scopeStats{ margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; }
-    .scopePill{ padding:5px 10px; border:1px solid rgba(255,255,255,.10); border-radius:999px; background:rgba(0,0,0,.18); font-family:var(--mono); font-size:11px; color:#CFE3FF; }
+    .scopePill{ padding:5px 10px; border:1px solid rgba(255,255,255,.10); border-radius:999px; background:rgba(0,0,0,.18); font-family:var(--mono); font-size:12.6px; color:#CFE3FF; }
     .mobileQuick{ display:none; }
     .bars{
       padding:12px 16px 14px;
@@ -189,7 +308,7 @@
         border-radius:999px;
         padding:6px 10px;
         font-family:var(--mono);
-        font-size:11px;
+        font-size:12.6px;
         color:var(--muted);
         background:rgba(0,0,0,.2);
       }
@@ -202,24 +321,24 @@
       position:relative;
       overflow:hidden;
     }
-    .bar h3{ margin:0 0 8px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#CFE3FF; }
+    .bar h3{ margin:0 0 8px; font-size:13.8px; letter-spacing:.08em; text-transform:uppercase; color:#CFE3FF; }
     .meter{ height:10px; border-radius:999px; background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.06); overflow:hidden; }
     .fill{
       height:100%;
       width:50%;
       /* High-signal should read "positive" — avoid red/pink dominance */
-      background: linear-gradient(90deg, rgba(57,255,20,.95), rgba(100,180,255,.55));
+      background: linear-gradient(90deg, rgba(var(--accent-rgb),.95), rgba(100,180,255,.55));
       transition: width .28s ease;
     }
     .bar .note{
       margin-top:10px;
       color:var(--muted);
-      font-size:12.8px;
+      font-size:14.7px;
       line-height:1.5;
     }
     .bar.emph{
       /* Emphasis should be green/positive, not red */
-      border-color: rgba(57,255,20,.30);
+      border-color: rgba(var(--accent-rgb),.30);
       box-shadow: var(--glow);
     }
     .grid{ margin-top:14px; display:grid; grid-template-columns: 1fr; gap:12px; }
@@ -236,7 +355,7 @@
       content:"";
       position:absolute; inset:-2px;
       pointer-events:none;
-      background: linear-gradient(90deg, transparent, rgba(57,255,20,.10), transparent);
+      background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb),.10), transparent);
       transform: translateX(-120%);
       opacity:0;
     }
@@ -254,14 +373,33 @@
       cursor:pointer; user-select:none;
       border-left:3px solid var(--cat-color, transparent);
     }
-    .secTitle{ margin:0; font-weight:900; letter-spacing:-.01em; font-size:15px; color:#DDE5FB; }
-    .secMeta{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:12.5px; }
+    .secLead{ min-width:0; }
+    .secEyebrow{
+      margin-bottom:6px;
+      font-family:var(--mono);
+      font-size:12.6px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--cat-color, #CFE3FF);
+      opacity:.92;
+    }
+    .secTitle{ margin:0; font-weight:900; letter-spacing:-.01em; font-size:17.2px; color:#DDE5FB; }
+    .secHint{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:14.1px;
+      line-height:1.45;
+      max-width:72ch;
+    }
+    .secMeta{ display:flex; gap:10px; align-items:center; color:var(--muted); font-size:14.4px; }
+    .secMeta .pill{ color:#DDE5FB; }
+    .secMeta .pill.accent{ border-color: rgba(var(--accent-rgb),.24); color:var(--accent); background: rgba(var(--accent-rgb),.08); }
     .pill{
       padding:4px 10px; border-radius:999px;
       border:1px solid var(--stroke);
       background: rgba(0,0,0,.18);
       font-family: var(--mono);
-      font-size: 11.2px;
+      font-size: 12.9px;
     }
     .chev{
       width:34px; height:34px; border-radius:12px;
@@ -287,13 +425,13 @@
     }
     .roleCard:hover{
       transform: translateY(-2px);
-      border-color: rgba(57,255,20,.18);
+      border-color: rgba(var(--accent-rgb),.18);
       box-shadow: 0 14px 50px rgba(0,0,0,.50);
     }
     .roleCard::before{
       content:"";
       position:absolute; inset:-1px;
-      background: radial-gradient(260px 260px at var(--mx, 20%) var(--my, 20%), rgba(57,255,20,.10), transparent 65%);
+      background: radial-gradient(260px 260px at var(--mx, 20%) var(--my, 20%), rgba(var(--accent-rgb),.10), transparent 65%);
       opacity:0;
       transition: opacity .14s ease;
       pointer-events:none;
@@ -304,25 +442,43 @@
       display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
       cursor:pointer;
     }
-    .roleName{ margin:0; font-weight:950; letter-spacing:-.01em; font-size:14.8px; }
-    .roleDesc{ margin:6px 0 0; color:var(--muted); line-height:1.5; font-size:13px; max-width:78ch; }
+    .roleEyebrow{
+      margin-bottom:6px;
+      font-family:var(--mono);
+      font-size:12.6px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--blue);
+      opacity:.92;
+    }
+    .roleName{ margin:0; font-weight:950; letter-spacing:-.01em; font-size:17px; }
+    .roleDesc{ margin:6px 0 0; color:var(--muted); line-height:1.5; font-size:14.9px; max-width:78ch; }
     .tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
     .tag{
-      font-size:11.2px; padding:5px 8px;
+      font-size:12.9px; padding:5px 8px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.10);
       color:#CFE3FF;
       background: rgba(0,0,0,.20);
     }
-    .tag.lime{ border-color: rgba(57,255,20,.30); color: rgba(57,255,20,.95); background: rgba(57,255,20,.08); }
-    .tag.pink{ border-color: rgba(255,27,141,.30); color: rgba(255,27,141,.95); background: rgba(255,27,141,.08); }
+    .tag.lime{ border-color: rgba(var(--accent-rgb),.30); color: rgba(var(--accent-rgb),.95); background: rgba(var(--accent-rgb),.08); }
+    .tag.blue{ border-color: rgba(0,229,255,.30); color: rgba(0,229,255,.95); background: rgba(0,229,255,.08); }
     .miniHint{
       min-width:160px;
       text-align:right;
       color:var(--muted);
-      font-size:12.5px;
+      font-size:14.4px;
       line-height:1.35;
       padding-top:2px;
+    }
+    .miniHint .miniLabel{
+      display:block;
+      color:#DDE5FB;
+      font-family:var(--mono);
+      font-size:12.6px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      margin-bottom:4px;
     }
     @media (max-width: 560px){
       .miniHint{ display:none; }
@@ -331,6 +487,54 @@
       border-top:1px solid rgba(255,255,255,.06);
       padding:12px 14px 14px;
       background: rgba(0,0,0,.14);
+    }
+    .compactSummary,
+    .compactMeta{
+      display:none;
+    }
+    .compactSummary{
+      margin-top:6px;
+      color:var(--muted);
+      line-height:1.45;
+      font-size:14.2px;
+      max-width:76ch;
+    }
+    .compactProof{
+      margin-top:8px;
+      color:#DDE5FB;
+      line-height:1.45;
+      font-size:13.8px;
+      max-width:74ch;
+    }
+    .compactProof strong{
+      color:var(--accent);
+      font-family:var(--mono);
+      font-size:12.2px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      margin-right:6px;
+    }
+    .compactMeta{
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      align-items:center;
+    }
+    .compactPill{
+      padding:5px 9px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color:#DDE5FB;
+      font-family:var(--mono);
+      font-size:12.2px;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+    .compactPill.accent{
+      border-color: rgba(var(--accent-rgb),.26);
+      background: rgba(var(--accent-rgb),.08);
+      color: var(--accent);
     }
     .lensGrid{
       display:grid;
@@ -352,28 +556,28 @@
       position:relative;
       overflow:hidden;
     }
-    .lensCard:hover{ transform: translateY(-1px); border-color: rgba(57,255,20,.22); }
+    .lensCard:hover{ transform: translateY(-1px); border-color: rgba(var(--accent-rgb),.22); }
     .lensCard.active{
-      border-color: rgba(255,27,141,.45);
+      border-color: rgba(0,229,255,.45);
       box-shadow: var(--glow2);
     }
-    .lensLabel{ font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#CFE3FF; }
-    .lensPreview{ margin-top:6px; font-size:12.9px; color:var(--muted); line-height:1.45; }
+    .lensLabel{ font-size:13.8px; letter-spacing:.08em; text-transform:uppercase; color:#CFE3FF; }
+    .lensPreview{ margin-top:6px; font-size:14.8px; color:var(--muted); line-height:1.45; }
     .lensPreview b{ color:var(--text); font-weight:900; }
     .lensBadge{
       position:absolute;
       right:10px; top:10px;
       font-family: var(--mono);
-      font-size:11px;
+      font-size:12.6px;
       color: var(--muted);
       padding:4px 8px;
       border:1px solid rgba(255,255,255,.10);
       border-radius:999px;
       background: rgba(0,0,0,.18);
     }
-    .lensSummary{ color:var(--muted); line-height:1.55; font-size:13px; }
+    .lensSummary{ color:var(--muted); line-height:1.55; font-size:14.9px; }
     .lensBullets{ margin:10px 0 0; padding-left:18px; }
-    .lensBullets li{ margin:6px 0; color:#DDE5FB; line-height:1.5; font-size:13px; }
+    .lensBullets li{ margin:6px 0; color:#DDE5FB; line-height:1.5; font-size:14.9px; }
     .proofStack{
       margin-top:12px;
       border:1px solid rgba(255,255,255,.08);
@@ -394,66 +598,50 @@
       padding:7px 10px;
       border-radius:999px;
       cursor:pointer;
-      font-size:12px;
+      font-size:13.8px;
       user-select:none;
     }
     .tab.active{
-      border-color: rgba(57,255,20,.45);
+      border-color: rgba(var(--accent-rgb),.45);
       color: var(--text);
       box-shadow: var(--glow);
     }
     .proofBody{ padding:10px 12px 12px; }
     .proofLinks{ display:flex; gap:8px; flex-wrap:wrap; }
     .proofActions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
-    .proofBtn{ border:1px solid var(--stroke); background:rgba(0,0,0,.2); color:var(--text); border-radius:10px; padding:8px 10px; font-family:var(--mono); font-size:11px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; }
-    .proofBtn:hover{ border-color: rgba(57,255,20,.45); box-shadow: var(--glow); }
+    .proofBtn{ border:1px solid var(--stroke); background:rgba(0,0,0,.2); color:var(--text); border-radius:10px; padding:8px 10px; font-family:var(--mono); font-size:12.6px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; }
+    .proofBtn:hover{ border-color: rgba(var(--accent-rgb),.45); box-shadow: var(--glow); }
     .proofLink{
-      border:1px solid rgba(57,255,20,.28);
-      background: rgba(57,255,20,.08);
-      color: rgba(57,255,20,.95);
-      padding:7px 10px;
+      border:1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      padding:7px 12px;
       border-radius:999px;
-      font-size:12.5px;
+      font-size:14.4px;
       text-decoration:none;
       display:inline-flex; gap:8px; align-items:center;
+      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+      transition: all .2s ease;
     }
-    .proofLink span{ color:var(--muted); font-size:12px; }
-    .proofText{ color:var(--muted); line-height:1.55; font-size:13px; }
+    .proofLink:hover{ border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.1); color: #fff; }
+    .proofLink span{ color:var(--muted); font-size:13.8px; }
+    .proofText{ color:var(--muted); line-height:1.55; font-size:14.9px; }
     .proofList{ margin:10px 0 0; padding-left:18px; }
-    .proofList li{ margin:7px 0; color:#DDE5FB; line-height:1.5; font-size:13px; }
+    .proofList li{ margin:7px 0; color:#DDE5FB; line-height:1.5; font-size:14.9px; }
     .compact .lensWrap{ display:none; }
     .compact .roleCard{ border-radius:14px; }
-    .compact .roleTop{ padding:12px 14px; align-items:center; }
+    .compact .roleTop{ padding:12px 14px; align-items:flex-start; }
     .compact .roleDesc{ display:none; }
-    .compact .tags{ margin-top:0; }
+    .compact .tags{ margin-top:8px; }
     .compact .miniHint{ display:none; }
-    .compact .roleTop .quickReceipts{ display:flex; }
-    .quickReceipts{
-      display:none;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      align-items:center;
-      min-width:220px;
-    }
-    @media (max-width: 860px){
-      .quickReceipts{ display:none !important; }
-    }
-    .quickReceipts a{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      color: var(--muted);
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:12px;
-      text-decoration:none;
-      transition: border-color .12s ease, color .12s ease, transform .12s ease;
-    }
-    .quickReceipts a:hover{ border-color: rgba(57,255,20,.30); color:var(--text); transform: translateY(-1px); }
+    .compact .compactSummary,
+    .compact .compactMeta{ display:flex; }
+    .compact .compactSummary{ display:block; }
+    .compact .roleEyebrow{ margin-bottom:4px; }
     mark.hl{
-      background: rgba(255,27,141,.18);
+      background: rgba(0,229,255,.18);
       color: var(--text);
-      border:1px solid rgba(255,27,141,.25);
+      border:1px solid rgba(0,229,255,.25);
       padding:0 4px;
       border-radius:8px;
     }
@@ -467,8 +655,10 @@
     .drawerMask.show{ display:block; }
     .drawer{
       position:fixed;
-      right:0; top:0;
-      height:100%;
+      right:0;
+      top: 45px;
+      bottom: 16px;
+      height: auto;
       width: min(620px, 92vw);
       background: linear-gradient(180deg, rgba(14,20,34,.98), rgba(7,10,16,.98));
       border-left: 1px solid rgba(255,255,255,.08);
@@ -476,12 +666,62 @@
       transform: translateX(105%);
       transition: transform .24s cubic-bezier(.2,.9,.2,1);
       padding:18px 16px 18px;
-      overflow:auto;
+      overflow-y:auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      max-height: calc(100dvh - 45px - 32px);
     }
     .drawerMask.show .drawer{ transform: translateX(0); }
-    .drawerTop{ display:flex; gap:10px; align-items:flex-start; justify-content:space-between; }
-    .dTitle{ margin:0; font-size:18px; font-weight:950; letter-spacing:-.01em; }
-    .dSub{ margin:6px 0 0; color:var(--muted); line-height:1.5; font-size:13.5px; }
+    .drawerTop{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+      margin:-18px -16px 0;
+      padding:18px 16px 14px;
+      background: linear-gradient(180deg, rgba(14,20,34,.98), rgba(14,20,34,.92));
+      border-bottom:1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(18px);
+    }
+    @media (max-width: 760px){
+      .drawer{
+        top: 96px;
+        bottom: 16px;
+        height: auto;
+        max-height: calc(100dvh - 96px - 32px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+      .drawerTop{
+        position: static;
+      }
+    }
+    .dTitle{ margin:0; font-size:20.7px; font-weight:950; letter-spacing:-.01em; }
+    .dSub{ margin:6px 0 0; color:var(--muted); line-height:1.5; font-size:15.5px; }
+    .drawerMeta{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+      align-items:center;
+    }
+    .drawerPill{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color:#DDE5FB;
+      font-family:var(--mono);
+      font-size:12.6px;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .drawerPill.accent{
+      border-color: rgba(var(--accent-rgb),.32);
+      color: var(--accent);
+      background: rgba(var(--accent-rgb),.09);
+    }
     .closeBtn{
       border:1px solid rgba(255,255,255,.10);
       background: rgba(0,0,0,.22);
@@ -500,23 +740,23 @@
       justify-content:space-between;
     }
     .actionBtn{
-      border:1px solid rgba(57,255,20,.28);
-      background: rgba(57,255,20,.08);
-      color: rgba(57,255,20,.95);
+      border:1px solid rgba(var(--accent-rgb),.28);
+      background: rgba(var(--accent-rgb),.08);
+      color: rgba(var(--accent-rgb),.95);
       padding:10px 12px;
       border-radius:14px;
       cursor:pointer;
-      font-size:12.8px;
+      font-size:14.7px;
       display:inline-flex; gap:10px; align-items:center;
       transition: transform .12s ease, border-color .12s ease;
     }
-    .actionBtn:hover{ transform: translateY(-1px); border-color: rgba(57,255,20,.45); }
+    .actionBtn:hover{ transform: translateY(-1px); border-color: rgba(var(--accent-rgb),.45); }
     .actionBtn.secondary{
       border-color: rgba(255,255,255,.10);
       background: rgba(0,0,0,.18);
       color: var(--muted);
     }
-    .actionBtn.secondary:hover{ border-color: rgba(255,27,141,.25); color: var(--text); }
+    .actionBtn.secondary:hover{ border-color: rgba(0,229,255,.25); color: var(--text); }
     .block{
       border:1px solid rgba(255,255,255,.08);
       background: rgba(0,0,0,.18);
@@ -524,16 +764,51 @@
       padding:12px;
       margin-top:12px;
     }
+    .blockHeader{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .blockLead{
+      min-width:0;
+      flex:1 1 auto;
+    }
     .block h4{
-      margin:0 0 8px;
-      font-size:12px;
+      margin:0;
+      font-size:13.8px;
       letter-spacing:.08em;
       text-transform:uppercase;
       color:#CFE3FF;
     }
+    .blockNote{
+      margin-top:5px;
+      color:var(--muted);
+      line-height:1.45;
+      font-size:13.8px;
+    }
+    .blockCount{
+      flex:0 0 auto;
+      padding:5px 9px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color:var(--muted);
+      font-family:var(--mono);
+      font-size:12.6px;
+    }
     .block ul{ margin:0; padding-left:18px; }
-    .block li{ margin:7px 0; color:#DDE5FB; line-height:1.5; font-size:13px; }
-    .muted{ color:var(--muted); line-height:1.6; font-size:13.5px; }
+    .block li{ margin:7px 0; color:#DDE5FB; line-height:1.5; font-size:14.9px; }
+    .splitBlocks{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 760px){
+      .splitBlocks{ grid-template-columns:1fr; }
+    }
+    .muted{ color:var(--muted); line-height:1.6; font-size:15.5px; }
     .timeline{
       display:grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -548,9 +823,9 @@
       border-radius:16px;
       padding:12px;
     }
-    .tCard b{ display:block; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#CFE3FF; margin-bottom:8px; }
+    .tCard b{ display:block; font-size:13.8px; letter-spacing:.08em; text-transform:uppercase; color:#CFE3FF; margin-bottom:8px; }
     .tCard ul{ margin:0; padding-left:18px; }
-    .tCard li{ margin:7px 0; color:#DDE5FB; line-height:1.5; font-size:13px; }
+    .tCard li{ margin:7px 0; color:#DDE5FB; line-height:1.5; font-size:14.9px; }
     textarea.noteBox{
       width:100%;
       min-height:140px;
@@ -561,13 +836,134 @@
       padding:12px;
       color: var(--text);
       line-height:1.55;
-      font-size:13.5px;
+      font-size:15.5px;
       outline:none;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
+    /* --- MASTER CLASS TRANSPARENT TOUR V8 --- */
+    .tour-spotlight{
+      position:fixed; z-index:9998;
+      pointer-events:none;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.35); /* LIGHT WASH, NOT BLACKOUT */
+      border-radius:28px;
+      transition: all .5s cubic-bezier(.19,1,.22,1);
+      display:none;
+      border: 3px solid var(--accent);
+      filter: drop-shadow(0 0 25px rgba(var(--accent-rgb),.45));
+    }
+    .tour-card{
+      position:fixed; z-index:9999;
+      width: min(500px, 92vw);
+      background: rgba(14, 20, 34, 0.96);
+      backdrop-filter: blur(30px);
+      border: 1px solid rgba(255,255,255,.15);
+      box-shadow: 0 40px 120px rgba(0,0,0,.9), 0 0 60px rgba(var(--accent-rgb),.1);
+      border-radius: 32px;
+      padding: 28px;
+      display:none;
+      flex-direction: column;
+      gap: 18px;
+      transition: all .5s cubic-bezier(.19,1,.22,1);
+    }
+    .tour-card.centered{ top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; border-color: var(--blue); width: min(680px, 94vw); }
+    .tour-card h4{ margin:0; color:var(--accent); font-size:28px; letter-spacing:-.04em; font-weight:950; line-height:1.1; }
+    .tour-card p{ margin:0; color:var(--muted); line-height:1.65; font-size:16.6px; }
+    .tour-card .step-count{ font-family:var(--mono); font-size:12.6px; color:var(--blue); letter-spacing:.25em; text-transform:uppercase; font-weight:900; }
+    
+    .path-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:10px; }
+    @media (max-width: 600px){ .path-grid{ grid-template-columns: 1fr; } }
+    .path-btn{ 
+      border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:16px; background:rgba(255,255,255,.02);
+      display:flex; gap:14px; align-items:center; transition: all .2s ease; cursor:pointer; text-align:left;
+    }
+    .path-btn:hover{ background:rgba(var(--accent-rgb),.12); border-color:rgba(var(--accent-rgb),.5); transform:translateY(-2px); }
+    .path-btn .path-icon{ font-size:25.3px; width:44px; height:44px; border-radius:14px; background:rgba(0,0,0,.4); display:grid; place-items:center; flex-shrink:0; }
+    .path-btn .path-text b{ display:block; color:var(--text); font-size:15.5px; margin-bottom:2px; letter-spacing:.02em; }
+    .path-btn:hover .path-text b{ color:var(--accent); }
+    .path-btn .path-text span{ font-size:12.6px; color:var(--muted); line-height:1.3; display:block; }
+
+    .tour-arrow{
+      position:fixed; z-index:9999; pointer-events:none; width:70px; height:70px; display:none;
+      filter: drop-shadow(0 0 12px rgba(var(--accent-rgb),.75));
+      transition: all .4s ease;
+    }
+    .tour-progress{ height:5px; width:100%; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; }
+    .tour-progress-fill{ height:100%; background:var(--accent); width:0%; transition: width .5s ease; }
+
+    .tour-btns{ display:flex; gap:16px; margin-top:12px; }
+    .tour-btn{
+      flex:1; padding:14px; border-radius:18px; border:1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.05); color:var(--text); cursor:pointer; font-weight:900; font-size:15.8px;
+      transition: all .25s ease;
+    }
+    .tour-btn:hover{ background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.25); }
+    .tour-btn.primary{ background:var(--accent); color:#111; border:0; }
+    .tour-btn.primary:hover{ transform:translateY(-3px); box-shadow: 0 15px 40px rgba(var(--accent-rgb),.32); }
+    body.tour-open{
+      overflow:hidden;
+    }
+    body.tour-open .wrap,
+    body.tour-open #mask,
+    body.tour-open nav{
+      pointer-events:none;
+      user-select:none;
+    }
+    .proofStackNote{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-size:13.8px;
+      line-height:1.55;
+    }
+    .proofStackMore{
+      margin-top:12px;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      background:rgba(255,255,255,.02);
+      overflow:hidden;
+    }
+    .proofStackMore summary{
+      cursor:pointer;
+      list-style:none;
+      padding:12px 14px;
+      font-family:var(--mono);
+      font-size:12.6px;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      color:#CFE3FF;
+    }
+    .proofStackMore summary::-webkit-details-marker{
+      display:none;
+    }
+    .proofStackMore[open] summary{
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .proofStackMoreBody{
+      padding:12px;
+    }
+    .capFooter{
+      margin: 28px auto 0;
+      max-width: 980px;
+      padding: 0 18px 24px;
+      color: var(--muted);
+      font-size: 13.2px;
+      line-height: 1.55;
+      text-align: center;
+    }
+    @media (max-width: 720px){
+      .tour-card{
+        width:min(92vw, 420px);
+        padding:22px;
+        gap:16px;
+      }
+      .tour-card.centered{ width:min(92vw, 520px); }
+      .tour-card h4{ font-size:23px; }
+      .tour-card p{ font-size:15.2px; line-height:1.58; }
+      .tour-btns{ gap:10px; }
+      .tour-btn{ padding:12px; font-size:14.6px; }
+    }
   </style>
-  <link rel="stylesheet" href="/shared/tokens.css"/>
-  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css"/>
+  <link rel="stylesheet" href="./shared/tokens.css"/>
+  <link rel="stylesheet" href="./shared/nexus-topnav-v2.css"/>
 </head>
 <body>
     <nav class="nxTopNav"></nav>
@@ -575,12 +971,20 @@
   <div class="wrap">
     <div class="hero">
       <div>
+        <p class="heroKicker" aria-label="The D O D">The D<span class="heroSpacer" aria-hidden="true">•</span>O<span class="heroSpacer" aria-hidden="true">•</span>D</p>
         <h1>Capabilities · Roles Map</h1>
         <p class="sub">
           Accordion categories + Lens Snapshots + Proof Stack + Recruiter Mode + Briefing Packet drawer.
           Click a role to open the full briefing drawer.
         </p>
-        <p class="sub small">Tip: press <b>/</b> to focus search · <b>Esc</b> closes drawer · search highlights matches.</p>
+        <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+          <p class="sub small">Tip: press <b>/</b> to focus search · <b>Esc</b> closes drawer · search highlights matches.</p>
+          <button id="btnTour" class="toggle" onclick="window.startCapabilitiesTour && window.startCapabilitiesTour()" style="background:rgba(var(--accent-rgb),.08); border-color:rgba(var(--accent-rgb),.25); color:rgba(var(--accent-rgb),.95); padding:6px 12px; font-size:13.2px; font-weight:900; letter-spacing:.05em;">START INTERACTIVE TOUR</button>
+          <div class="toggle" id="tColorblind" role="button" tabindex="0" aria-pressed="false">
+            <span class="dot"></span>
+            High Visibility Mode: Off
+          </div>
+        </div>
       </div>
 
       <div class="toolbar">
@@ -615,6 +1019,7 @@
             Fit Scoreboard
             <span class="pill" id="scorePill">LENS: PM</span>
           </div>
+          <div class="scoreReadOrder">Read order: Lens → Bars → Proof Scope</div>
           <div class="scoreControls">
             <button class="scoreLens on" id="lensPm" type="button">PM</button>
             <button class="scoreLens" id="lensEval" type="button">Eval</button>
@@ -665,60 +1070,131 @@
     <div class="grid" id="sections"></div>
   </div>
 
+  <footer class="capFooter">
+    © 2026 Devin O’Rourke. All Rights Reserved.<br>
+    This Capabilities Map and all content are Confidential Information under the Concept Presentation Protection Agreement dated April 5, 2026. Unauthorized use, copying, derivative works, or further distribution prohibited. Originator: Devin O’Rourke.
+  </footer>
+
+  <div class="tour-spotlight" id="tourSpotlight"></div>
+  
+  <svg class="tour-arrow" id="tourArrow" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M30 5L30 55M30 5L10 25M30 5L50 25" stroke="#E8C27A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+
+  <div class="tour-card" id="tourCard">
+    <div class="tour-progress"><div class="tour-progress-fill" id="tourProgressFill"></div></div>
+    <div class="step-count" id="tourStepCount">MISSION BRIEFING</div>
+    <h4 id="tourTitle">Capability Map Orientation</h4>
+    <p id="tourDesc">Select your path to continue.</p>
+    <div class="tour-btns">
+      <button class="tour-btn" id="tourPrev">Back</button>
+      <button class="tour-btn primary" id="tourNext">Begin Walkthrough</button>
+    </div>
+    <button class="tour-btn" id="tourEnd" style="margin-top:5px; border:0; background:transparent; font-size:12.6px; color:rgba(255,255,255,.3);">Skip Mission</button>
+  </div>
+
   <div class="drawerMask" id="mask" role="dialog" aria-modal="true">
     <aside class="drawer">
       <div class="drawerTop">
         <div>
           <h2 class="dTitle" id="dTitle">Role</h2>
           <p class="dSub" id="dSub"></p>
+          <div class="drawerMeta">
+            <span class="drawerPill accent" id="dLensPill">Lens: PM</span>
+            <span class="drawerPill" id="dTagStrip">Role tags</span>
+            <span class="drawerPill" id="dSummaryStats">Summary stats</span>
+          </div>
         </div>
         <button class="closeBtn" id="close" aria-label="Close">✕</button>
       </div>
       <div class="block">
-        <h4>Role summary</h4>
+        <div class="blockHeader">
+          <div class="blockLead">
+            <h4>Role summary</h4>
+            <div class="blockNote">Fast read before you drop into operating details.</div>
+          </div>
+        </div>
         <div class="muted" id="dSummary"></div>
         <div class="proofActions">
           <button class="proofBtn" id="dCopyBlurb" type="button">Copy role blurb</button>
           <button class="proofBtn" id="dCopyBullets" type="button">Copy evidence bullets</button>
+          <button class="proofBtn" id="dCopyLink" type="button">Copy briefing link</button>
         </div>
       </div>
 
       <div class="block">
-        <h4>My angle</h4>
+        <div class="blockHeader">
+          <div class="blockLead">
+            <h4>My angle</h4>
+            <div class="blockNote">Operating stance and standards this role brings into a team.</div>
+          </div>
+          <span class="blockCount" id="dAngleCount">0 points</span>
+        </div>
         <ul id="dAngle"></ul>
       </div>
 
       <div class="block">
-        <h4>Week 1 / Week 4 / Week 12</h4>
+        <div class="blockHeader">
+          <div class="blockLead">
+            <h4>Week 1 / Week 4 / Week 12</h4>
+            <div class="blockNote">Ramp plan from first contact to steady-state delivery.</div>
+          </div>
+          <span class="blockCount">3 phases</span>
+        </div>
         <div class="timeline" id="dTimeline"></div>
       </div>
 
       <div class="block">
-        <h4>Failure modes I protect against</h4>
+        <div class="blockHeader">
+          <div class="blockLead">
+            <h4>Failure modes I protect against</h4>
+            <div class="blockNote">The risks this role is explicitly designed to reduce.</div>
+          </div>
+          <span class="blockCount" id="dFailsCount">0 risks</span>
+        </div>
         <ul id="dFails"></ul>
       </div>
 
-      <div class="block">
-        <h4>Cross-functional partners</h4>
-        <ul id="dPartners"></ul>
+      <div class="splitBlocks">
+        <div class="block">
+          <div class="blockHeader">
+            <div class="blockLead">
+              <h4>Cross-functional partners</h4>
+              <div class="blockNote">Who this role aligns with to move work through the system.</div>
+            </div>
+            <span class="blockCount" id="dPartnersCount">0 partners</span>
+          </div>
+          <ul id="dPartners"></ul>
+        </div>
+
+        <div class="block">
+          <div class="blockHeader">
+            <div class="blockLead">
+              <h4>Artifacts I produce</h4>
+              <div class="blockNote">The tangible outputs this role leaves behind.</div>
+            </div>
+            <span class="blockCount" id="dArtifactsCount">0 artifacts</span>
+          </div>
+          <ul id="dArtifacts"></ul>
+        </div>
       </div>
 
       <div class="block">
-        <h4>Artifacts I produce</h4>
-        <ul id="dArtifacts"></ul>
-      </div>
-
-      <div class="block">
-        <h4>Proof stack</h4>
+        <div class="blockHeader">
+          <div class="blockLead">
+            <h4>Proof stack</h4>
+            <div class="blockNote">Signals, case framing, and live receipts behind the active lens.</div>
+          </div>
+          <span class="blockCount" id="dProofMeta">0 receipts</span>
+        </div>
         <div class="muted" id="dProofIntro"></div>
         <div id="dProofLinks" class="proofLinks" style="margin-top:10px;"></div>
         <ul id="dProofSignals" style="margin-top:12px;"></ul>
       </div>
 </aside>
-  </div>
+</div>
 
-  <script>
-    const CATS = [
+<script>    const CATS = [
   {
     "id": "product",
     "name": "Product, AI & Strategy"
@@ -800,6 +1276,11 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -813,6 +1294,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -843,6 +1339,11 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -856,6 +1357,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -886,6 +1402,11 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -899,6 +1420,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -1011,6 +1547,11 @@ const ROLES = [
               "href": "/apps/floraguide-ai/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "LingoLive AI",
               "note": "portfolio",
               "href": "/apps/lingolive-ai/"
@@ -1019,6 +1560,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -1054,6 +1610,11 @@ const ROLES = [
               "href": "/apps/floraguide-ai/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "LingoLive AI",
               "note": "portfolio",
               "href": "/apps/lingolive-ai/"
@@ -1062,6 +1623,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -1097,6 +1673,11 @@ const ROLES = [
               "href": "/apps/floraguide-ai/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "LingoLive AI",
               "note": "portfolio",
               "href": "/apps/lingolive-ai/"
@@ -1105,6 +1686,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -1212,6 +1808,11 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -1225,6 +1826,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -1255,6 +1871,11 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -1268,6 +1889,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -1298,6 +1934,11 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -1311,6 +1952,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -1413,6 +2069,11 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
@@ -1431,6 +2092,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -1456,6 +2132,11 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
@@ -1474,6 +2155,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -1499,6 +2195,11 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
@@ -1517,6 +2218,21 @@ const ROLES = [
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -1624,6 +2340,31 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -1632,11 +2373,6 @@ const ROLES = [
               "label": "LingoLive AI",
               "note": "portfolio",
               "href": "/apps/lingolive-ai/"
-            },
-            {
-              "label": "Oracle Pit",
-              "note": "portfolio",
-              "href": "/apps/oracle-pit/"
             }
           ],
           "caseNotes": [
@@ -1667,6 +2403,31 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -1675,11 +2436,6 @@ const ROLES = [
               "label": "LingoLive AI",
               "note": "portfolio",
               "href": "/apps/lingolive-ai/"
-            },
-            {
-              "label": "Oracle Pit",
-              "note": "portfolio",
-              "href": "/apps/oracle-pit/"
             }
           ],
           "caseNotes": [
@@ -1710,6 +2466,31 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -1718,11 +2499,6 @@ const ROLES = [
               "label": "LingoLive AI",
               "note": "portfolio",
               "href": "/apps/lingolive-ai/"
-            },
-            {
-              "label": "Oracle Pit",
-              "note": "portfolio",
-              "href": "/apps/oracle-pit/"
             }
           ],
           "caseNotes": [
@@ -1824,6 +2600,7 @@ const ROLES = [
         ],
         "proofStack": {
           "receipts": [
+
             {
               "label": "Agents",
               "note": "portfolio",
@@ -1835,19 +2612,34 @@ const ROLES = [
               "href": "/apps/prompt-vault/"
             },
             {
-              "label": "Alibi",
-              "note": "portfolio",
-              "href": "/apps/alibi/"
-            },
-            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
             },
             {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
               "label": "UBR",
               "note": "portfolio",
               "href": "/apps/ubr/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
             }
           ],
           "caseNotes": [
@@ -1888,14 +2680,29 @@ const ROLES = [
               "href": "/apps/ubr/"
             },
             {
+              "label": "Agents",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
               "label": "Alibi",
               "note": "portfolio",
               "href": "/apps/alibi/"
             },
             {
-              "label": "Agents",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/agents/"
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
             }
           ],
           "caseNotes": [
@@ -1921,6 +2728,16 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
@@ -1936,14 +2753,19 @@ const ROLES = [
               "href": "/apps/prompt-vault/"
             },
             {
-              "label": "UBR",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/oracle-pit/"
             },
             {
-              "label": "Coverage Compass",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/coverage-compass/"
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
             }
           ],
           "caseNotes": [
@@ -2045,6 +2867,7 @@ const ROLES = [
         ],
         "proofStack": {
           "receipts": [
+
             {
               "label": "Coverage Compass",
               "note": "portfolio",
@@ -2056,19 +2879,34 @@ const ROLES = [
               "href": "/apps/ubr/"
             },
             {
-              "label": "Alibi",
-              "note": "portfolio",
-              "href": "/apps/alibi/"
-            },
-            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
             },
             {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
               "label": "Prompt Vault",
               "note": "portfolio",
               "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
             }
           ],
           "caseNotes": [
@@ -2109,9 +2947,29 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
               "label": "Prompt Vault",
               "note": "portfolio",
               "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
             }
           ],
           "caseNotes": [
@@ -2137,14 +2995,19 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Agents",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
-            },
-            {
-              "label": "UBR",
-              "note": "portfolio",
-              "href": "/apps/ubr/"
             },
             {
               "label": "Alibi",
@@ -2152,9 +3015,24 @@ const ROLES = [
               "href": "/apps/alibi/"
             },
             {
-              "label": "Agents",
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Agents (UI)",
               "note": "portfolio",
               "href": "/apps/agents/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
             }
           ],
           "caseNotes": [
@@ -2262,6 +3140,16 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -2272,9 +3160,19 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -2305,6 +3203,16 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -2315,9 +3223,19 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -2348,6 +3266,16 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -2358,9 +3286,19 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -2468,9 +3406,14 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "FloraGuide AI",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/floraguide-ai/"
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
             },
             {
               "label": "LingoLive AI",
@@ -2478,9 +3421,24 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -2674,9 +3632,14 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "FloraGuide AI",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/floraguide-ai/"
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
             },
             {
               "label": "LingoLive AI",
@@ -2684,9 +3647,24 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -2880,9 +3858,24 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
             },
             {
               "label": "LingoLive AI",
@@ -2890,9 +3883,14 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "Alibi",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -3086,6 +4084,26 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "FloraGuide AI",
               "note": "portfolio",
               "href": "/apps/floraguide-ai/"
@@ -3096,9 +4114,9 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "Alibi",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -3287,14 +4305,19 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
             },
             {
-              "label": "FloraGuide AI",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/floraguide-ai/"
+              "href": "/apps/oracle-pit/"
             },
             {
               "label": "LingoLive AI",
@@ -3302,9 +4325,24 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "Coverage Compass",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -3503,24 +4541,34 @@ const ROLES = [
               "href": "/apps/coverage-compass/"
             },
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
               "label": "UBR",
               "note": "portfolio",
               "href": "/apps/ubr/"
-            },
-            {
-              "label": "Helix",
-              "note": "portfolio",
-              "href": "/apps/helix/"
-            },
-            {
-              "label": "Tectonic",
-              "note": "portfolio",
-              "href": "/apps/tectonic/"
-            },
-            {
-              "label": "Vortex",
-              "note": "portfolio",
-              "href": "/apps/vortex/"
             }
           ],
           "caseNotes": [
@@ -3599,11 +4647,6 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "Alibi",
-              "note": "portfolio",
-              "href": "/apps/alibi/"
-            },
-            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
@@ -3614,9 +4657,29 @@ const ROLES = [
               "href": "/apps/ubr/"
             },
             {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
               "label": "Prompt Vault",
               "note": "portfolio",
               "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Angular FormFoundry",
+              "note": "portfolio",
+              "href": "https://dev-in-portfolio-angular-formfoundry.netlify.app"
             }
           ],
           "caseNotes": [
@@ -3729,24 +4792,34 @@ const ROLES = [
               "href": "/apps/coverage-compass/"
             },
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
               "label": "UBR",
               "note": "portfolio",
               "href": "/apps/ubr/"
-            },
-            {
-              "label": "Helix",
-              "note": "portfolio",
-              "href": "/apps/helix/"
-            },
-            {
-              "label": "Tectonic",
-              "note": "portfolio",
-              "href": "/apps/tectonic/"
-            },
-            {
-              "label": "Vortex",
-              "note": "portfolio",
-              "href": "/apps/vortex/"
             }
           ],
           "caseNotes": [
@@ -3825,14 +4898,14 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "Alibi",
-              "note": "portfolio",
-              "href": "/apps/alibi/"
-            },
-            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             },
             {
               "label": "UBR",
@@ -3843,6 +4916,21 @@ const ROLES = [
               "label": "Prompt Vault",
               "note": "portfolio",
               "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Angular FormFoundry",
+              "note": "portfolio",
+              "href": "https://dev-in-portfolio-angular-formfoundry.netlify.app"
             }
           ],
           "caseNotes": [
@@ -3950,29 +5038,39 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
             },
             {
-              "label": "UBR",
+              "label": "LingoLive AI",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Helix",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/helix/"
+              "href": "/apps/floraguide-ai/"
             },
             {
-              "label": "Tectonic",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/tectonic/"
+              "href": "/apps/prompt-vault/"
             },
             {
-              "label": "Vortex",
+              "label": "Agents (UI)",
               "note": "portfolio",
-              "href": "/apps/vortex/"
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -4051,24 +5149,59 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "Alibi",
-              "note": "portfolio",
-              "href": "/apps/alibi/"
-            },
-            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
             },
             {
-              "label": "UBR",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/oracle-pit/"
             },
             {
-              "label": "Prompt Vault",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/prompt-vault/"
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Angular GridSmith",
+              "note": "portfolio",
+              "href": "https://dev-in-portfolio-angular-gridsmith.netlify.app"
             }
           ],
           "caseNotes": [
@@ -4170,6 +5303,7 @@ const ROLES = [
         ],
         "proofStack": {
           "receipts": [
+
             {
               "label": "Agents",
               "note": "portfolio",
@@ -4186,19 +5320,29 @@ const ROLES = [
               "href": "/apps/ubr/"
             },
             {
-              "label": "Helix",
+              "label": "Alibi",
               "note": "portfolio",
-              "href": "/apps/helix/"
+              "href": "/apps/alibi/"
             },
             {
-              "label": "Tectonic",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/tectonic/"
+              "href": "/apps/prompt-vault/"
             },
             {
-              "label": "Vortex",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/vortex/"
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Angular FormFoundry",
+              "note": "portfolio",
+              "href": "https://dev-in-portfolio-angular-formfoundry.netlify.app"
             }
           ],
           "caseNotes": [
@@ -4224,6 +5368,11 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Agents",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
@@ -4234,19 +5383,29 @@ const ROLES = [
               "href": "/apps/ubr/"
             },
             {
-              "label": "Helix",
+              "label": "Alibi",
               "note": "portfolio",
-              "href": "/apps/helix/"
+              "href": "/apps/alibi/"
             },
             {
-              "label": "Tectonic",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/tectonic/"
+              "href": "/apps/prompt-vault/"
             },
             {
-              "label": "Magma",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/magma/"
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Angular FormFoundry",
+              "note": "portfolio",
+              "href": "https://dev-in-portfolio-angular-formfoundry.netlify.app"
             }
           ],
           "caseNotes": [
@@ -4277,14 +5436,14 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "Alibi",
-              "note": "portfolio",
-              "href": "/apps/alibi/"
-            },
-            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             },
             {
               "label": "UBR",
@@ -4295,6 +5454,21 @@ const ROLES = [
               "label": "Prompt Vault",
               "note": "portfolio",
               "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Angular FormFoundry",
+              "note": "portfolio",
+              "href": "https://dev-in-portfolio-angular-formfoundry.netlify.app"
             }
           ],
           "caseNotes": [
@@ -4396,6 +5570,7 @@ const ROLES = [
         ],
         "proofStack": {
           "receipts": [
+
             {
               "label": "Agents",
               "note": "portfolio",
@@ -4407,24 +5582,34 @@ const ROLES = [
               "href": "/apps/coverage-compass/"
             },
             {
-              "label": "UBR",
+              "label": "LingoLive AI",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Helix",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/helix/"
+              "href": "/apps/oracle-pit/"
             },
             {
-              "label": "Tectonic",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/tectonic/"
+              "href": "/apps/floraguide-ai/"
             },
             {
-              "label": "Vortex",
+              "label": "Alibi",
               "note": "portfolio",
-              "href": "/apps/vortex/"
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Angular GridSmith",
+              "note": "portfolio",
+              "href": "https://dev-in-portfolio-angular-gridsmith.netlify.app"
             }
           ],
           "caseNotes": [
@@ -4450,29 +5635,64 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Agents",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
             },
             {
-              "label": "UBR",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/oracle-pit/"
             },
             {
-              "label": "Helix",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/helix/"
+              "href": "/apps/floraguide-ai/"
             },
             {
-              "label": "Tectonic",
+              "label": "Alibi",
               "note": "portfolio",
-              "href": "/apps/tectonic/"
+              "href": "/apps/alibi/"
             },
             {
-              "label": "Magma",
+              "label": "Agents (UI)",
               "note": "portfolio",
-              "href": "/apps/magma/"
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Angular GridSmith",
+              "note": "portfolio",
+              "href": "https://dev-in-portfolio-angular-gridsmith.netlify.app"
             }
           ],
           "caseNotes": [
@@ -4503,24 +5723,39 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "Alibi",
-              "note": "portfolio",
-              "href": "/apps/alibi/"
-            },
-            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
             },
             {
-              "label": "UBR",
+              "label": "LingoLive AI",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Prompt Vault",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/prompt-vault/"
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Angular GridSmith",
+              "note": "portfolio",
+              "href": "https://dev-in-portfolio-angular-gridsmith.netlify.app"
             }
           ],
           "caseNotes": [
@@ -4623,6 +5858,16 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
@@ -4633,19 +5878,24 @@ const ROLES = [
               "href": "/apps/floraguide-ai/"
             },
             {
-              "label": "LingoLive AI",
-              "note": "portfolio",
-              "href": "/apps/lingolive-ai/"
-            },
-            {
-              "label": "Oracle Pit",
-              "note": "portfolio",
-              "href": "/apps/oracle-pit/"
-            },
-            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -4849,14 +6099,9 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
-              "label": "Agents",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/agents/"
-            },
-            {
-              "label": "FloraGuide AI",
-              "note": "portfolio",
-              "href": "/apps/floraguide-ai/"
+              "href": "/apps/oracle-pit/"
             },
             {
               "label": "LingoLive AI",
@@ -4864,14 +6109,34 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Agents",
+              "note": "portfolio",
+              "href": "/apps/agents/"
             },
             {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -5075,14 +6340,14 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
-            },
-            {
-              "label": "FloraGuide AI",
-              "note": "portfolio",
-              "href": "/apps/floraguide-ai/"
             },
             {
               "label": "LingoLive AI",
@@ -5090,14 +6355,29 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/floraguide-ai/"
             },
             {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -5306,9 +6586,19 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "FloraGuide AI",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/floraguide-ai/"
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
             },
             {
               "label": "LingoLive AI",
@@ -5316,14 +6606,19 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/floraguide-ai/"
             },
             {
-              "label": "Coverage Compass",
+              "label": "Alibi",
               "note": "portfolio",
-              "href": "/apps/coverage-compass/"
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -5527,14 +6822,19 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
             },
             {
-              "label": "FloraGuide AI",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/floraguide-ai/"
+              "href": "/apps/prompt-vault/"
             },
             {
               "label": "LingoLive AI",
@@ -5542,14 +6842,24 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/floraguide-ai/"
             },
             {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -5753,14 +7063,14 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
-            },
-            {
-              "label": "FloraGuide AI",
-              "note": "portfolio",
-              "href": "/apps/floraguide-ai/"
             },
             {
               "label": "LingoLive AI",
@@ -5768,14 +7078,29 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
             },
             {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -5984,19 +7309,39 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
             },
             {
-              "label": "UBR",
+              "label": "LingoLive AI",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
             },
             {
               "label": "Alibi",
               "note": "portfolio",
               "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -6200,14 +7545,34 @@ const ROLES = [
               "href": "/apps/coverage-compass/"
             },
             {
-              "label": "UBR",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
             },
             {
               "label": "Alibi",
               "note": "portfolio",
               "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -6411,14 +7776,34 @@ const ROLES = [
               "href": "/apps/coverage-compass/"
             },
             {
-              "label": "UBR",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
             },
             {
               "label": "Alibi",
               "note": "portfolio",
               "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -6622,14 +8007,34 @@ const ROLES = [
               "href": "/apps/coverage-compass/"
             },
             {
-              "label": "UBR",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/apps/ubr/"
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
             },
             {
               "label": "Alibi",
               "note": "portfolio",
               "href": "/apps/alibi/"
+            },
+            {
+              "label": "UBR",
+              "note": "portfolio",
+              "href": "/apps/ubr/"
             }
           ],
           "caseNotes": [
@@ -6823,19 +8228,9 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
-              "label": "Agents",
-              "note": "portfolio",
-              "href": "/apps/agents/"
-            },
-            {
               "label": "LingoLive AI",
               "note": "portfolio",
               "href": "/apps/lingolive-ai/"
-            },
-            {
-              "label": "Oracle Pit",
-              "note": "portfolio",
-              "href": "/apps/oracle-pit/"
             },
             {
               "label": "FloraGuide AI",
@@ -6843,9 +8238,34 @@ const ROLES = [
               "href": "/apps/floraguide-ai/"
             },
             {
+              "label": "Agents",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -6876,9 +8296,9 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
-              "label": "Oracle Pit",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/oracle-pit/"
+              "href": "/apps/floraguide-ai/"
             },
             {
               "label": "Agents",
@@ -6886,9 +8306,29 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
               "label": "Prompt Vault",
               "note": "portfolio",
               "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -6914,7 +8354,32 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
               "label": "Agents",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
               "note": "portfolio",
               "href": "/apps/agents/"
             },
@@ -6927,11 +8392,6 @@ const ROLES = [
               "label": "Alibi",
               "note": "portfolio",
               "href": "/apps/alibi/"
-            },
-            {
-              "label": "Coverage Compass",
-              "note": "portfolio",
-              "href": "/apps/coverage-compass/"
             }
           ],
           "caseNotes": [
@@ -7034,19 +8494,9 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
-              "label": "Agents",
-              "note": "portfolio",
-              "href": "/apps/agents/"
-            },
-            {
               "label": "LingoLive AI",
               "note": "portfolio",
               "href": "/apps/lingolive-ai/"
-            },
-            {
-              "label": "Oracle Pit",
-              "note": "portfolio",
-              "href": "/apps/oracle-pit/"
             },
             {
               "label": "FloraGuide AI",
@@ -7054,9 +8504,34 @@ const ROLES = [
               "href": "/apps/floraguide-ai/"
             },
             {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Agents",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -7087,6 +8562,11 @@ const ROLES = [
               "href": "/apps/lingolive-ai/"
             },
             {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
@@ -7097,9 +8577,24 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
               "label": "Prompt Vault",
               "note": "portfolio",
               "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -7125,7 +8620,32 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "Agents",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
               "note": "portfolio",
               "href": "/apps/agents/"
             },
@@ -7138,11 +8658,6 @@ const ROLES = [
               "label": "Alibi",
               "note": "portfolio",
               "href": "/apps/alibi/"
-            },
-            {
-              "label": "Coverage Compass",
-              "note": "portfolio",
-              "href": "/apps/coverage-compass/"
             }
           ],
           "caseNotes": [
@@ -7250,14 +8765,19 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "LingoLive AI",
-              "note": "portfolio",
-              "href": "/apps/lingolive-ai/"
-            },
-            {
               "label": "Oracle Pit",
               "note": "portfolio",
               "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
             },
             {
               "label": "FloraGuide AI",
@@ -7268,6 +8788,16 @@ const ROLES = [
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -7293,9 +8823,9 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
-              "label": "LingoLive AI",
+              "label": "Agents",
               "note": "portfolio",
-              "href": "/apps/lingolive-ai/"
+              "href": "/apps/agents/"
             },
             {
               "label": "Oracle Pit",
@@ -7303,14 +8833,34 @@ const ROLES = [
               "href": "/apps/oracle-pit/"
             },
             {
-              "label": "Agents",
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
               "note": "portfolio",
               "href": "/apps/agents/"
             },
             {
-              "label": "Prompt Vault",
+              "label": "Alibi",
               "note": "portfolio",
-              "href": "/apps/prompt-vault/"
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -7341,19 +8891,39 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
               "label": "Prompt Vault",
               "note": "portfolio",
               "href": "/apps/prompt-vault/"
             },
             {
-              "label": "Alibi",
+              "label": "LingoLive AI",
               "note": "portfolio",
-              "href": "/apps/alibi/"
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
             },
             {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -7466,6 +9036,11 @@ const ROLES = [
               "href": "/apps/oracle-pit/"
             },
             {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
@@ -7474,6 +9049,21 @@ const ROLES = [
               "label": "Prompt Vault",
               "note": "portfolio",
               "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -7509,14 +9099,34 @@ const ROLES = [
               "href": "/apps/oracle-pit/"
             },
             {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
             },
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -7542,6 +9152,21 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
@@ -7552,14 +9177,19 @@ const ROLES = [
               "href": "/apps/prompt-vault/"
             },
             {
-              "label": "Alibi",
-              "note": "portfolio",
-              "href": "/apps/alibi/"
-            },
-            {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -7661,10 +9291,21 @@ const ROLES = [
         ],
         "proofStack": {
           "receipts": [
+
             {
               "label": "Coverage Compass",
               "note": "portfolio",
               "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
             },
             {
               "label": "UBR",
@@ -7677,14 +9318,19 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "Prompt Vault",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/prompt-vault/"
+              "href": "/apps/oracle-pit/"
             },
             {
-              "label": "Alibi",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/apps/alibi/"
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
             }
           ],
           "caseNotes": [
@@ -7715,6 +9361,16 @@ const ROLES = [
               "href": "/apps/coverage-compass/"
             },
             {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
               "label": "UBR",
               "note": "portfolio",
               "href": "/apps/ubr/"
@@ -7725,9 +9381,19 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "Alibi",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/alibi/"
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
             }
           ],
           "caseNotes": [
@@ -7758,6 +9424,16 @@ const ROLES = [
               "href": "/apps/coverage-compass/"
             },
             {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
               "label": "UBR",
               "note": "portfolio",
               "href": "/apps/ubr/"
@@ -7768,9 +9444,19 @@ const ROLES = [
               "href": "/apps/agents/"
             },
             {
-              "label": "Prompt Vault",
+              "label": "Oracle Pit",
               "note": "portfolio",
-              "href": "/apps/prompt-vault/"
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
             }
           ],
           "caseNotes": [
@@ -8305,14 +9991,14 @@ const ROLES = [
         "proofStack": {
           "receipts": [
             {
-              "label": "FloraGuide AI",
-              "note": "portfolio",
-              "href": "/apps/floraguide-ai/"
-            },
-            {
               "label": "LingoLive AI",
               "note": "portfolio",
               "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
             },
             {
               "label": "Oracle Pit",
@@ -8320,14 +10006,29 @@ const ROLES = [
               "href": "/apps/oracle-pit/"
             },
             {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
               "label": "Agents",
               "note": "portfolio",
               "href": "/apps/agents/"
             },
             {
-              "label": "Prompt Vault",
+              "label": "Coverage Compass",
               "note": "portfolio",
-              "href": "/apps/prompt-vault/"
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -8946,19 +10647,44 @@ const CAPABILITY_EXPANSION_ROLES = [
         "proofStack": {
           "receipts": [
             {
-              "label": "Apps Index",
+              "label": "Agents",
               "note": "portfolio",
-              "href": "/apps/"
+              "href": "/apps/agents/"
             },
             {
-              "label": "Capabilities",
+              "label": "Coverage Compass",
               "note": "portfolio",
-              "href": "/capabilities/"
+              "href": "/apps/coverage-compass/"
             },
             {
-              "label": "Utilities",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/utilities/"
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -9127,19 +10853,44 @@ const CAPABILITY_EXPANSION_ROLES = [
         "proofStack": {
           "receipts": [
             {
-              "label": "Apps Index",
+              "label": "Agents",
               "note": "portfolio",
-              "href": "/apps/"
+              "href": "/apps/agents/"
             },
             {
-              "label": "Capabilities",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/capabilities/"
+              "href": "/apps/prompt-vault/"
             },
             {
-              "label": "Utilities",
+              "label": "Agents (UI)",
               "note": "portfolio",
-              "href": "/utilities/"
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -10396,19 +12147,44 @@ const JOB_TARGET_ROLES = [
         "proofStack": {
           "receipts": [
             {
-              "label": "Apps Index",
+              "label": "Agents",
               "note": "portfolio",
-              "href": "/apps/"
+              "href": "/apps/agents/"
             },
             {
-              "label": "Capabilities",
+              "label": "Coverage Compass",
               "note": "portfolio",
-              "href": "/capabilities/"
+              "href": "/apps/coverage-compass/"
             },
             {
-              "label": "Utilities",
+              "label": "FloraGuide AI",
               "note": "portfolio",
-              "href": "/utilities/"
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "Prompt Vault",
+              "note": "portfolio",
+              "href": "/apps/prompt-vault/"
+            },
+            {
+              "label": "Agents (UI)",
+              "note": "portfolio",
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -10577,19 +12353,44 @@ const JOB_TARGET_ROLES = [
         "proofStack": {
           "receipts": [
             {
-              "label": "Apps Index",
+              "label": "Agents",
               "note": "portfolio",
-              "href": "/apps/"
+              "href": "/apps/agents/"
             },
             {
-              "label": "Capabilities",
+              "label": "Prompt Vault",
               "note": "portfolio",
-              "href": "/capabilities/"
+              "href": "/apps/prompt-vault/"
             },
             {
-              "label": "Utilities",
+              "label": "Agents (UI)",
               "note": "portfolio",
-              "href": "/utilities/"
+              "href": "/apps/agents/"
+            },
+            {
+              "label": "Coverage Compass",
+              "note": "portfolio",
+              "href": "/apps/coverage-compass/"
+            },
+            {
+              "label": "Oracle Pit",
+              "note": "portfolio",
+              "href": "/apps/oracle-pit/"
+            },
+            {
+              "label": "FloraGuide AI",
+              "note": "portfolio",
+              "href": "/apps/floraguide-ai/"
+            },
+            {
+              "label": "LingoLive AI",
+              "note": "portfolio",
+              "href": "/apps/lingolive-ai/"
+            },
+            {
+              "label": "Alibi",
+              "note": "portfolio",
+              "href": "/apps/alibi/"
             }
           ],
           "caseNotes": [
@@ -11806,7 +13607,31 @@ const JOB_TARGET_ROLES = [
 
 ROLES.push(...CAPABILITY_EXPANSION_ROLES, ...JOB_TARGET_ROLES);
 
-const state = { cat:"all", q:"", compact:false, autoScore:true, scoreboardLens:"pm", scoreCategory:null };
+const state = {
+  cat:"all",
+  q:"",
+  compact:false,
+  autoScore:true,
+  colorblindFriendly:false,
+  scoreboardLens:"pm",
+  scoreCategory:null,
+  activeRoleSlug:null
+};
+
+const COLORBLIND_STORAGE_KEY = "capabilities_colorblind_v1";
+
+function slugifyRoleTitle(title){
+  return String(title || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function findRoleBySlug(slug){
+  if (!slug) return null;
+  return ROLES.find((role) => slugifyRoleTitle(role.title) === slug) || null;
+}
 const HARD_CODED_PORTFOLIO_RECEIPTS = [
   {
     "label": "About",
@@ -12372,6 +14197,7 @@ function normalizeReceiptHref(href){
 function expandReceipts(baseReceipts, opts={}){
   const full = !!opts.full;
   const limit = Number.isFinite(opts.limit) ? opts.limit : 16;
+  const includeFallback = opts.includeFallback !== false;
   const out = [];
   const seen = new Set();
   const add = (entry) => {
@@ -12385,7 +14211,9 @@ function expandReceipts(baseReceipts, opts={}){
     out.push({ label, href, note: String(entry.note || "portfolio") });
   };
   (baseReceipts || []).forEach(add);
-  HARD_CODED_PORTFOLIO_RECEIPTS.forEach(add);
+  if (includeFallback) {
+    HARD_CODED_PORTFOLIO_RECEIPTS.forEach(add);
+  }
   return full ? out : out.slice(0, limit);
 }
 
@@ -12480,12 +14308,33 @@ function expandReceipts(baseReceipts, opts={}){
     };
 
     function updateUrlState(){
-      const params = new URLSearchParams(location.search);
+      const params = new URLSearchParams();
       params.set("lens", state.scoreboardLens);
       if (state.scoreCategory) params.set("category", state.scoreCategory);
-      else params.delete("category");
-      const next = `${location.pathname}?${params.toString()}`;
+      if (state.q.trim()) params.set("q", state.q.trim());
+      if (state.compact) params.set("compact", "1");
+      if (!state.autoScore) params.set("score", "off");
+      if (state.activeRoleSlug) params.set("role", state.activeRoleSlug);
+      const query = params.toString();
+      const next = query ? `${location.pathname}?${params.toString()}` : location.pathname;
       history.replaceState(null, "", next);
+    }
+
+    function restoreRoleFromState(){
+      if (!state.activeRoleSlug) return;
+      const role = findRoleBySlug(state.activeRoleSlug);
+      if (!role) {
+        state.activeRoleSlug = null;
+        updateUrlState();
+        return;
+      }
+      const desiredCategory = role.category || null;
+      if (desiredCategory && state.scoreCategory !== desiredCategory) {
+        state.scoreCategory = desiredCategory;
+        render();
+        return;
+      }
+      openDrawer(role, state.scoreboardLens);
     }
 
     function inferFrameworkFamily(href, label){
@@ -12511,6 +14360,17 @@ function expandReceipts(baseReceipts, opts={}){
       return "General";
     }
 
+    function applyColorblindMode(enabled){
+      document.body.classList.toggle("colorblind-friendly", !!enabled);
+      const toggle = $("#tColorblind");
+      if (toggle) {
+        toggle.innerHTML = `<span class="dot"></span>High Visibility Mode: ${enabled ? "On" : "Off"}`;
+      }
+      try {
+        localStorage.setItem(COLORBLIND_STORAGE_KEY, enabled ? "1" : "0");
+      } catch (_) {}
+    }
+
     function renderEvidenceMini(rolePool, lens){
       const root = $("#scoreMini");
       if (!root) return;
@@ -12527,6 +14387,19 @@ function expandReceipts(baseReceipts, opts={}){
         const relPct = Math.round((n / max) * 100);
         return `<div class="miniRow"><span>${escapeHtml(cat.toUpperCase())}</span><div class="miniTrack"><div class="miniFill" style="width:${relPct}%"></div></div></div>`;
       }).join("");
+    }
+
+    function getCompactProofLine(lens){
+      if (!lens) return "";
+      const signals = lens.proofStack?.signals || [];
+      const receipts = expandReceipts(lens.proofStack?.receipts, { full:false, limit:3 });
+      if (signals.length) return signals[0];
+      if (receipts.length) {
+        const first = receipts[0];
+        return first.note ? `${first.label}: ${first.note}` : first.label;
+      }
+      if ((lens.bullets || []).length) return lens.bullets[0];
+      return lens.summary || "";
     }
 
     function setScoreboard(lens, rolePool = ROLES, activeCategory = null){
@@ -12592,16 +14465,42 @@ function expandReceipts(baseReceipts, opts={}){
     }
 
     const mask = $("#mask");
+    const guideMask = $("#guideMask");
+    const guideBtn = $("#btnGuide");
+
     $("#close").onclick = closeDrawer;
     mask.addEventListener("click",(e)=>{ if(e.target===mask) closeDrawer(); });
 
     function openDrawer(role, activeLens){
+      state.activeRoleSlug = slugifyRoleTitle(role.title);
       $("#dTitle").textContent = role.title;
       $("#dSub").textContent = role.oneLiner;
       $("#dSummary").textContent = role.briefing?.summary || role.focus || "";
 
+      const lensKey = activeLens || role.lensDefault || "pm";
+      const lens = role.lenses[lensKey] || role.lenses[role.lensDefault] || Object.values(role.lenses)[0];
+      const ps = lens?.proofStack;
+      const receipts = expandReceipts(ps?.receipts, { full:true, includeFallback:false });
+      const drawerReceiptLimit = 8;
+      const featuredReceipts = receipts.slice(0, drawerReceiptLimit);
+      const remainingReceipts = receipts.slice(drawerReceiptLimit);
+      const signals = ps?.signals || [];
+      const angleItems = role.briefing?.angle || [];
+      const failItems = role.briefing?.fails || [];
+      const partnerItems = role.briefing?.partners || [];
+      const artifactItems = role.briefing?.artifacts || [];
+
+      $("#dLensPill").textContent = `Lens: ${lensKey.toUpperCase()}`;
+      $("#dTagStrip").textContent = (role.tags || []).slice(0, 3).join(" · ") || "Role profile";
+      $("#dSummaryStats").textContent = `${receipts.length} receipts · ${signals.length} signals`;
+      $("#dAngleCount").textContent = `${angleItems.length} ${angleItems.length === 1 ? "point" : "points"}`;
+      $("#dFailsCount").textContent = `${failItems.length} ${failItems.length === 1 ? "risk" : "risks"}`;
+      $("#dPartnersCount").textContent = `${partnerItems.length} ${partnerItems.length === 1 ? "partner" : "partners"}`;
+      $("#dArtifactsCount").textContent = `${artifactItems.length} ${artifactItems.length === 1 ? "artifact" : "artifacts"}`;
+      $("#dProofMeta").textContent = `${receipts.length} receipts · ${signals.length} signals`;
+
       const angle = $("#dAngle"); angle.innerHTML="";
-      (role.briefing?.angle || []).forEach(x => angle.appendChild(el("li",{ textContent:x })));
+      angleItems.forEach(x => angle.appendChild(el("li",{ textContent:x })));
 
       const t = $("#dTimeline"); t.innerHTML="";
       const wk = role.briefing?.week || { w1:[], w4:[], w12:[] };
@@ -12618,30 +14517,45 @@ function expandReceipts(baseReceipts, opts={}){
       t.appendChild(mk("Week 12", wk.w12));
 
       const fails = $("#dFails"); fails.innerHTML="";
-      (role.briefing?.fails || []).forEach(x => fails.appendChild(el("li",{ textContent:x })));
+      failItems.forEach(x => fails.appendChild(el("li",{ textContent:x })));
 
       const partners = $("#dPartners"); partners.innerHTML="";
-      (role.briefing?.partners || []).forEach(x => partners.appendChild(el("li",{ textContent:x })));
+      partnerItems.forEach(x => partners.appendChild(el("li",{ textContent:x })));
 
       const arts = $("#dArtifacts"); arts.innerHTML="";
-      (role.briefing?.artifacts || []).forEach(x => arts.appendChild(el("li",{ textContent:x })));
-
-      const lensKey = activeLens || role.lensDefault || "pm";
-      const lens = role.lenses[lensKey] || role.lenses[role.lensDefault] || Object.values(role.lenses)[0];
-      const ps = lens?.proofStack;
+      artifactItems.forEach(x => arts.appendChild(el("li",{ textContent:x })));
 
       $("#dProofIntro").textContent = `Active lens: ${lensKey.toUpperCase()} · ${lens?.summary || "Proof stack"}`;
 
       const links = $("#dProofLinks"); links.innerHTML="";
-      expandReceipts(ps?.receipts, { full:true }).forEach(p=>{
+      if (receipts.length > drawerReceiptLimit) {
+        links.appendChild(el("p",{
+          className:"proofStackNote",
+          textContent:`Showing the top ${featuredReceipts.length} receipts first so the strongest evidence is readable. Expand the remainder for the full stack.`
+        }));
+      }
+      featuredReceipts.forEach(p=>{
         const a = el("a",{ className:"proofLink", href:p.href || "#", target:"_blank", rel:"noopener noreferrer" });
         a.innerHTML = `${escapeHtml(p.label)} <span>${escapeHtml(p.note || "")}</span>`;
         a.onclick = (e)=>{ e.stopPropagation(); };
         links.appendChild(a);
       });
+      if (remainingReceipts.length) {
+        const more = el("details",{ className:"proofStackMore" });
+        more.appendChild(el("summary",{ textContent:`Show remaining ${remainingReceipts.length} receipts` }));
+        const moreBody = el("div",{ className:"proofStackMoreBody" });
+        remainingReceipts.forEach(p=>{
+          const a = el("a",{ className:"proofLink", href:p.href || "#", target:"_blank", rel:"noopener noreferrer" });
+          a.innerHTML = `${escapeHtml(p.label)} <span>${escapeHtml(p.note || "")}</span>`;
+          a.onclick = (e)=>{ e.stopPropagation(); };
+          moreBody.appendChild(a);
+        });
+        more.appendChild(moreBody);
+        links.appendChild(more);
+      }
 
       const sig = $("#dProofSignals"); sig.innerHTML="";
-      (ps?.signals || []).forEach(x=> sig.appendChild(el("li",{ textContent:x })));
+      signals.forEach(x=> sig.appendChild(el("li",{ textContent:x })));
 
       const copyBlurb = $("#dCopyBlurb");
       if (copyBlurb) {
@@ -12656,19 +14570,29 @@ function expandReceipts(baseReceipts, opts={}){
           const lines = [
             `${role.title} — ${lensKey.toUpperCase()} evidence`,
             ...((lens?.bullets || []).map((x) => `- ${x}`)),
-            ...((ps?.signals || []).map((x) => `- ${x}`))
+            ...(signals.map((x) => `- ${x}`))
           ];
           try { await navigator.clipboard.writeText(lines.join("\\n")); copyBullets.textContent = "Copied"; setTimeout(()=>copyBullets.textContent="Copy evidence bullets", 900); } catch(_) {}
+        };
+      }
+      const copyLink = $("#dCopyLink");
+      if (copyLink) {
+        copyLink.onclick = async () => {
+          try { await navigator.clipboard.writeText(location.href); copyLink.textContent = "Copied"; setTimeout(()=>copyLink.textContent="Copy briefing link", 900); } catch(_) {}
         };
       }
 
       mask.classList.add("show");
       document.body.style.overflow="hidden";
-
-      if(!nb.value.trim()) nb.value = "";
+      updateUrlState();
     }
 
-    function closeDrawer(){ mask.classList.remove("show"); document.body.style.overflow=""; }
+    function closeDrawer(){
+      state.activeRoleSlug = null;
+      mask.classList.remove("show");
+      document.body.style.overflow="";
+      updateUrlState();
+    }
 
     function renderRoleCard(role){
       const card = el("div",{ className:"roleCard" });
@@ -12682,83 +14606,14 @@ function expandReceipts(baseReceipts, opts={}){
 
       const top = el("div",{ className:"roleTop" });
       const info = el("div",{});
+      info.appendChild(el("div",{ className:"roleEyebrow", textContent:"Open role briefing" }));
       const h = el("h3",{ className:"roleName" }); h.innerHTML = highlight(role.title, state.q); info.appendChild(h);
-      const d = el("p",{ className:"roleDesc" }); d.innerHTML = highlight(role.oneLiner, state.q); info.appendChild(d);
-
-      const tags = el("div",{ className:"tags" });
-      (role.tags||[]).slice(0,6).forEach((t,i)=>{
-        const span = el("span",{ className:"tag "+(i===0?"lime":i===1?"pink":"" ) });
-        span.innerHTML = highlight(t, state.q);
-        tags.appendChild(span);
-      });
-      info.appendChild(tags);
       top.appendChild(info);
 
-      const mini = el("div",{ className:"miniHint" });
-      mini.innerHTML = `Click for briefing →<br><span style="font-family:var(--mono); font-size:11px;">lens + proofs + plan</span>`;
-      top.appendChild(mini);
-
-      const isJobTarget = (role.tags||[]).includes("Job Target");
-      if (isJobTarget) {
-        mini.innerHTML = `Job target<br><span style="font-family:var(--mono); font-size:11px;">click card to expand · click here for briefing</span>`;
-        mini.style.cursor = "pointer";
-        mini.onclick = (e)=>{ e.stopPropagation(); openDrawer(role, role.lensDefault || "pm"); };
-      }
-
       top.onclick = ()=>{
-        if (isJobTarget) {
-          card.classList.toggle("jobClosed");
-          wrap.style.display = card.classList.contains("jobClosed") ? "none" : "";
-          return;
-        }
-        openDrawer(role, role.lensDefault || "pm");
+        openDrawer(role, state.scoreboardLens || role.lensDefault || "pm");
       };
       card.appendChild(top);
-
-      const wrap = el("div",{ className:"lensWrap" });
-      const lensGrid = el("div",{ className:"lensGrid" });
-      const lensSummary = el("div",{ className:"lensSummary" });
-      const lensBullets = el("ul",{ className:"lensBullets" });
-      const proof = el("div",{ className:"proofStack" });
-      const tabs = el("div",{ className:"proofTabs" });
-      const body = el("div",{ className:"proofBody" });
-
-      const tReceipts = el("div",{ className:"tab active", textContent:"Receipts" });
-      tabs.appendChild(tReceipts);
-      proof.appendChild(tabs);
-      proof.appendChild(body);
-
-      function renderLens(){
-        const L = role.lenses[role.lensDefault] || Object.values(role.lenses)[0];
-        lensSummary.innerHTML = highlight(L.summary, state.q);
-        lensBullets.innerHTML="";
-        (L.bullets||[]).forEach(x=>{
-          const li = el("li",{}); li.innerHTML = highlight(x, state.q); lensBullets.appendChild(li);
-        });
-
-        body.innerHTML="";
-        const links = el("div",{ className:"proofLinks" });
-        expandReceipts(L.proofStack?.receipts, { full:false, limit:16 }).forEach(p=>{
-          const a = el("a",{ className:"proofLink", href:p.href||"#", target:"_blank", rel:"noopener noreferrer" });
-          a.innerHTML = `${highlight(p.label, state.q)} <span>${highlight(p.note||"", state.q)}</span>`;
-          a.onclick=(e)=>{ e.stopPropagation(); };
-          links.appendChild(a);
-        });
-        body.appendChild(links);
-      }
-
-      wrap.appendChild(lensGrid);
-      wrap.appendChild(lensSummary);
-      wrap.appendChild(lensBullets);
-      wrap.appendChild(proof);
-      card.appendChild(wrap);
-
-      if (isJobTarget) {
-        card.classList.add("jobClosed");
-        wrap.style.display = "none";
-      }
-
-      renderLens();
       return card;
     }
 
@@ -12772,8 +14627,20 @@ function expandReceipts(baseReceipts, opts={}){
       ux: "#ffd59c",
       creative: "#f1b6ff"
     };
+    const CATEGORY_COLORS_COLORBLIND = {
+      product: "#8CCFFF",
+      decision: "#F2B134",
+      agents: "#63D6C8",
+      arch: "#B9A7FF",
+      eval: "#FFB066",
+      ops: "#7AD7FF",
+      ux: "#FFD36E",
+      creative: "#C8B8FF"
+    };
 
     function render(){
+      const searchInput = $("#q");
+      if (searchInput && searchInput.value !== state.q) searchInput.value = state.q;
       document.body.classList.toggle("compact", state.compact);
       $("#score").style.display = state.autoScore ? "" : "none";
       const filtered = ROLES.filter(matches);
@@ -12786,7 +14653,8 @@ function expandReceipts(baseReceipts, opts={}){
         // Start ALL accordion sections collapsed by default.
         const section = el("div",{ className:"section" });
         section.dataset.category = c.id;
-        section.style.setProperty("--cat-color", CATEGORY_COLORS[c.id] || "rgba(255,255,255,.2)");
+        const categoryColors = state.colorblindFriendly ? CATEGORY_COLORS_COLORBLIND : CATEGORY_COLORS;
+        section.style.setProperty("--cat-color", categoryColors[c.id] || "rgba(255,255,255,.2)");
         if (state.scoreCategory && state.scoreCategory === c.id) section.classList.add("open");
         const head = el("div",{ className:"secHead" });
         head.onclick=()=>{
@@ -12795,8 +14663,14 @@ function expandReceipts(baseReceipts, opts={}){
           state.scoreCategory = opens.length === 1 ? (opens[0].dataset.category || null) : null;
           setScoreboard(state.scoreboardLens, filtered, state.scoreCategory);
         };
-        const left = el("div",{}); left.appendChild(el("h2",{ className:"secTitle", textContent:c.name }));
-        const meta = el("div",{ className:"secMeta" });         const chev = el("div",{ className:"chev", innerHTML:"▾" });
+        const left = el("div",{ className:"secLead" });
+        left.appendChild(el("div",{ className:"secEyebrow", textContent:"Choose capability realm" }));
+        left.appendChild(el("h2",{ className:"secTitle", textContent:c.name }));
+        left.appendChild(el("div",{ className:"secHint", textContent:`Open this category to scan ${roles.length} role briefing${roles.length === 1 ? "" : "s"} in this capability family.` }));
+        const meta = el("div",{ className:"secMeta" });
+        meta.appendChild(el("span",{ className:"pill accent", textContent:`${roles.length} roles` }));
+        meta.appendChild(el("span",{ className:"pill", textContent: section.classList.contains("open") ? "Scanning roles" : "Category navigation" }));
+        const chev = el("div",{ className:"chev", innerHTML:"▾" });
         head.appendChild(left); head.appendChild(meta); head.appendChild(chev);
 
         const body = el("div",{ className:"roles" });
@@ -12809,16 +14683,45 @@ function expandReceipts(baseReceipts, opts={}){
       const opens = [...root.querySelectorAll(".section.open")];
       state.scoreCategory = opens.length === 1 ? (opens[0].dataset.category || null) : null;
       setScoreboard(state.scoreboardLens, filtered, state.scoreCategory);
+      if (!mask.classList.contains("show") && state.activeRoleSlug) {
+        requestAnimationFrame(restoreRoleFromState);
+      }
     }
 
     document.addEventListener("keydown",(e)=>{
       if(e.key==="/"){ e.preventDefault(); $("#q").focus(); }
-      if(e.key==="Escape"){ closeDrawer(); }
+      if(e.key==="Escape"){
+        if (window.isCapabilitiesTourOpen && window.isCapabilitiesTourOpen()) {
+          window.closeTour?.();
+          return;
+        }
+        closeDrawer();
+      }
     });
 
     $("#q").addEventListener("input",(e)=>{ state.q=e.target.value; render(); });
 
-    function toggleEl(elm, on){ elm.classList.toggle("on", !!on); }
+    const lensButtonMap = {
+      "#lensPm": "pm",
+      "#lensEval": "eval",
+      "#lensOps": "ops",
+      "#lensArch": "arch",
+      "#lensUx": "ux",
+      "#lensReliability": "reliability"
+    };
+    Object.entries(lensButtonMap).forEach(([selector, lensKey]) => {
+      const node = $(selector);
+      if (!node) return;
+      node.addEventListener("click", () => {
+        state.scoreboardLens = lensKey;
+        render();
+      });
+    });
+
+    function toggleEl(elm, on){
+      elm.classList.toggle("on", !!on);
+      elm.setAttribute("aria-pressed", on ? "true" : "false");
+    }
     function wireToggle(id, getter, setter){
       const t = $(id);
       const click = ()=>{
@@ -12833,33 +14736,30 @@ function expandReceipts(baseReceipts, opts={}){
     }
     wireToggle("#tRecruiter", ()=>state.compact, (v)=>state.compact=v);
     wireToggle("#tAutoScore", ()=>state.autoScore, (v)=>state.autoScore=v);
+    wireToggle("#tColorblind", ()=>state.colorblindFriendly, (v)=>{ state.colorblindFriendly=v; applyColorblindMode(v); });
 
     const params = new URLSearchParams(location.search);
     const lensParam = (params.get("lens") || "").toLowerCase();
     const catParam = (params.get("category") || "").toLowerCase();
+    const qParam = params.get("q") || "";
+    const compactParam = (params.get("compact") || "").toLowerCase();
+    const scoreParam = (params.get("score") || "").toLowerCase();
+    const roleParam = (params.get("role") || "").toLowerCase();
+    try {
+      state.colorblindFriendly = localStorage.getItem(COLORBLIND_STORAGE_KEY) === "1";
+    } catch (_) {}
     if (SCORE_PRESETS[lensParam]) state.scoreboardLens = lensParam;
     if (catParam && CATS.some((c) => c.id === catParam)) state.scoreCategory = catParam;
+    if (qParam) state.q = qParam;
+    if (compactParam === "1" || compactParam === "true") state.compact = true;
+    if (scoreParam === "off" || scoreParam === "0" || scoreParam === "false") state.autoScore = false;
+    if (roleParam) state.activeRoleSlug = roleParam;
 
-    const wireScoreLens = (id, lens) => {
-      const btn = $(id);
-      if (!btn) return;
-      btn.onclick = () => {
-        state.scoreboardLens = lens;
-        SCORE_LENS_IDS.forEach((x) => $(x)?.classList.remove("on"));
-        btn.classList.add("on");
-        render();
-      };
-    };
-    wireScoreLens("#lensPm", "pm");
-    wireScoreLens("#lensEval", "eval");
-    wireScoreLens("#lensOps", "ops");
-    wireScoreLens("#lensArch", "arch");
-    wireScoreLens("#lensUx", "ux");
-    wireScoreLens("#lensReliability", "reliability");
-
+    applyColorblindMode(state.colorblindFriendly);
     setScoreboard(state.scoreboardLens, ROLES, null);
     render();
   </script>
-  <script src="/shared/nexus-topnav-v2.js?v=54"></script>
+  <script src="./tour_logic.js?v=8"></script>
+  <script src="./shared/nexus-topnav-v2.js?v=54"></script>
 </body>
 </html>

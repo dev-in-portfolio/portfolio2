@@ -2,3 +2,25 @@
 
 # Local Netlify folder
 .netlify
+
+# Local-only working files
+.codex-backups/
+__pycache__/
+home/tests/runtime-sweep-failing.json
+home/tests/runtime-sweep-report.json
+
+# Keep the local scaffold in git, ignore its contents
+.local/*
+!.local/.gitkeep
+!.local/backups/
+!.local/cache/
+!.local/reports/
+!.local/downloads/
+.local/backups/*
+!.local/backups/.gitkeep
+.local/cache/*
+!.local/cache/.gitkeep
+.local/reports/*
+!.local/reports/.gitkeep
+.local/downloads/*
+!.local/downloads/.gitkeep

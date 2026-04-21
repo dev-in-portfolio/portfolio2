@@ -1,0 +1,55 @@
+<style>
+    :root{--bg:#050712;--panel:#0b1024cc;--stroke:#1f2a50;--text:#e8eefc;--muted:#a9b4d6;--cyan:#22d3ee;--pink:#fb7185;--amber:#facc15;--green:#34d399;--r:18px;}
+    *{box-sizing:border-box}
+    body{margin:0;color:var(--text);background:
+      radial-gradient(1100px 700px at 10% 0%, rgba(34,211,238,.18), transparent 60%),
+      radial-gradient(900px 600px at 92% 10%, rgba(251,113,133,.18), transparent 62%),
+      radial-gradient(900px 700px at 50% 110%, rgba(250,204,21,.10), transparent 60%),
+      var(--bg);
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    }
+    #topbar{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 14px;
+      background:linear-gradient(180deg, rgba(5,7,18,.92), rgba(5,7,18,.66));backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(31,42,80,.55);
+    }
+    #brand{display:flex;align-items:center;gap:12px;min-width:240px}
+    #sig{width:38px;height:38px;border-radius:12px;background:
+      radial-gradient(circle at 30% 30%, rgba(34,211,238,.85), rgba(34,211,238,.10) 60%),
+      radial-gradient(circle at 70% 70%, rgba(251,113,133,.75), rgba(251,113,133,.10) 60%),
+      linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.10);
+    }
+    #brand h1{margin:0;font-size:15px;letter-spacing:.12em}
+    #brand .sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:rgba(11,16,36,.72);
+      border:1px solid rgba(31,42,80,.55);font-size:12px;color:var(--muted);white-space:nowrap;}
+    .dot{width:8px;height:8px;border-radius:99px;background:var(--amber)}
+    .dot.ok{background:var(--green)} .dot.bad{background:var(--pink)}
+    #controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    input[type="text"]{height:34px;padding:0 10px;border-radius:12px;border:1px solid rgba(31,42,80,.65);
+      background:rgba(11,16,36,.72);color:var(--text);outline:none;min-width:120px}
+    .btn{height:34px;padding:0 12px;border-radius:12px;border:1px solid rgba(31,42,80,.75);
+      background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:8px;user-select:none}
+    .btn.primary{border-color:rgba(34,211,238,.55);background:linear-gradient(135deg, rgba(34,211,238,.22), rgba(34,211,238,.06));}
+    .btn.danger{border-color:rgba(251,113,133,.55);background:linear-gradient(135deg, rgba(251,113,133,.20), rgba(251,113,133,.05));}
+    #grid{display:grid;grid-template-columns:320px 1fr 320px;gap:14px;padding:14px;max-width:1500px;margin:0 auto}
+    @media (max-width:1100px){#grid{grid-template-columns:1fr}}
+    .panel{background:rgba(11,16,36,.72);border:1px solid rgba(31,42,80,.55);border-radius:var(--r);overflow:hidden}
+    .panelHeader{padding:12px;border-bottom:1px solid rgba(31,42,80,.5);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .panelHeader h2{margin:0;font-size:12px;letter-spacing:.14em;color:var(--muted)}
+    .panelBody{padding:12px}
+    #gallery{display:grid;grid-template-columns:1fr;gap:10px;max-height:72vh;overflow:auto;padding-right:6px}
+    .card{border-radius:16px;border:1px solid rgba(31,42,80,.60);background:rgba(10,15,34,.55);padding:10px;cursor:pointer;
+      display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .card:hover{border-color:rgba(34,211,238,.65)}
+    .card .meta{display:flex;flex-direction:column;gap:3px}
+    .card .pdb{font-weight:900;letter-spacing:.08em}
+    .card .name{font-size:12px;color:var(--muted)}
+    .tag{font-size:11px;color:var(--muted);border:1px solid rgba(31,42,80,.65);padding:4px 8px;border-radius:999px;background:rgba(5,7,18,.35);white-space:nowrap}
+    #viewport{width:100%;height:calc(70vh - 50px);min-height:540px;background:#000;position:relative}
+    #overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:12;
+      background:radial-gradient(900px 500px at 50% 40%, rgba(34,211,238,.08), rgba(0,0,0,.65) 60%);}
+    #overlay.hidden{display:none}
+    #overlay .box{width:min(620px,92%);border-radius:22px;border:1px solid rgba(31,42,80,.65);background:rgba(11,16,36,.72);padding:16px}
+    #overlay .title{font-weight:950;letter-spacing:.10em;font-size:13px}

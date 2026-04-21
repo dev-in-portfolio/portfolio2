@@ -45,24 +45,6 @@ const AGENTS = [
     "id": "HYPEBRO",
     "name": "Zack \"Moon\" King",
     "role": "Web3 Hype Architect",
-    "color": "yellow-400",
-    "voice": "Zephyr",
-    "avatar": "🚀",
-    "description": "LFG! Everything is a massive play. Focuses on vibes, momentum, and missing the moon."
-  }
-];
-  const SAMPLE_DILEMMAS = [
-  "Quit my job to build my AI portfolio full-time or keep stability for 6 more months?",
-  "Ship the demo now or wait until the backend + live mode is perfect?",
-  "Take a lower-paying role with mentorship or hold out for a bigger title + salary?",
-  "Refactor a working app for cleanliness or keep shipping features?",
-  "Should I niche down to one killer product, or build a constellation of smaller apps?"
-];
-
-  const el = (sel) => document.querySelector(sel);
-  const root = () => el("#root");
-
-  const storeKey = "oraclePit:v1";
   const state = {
     dilemma: "",
     isDebating: false,
@@ -158,177 +140,6 @@ async function serverLoadLatest() {
   function maskKey(k) {
     if (!k) return "";
     const s = String(k).trim();
-    if (s.length <= 8) return "•".repeat(Math.max(0, s.length-2)) + s.slice(-2);
-    return "•".repeat(s.length-4) + s.slice(-4);
-  }
-
-  function loadApiKey() {
-    try {
-      const k = localStorage.getItem(KEY_STORE) || "";
-      state.apiKey = k;
-      state.apiKeyDraft = k;
-      return k;
-    } catch (e) {
-      state.apiKeyError = "Local storage blocked in this browser.";
-      return "";
-    }
-  }
-  function saveApiKey(k) {
-    const key = String(k || "").trim();
-    state.apiKeyError = null;
-    state.apiKeyDraft = key;
-    try {
-      if (!key) {
-        localStorage.removeItem(KEY_STORE);
-        state.apiKey = "";
-        state.apiKeySavedAt = Date.now();
-        serverLoadLatest();
-        scheduleServerSync();
-        return;
-      }
-      localStorage.setItem(KEY_STORE, key);
-      state.apiKey = key;
-      state.apiKeySavedAt = Date.now();
-      serverLoadLatest();
-      scheduleServerSync();
-    } catch (e) {
-      state.apiKeyError = "Could not save key (storage blocked).";
-    }
-  }
-
-
-  function save() {
-    try {
-      const payload = {
-        dilemma: state.dilemma,
-        tension: state.tension,
-        history: state.history,
-        verdict: state.verdict,
-        manualVotes: state.manualVotes,
-        agentSettings: state.agentSettings,
-      };
-      localStorage.setItem(storeKey, JSON.stringify(payload));
-      scheduleServerSync();
-    } catch (e) {
-      if (DEBUG) console.warn("[OraclePit] save failed", e);
-    }
-  }
-  function load() {
-    loadApiKey();
-    try {
-      const raw = localStorage.getItem(storeKey);
-      if (!raw) return;
-      const d = JSON.parse(raw);
-      state.dilemma = d.dilemma || "";
-      state.tension = typeof d.tension === "number" ? d.tension : 42;
-      state.history = Array.isArray(d.history) ? d.history : [];
-      state.verdict = d.verdict || null;
-      state.manualVotes = d.manualVotes || {};
-      state.agentSettings = d.agentSettings || state.agentSettings;
-    } catch (e) {
-      if (DEBUG) console.warn("[OraclePit] load failed", e);
-    } finally {
-      serverLoadLatest();
-    }
-  }
-
-
-  function clamp(n,min,max) { return Math.max(min, Math.min(max, n)); }
-
-  function setToast(msg) {
-    state.toast = msg;
-    render();
-    setTimeout(() => {
-      if (state.toast === msg) {
-        state.toast = null;
-        render();
-      }
-    }, 2200);
-  }
-
-  function exportJSON() {
-    const blob = new Blob([JSON.stringify({
-      exported_at: new Date().toISOString(),
-      app: "Oracle Pit",
-      version: "v1",
-      data: {
-        dilemma: state.dilemma,
-        tension: state.tension,
-        history: state.history,
-        verdict: state.verdict,
-        manualVotes: state.manualVotes,
-        agentSettings: state.agentSettings,
-      }
-    }, null, 2)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "oracle-pit-export.json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    setToast("Exported.");
-  }
-
-  function importJSON(file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(reader.result);
-        const d = parsed.data || parsed;
-        state.dilemma = d.dilemma || "";
-        state.tension = typeof d.tension === "number" ? d.tension : 42;
-        state.history = Array.isArray(d.history) ? d.history : [];
-        state.verdict = d.verdict || null;
-        state.manualVotes = d.manualVotes || {};
-        state.agentSettings = d.agentSettings || state.agentSettings;
-        save();
-        setToast("Imported.");
-        render();
-      } catch (e) {
-        setToast("Import failed.");
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function mkTurn(agent, dilemma) {
-    const seed = (dilemma + agent.id).split("").reduce((a,c)=>a + c.charCodeAt(0), 0);
-    const r = seed % 5;
-    const lines = {
-      INVESTOR: [
-        "ROI first: take the path that compounds optionality.",
-        "Ship now. Momentum is leverage. Perfect is expensive.",
-        "Stability is runway. Six months buys better positioning.",
-        "If it doesn't monetize or unlock distribution, it’s a hobby."
-      ],
-      ARTIST: [
-        "Burn the map. Choose the thing that feels alive.",
-        "Perfection is fear in a tuxedo. Release it.",
-        "Take the weird path. The story matters more than the salary.",
-        "Comfort is a cage. Rip a hole in it."
-      ],
-      CONSPIRACIST: [
-        "Ask who benefits. Then assume it’s worse than you think.",
-        "If the choice feels forced, it’s engineered.",
-        "The safest option is usually the trap with better branding.",
-        "Follow the incentives. They never lie."
-      ],
-      ENGINEER: [
-        "Define constraints, ship an MVP, and iterate with metrics.",
-        "Reduce risk: stage it. Partial refactor, not a rewrite.",
-        "Make it runnable as-shipped. Then optimize.",
-        "Failure modes first. Then the pretty."
-      ],
-      PRIEST: [
-        "Choose what you can live with at 3am.",
-        "Your values are the backend. Keep them online.",
-        "The cleanest choice is the one that reduces harm.",
-        "Listen to the quiet yes."
-      ]
-    };
-    const bucket = lines[agent.id] || ["State your dilemma. The Council will decide."];
-    return bucket[r % bucket.length] + " — " + agent.role + ".";
-  }
-
   function generateVerdict() {
     const voteResults = {};
     let yes=0,no=0,maybe=0;
@@ -448,77 +259,6 @@ async function serverLoadLatest() {
                   }">${vote}</div>` : ''}
               </div>
               <div class="text-center px-2 space-y-1">
-                <h3 class="font-sync font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all duration-500 ${isActive || isExpanded ? 'text-white' : 'text-gray-600'}">
-                  ${esc(a.name)}
-                </h3>
-                ${isExpanded ? `
-                  <div class="animate-in fade-in slide-in-from-top-1 duration-500">
-                    <div class="inline-block px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30 mb-2">
-                      <p class="text-[8px] uppercase tracking-widest text-cyan-400 font-bold">${esc(a.role)}</p>
-                    </div>
-                    <p class="text-[10px] text-gray-400 italic leading-snug font-mono border-t border-gray-800/50 pt-2 px-2 line-clamp-3">${esc(a.description)}</p>
-                  </div>` : ''}
-              </div>
-            </button>
-
-            <div class="overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] w-full ${isExpanded ? 'max-h-[500px] opacity-100 mt-4' : 'max-h-0 opacity-0'}">
-              <div class="flex flex-col gap-4 px-2 pb-4">
-                <div class="space-y-2">
-                  <label class="text-[8px] text-gray-500 uppercase font-mono tracking-widest block px-1">Synapse Logic</label>
-                  <div class="grid grid-cols-3 gap-1">
-                    ${['flash','pro','lite'].map(m=>`
-                      <button data-act="mode" data-id="${a.id}" data-mode="${m}"
-                        class="text-[8px] font-bold py-1.5 rounded-lg border transition-all uppercase font-mono ${
-                          settings.mode===m ? 'bg-cyan-500 text-black border-cyan-400 shadow-lg shadow-cyan-500/20'
-                                          : 'bg-black/50 border-gray-800 text-gray-500 hover:border-gray-600 hover:text-gray-300'
-                        }">${m}</button>
-                    `).join('')}
-                  </div>
-                </div>
-
-                <div class="space-y-2 pt-2 border-t border-gray-800/50">
-                  <div class="flex justify-between items-center px-1">
-                    <label class="text-[8px] text-gray-500 uppercase font-mono tracking-widest">Force Verdict</label>
-                    ${vote ? `<span class="text-[7px] font-bold uppercase tracking-tighter px-1.5 py-0.5 rounded animate-pulse ${
-                      vote==='YES'?'text-emerald-400 bg-emerald-400/10':vote==='NO'?'text-rose-400 bg-rose-400/10':'text-yellow-300 bg-yellow-300/10'
-                    }">LOCKED</span>`:''}
-                  </div>
-                  <div class="grid grid-cols-3 gap-1">
-                    ${['YES','MAYBE','NO'].map(v=>`
-                      <button data-act="vote" data-id="${a.id}" data-vote="${v}"
-                        class="text-[8px] font-black py-1.5 rounded-lg border transition-all uppercase font-mono ${
-                          vote===v ? (v==='YES'?'bg-emerald-500 text-black border-emerald-400':
-                                     v==='NO'?'bg-rose-500 text-black border-rose-400':
-                                     'bg-yellow-400 text-black border-yellow-300')
-                                  : 'bg-black/50 border-gray-800 text-gray-500 hover:border-gray-600 hover:text-gray-300'
-                        }">${v}</button>
-                    `).join('')}
-                  </div>
-                </div>
-
-                <div class="space-y-2 pt-2 border-t border-gray-800/50">
-                  <label class="text-[8px] text-gray-500 uppercase font-mono tracking-widest block px-1">Voice</label>
-                  <select data-act="voice" data-id="${a.id}" class="w-full bg-black/50 border border-gray-800 rounded-xl px-3 py-2 text-[10px] text-gray-300 font-mono">
-                    ${['Kore','Puck','Charon','Fenrir','Zephyr'].map(v=>`<option ${settings.voice===v?'selected':''}>${v}</option>`).join('')}
-                  </select>
-                </div>
-
-                <div class="space-y-2 pt-2 border-t border-gray-800/50">
-                  <div class="flex justify-between px-1">
-                    <label class="text-[8px] text-gray-500 uppercase font-mono tracking-widest">Speed</label>
-                    <span class="text-[8px] text-gray-600 font-mono">${Number(settings.speed).toFixed(1)}x</span>
-                  </div>
-                  <input data-act="speed" data-id="${a.id}" type="range" min="0.6" max="1.4" step="0.1" value="${settings.speed}"
-                    class="w-full accent-cyan-400" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
   function renderHistory() {
     if (state.history.length===0) {
       return `
@@ -598,25 +338,66 @@ async function serverLoadLatest() {
                   class="px-4 py-2 rounded-2xl text-[10px] font-mono uppercase tracking-widest border transition-all bg-black/40 border-white/10 text-gray-400 hover:text-white hover:border-cyan-500/40">
                   SAMPLE ${i+1}
                 </button>
-              `).join("")}
-            </div>
-
-            <div class="flex flex-wrap gap-2 pt-2 border-t border-white/5">
-              <button id="opExport" class="px-4 py-2 rounded-2xl text-[10px] font-mono uppercase tracking-widest border bg-black/40 border-white/10 text-gray-400 hover:text-white hover:border-cyan-500/40">Export JSON</button>
-              <label class="px-4 py-2 rounded-2xl text-[10px] font-mono uppercase tracking-widest border bg-black/40 border-white/10 text-gray-400 hover:text-white hover:border-cyan-500/40 cursor-pointer">
-                Import JSON
-                <input id="opImport" type="file" accept="application/json" class="hidden" />
-              </label>
-              <div class="ml-auto text-[10px] font-mono text-gray-500 self-center">Backup: Export to keep your Council log.</div>
-            </div>
-          </div>
-        </div>
-
-        ${state.toast ? `<div class="mt-4 text-center text-[10px] font-mono text-cyan-300/70">${esc(state.toast)}</div>` : ``}
-      </div>
-    `;
+  function importJSON(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        const d = parsed.data || parsed;
+        state.dilemma = d.dilemma || "";
+        state.tension = typeof d.tension === "number" ? d.tension : 42;
+        state.history = Array.isArray(d.history) ? d.history : [];
+        state.verdict = d.verdict || null;
+        state.manualVotes = d.manualVotes || {};
+        state.agentSettings = d.agentSettings || state.agentSettings;
+        save();
+        setToast("Imported.");
+        render();
+      } catch (e) {
+        setToast("Import failed.");
+      }
+    };
+    reader.readAsText(file);
   }
 
+  function mkTurn(agent, dilemma) {
+    const seed = (dilemma + agent.id).split("").reduce((a,c)=>a + c.charCodeAt(0), 0);
+    const r = seed % 5;
+    const lines = {
+      INVESTOR: [
+        "ROI first: take the path that compounds optionality.",
+        "Ship now. Momentum is leverage. Perfect is expensive.",
+        "Stability is runway. Six months buys better positioning.",
+        "If it doesn't monetize or unlock distribution, it’s a hobby."
+      ],
+      ARTIST: [
+        "Burn the map. Choose the thing that feels alive.",
+        "Perfection is fear in a tuxedo. Release it.",
+        "Take the weird path. The story matters more than the salary.",
+        "Comfort is a cage. Rip a hole in it."
+      ],
+      CONSPIRACIST: [
+        "Ask who benefits. Then assume it’s worse than you think.",
+        "If the choice feels forced, it’s engineered.",
+        "The safest option is usually the trap with better branding.",
+        "Follow the incentives. They never lie."
+      ],
+      ENGINEER: [
+        "Define constraints, ship an MVP, and iterate with metrics.",
+        "Reduce risk: stage it. Partial refactor, not a rewrite.",
+        "Make it runnable as-shipped. Then optimize.",
+        "Failure modes first. Then the pretty."
+      ],
+      PRIEST: [
+        "Choose what you can live with at 3am.",
+        "Your values are the backend. Keep them online.",
+        "The cleanest choice is the one that reduces harm.",
+        "Listen to the quiet yes."
+      ]
+    };
+    const bucket = lines[agent.id] || ["State your dilemma. The Council will decide."];
+    return bucket[r % bucket.length] + " — " + agent.role + ".";
+  }
   function render() {
     initAgentSettings();
     const setupModal = state.showSetup ? `

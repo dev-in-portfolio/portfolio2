@@ -138,6 +138,111 @@ async function serverLoadLatest() {
     const input = $("#ts-api-key");
     const key = (input && input.value || "").trim();
     state.apiKey = key;
+  function loadProject() {
+    try {
+      const raw = localStorage.getItem(LS.project);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveProject() {
+    try {
+      localStorage.setItem(LS.project, JSON.stringify(state.project));
+    scheduleServerSync();
+      scheduleServerSync();
+    } catch {}
+  }
+
+// ------------------------- Backend Sync (optional) -------------------------
+// Uses Netlify Functions via /api/* redirect. Silent fallback if offline/unconfigured.
+const SERVER = { saveUrl: "/api/toon-project-save" };
+let _syncTimer = null;
+
+function buildServerPayload() {
+  return { kind: "toonstudio_project_v1", ts: Date.now(), project: state.project };
+}
+
+async function serverSaveNow() {
+  const clientId = (state.apiKey || "").trim();
+  if (!clientId) return;
+  try {
+    await fetch(SERVER.saveUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ client_id: clientId, payload: buildServerPayload() }),
+    });
+  } catch (_) {}
+}
+
+function scheduleServerSync() {
+  const clientId = (state.apiKey || "").trim();
+  if (!clientId) return;
+  clearTimeout(_syncTimer);
+  _syncTimer = setTimeout(() => { serverSaveNow(); }, 900);
+}
+
+async function serverLoadLatest() {
+  const clientId = (state.apiKey || "").trim();
+  if (!clientId) return;
+  try {
+    const res = await fetch(`${SERVER.saveUrl}?client_id=${encodeURIComponent(clientId)}&limit=1`, { method: "GET" });
+    if (!res.ok) return;
+    const data = await res.json().catch(() => null);
+    const p = data?.items?.[0]?.payload;
+    if (!p || typeof p !== "object") return;
+    if (p.project && typeof p.project === "object") {
+      state.project = p.project;
+      saveProject();
+      render();
+    }
+  } catch (_) {}
+}
+
+  function setError(msg) {
+    state.error = msg || "";
+    render();
+    if (msg) setTimeout(() => { state.error = ""; render(); }, 6000);
+  }
+
+  function canAdvanceTo(step) {
+    const cur = STEPS.indexOf(state.step);
+    const nxt = STEPS.indexOf(step);
+    return nxt <= cur;
+  }
+
+  function setStep(step) {
+    if (!STEPS.includes(step)) return;
+    state.step = step;
+    render();
+  }
+
+  function resetProject() {
+    state.project = { style: "Pixar", concept: "", characters: [], storyboard: [] };
+    state.demoOn = false;
+    saveProject();
+    setStep("SETUP");
+  }
+
+  function openSetup() {
+    const modal = $("#ts-setup-modal");
+    if (!modal) return;
+    modal.classList.remove("hidden");
+    const input = $("#ts-api-key");
+    if (input) input.value = state.apiKey || "";
+    input && input.focus();
+  }
+
+  function closeSetup() {
+    const modal = $("#ts-setup-modal");
+    modal && modal.classList.add("hidden");
+  }
+
+  function saveKey() {
+    const input = $("#ts-api-key");
+    const key = (input && input.value || "").trim();
+    state.apiKey = key;
     try { localStorage.setItem(LS.key, key); } catch {}
     closeSetup();
     render();
@@ -168,6 +273,36 @@ async function serverLoadLatest() {
     setStep("CHARACTERS");
   }
 
+  async function generateScriptSuggestion() {
+    // Backend-present UX: behave cleanly even if offline.
+    // For now: in-browser call if key is present; otherwise deterministic demo suggestion.
+    const concept = state.project.concept.trim();
+    if (!concept) return setError("Add a concept first.");
+    state.loading = true; render();
+
+    try {
+      if (!state.apiKey) {
+        // Offline-safe suggestion
+        state.project.storyboard = [
+          { id: "s1", title: "Setup", visual: "Introduce tone and protagonist.", beats: ["Hook", "Character", "Goal"] },
+          { id: "s2", title: "Conflict", visual: "Obstacle escalates.", beats: ["Complication", "Choice", "Risk"] },
+          { id: "s3", title: "Payoff", visual: "Resolution with Pixar-style heart.", beats: ["Climax", "Emotion", "Tag"] },
+        ];
+        saveProject();
+        setStep("STORYBOARD");
+        return;
+      }
+
+      // Call Gemini REST directly (works if browser allows). If blocked, we fail gracefully.
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + encodeURIComponent(state.apiKey);
+      const prompt = `You are ToonStudio. Create a 3-scene storyboard outline (title + visual description + 3 beats) for this concept:\n\n${concept}\n\nReturn JSON with: scenes:[{id,title,visual,beats:[..]}].`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+      });
+      if (!res.ok) throw new Error("Service temporarily unavailable (" + res.status + ")");
+      const data = await res.json();
   async function generateScriptSuggestion() {
     // Backend-present UX: behave cleanly even if offline.
     // For now: in-browser call if key is present; otherwise deterministic demo suggestion.
@@ -248,135 +383,6 @@ async function serverLoadLatest() {
       state.project = {
         style: parsed.style || "Pixar",
         concept: parsed.concept || "",
-        characters: Array.isArray(parsed.characters) ? parsed.characters : [],
-        storyboard: Array.isArray(parsed.storyboard) ? parsed.storyboard : []
-      };
-      saveProject();
-      render();
-    } catch (e) {
-      setError("Import failed");
-    }
-  }
-
-  function render() {
-    const app = $("#app");
-    if (!app) return;
-
-    const topOffset = "var(--nxTopNavPx, 0px)";
-
-    const stepIndex = STEPS.indexOf(state.step);
-
-    app.innerHTML = `
-      <div class="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500/50 flex flex-col">
-        <!-- Background Ambience -->
-        <div class="fixed inset-0 pointer-events-none overflow-hidden">
-          <div class="absolute top-[-10%] left-[-5%] w-[40vw] h-[40vw] bg-indigo-600/5 blur-[120px] rounded-full"></div>
-          <div class="absolute bottom-[-10%] right-[-5%] w-[40vw] h-[40vw] bg-purple-600/5 blur-[120px] rounded-full"></div>
-        </div>
-
-        <!-- App Navigation (below Nexus) -->
-        <nav class="sticky z-40 glass border-b border-white/5 py-3 px-6 shadow-2xl" style="top:${topOffset}">
-          <div class="max-w-[1440px] mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-4 group cursor-pointer" data-action="go-setup">
-              <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-indigo-400 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-all">
-                <i class="fa-solid fa-clapperboard text-white text-lg"></i>
-              </div>
-              <div class="flex flex-col">
-                <h1 class="text-xl font-outfit font-extrabold tracking-tight leading-none text-white">TOONSTUDIO</h1>
-                <span class="text-[10px] font-bold tracking-[0.3em] text-indigo-400 uppercase">Production Suite</span>
-              </div>
-            </div>
-
-            <div class="hidden lg:flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/5">
-              ${STEPS.map((s,i)=>`
-                <button data-step="${s}" ${i>stepIndex ? "disabled" : ""} class="flex items-center gap-3 px-4 py-2 rounded-xl transition-all ${
-                  state.step===s ? "bg-indigo-600/20 text-white active-step-glow" :
-                  i<stepIndex ? "text-indigo-400 hover:bg-white/5" : "text-slate-600"
-                }">
-                  <span class="text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                    state.step===s ? "bg-indigo-600 border-indigo-600" :
-                    i<stepIndex ? "border-indigo-500/50" : "border-white/10"
-                  }">${i+1}</span>
-                  <span class="text-[11px] font-bold uppercase tracking-widest">${s}</span>
-                </button>
-              `).join("")}
-            </div>
-
-            <div class="flex items-center gap-4">
-              <button data-action="open-setup" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-black uppercase tracking-[0.2em]">
-                Setup
-              </button>
-              <button data-action="reset" class="text-[10px] font-black uppercase text-slate-500 hover:text-red-400 transition-colors tracking-[0.2em]">
-                Reset Project
-              </button>
-              <div class="w-px h-8 bg-white/10 mx-2 hidden sm:block"></div>
-              <div class="hidden sm:flex flex-col text-right">
-                <span class="text-[10px] font-black uppercase text-slate-500 tracking-widest">Studio Status</span>
-                <span class="text-xs font-mono text-emerald-400">READY</span>
-              </div>
-            </div>
-          </div>
-        </nav>
-
-        <main class="max-w-[1440px] mx-auto p-4 md:p-10 relative z-10 flex-grow w-full">
-          ${state.error ? `
-            <div class="fixed z-[100] glass-thick border-red-500/50 px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-fadeIn"
-                 style="top: calc(${topOffset} + 84px); left:50%; transform:translateX(-50%);">
-              <i class="fa-solid fa-triangle-exclamation text-red-500"></i>
-              <span class="text-sm font-bold text-slate-200">${escapeHtml(state.error)}</span>
-              <button data-action="clear-error" class="ml-4 text-slate-500 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>` : ""}
-
-          <div class="page-transition">
-            ${renderStep()}
-          </div>
-        </main>
-      </div>
-
-      <!-- Setup Modal -->
-      <div id="ts-setup-modal" class="fixed inset-0 z-[200] ${"hidden"}">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-action="close-setup"></div>
-        <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] max-w-xl glass-thick rounded-3xl border border-white/10 shadow-2xl p-8">
-          <div class="flex items-start justify-between gap-6">
-            <div>
-              <div class="text-[10px] font-black uppercase tracking-[0.35em] text-indigo-400">Connection</div>
-              <div class="text-2xl font-outfit font-extrabold text-white mt-2">Studio Setup</div>
-              <div id="ts-setup-desc" class="text-sm text-slate-400 mt-2">Enter your API key to enable rendering. Demo works without a key.</div>
-            </div>
-            <button data-action="close-setup" class="w-10 h-10 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-
-          <div class="mt-6 space-y-3">
-            <div class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">API Key</div>
-            <input id="ts-api-key" type="password" autocomplete="off"
-              class="w-full px-4 py-3 rounded-2xl bg-slate-900/60 border border-white/10 text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/40"
-              placeholder="Paste key here" />
-            <div class="flex items-center justify-between pt-2">
-              <div class="text-xs text-slate-500">Status: <span class="text-emerald-400 font-mono">${escapeHtml(maskKey(state.apiKey))}</span></div>
-              <button data-action="save-key" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black tracking-widest text-[11px]">
-                SAVE
-              </button>
-            </div>
-          </div>
-
-          <div class="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
-            <div class="text-xs text-slate-500">Project data lives in this browser. Export to keep it safe.</div>
-            <div class="flex gap-2">
-              <button data-action="export" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-black uppercase tracking-[0.2em]">Export</button>
-              <label class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-black uppercase tracking-[0.2em] cursor-pointer">
-                Import<input id="ts-import" type="file" accept="application/json" class="hidden" />
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    // show modal if requested via state
-    // Attach events
-    appEvents();
-  }
-
   function renderStep() {
     const { project } = state;
     const disabled = state.loading ? "disabled" : "";
