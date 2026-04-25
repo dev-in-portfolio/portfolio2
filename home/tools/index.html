@@ -107,7 +107,7 @@
 
     /* super subtle grain so it feels cinematic, not “teen novel cover” */
     .heroGrain{
-      position:absolute; inset:-40px;
+      position:absolute; inset:0;
       background:
         repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 6px);
       mix-blend-mode: overlay;
@@ -209,6 +209,7 @@
       width: min(1120px, 100%);
       margin: 0 auto;
       padding: 0 18px 96px;
+      box-sizing: border-box;
     }
 
     .beat{
@@ -434,7 +435,7 @@ html{scroll-behavior:smooth}
 </div>
 </section>
 <style>
-    .docsGridV2{max-width:1100px;margin:14px auto 0;padding:0 14px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;}
+    .docsGridV2{width:100%;max-width:1100px;margin:14px auto 0;padding:0;box-sizing:border-box;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;}
     .docsColV2{grid-column: span 12;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px;}
     @media(min-width:900px){.docsColV2{grid-column: span 6;}}
     .docsColTitle{margin:0 0 10px 0;font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.85;}

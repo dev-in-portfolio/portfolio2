@@ -24,6 +24,9 @@
 nav.nxTopNav{
   position: relative;
   z-index: 8000;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   height: var(--nxNavH);
   display:flex;
   align-items:center;
@@ -34,6 +37,17 @@ nav.nxTopNav{
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255,255,255,0.08);
   pointer-events: auto;
+  /* Keep inner horizontal scrollers from expanding page width. */
+  overflow: hidden;
+}
+
+nav.nxTopNav .nxInner{
+  box-sizing: border-box;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 nav.nxTopNav .nxBrand{
@@ -65,6 +79,12 @@ nav.nxTopNav .nxPills{
   flex-wrap: nowrap;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  min-width: 0;
+  touch-action: pan-x;
+  scroll-snap-type: x proximity;
+  /* Subtle edge fade to suggest swipe without showing scrollbars. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%);
 }
 
 /* Keep the bar in one line without ugly scrollbars */
@@ -85,6 +105,150 @@ nav.nxTopNav .nxPill{
   white-space: nowrap;
   transition: background 120ms ease, transform 120ms ease, color 120ms ease, border-color 120ms ease;
   cursor: pointer;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+/* Mobile hamburger menu (no sideways scrolling). */
+nav.nxTopNav .nxMenuBtn{
+  display:none;
+  align-items:center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--nxTextHi);
+  cursor: pointer;
+  user-select:none;
+}
+
+nav.nxTopNav .nxMenuIcon{
+  width: 18px;
+  height: 12px;
+  position: relative;
+  display:block;
+}
+
+nav.nxTopNav .nxMenuIcon::before,
+nav.nxTopNav .nxMenuIcon::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  height:2px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.75);
+}
+
+nav.nxTopNav .nxMenuIcon::before{ top:0; }
+nav.nxTopNav .nxMenuIcon::after{ bottom:0; }
+
+nav.nxTopNav .nxMenuLabel{
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+nav.nxTopNav .nxMenuPanel{
+  position: fixed;
+  inset: 0;
+  z-index: 100001; /* above bar */
+  display:none;
+}
+
+nav.nxTopNav[data-menu-open="true"] .nxMenuPanel{
+  display:block;
+}
+
+body.nxMenuOpen{
+  overflow:hidden !important;
+}
+
+nav.nxTopNav .nxMenuOverlay{
+  position:absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+}
+
+nav.nxTopNav .nxMenuSheet{
+  position:absolute;
+  top: var(--nxTopNavH, 56px);
+  left: 12px;
+  right: 12px;
+  max-height: calc(100vh - var(--nxTopNavH, 56px) - 14px);
+  overflow:auto;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(8, 10, 18, 0.92);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.65);
+  -webkit-overflow-scrolling: touch;
+}
+
+nav.nxTopNav .nxMenuHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+nav.nxTopNav .nxMenuTitle{
+  font-weight: 900;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: rgba(255,255,255,0.82);
+}
+
+nav.nxTopNav .nxMenuClose{
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.86);
+  cursor:pointer;
+}
+
+nav.nxTopNav .nxMenuList{
+  padding: 10px;
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+
+nav.nxTopNav .nxMenuItem.nxMenuLink{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.90);
+  text-decoration:none;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+nav.nxTopNav .nxMenuItem.nxMenuLink.isActive{
+  border-color: rgba(120,180,255,0.28);
+  background: rgba(120,180,255,0.12);
+}
+
+@media (max-width: 720px){
+  nav.nxTopNav{
+    padding: 12px 10px 8px;
+    gap: 8px;
+  }
+  nav.nxTopNav .nxPills{ display:none; }
+  nav.nxTopNav .nxMenuBtn{ display:inline-flex; }
 }
 
 /* Logo pill (image-only) */
@@ -243,6 +407,7 @@ nav.nxTopNav{
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
+  max-width: 100dvw !important;
   z-index: 100000 !important;
 }
 
