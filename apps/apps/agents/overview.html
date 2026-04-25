@@ -38,11 +38,12 @@ Local Runner installs packs into .agentx/ and runs agents with scoped permission
 Tools are the runtime capabilities (fs, exec, browser, secrets, approvals).
 Receipts capture: timeline, logs, artifacts, screenshots, signatures/attestations.
 Runs can now be inspected side by side and replayed from deterministic sample tasks.
+The portfolio checker adds a real browser-local audit path that records a receipt in storage.
   </div>
-<div class="sep"></div>
-<p><b>Demo vs Real</b>: This cloud UI is a demo. The actual execution happens locally via the runner. Browser agents are restricted to the demo targets shipped in this module.</p>
+  <div class="sep"></div>
+<p><b>Real path</b>: The cloud UI is the control surface; execution happens locally via the runner or in the browser-local audit flow. Browser agents are restricted to the controlled targets shipped in this module.</p>
 </div>
-<div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
+<div class="footer">AgentX local runner • packs + live audits + receipts • v0.3.0</div>
 </div>
 <script src="/apps/agents/assets/js/agents.js"></script>
 </body>

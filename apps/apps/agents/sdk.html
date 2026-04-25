@@ -30,7 +30,7 @@
 <div class="container">
 <div class="hcard">
 <h1>Developer / SDK</h1>
-<p>Agent pack format (manifest + JS entrypoints) used by this demo.</p>
+<p>Agent pack format (manifest + JS entrypoints) used by the runtime and the live portfolio checker.</p>
 <div class="sep"></div>
 <div class="code">
 pack.json
@@ -50,9 +50,9 @@ pack.json
     }
   ]
 }
-  </div>
+</div>
 <div class="sep"></div>
-<p><b>Receipts</b>: Every run writes <span class="tag">receipts.json</span> plus <span class="tag">artifacts/</span>.</p>
+<p><b>Receipts</b>: Every run writes <span class="tag">receipts.json</span> plus <span class="tag">artifacts/</span>. Live browser audits are stored in browser-local receipts and use the same schema.</p>
 <div class="sep"></div>
 <div class="code">{
   "schemaVersion": "agent-run.v1",
@@ -60,12 +60,12 @@ pack.json
     "id": "sample_run_001",
     "status": "completed",
     "task": { "templateId": "portfolio-structural-audit" },
-    "timeline": [{ "kind": "tool", "status": "completed", "tool": "local.fs.list" }],
-    "artifacts": [{ "type": "json", "path": "artifacts/audit.report.json" }]
+      "timeline": [{ "kind": "tool", "status": "completed", "tool": "local.fs.list" }],
+      "artifacts": [{ "type": "json", "path": "artifacts/audit.report.json" }]
   }
 }</div>
 </div>
-<div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
+<div class="footer">AgentX local runner • packs + live audits + receipts • v0.3.0</div>
 </div>
 <script src="/apps/agents/assets/js/agents.js"></script>
 </body>

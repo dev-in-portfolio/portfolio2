@@ -1,10 +1,10 @@
 # Agents Module - User Guide
 
-Welcome to the Agents module! This cloud-hosted demo UI mirrors a local agent runtime where you can install packs, run agents with scoped permissions, and review receipts.
+Welcome to the Agents module! This control surface mirrors a local agent runtime where you can install packs, run agents with scoped permissions, launch the browser-local portfolio checker, and review receipts.
 
 ## Features
 - **Store & Packs**: Browse and download agent bundles (13 packs, 161 agents available).
-- **Runner**: A local execution environment for agents.
+- **Runner**: A local execution environment for agents plus the live portfolio checker.
 - **Receipts**: Every run generates comprehensive logs, timelines, and artifacts.
 - **Demo Targets**: Pre-configured safe environments for the agents to operate on.
 - **Policy**: Manage permissions and scopes for the agents.
@@ -12,7 +12,7 @@ Welcome to the Agents module! This cloud-hosted demo UI mirrors a local agent ru
 ## Step-by-Step Usage
 1. **Browse Packs**: Navigate to the **Store** to explore available agent bundles.
 2. **Install a Pack**: Select a pack to add it to your **Packs** library.
-3. **Run an Agent**: Go to the **Runner** tab, select an installed agent, configure its permissions, and start the run.
+3. **Run an Agent**: Go to the **Runner** tab, select an installed agent, configure its permissions, and start the run. Use the portfolio checker when you want a real browser-local audit.
 4. **View Receipts**: Once a run completes, check the **Runs** tab to view the detailed receipt, including steps taken, generated artifacts, and redactions.
 
 ## Troubleshooting

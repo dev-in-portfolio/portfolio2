@@ -85,6 +85,7 @@ a{color:inherit}
 .tag{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:5px 8px;border-radius:999px}
 .tag.ok{border-color:rgba(52,211,153,.35);color:rgba(52,211,153,.95)}
 .tag.warn{border-color:rgba(255,77,109,.35);color:rgba(255,77,109,.95)}
+.tag.live{border-color:rgba(125,249,255,.35);color:rgba(125,249,255,.95)}
 .sep{height:1px;background:var(--line);margin:18px 0}
 small{color:var(--muted)}
 .footer{padding:26px 0;color:var(--muted);font-size:13px}
@@ -121,6 +122,9 @@ small{color:var(--muted)}
 .log-entry{border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(255,255,255,.04)}
 .log-message{display:block;margin-top:10px}
 .log-meta{margin-top:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";font-size:12px;color:var(--muted);word-break:break-word}
+.live-panel{border-color:rgba(125,249,255,.22);background:linear-gradient(180deg, rgba(125,249,255,.08), rgba(255,255,255,.05))}
+.run-card-live{border-color:rgba(125,249,255,.20);box-shadow:0 14px 34px rgba(0,0,0,.30)}
+.run-card-live .tag.live{background:rgba(125,249,255,.08)}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
 .compare-picker{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
 .compare-picker label{display:grid;gap:8px}
@@ -139,4 +143,5 @@ small{color:var(--muted)}
   .stat-grid,.policy-grid{grid-template-columns:1fr}
   .run-card-top,.timeline-head,.inspector-head{flex-direction:column}
   .compare-picker,.compare-row{grid-template-columns:1fr}
+  .live-panel .ctas,.artifact-list .btn{width:100%}
 }

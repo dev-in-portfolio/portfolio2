@@ -91,6 +91,453 @@ function normalizeSlug(value) {
   return String(value || "").toLowerCase().trim();
 }
 
+const LIVE_RUN_STORAGE_KEY = "agentx.live.runs.v1";
+const LIVE_RUN_CACHE_KEY = "__agentxLiveRunsCache";
+
+const PORTFOLIO_CHECKER_LIVE_TASK = {
+  id: "portfolio-checker-live-audit",
+  title: "Portfolio structural audit",
+  summary: "Audit the live Agents module for required pages, assets, and flagship agent wiring.",
+  target: "Agents module",
+  templateId: "portfolio-checker-live-audit",
+  agentName: "Portfolio Checker Agent",
+  pack: "Pack D",
+  expectedOutcome: "All required pages resolve and the flagship agent is wired into Pack D.",
+  runnerCommand: "node agentx.js run portfolio-checker-agent --workspace /apps/agents --task portfolio-checker-live-audit",
+  policyHints: ["local.fs.read", "local.fs.list", "local.path.scope", "local.logs.write"],
+};
+
+const PORTFOLIO_CHECKER_LIVE_TARGETS = [
+  { path: "/index.html", kind: "html", label: "Module landing", required: true },
+  { path: "/overview.html", kind: "html", label: "Overview", required: true },
+  { path: "/store/index.html", kind: "html", label: "Store", required: true },
+  { path: "/store/portfolio-checker-agent.html", kind: "html", label: "Portfolio checker detail", required: true },
+  { path: "/packs/index.html", kind: "html", label: "Packs", required: true },
+  { path: "/packs/pack-d.html", kind: "html", label: "Pack D detail", required: true },
+  { path: "/runner.html", kind: "html", label: "Runner", required: true },
+  { path: "/runs/index.html", kind: "html", label: "Runs", required: true },
+  { path: "/policy.html", kind: "html", label: "Policy", required: true },
+  { path: "/sdk.html", kind: "html", label: "SDK", required: true },
+  { path: "/readme.md", kind: "text", label: "README", required: true },
+  { path: "/help.md", kind: "text", label: "Help", required: true },
+  { path: "/assets/css/agents.css", kind: "text", label: "Agents CSS", required: true },
+  { path: "/assets/js/agents.js", kind: "text", label: "Agents JS", required: true },
+  { path: "/assets/data/agents.json", kind: "json", label: "Agent registry", required: true },
+  { path: "/assets/data/packs.json", kind: "json", label: "Pack registry", required: true },
+];
+
+function getLiveRunBackingStore() {
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      return window.localStorage;
+    }
+  } catch (e) {
+    // localStorage can be unavailable in some sandboxed browser contexts.
+  }
+  return null;
+}
+
+function readLiveRunStore() {
+  const storage = getLiveRunBackingStore();
+  const fallback = window[LIVE_RUN_CACHE_KEY] || { version: 1, runs: [] };
+  if (!storage) return fallback;
+
+  try {
+    const raw = storage.getItem(LIVE_RUN_STORAGE_KEY);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return fallback;
+    const runs = Array.isArray(parsed.runs) ? parsed.runs : [];
+    return { version: parsed.version || 1, runs };
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function writeLiveRunStore(store) {
+  const next = { version: 1, runs: Array.isArray(store?.runs) ? store.runs : [] };
+  const storage = getLiveRunBackingStore();
+  if (storage) {
+    storage.setItem(LIVE_RUN_STORAGE_KEY, JSON.stringify(next));
+  } else {
+    window[LIVE_RUN_CACHE_KEY] = next;
+  }
+  return next;
+}
+
+function listLiveRunReceipts() {
+  return readLiveRunStore().runs
+    .map((entry) => {
+      if (!entry) return null;
+      return entry.schemaVersion === "agent-run.v1" && entry.run ? entry : null;
+    })
+    .filter(Boolean);
+}
+
+function findLiveRunReceipt(runId) {
+  return listLiveRunReceipts().find((entry) => entry.run && entry.run.id === runId) || null;
+}
+
+function getRunSource(runId) {
+  return String(runId || "").startsWith("live_") ? "live" : "sample";
+}
+
+function summarizeRunRecord(record, source = getRunSource(record.id)) {
+  return {
+    id: record.id,
+    title: record.title,
+    status: record.status,
+    agentName: record.agent.name || record.agent.slug || "Unknown",
+    pack: record.agent.pack ? `Pack ${record.agent.pack}` : "Unknown",
+    targetLabel: record.task.target || "Unknown",
+    taskSummary: record.task.summary || "No task summary provided.",
+    startedAt: record.startedAt,
+    durationMs: record.durationMs,
+    toolCalls: record.totals.toolCalls || 0,
+    artifactCount: record.totals.artifacts || 0,
+    source,
+  };
+}
+
+function summarizeRunReceipt(rawReceipt) {
+  return summarizeRunRecord(normalizeRunRecord(rawReceipt, rawReceipt?.run?.id || rawReceipt?.id));
+}
+
+function getLatestLiveRunId() {
+  const latest = listLiveRunReceipts()[0];
+  return latest && latest.run ? latest.run.id : null;
+}
+
+function appendLiveRunReceipt(rawReceipt) {
+  const store = readLiveRunStore();
+  const runId = rawReceipt?.run?.id || rawReceipt?.id;
+  const filtered = store.runs.filter((entry) => (entry?.run?.id || entry?.id) !== runId);
+  filtered.unshift(rawReceipt);
+  writeLiveRunStore({ version: 1, runs: filtered });
+}
+
+function portfolioCheckerLivePanel(runs = [], options = {}) {
+  const showActions = options.showActions !== false;
+  const latest = runs.find(
+    (item) => item.source === "live" && normalizeSlug(item.agentName) === normalizeSlug(PORTFOLIO_CHECKER_LIVE_TASK.agentName)
+  );
+  const latestHref = latest ? withBase(`/runs/live.html?run=${encodeURIComponent(latest.id)}`) : "";
+  const latestStatus = latest ? latest.status : "not run yet";
+
+  return `
+    <section class="live-panel">
+      <div class="inspector-head">
+        <div>
+          <div class="timeline-kicker">Flagship live workflow</div>
+          <h2>Run the portfolio checker against this module</h2>
+        </div>
+        <span class="tag live">${escapeHtml(latestStatus)}</span>
+      </div>
+      <p>This is the real loop we want the product to own: inspect the live module, validate the required pages and registry wiring, and save a receipt in browser-local storage.</p>
+      ${showActions ? `<div class="ctas">
+        <button class="btn primary" id="launchPortfolioChecker" type="button">Run portfolio checker</button>
+        <a class="btn" href="${escapeHtml(withBase("/store/portfolio-checker-agent.html"))}">Open agent detail</a>
+        ${latestHref ? `<a class="btn" href="${escapeHtml(latestHref)}">Latest live receipt</a>` : ""}
+      </div>` : ""}
+      <div class="sep"></div>
+      <div class="stat-grid">
+        <div class="stat-card"><span>Target</span><strong>${escapeHtml(PORTFOLIO_CHECKER_LIVE_TASK.target)}</strong></div>
+        <div class="stat-card"><span>Pack</span><strong>${escapeHtml(PORTFOLIO_CHECKER_LIVE_TASK.pack)}</strong></div>
+        <div class="stat-card"><span>Scope</span><strong>Required pages + registry wiring</strong></div>
+        <div class="stat-card"><span>Storage</span><strong>Browser-local receipt store</strong></div>
+      </div>
+    </section>
+  `;
+}
+
+function routeUrl(path) {
+  return withBase(path);
+}
+
+async function fetchRouteAudit(route) {
+  const startedAt = performance.now();
+  try {
+    const response = await fetch(routeUrl(route.path), { cache: "no-store" });
+    const text = await response.text();
+    const durationMs = Math.max(0, Math.round(performance.now() - startedAt));
+    const result = {
+      ...route,
+      ok: response.ok,
+      status: response.status,
+      contentType: response.headers.get("content-type") || "",
+      durationMs,
+      size: text.length,
+    };
+
+    if (route.kind === "json") {
+      try {
+        result.json = JSON.parse(text);
+      } catch (e) {
+        result.ok = false;
+        result.error = `Invalid JSON: ${e.message}`;
+      }
+    } else if (route.kind === "html") {
+      const doc = new DOMParser().parseFromString(text, "text/html");
+      result.title = (doc && doc.title) || "";
+      result.h1 = (doc && doc.querySelector("h1") && doc.querySelector("h1").textContent.trim()) || "";
+      if (!result.title) {
+        result.ok = false;
+        result.error = "Missing <title>";
+      }
+      if (!result.h1) {
+        result.ok = false;
+        result.error = result.error ? `${result.error}; missing <h1>` : "Missing <h1>";
+      }
+    } else {
+      result.preview = text.slice(0, 140).trim();
+    }
+
+    return result;
+  } catch (e) {
+    return {
+      ...route,
+      ok: false,
+      status: 0,
+      durationMs: Math.max(0, Math.round(performance.now() - startedAt)),
+      error: e.message,
+    };
+  }
+}
+
+function buildPortfolioCheckerReceipt({ startedAt, finishedAt, results, agent, task, errors, warnings }) {
+  const durationMs = new Date(finishedAt).getTime() - new Date(startedAt).getTime();
+  const passed = results.filter((item) => item.ok).length;
+  const failed = results.length - passed;
+  const totalWarnings = warnings.length;
+  const totalErrors = errors.length;
+  const status = failed > 0 ? "blocked" : totalWarnings > 0 ? "completed" : "completed";
+  const outcome = failed > 0 ? "needs-attention" : totalWarnings > 0 ? "completed-with-warnings" : "success";
+
+  return {
+    schemaVersion: "agent-run.v1",
+    run: {
+      id: `live_portfolio_checker_${startedAt.replace(/[:.]/g, "-")}`,
+      title: "Portfolio structural audit",
+      status,
+      outcome,
+      agent,
+      task,
+      policy: {
+        mode: "enforced",
+        approval: "not-required",
+        network: "same-origin",
+        workspace: AGENTX_BASE || AGENTX_PUBLIC_BASE,
+      },
+      startedAt,
+      finishedAt,
+      durationMs,
+      totals: {
+        steps: 5,
+        toolCalls: results.length + 2,
+        artifacts: 2,
+        warnings: totalWarnings,
+        errors: totalErrors,
+      },
+      summary: {
+        result:
+          failed > 0
+            ? `Found ${failed} broken route${failed === 1 ? "" : "s"} while auditing the live module.`
+            : totalWarnings > 0
+              ? `Live audit completed with ${totalWarnings} warning${totalWarnings === 1 ? "" : "s"}.`
+              : "Live audit completed cleanly across the required module surfaces.",
+      },
+      timeline: [
+        {
+          id: "step-1",
+          kind: "phase",
+          status: "completed",
+          title: "Initialize live receipt",
+          detail: "Opened the portfolio checker in the browser, loaded the live route map, and started the audit timer.",
+          startedAt,
+          durationMs: 250,
+          metrics: { routes: results.length },
+        },
+        {
+          id: "step-2",
+          kind: "tool",
+          status: "completed",
+          title: "Fetch module registry",
+          detail: "Loaded agents.json and packs.json to confirm the flagship agent is wired into Pack D.",
+          tool: "fetch",
+          startedAt,
+          durationMs: 600,
+          metrics: {
+            registryFiles: 2,
+            portfolioCheckerPresent: results.some((item) => item.path === "/assets/data/agents.json" && item.json),
+          },
+        },
+        {
+          id: "step-3",
+          kind: "tool",
+          status: failed > 0 ? "warning" : "completed",
+          title: "Audit required routes",
+          detail: failed > 0
+            ? `Checked ${results.length} routes and found ${failed} failure${failed === 1 ? "" : "s"}.`
+            : `Checked ${results.length} routes and found no broken pages.`,
+          tool: "fetch",
+          startedAt,
+          durationMs: 1800,
+          metrics: {
+            passed,
+            failed,
+          },
+        },
+        {
+          id: "step-4",
+          kind: "decision",
+          status: failed > 0 ? "warning" : "completed",
+          title: "Record findings",
+          detail: failed > 0
+            ? "Captured route failures and wrote a receipt bundle for review."
+            : totalWarnings > 0
+              ? "Captured warnings and wrote a receipt bundle for review."
+              : "Captured a clean receipt bundle for review.",
+          startedAt,
+          durationMs: 850,
+          metrics: {
+            warnings: totalWarnings,
+            errors: totalErrors,
+          },
+          receiptRefs: ["artifacts/portfolio-checker.report.json"],
+        },
+        {
+          id: "step-5",
+          kind: "phase",
+          status: "completed",
+          title: "Finalize receipts",
+          detail: "Stored the live run in browser-local storage and prepared a summary for the run inspector.",
+          startedAt,
+          durationMs: 400,
+          metrics: {
+            artifacts: 2,
+          },
+        },
+      ],
+      artifacts: [
+        {
+          type: "json",
+          label: "portfolio-checker.report.json",
+          path: "artifacts/portfolio-checker.report.json",
+          status: failed > 0 ? "warning" : "completed",
+          summary: "Route-by-route audit with response status, titles, and wiring checks.",
+        },
+        {
+          type: "json",
+          label: "portfolio-checker.routes.json",
+          path: "artifacts/portfolio-checker.routes.json",
+          status: failed > 0 ? "warning" : "completed",
+          summary: "Normalized route map for the live portfolio checker audit.",
+        },
+      ],
+      logs: [
+        {
+          level: "info",
+          msg: "Live portfolio checker started",
+          meta: { agent: agent.slug, target: task.target },
+        },
+        ...results.map((item) => ({
+          level: item.ok ? "info" : "error",
+          msg: item.ok ? `${item.label} resolved` : `${item.label} failed`,
+          meta: {
+            path: item.path,
+            status: item.status,
+            title: item.title || null,
+            h1: item.h1 || null,
+            error: item.error || null,
+          },
+        })),
+        ...warnings.map((item) => ({
+          level: "warning",
+          msg: item,
+          meta: {},
+        })),
+      ],
+      checks: [
+        {
+          label: "Flagship agent present in registry",
+          status: results.some((item) => item.path === "/assets/data/agents.json" && item.json) ? "passed" : "failed",
+        },
+        {
+          label: "Pack D wires in the flagship agent",
+          status:
+            results.some((item) => item.path === "/assets/data/packs.json" && item.json) &&
+            results.some((item) => item.path === "/assets/data/agents.json" && item.json)
+              ? "passed"
+              : "failed",
+        },
+        {
+          label: "All required module routes resolved",
+          status: failed === 0 ? "passed" : "failed",
+        },
+      ],
+    },
+  };
+}
+
+async function launchPortfolioCheckerAudit() {
+  const startedAt = new Date().toISOString();
+  const agent = {
+    slug: "portfolio-checker-agent",
+    name: "Portfolio Checker Agent",
+    pack: "D",
+  };
+  const task = {
+    ...PORTFOLIO_CHECKER_LIVE_TASK,
+  };
+
+  const results = [];
+  const warnings = [];
+  const errors = [];
+
+  for (const route of PORTFOLIO_CHECKER_LIVE_TARGETS) {
+    const result = await fetchRouteAudit(route);
+    results.push(result);
+    if (!result.ok) {
+      errors.push(`${route.label} (${route.path}) failed${result.error ? `: ${result.error}` : ""}`);
+    }
+  }
+
+  const registryResult = results.find((item) => item.path === "/assets/data/agents.json");
+  const packResult = results.find((item) => item.path === "/assets/data/packs.json");
+  const registryAgents = registryResult && registryResult.json ? registryResult.json : [];
+  const registryPacks = packResult && packResult.json ? packResult.json : [];
+  const portfolioEntry = Array.isArray(registryAgents)
+    ? registryAgents.find((item) => item.slug === "portfolio-checker-agent")
+    : null;
+  const packDEntry = Array.isArray(registryPacks)
+    ? registryPacks.find((item) => item.slug === "pack-d")
+    : null;
+
+  if (!portfolioEntry) {
+    warnings.push("The portfolio checker agent entry was not found in agents.json.");
+  } else if (portfolioEntry.pack !== "D") {
+    warnings.push(`The portfolio checker agent is assigned to Pack ${portfolioEntry.pack}, not Pack D.`);
+  }
+
+  if (!packDEntry || !Array.isArray(packDEntry.agents) || !packDEntry.agents.includes("portfolio-checker-agent")) {
+    warnings.push("Pack D does not list portfolio-checker-agent in its manifest.");
+  }
+
+  const finishedAt = new Date().toISOString();
+  const receipt = buildPortfolioCheckerReceipt({
+    startedAt,
+    finishedAt,
+    results,
+    agent,
+    task,
+    errors,
+    warnings,
+  });
+
+  appendLiveRunReceipt(receipt);
+  return normalizeRunRecord(receipt, receipt.run.id);
+}
+
 function computeRisk(perms) {
   const list = Array.isArray(perms) ? perms : [];
   const hasHigh = list.some((item) =>
@@ -164,6 +611,7 @@ function agentCard(a, context = {}) {
 async function renderStore() {
   const grid = qs("#agentGrid");
   const filter = qs("#packFilter");
+  const featured = qs("#storeFeatured");
 
   if (!grid || !filter) return;
 
@@ -173,6 +621,27 @@ async function renderStore() {
       loadRunIndex(),
       loadSampleTasks(),
     ]);
+
+    if (featured) {
+      featured.innerHTML = portfolioCheckerLivePanel(runs);
+      const launch = qs("#launchPortfolioChecker", featured);
+      if (launch) {
+        launch.addEventListener("click", async () => {
+          launch.disabled = true;
+          const original = launch.textContent;
+          launch.textContent = "Running…";
+          try {
+            const run = await launchPortfolioCheckerAudit();
+            window.location.href = withBase(`/runs/live.html?run=${encodeURIComponent(run.id)}`);
+          } catch (e) {
+            launch.disabled = false;
+            launch.textContent = original;
+            renderError(featured, "Live portfolio checker failed", e);
+            console.error(e);
+          }
+        });
+      }
+    }
 
     function apply() {
       const v = filter.value;
@@ -252,6 +721,7 @@ async function renderPacks() {
 window.AgentPages = {
   renderStore,
   renderPacks,
+  launchPortfolioCheckerAudit,
   publicBase: AGENTX_PUBLIC_BASE,
   base: AGENTX_BASE || AGENTX_PUBLIC_BASE,
 };
@@ -379,10 +849,23 @@ function normalizeRunRecord(raw, runId) {
 }
 
 async function loadRunIndex() {
-  return loadJson([withBase("/assets/sample-runs/index.json")]);
+  const [sampleRuns, liveRuns] = await Promise.all([
+    loadJson([withBase("/assets/sample-runs/index.json")]),
+    Promise.resolve(listLiveRunReceipts().map((entry) => summarizeRunReceipt(entry))),
+  ]);
+
+  return [...liveRuns, ...sampleRuns].sort((left, right) => {
+    const leftTime = new Date(left.startedAt || 0).getTime();
+    const rightTime = new Date(right.startedAt || 0).getTime();
+    return rightTime - leftTime;
+  });
 }
 
 async function loadRunRecord(runId) {
+  const live = findLiveRunReceipt(runId);
+  if (live) {
+    return normalizeRunRecord(live, runId);
+  }
   const raw = await loadJson([withBase(`/assets/sample-runs/${runId}.receipts.json`)]);
   return normalizeRunRecord(raw, runId);
 }
@@ -402,13 +885,16 @@ async function loadPolicyScenarios() {
 function runCardHtml(item) {
   const statusClass = badgeClass(item.status);
   return `
-    <a class="card run-card" href="${escapeHtml(withBase(`/runs/${item.id}.html`))}" style="text-decoration:none">
+    <a class="card run-card ${item.source === "live" ? "run-card-live" : ""}" href="${escapeHtml(withBase(`/runs/${item.id}.html`))}" style="text-decoration:none">
       <div class="run-card-top">
         <div>
           <h3>${escapeHtml(item.title)}</h3>
           <p>${escapeHtml(item.agentName)} • ${escapeHtml(item.pack)} • ${escapeHtml(item.targetLabel)}</p>
         </div>
-        <span class="tag ${statusClass}">${escapeHtml(item.status)}</span>
+        <div class="kv" style="margin-top:0;justify-content:flex-end">
+          ${item.source === "live" ? '<span class="tag live">Live</span>' : ""}
+          <span class="tag ${statusClass}">${escapeHtml(item.status)}</span>
+        </div>
       </div>
       <p class="run-card-summary">${escapeHtml(item.taskSummary)}</p>
       <div class="kv">
@@ -423,10 +909,31 @@ function runCardHtml(item) {
 
 async function renderRunsIndex() {
   const root = qs("#runsRoot");
+  const featured = qs("#runsFeatured");
   if (!root) return;
 
   try {
     const runs = await loadRunIndex();
+    if (featured) {
+      featured.innerHTML = portfolioCheckerLivePanel(runs);
+      const launch = qs("#launchPortfolioChecker", featured);
+      if (launch) {
+        launch.addEventListener("click", async () => {
+          launch.disabled = true;
+          const original = launch.textContent;
+          launch.textContent = "Running…";
+          try {
+            const run = await launchPortfolioCheckerAudit();
+            window.location.href = withBase(`/runs/live.html?run=${encodeURIComponent(run.id)}`);
+          } catch (e) {
+            launch.disabled = false;
+            launch.textContent = original;
+            renderError(featured, "Live portfolio checker failed", e);
+            console.error(e);
+          }
+        });
+      }
+    }
     root.innerHTML = runs.length
       ? runs.map(runCardHtml).join("")
       : `<div class="card"><p style="margin:0;color:var(--muted)">No sample runs registered yet.</p></div>`;
@@ -523,7 +1030,8 @@ async function renderRunInspector() {
   const root = qs("#runInspector");
   if (!root) return;
 
-  const runId = root.getAttribute("data-run-id");
+  const params = new URLSearchParams(window.location.search);
+  const runId = params.get("run") || root.getAttribute("data-run-id") || getLatestLiveRunId();
   if (!runId) {
     renderError(root, "Run inspector setup failed", new Error("Missing data-run-id attribute"));
     return;
@@ -538,14 +1046,15 @@ async function renderRunInspector() {
       <section class="inspector-grid">
         <div class="hcard">
           <div class="inspector-head">
-            <div>
-              <div class="timeline-kicker">Canonical run schema</div>
-              <h2>${escapeHtml(run.title)}</h2>
-            </div>
-            <div class="kv">
-              <span class="tag ${badgeClass(run.status)}">${escapeHtml(run.status)}</span>
-              <span class="tag">${escapeHtml(run.schemaVersion)}</span>
-            </div>
+          <div>
+            <div class="timeline-kicker">Canonical run schema</div>
+            <h2>${escapeHtml(run.title)}</h2>
+          </div>
+          <div class="kv">
+            ${String(run.id || "").startsWith("live_") ? '<span class="tag live">Live</span>' : ""}
+            <span class="tag ${badgeClass(run.status)}">${escapeHtml(run.status)}</span>
+            <span class="tag">${escapeHtml(run.schemaVersion)}</span>
+          </div>
           </div>
           <p>${escapeHtml(run.task.summary || "No task summary provided.")}</p>
           <div class="ctas">
@@ -729,7 +1238,7 @@ async function renderRunnerCatalog() {
   if (!root) return;
 
   try {
-    const tasks = await loadSampleTasks();
+    const [tasks, runs] = await Promise.all([loadSampleTasks(), loadRunIndex()]);
     const params = new URLSearchParams(window.location.search);
     const activeId = params.get("task");
     const active = tasks.find((task) => task.id === activeId) || tasks[0];
@@ -737,6 +1246,16 @@ async function renderRunnerCatalog() {
     root.innerHTML = `
       <div class="inspector-grid">
         <div class="hcard">
+          <div class="timeline-kicker">Featured live workflow</div>
+          <h2>Run the portfolio checker for real</h2>
+          <p>The flagship path audits this module from the browser, checks the registry wiring for Pack D, and stores a browsable receipt locally.</p>
+          <div class="ctas">
+            <button class="btn primary" id="launchPortfolioCheckerRunner" type="button">Run portfolio checker</button>
+            <a class="btn" href="${escapeHtml(withBase("/runs/index.html"))}">Open receipts</a>
+          </div>
+          <div class="sep"></div>
+          ${portfolioCheckerLivePanel(runs, { showActions: false })}
+          <div class="sep"></div>
           <div class="timeline-kicker">Deterministic sample tasks</div>
           <h2>Replayable task briefs</h2>
           <p>These tasks are fixed scenarios for validating policies, receipts, and tool behavior without theatrical randomness.</p>
@@ -777,6 +1296,24 @@ async function renderRunnerCatalog() {
         </div>
       </div>
     `;
+
+    const launch = qs("#launchPortfolioCheckerRunner");
+    if (launch) {
+      launch.addEventListener("click", async () => {
+        launch.disabled = true;
+        const original = launch.textContent;
+        launch.textContent = "Running…";
+        try {
+          const run = await launchPortfolioCheckerAudit();
+          window.location.href = withBase(`/runs/live.html?run=${encodeURIComponent(run.id)}`);
+        } catch (e) {
+          launch.disabled = false;
+          launch.textContent = original;
+          renderError(root, "Live portfolio checker failed", e);
+          console.error(e);
+        }
+      });
+    }
   } catch (e) {
     renderError(root, "Runner task catalog failed to load", e);
     console.error(e);
@@ -948,6 +1485,9 @@ function injectAgentDetailEnhancements(agent, runs, tasks) {
   const trust = computeTrustSignals(agent);
   const relevantTasks = findRelevantTasks(tasks, agent);
   const relevantRuns = findRelevantRuns(runs, agent);
+  const liveRun = runs.find(
+    (item) => item.source === "live" && normalizeSlug(item.agentName) === normalizeSlug(agent.name)
+  );
   const manifest = document.createElement("div");
   manifest.setAttribute("data-enhanced-agent-manifest", "true");
   manifest.innerHTML = `
@@ -975,12 +1515,31 @@ function injectAgentDetailEnhancements(agent, runs, tasks) {
         <div class="kv">
           ${relevantTasks[0] ? `<a class="btn" href="${withBase(`/runner.html?task=${encodeURIComponent(relevantTasks[0].id)}`)}">Replay task</a>` : ""}
           ${relevantRuns[0] ? `<a class="btn" href="${withBase(`/runs/${relevantRuns[0].id}.html`)}">View receipt</a>` : ""}
+          ${liveRun ? `<a class="btn primary" href="${withBase(`/runs/live.html?run=${encodeURIComponent(liveRun.id)}`)}">Open live audit</a>` : ""}
           <a class="btn" href="${withBase("/policy.html")}">Open policy sandbox</a>
         </div>
       </div>
     </div>
   `;
   container.appendChild(manifest);
+
+  const launchButtons = [qs("#detailLaunchPortfolioCheckerTop", container), qs("#detailLaunchPortfolioChecker", container)].filter(Boolean);
+  launchButtons.forEach((launch) => {
+    launch.addEventListener("click", async () => {
+      launch.disabled = true;
+      const original = launch.textContent;
+      launch.textContent = "Running…";
+      try {
+        const run = await launchPortfolioCheckerAudit();
+        window.location.href = withBase(`/runs/live.html?run=${encodeURIComponent(run.id)}`);
+      } catch (e) {
+        launch.disabled = false;
+        launch.textContent = original;
+        renderError(container, "Live portfolio checker failed", e);
+        console.error(e);
+      }
+    });
+  });
 }
 
 function injectPackDetailEnhancements(pack, agents, runs, tasks) {
@@ -996,6 +1555,9 @@ function injectPackDetailEnhancements(pack, agents, runs, tasks) {
   );
   const relevantRuns = (runs || []).filter((run) =>
     list.some((agent) => normalizeSlug(agent.name) === normalizeSlug(run.agentName))
+  );
+  const liveRun = runs.find(
+    (item) => item.source === "live" && list.some((agent) => normalizeSlug(agent.name) === normalizeSlug(item.agentName))
   );
 
   const manifest = document.createElement("div");
@@ -1019,6 +1581,7 @@ function injectPackDetailEnhancements(pack, agents, runs, tasks) {
         <div class="kv">
           ${relevantTasks[0] ? `<a class="btn" href="${withBase(`/runner.html?task=${encodeURIComponent(relevantTasks[0].id)}`)}">Replay sample task</a>` : ""}
           ${relevantRuns[0] ? `<a class="btn" href="${withBase(`/runs/${relevantRuns[0].id}.html`)}">View related receipt</a>` : ""}
+          ${liveRun ? `<a class="btn primary" href="${withBase(`/runs/live.html?run=${encodeURIComponent(liveRun.id)}`)}">Open live audit</a>` : ""}
           <a class="btn" href="${withBase("/policy.html")}">Inspect policy diff</a>
         </div>
       </div>

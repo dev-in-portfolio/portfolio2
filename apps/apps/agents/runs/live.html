@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Agents • Runs</title>
+<title>Agents • Live Run</title>
 <link href="../assets/css/agents.css" rel="stylesheet"/>
 <link href="../../../shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
 <script defer="defer" src="../../../shared/nexus-topnav-v2.js?v=54"></script>
@@ -29,21 +29,16 @@
 </div>
 <div class="container">
 <div class="hcard">
-<h1>Runs &amp; Receipts</h1>
-<p>This page shows the canonical run schema used by the sample receipts plus any browser-local live audits created from the runner.</p>
-<div id="runsFeatured"></div>
-<div class="ctas">
-<a class="btn" href="/apps/agents/runs/compare.html">Compare runs</a>
-<a class="btn" href="/apps/agents/runner.html">Replay sample task</a>
-</div>
+<h1 data-run-title>Run: live portfolio checker</h1>
+<p>Timeline, policy envelope, logs, and artifacts for the browser-local live audit.</p>
 <div class="sep"></div>
-<div class="grid" id="runsRoot"><div class="card"><p style="margin:0;color:var(--muted)">Loading sample runs…</p></div></div>
+<div id="runInspector" data-run-id="__live__"><div class="card"><p style="margin:0;color:var(--muted)">Loading run inspector…</p></div></div>
 </div>
 <div class="footer">AgentX local runner • packs + live audits + receipts • v0.3.0</div>
 </div>
 <script src="../assets/js/agents.js"></script>
 <script>
-window.AgentPages.renderRunsIndex();
+window.AgentPages.renderRunInspector();
 </script>
 </body>
 </html>
