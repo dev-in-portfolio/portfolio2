@@ -216,6 +216,84 @@ function appendLiveRunReceipt(rawReceipt) {
   writeLiveRunStore({ version: 1, runs: filtered });
 }
 
+function clearLiveRunReceipts() {
+  writeLiveRunStore({ version: 1, runs: [] });
+}
+
+function runHref(itemOrId) {
+  const id = typeof itemOrId === "string" ? itemOrId : itemOrId?.id;
+  if (getRunSource(id) === "live") {
+    return withBase(`/runs/live.html?run=${encodeURIComponent(id)}`);
+  }
+  return withBase(`/runs/${id}.html`);
+}
+
+function receiptExportPayload(run) {
+  return {
+    schemaVersion: run.schemaVersion,
+    run: {
+      id: run.id,
+      title: run.title,
+      status: run.status,
+      outcome: run.outcome,
+      agent: run.agent,
+      task: run.task,
+      policy: run.policy,
+      startedAt: run.startedAt,
+      finishedAt: run.finishedAt,
+      durationMs: run.durationMs,
+      totals: run.totals,
+      summary: run.summary,
+      timeline: run.timeline,
+      artifacts: run.artifacts,
+      logs: run.logs,
+      checks: run.checks,
+    },
+  };
+}
+
+function downloadReceiptJson(run) {
+  const blob = new Blob([JSON.stringify(receiptExportPayload(run), null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${run.id || "agent-run"}.receipts.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function copyTextToClipboard(value) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const input = document.createElement("textarea");
+  input.value = value;
+  input.setAttribute("readonly", "");
+  input.style.position = "fixed";
+  input.style.left = "-9999px";
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand("copy");
+  input.remove();
+}
+
+function setButtonFeedback(button, label) {
+  if (!button) return;
+  const original = button.textContent;
+  button.textContent = label;
+  button.disabled = true;
+  window.setTimeout(() => {
+    button.textContent = original;
+    button.disabled = false;
+  }, 1400);
+}
+
 function portfolioCheckerLivePanel(runs = [], options = {}) {
   const showActions = options.showActions !== false;
   const latest = runs.find(
@@ -885,7 +963,7 @@ async function loadPolicyScenarios() {
 function runCardHtml(item) {
   const statusClass = badgeClass(item.status);
   return `
-    <a class="card run-card ${item.source === "live" ? "run-card-live" : ""}" href="${escapeHtml(withBase(`/runs/${item.id}.html`))}" style="text-decoration:none">
+    <a class="card run-card ${item.source === "live" ? "run-card-live" : ""}" href="${escapeHtml(runHref(item))}" style="text-decoration:none">
       <div class="run-card-top">
         <div>
           <h3>${escapeHtml(item.title)}</h3>
@@ -910,10 +988,12 @@ function runCardHtml(item) {
 async function renderRunsIndex() {
   const root = qs("#runsRoot");
   const featured = qs("#runsFeatured");
+  const controls = qs("#runsControls");
   if (!root) return;
 
   try {
     const runs = await loadRunIndex();
+    const liveRuns = runs.filter((item) => item.source === "live");
     if (featured) {
       featured.innerHTML = portfolioCheckerLivePanel(runs);
       const launch = qs("#launchPortfolioChecker", featured);
@@ -931,6 +1011,26 @@ async function renderRunsIndex() {
             renderError(featured, "Live portfolio checker failed", e);
             console.error(e);
           }
+        });
+      }
+    }
+    if (controls) {
+      controls.innerHTML = `
+        <div class="receipt-controls">
+          <div>
+            <div class="timeline-kicker">Receipt store</div>
+            <strong>${escapeHtml(String(liveRuns.length))} browser-local live receipt${liveRuns.length === 1 ? "" : "s"}</strong>
+          </div>
+          <div class="ctas">
+            <button class="btn" id="clearLiveReceipts" type="button" ${liveRuns.length ? "" : "disabled"}>Clear live receipts</button>
+          </div>
+        </div>
+      `;
+      const clearButton = qs("#clearLiveReceipts", controls);
+      if (clearButton) {
+        clearButton.addEventListener("click", () => {
+          clearLiveRunReceipts();
+          renderRunsIndex();
         });
       }
     }
@@ -1064,6 +1164,8 @@ async function renderRunInspector() {
                 : ""
             }
             <a class="btn" href="${escapeHtml(withBase(`/runs/compare.html?left=${encodeURIComponent(run.id)}`))}">Compare runs</a>
+            <button class="btn" id="exportReceiptJson" type="button">Export JSON</button>
+            <button class="btn" id="copyRunId" type="button">Copy run id</button>
           </div>
           <div class="stat-grid">
             <div class="stat-card"><span>Agent</span><strong>${escapeHtml(run.agent.name || run.agent.slug || "Unknown")}</strong></div>
@@ -1115,6 +1217,24 @@ async function renderRunInspector() {
         </div>
       </section>
     `;
+
+    const exportButton = qs("#exportReceiptJson", root);
+    if (exportButton) {
+      exportButton.addEventListener("click", () => downloadReceiptJson(run));
+    }
+
+    const copyButton = qs("#copyRunId", root);
+    if (copyButton) {
+      copyButton.addEventListener("click", async () => {
+        try {
+          await copyTextToClipboard(run.id);
+          setButtonFeedback(copyButton, "Copied");
+        } catch (e) {
+          setButtonFeedback(copyButton, "Copy failed");
+          console.error(e);
+        }
+      });
+    }
   } catch (e) {
     renderError(root, "Run inspector failed to load", e);
     console.error(e);

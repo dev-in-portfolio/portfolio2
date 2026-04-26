@@ -123,6 +123,7 @@ small{color:var(--muted)}
 .log-message{display:block;margin-top:10px}
 .log-meta{margin-top:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";font-size:12px;color:var(--muted);word-break:break-word}
 .live-panel{border-color:rgba(125,249,255,.22);background:linear-gradient(180deg, rgba(125,249,255,.08), rgba(255,255,255,.05))}
+.receipt-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.04)}
 .run-card-live{border-color:rgba(125,249,255,.20);box-shadow:0 14px 34px rgba(0,0,0,.30)}
 .run-card-live .tag.live{background:rgba(125,249,255,.08)}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
@@ -143,5 +144,6 @@ small{color:var(--muted)}
   .stat-grid,.policy-grid{grid-template-columns:1fr}
   .run-card-top,.timeline-head,.inspector-head{flex-direction:column}
   .compare-picker,.compare-row{grid-template-columns:1fr}
+  .receipt-controls{align-items:flex-start;flex-direction:column}
   .live-panel .ctas,.artifact-list .btn{width:100%}
 }
