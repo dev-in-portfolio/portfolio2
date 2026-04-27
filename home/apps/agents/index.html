@@ -30,24 +30,53 @@
 <div class="container">
 <section class="hero">
 <div class="hcard">
-<h1>Downloadable agent packs + a local runner with permissions and receipts.</h1>
-<p>This module is a cloud-hosted demo UI that mirrors a local runtime: you install packs, run agents with scoped permissions, and get a receipts bundle showing what happened (steps, artifacts, redaction, signatures).</p>
+<div class="eyebrow">AgentX Control Surface</div>
+<h1>A local-first agent marketplace with receipts you can actually inspect.</h1>
+<p>Install curated agent packs, run them inside a permissioned local runner, and leave behind a signed evidence trail: scopes, approvals, artifacts, redactions, screenshots, and replayable run metadata.</p>
 <div class="ctas">
 <a class="btn primary" href="/apps/agents/runner.html">Get Runner</a>
-<a class="btn" href="/apps/agents/store/index.html">Browse Packs</a>
+<a class="btn" href="/apps/agents/store/index.html">Explore 161 Agents</a>
 <a class="btn" href="/apps/agents/runs/index.html">View Receipts Demo</a>
 </div>
 <div class="sep"></div>
-<small>Honesty badge: Browser automation runs against only the controlled demo targets hosted in this module.</small>
+<div class="kv">
+<span class="tag ok">Permission scoped</span>
+<span class="tag hot">Receipt-first</span>
+<span class="tag">Local execution</span>
+<span class="tag">Demo-safe browser targets</span>
+</div>
 </div>
 <div class="hcard">
-<h3 style="margin:0 0 10px">Quick stats</h3>
-<div class="grid" style="grid-template-columns:1fr;gap:10px">
-<div class="card"><h3 style="margin:0">13 packs</h3><p>Downloadable agent bundles available</p></div>
-<div class="card"><h3 style="margin:0">161 agents</h3><p>Ready-to-run agents across all packs</p></div>
-<div class="card"><h3 style="margin:0">Receipts</h3><p>Every run generates logs, timelines, and artifacts</p></div>
+<h3 style="margin:0 0 10px">What makes it real</h3>
+<div class="stack">
+<div class="card"><h3 style="margin:0">13 packs</h3><p>Downloadable bundles grouped by operating domain.</p></div>
+<div class="card"><h3 style="margin:0">161 agents</h3><p>Each has a manifest, permission list, output contract, and run status.</p></div>
+<div class="card"><h3 style="margin:0">Receipts</h3><p>Every run produces timelines, logs, artifacts, and safety evidence.</p></div>
 </div>
 </div>
+</section>
+<section class="split">
+<div class="callout">
+<h3 style="margin-top:0">Runner flow</h3>
+<div class="timeline">
+<div class="step"><h3>Allow a workspace</h3><p>The runner blocks file access outside paths you explicitly approve.</p></div>
+<div class="step"><h3>Install a pack</h3><p>Agent manifests declare required scopes before anything runs.</p></div>
+<div class="step"><h3>Run with receipts</h3><p>Outputs, logs, approvals, and artifacts are written into a reviewable bundle.</p></div>
+</div>
+</div>
+<div class="callout">
+<h3 style="margin-top:0">Honesty boundary</h3>
+<p>Cloud pages demonstrate the product shape. Actual execution belongs to the local runner. Browser automation is limited to the controlled demo targets shipped in this module.</p>
+<div class="kv">
+<a class="btn" href="/apps/agents/policy.html">Read policy model</a>
+<a class="btn" href="/apps/agents/demo-targets/index.html">Open demo targets</a>
+</div>
+</div>
+</section>
+<section class="matrix" style="margin-top:12px">
+<div class="card"><h3>Marketplace</h3><p>Search 161 manifests by role, status, permission scope, and output contract before installing anything.</p><div class="kv"><a class="btn" href="/apps/agents/store/index.html">Open store</a></div></div>
+<div class="card"><h3>Runner</h3><p>Install packs locally, gate tools by explicit workspace allowlists, and keep high-risk actions behind approval flags.</p><div class="kv"><a class="btn" href="/apps/agents/runner.html">Open runner</a></div></div>
+<div class="card"><h3>Receipts</h3><p>Review what ran, what it touched, what it produced, and which safeguards were applied after every execution.</p><div class="kv"><a class="btn" href="/apps/agents/runs/index.html">Open receipts</a></div></div>
 </section>
 <div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
 </div>

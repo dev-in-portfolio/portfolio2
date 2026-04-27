@@ -29,6 +29,7 @@
 </div>
 <div class="container">
 <div class="hcard">
+<div class="eyebrow">Policy Center</div>
 <h1>Permissions &amp; Policy Center</h1>
 <p>Glossary of scopes used by the runner and agent manifests.</p>
 <div class="sep"></div>
@@ -42,6 +43,14 @@
 </div>
 <div class="sep"></div>
 <p><b>Risk tiers</b>: low (read-only) • medium (write) • high (signing, auth gates).</p>
+</div>
+<div class="hcard" style="margin-top:12px">
+<h3 style="margin-top:0">Review matrix</h3>
+<div class="policy-table">
+<div class="policy-row"><b>Low</b><span class="tag ok">Read / inspect</span><span class="muted">Readonly file listing, JSON validation, local report generation without writes.</span></div>
+<div class="policy-row"><b>Guarded</b><span class="tag warn">Write / automate</span><span class="muted">File writes, browser automation, network calls, or artifact creation inside an allowed workspace.</span></div>
+<div class="policy-row"><b>High review</b><span class="tag bad">Secrets / exec / signing</span><span class="muted">Local process execution, secret reads, signing, high-risk approvals, or anything intentionally disabled in Pack Z.</span></div>
+</div>
 </div>
 <div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
 </div>

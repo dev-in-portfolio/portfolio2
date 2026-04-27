@@ -29,6 +29,7 @@
 </div>
 <div class="container">
 <div class="hcard">
+<div class="eyebrow">Architecture</div>
 <h1>Platform overview</h1>
 <p><b>Store → Package → Local Runner → Tools → Receipts</b></p>
 <div class="code">
@@ -40,6 +41,10 @@ Receipts capture: timeline, logs, artifacts, screenshots, signatures/attestation
   </div>
 <div class="sep"></div>
 <p><b>Demo vs Real</b>: This cloud UI is a demo. The actual execution happens locally via the runner. Browser agents are restricted to the demo targets shipped in this module.</p>
+</div>
+<div class="split" style="margin-top:12px">
+<div class="card"><h3>Permission contract</h3><p>Agents declare scopes up front. The runner compares those scopes to allowed paths, approvals, network boundaries, and secret handles before execution.</p></div>
+<div class="card"><h3>Evidence contract</h3><p>Runs emit a stable receipt bundle so a human can audit what changed, which tools ran, which approvals were used, and which artifacts were created.</p></div>
 </div>
 <div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
 </div>

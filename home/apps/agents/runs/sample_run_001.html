@@ -29,20 +29,15 @@
 </div>
 <div class="container">
 <div class="hcard">
+<div class="eyebrow">Receipt Detail</div>
 <h1>Run: sample_run_001</h1>
 <p>Timeline + artifacts preview (pre-recorded).</p>
 <div class="sep"></div>
-<div class="code" id="runDump">Loading…</div>
+<div id="runReceipt">Loading...</div>
 </div>
-<script>
-(async () => {
-  const r = await fetch("../assets/sample-runs/sample_run_001.receipts.json");
-  const j = await r.json();
-  document.getElementById("runDump").textContent = JSON.stringify(j, null, 2);
-})();
-</script>
 <div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
 </div>
 <script src="../assets/js/agents.js"></script>
+<script>AgentPages.renderRunReceipt();</script>
 </body>
 </html>

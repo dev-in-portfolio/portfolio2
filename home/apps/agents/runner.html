@@ -29,6 +29,7 @@
 </div>
 <div class="container">
 <div class="hcard">
+<div class="eyebrow">Local Runner</div>
 <h1>Download Runner</h1>
 <p>The runner is a small Node CLI that installs .agentpack.zip files into <span class="tag">.agentx/</span>, enforces directory allowlists, and emits receipts per run.</p>
 <div class="kv">
@@ -50,6 +51,19 @@
 <div class="sep"></div>
 <h3 style="margin:0 0 10px">Safety model</h3>
 <p>Runner blocks file operations outside your allowlist. Agents declare required permissions. Some actions require approval flags to proceed.</p>
+</div>
+<div class="split" style="margin-top:12px">
+<div class="card"><h3>What you approve</h3><p>Workspace paths, pack installs, high-risk permissions, and any browser automation beyond the bundled demo targets.</p></div>
+<div class="card"><h3>What you get back</h3><p>A receipt bundle with run metadata, timeline entries, logs, artifacts, screenshots when applicable, and redacted secrets.</p></div>
+</div>
+<div class="hcard" style="margin-top:12px">
+<div class="eyebrow">Execution Gate</div>
+<h3 style="margin-top:0">Before an agent can run</h3>
+<div class="rail">
+<div class="railItem"><div class="railIcon">1</div><div><h3>Manifest parsed</h3><p>The pack declares agent entrypoints, required scopes, expected outputs, and demo status.</p></div></div>
+<div class="railItem"><div class="railIcon">2</div><div><h3>Policy compared</h3><p>The runner checks the manifest against allowed folders, secret handles, network rules, and approval flags.</p></div></div>
+<div class="railItem"><div class="railIcon">3</div><div><h3>Receipt opened</h3><p>A run bundle is created before execution so logs, artifacts, and safety events have a stable destination.</p></div></div>
+</div>
 </div>
 <div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
 </div>

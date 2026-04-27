@@ -29,11 +29,19 @@
 </div>
 <div class="container">
 <div class="hcard">
-<h1>Agent store</h1>
-<p>Filter by Pack, open agent detail pages, and download packs.</p>
-<div class="kv">
-<label class="tag">Pack filter</label>
-<select class="tag" id="packFilter" style="background:transparent;color:var(--text)">
+<div class="eyebrow">Agent Store</div>
+<h1>Find the right agent by pack, status, or capability.</h1>
+<p>Search across names, purposes, slugs, and permission scopes. Use this like a real catalog: pick a capability, inspect the manifest page, then install the pack locally.</p>
+<div class="statline" id="storeSummary"></div>
+<div class="sep"></div>
+<div class="toolbar">
+<div class="field">
+<label for="agentSearch">Search</label>
+<input class="input" id="agentSearch" placeholder="Try receipts, browser, portfolio, redaction, local.fs..." type="search"/>
+</div>
+<div class="field">
+<label for="packFilter">Pack</label>
+<select class="select" id="packFilter">
 <option value="">All Packs</option>
 <option value="A">Pack A — Desktop + Files</option>
 <option value="B">Pack B — Browser Automation</option>
@@ -50,6 +58,25 @@
 <option value="Z">Pack Z — Not Enabled (Demo Locked)</option>
 </select>
 </div>
+<div class="field">
+<label for="statusFilter">Status</label>
+<select class="select" id="statusFilter">
+<option value="">All Statuses</option>
+<option value="demo">Demo-ready</option>
+<option value="local-only">Local-only</option>
+<option value="spec">Spec</option>
+<option value="not-enabled">Locked</option>
+</select>
+</div>
+</div>
+<div class="sep"></div>
+<div class="kv" style="justify-content:space-between">
+<span class="tag hot">Featured launch paths</span>
+<span class="tag" data-local-agent-count>Local-first agents</span>
+<span class="tag" id="resultCount">Loading agents...</span>
+</div>
+<div class="grid" id="featuredAgents" style="margin-top:12px"></div>
+<div id="agentDetail"></div>
 <div class="sep"></div>
 <div class="grid" id="agentGrid"></div>
 </div>

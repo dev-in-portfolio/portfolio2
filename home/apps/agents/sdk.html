@@ -29,6 +29,7 @@
 </div>
 <div class="container">
 <div class="hcard">
+<div class="eyebrow">Pack Authoring</div>
 <h1>Developer / SDK</h1>
 <p>Agent pack format (manifest + JS entrypoints) used by this demo.</p>
 <div class="sep"></div>
@@ -53,6 +54,10 @@ pack.json
   </div>
 <div class="sep"></div>
 <p><b>Receipts</b>: Every run writes <span class="tag">receipts.json</span> plus <span class="tag">artifacts/</span>.</p>
+</div>
+<div class="split" style="margin-top:12px">
+<div class="card"><h3>Minimum viable agent</h3><p>Declare a slug, purpose, permissions, output paths, and an entrypoint. The runner treats missing permissions as a hard stop.</p></div>
+<div class="card"><h3>Review-ready output</h3><p>Write structured artifacts and timeline events so the receipt page can explain the run without a developer reading raw logs first.</p></div>
 </div>
 <div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
 </div>
