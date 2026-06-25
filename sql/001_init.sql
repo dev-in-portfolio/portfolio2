@@ -108,6 +108,25 @@ create policy "proofs_delete_own"
 on public.item_proofs for delete
 using (user_id = auth.uid());
 
+-- Audit logs
+create table if not exists public.latch_audit_log (
+  id uuid primary key default gen_random_uuid(),
+  latch_id uuid not null references public.latches(id) on delete cascade,
+  item_id uuid not null references public.latch_items(id) on delete cascade,
+  user_id uuid not null,
+  action_type text not null, -- 'create', 'update_phase', 'toggle_proof'
+  old_phase text,
+  new_phase text,
+  proof_url text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.latch_audit_log enable row level security;
+
+create policy "audit_select_own"
+on public.latch_audit_log for select
+using (user_id = auth.uid());
+
 -- Phase advancement RPC
 create or replace function public.advance_item_phase(p_item_id uuid, p_next public.latch_phase)
 returns public.latch_items
@@ -117,6 +136,8 @@ as $$
 declare
   v_item public.latch_items;
   v_proof_count int;
+  v_latest_proof_url text;
+  v_old_phase public.latch_phase;
 begin
   select * into v_item
   from public.latch_items
@@ -126,6 +147,8 @@ begin
     raise exception 'not allowed';
   end if;
 
+  v_old_phase := v_item.phase;
+
   if p_next in ('ready','locked') and v_item.proof_required then
     select count(*) into v_proof_count
     from public.item_proofs
@@ -134,12 +157,23 @@ begin
     if v_proof_count < 1 then
       raise exception 'proof required';
     end if;
+
+    -- Get latest proof URL for audit log
+    select url into v_latest_proof_url
+    from public.item_proofs
+    where item_id = v_item.id and user_id = auth.uid()
+    order by created_at desc
+    limit 1;
   end if;
 
   update public.latch_items
   set phase = p_next
   where id = v_item.id
   returning * into v_item;
+
+  -- Log the change to audit log
+  insert into public.latch_audit_log (latch_id, item_id, user_id, action_type, old_phase, new_phase, proof_url)
+  values (v_item.latch_id, v_item.id, auth.uid(), 'update_phase', v_old_phase::text, p_next::text, v_latest_proof_url);
 
   return v_item;
 end $$;
