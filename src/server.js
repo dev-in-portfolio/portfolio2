@@ -26,12 +26,24 @@ const pool = DATABASE_URL
     })
   : null;
 
+let sseClients = [];
+
+function broadcastEntry(deviceKey, entry) {
+  const data = JSON.stringify(entry);
+  sseClients.forEach((client) => {
+    if (client.deviceKey === deviceKey) {
+      client.res.write(`data: ${data}\n\n`);
+    }
+  });
+}
+
 app.use(
   cors({
     exposedHeaders: ['X-Request-Id']
   })
 );
 app.use(express.json({ limit: '100kb' }));
+app.use(express.static('public'));
 app.use((req, _res, next) => {
   const fnPrefix = '/.netlify/functions/server';
   if (req.url === fnPrefix) {
@@ -54,9 +66,9 @@ app.use((req, res, next) => {
 });
 
 function requireDeviceKey(req, res, next) {
-  const deviceKey = req.header('X-Device-Key');
+  const deviceKey = req.header('X-Device-Key') || req.query.deviceKey;
   if (!deviceKey || deviceKey.length > 100) {
-    return res.status(400).json({ error: 'X-Device-Key header required.' });
+    return res.status(400).json({ error: 'X-Device-Key header or query param required.' });
   }
   req.deviceKey = deviceKey;
   return next();
@@ -265,6 +277,20 @@ app.get('/api/ledger/health', asyncHandler(async (_req, res) => {
 
 app.use('/api/ledger', requireDeviceKey);
 
+app.get('/api/ledger/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.write(':ok\n\n');
+
+  const client = { res, deviceKey: req.deviceKey };
+  sseClients.push(client);
+
+  req.on('close', () => {
+    sseClients = sseClients.filter((c) => c !== client);
+  });
+});
+
 app.get('/api/ledger/status', asyncHandler(async (req, res) => {
   if (!pool) return res.status(500).json({ error: 'DATABASE_URL is not set.' });
   const client = await pool.connect();
@@ -432,7 +458,9 @@ app.post('/api/ledger/entries', asyncHandler(async (req, res) => {
         payload.note
       ]
     );
-    return res.status(201).json({ entry: created.rows[0] });
+    const entry = created.rows[0];
+    broadcastEntry(req.deviceKey, entry);
+    return res.status(201).json({ entry });
   } finally {
     client.release();
   }
