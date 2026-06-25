@@ -1,68 +1,875 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>NeonScope</title>
-    <style>
-      :root{--bg:#0a1220;--card:#131d35;--bd:#35507f;--txt:#edf3ff;--muted:#a7b7dc;--a:#78ecff;--b:#90a1ff}*{box-sizing:border-box}
-      body{margin:0;background:radial-gradient(circle at 16% 0,#2b4f7f 0,#0a1220 56%);color:var(--txt);font-family:Inter,system-ui,sans-serif}
-      .wrap{max-width:1120px;margin:0 auto;padding:24px}.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px}
-      .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}input,textarea,button{width:100%;padding:10px;border-radius:10px;border:1px solid #3e6297;background:#111a35;color:var(--txt)}
-      button{border:none;background:linear-gradient(90deg,var(--a),var(--b));color:#05152d;font-weight:700;cursor:pointer}.muted{color:var(--muted);font-size:.9rem}
-      @media(max-width:960px){.row{grid-template-columns:1fr}}
-    </style>
-  </head>
-  <body>
-    <main class="wrap">
-      <section class="card"><h1>NeonScope</h1><p class="muted">Read-only SQL workbench with saved queries and audit trail.</p><p id="status" class="muted">Checking API...</p></section>
-      <section class="row">
-        <article class="card">
-          <h2>Query</h2>
-          <input id="name" placeholder="Query name (optional)" />
-          <textarea id="sql" rows="10" placeholder="select * from ns_saved_queries"></textarea>
-          <input id="limit" type="number" value="50" min="1" max="200" />
-          <button id="run">Run Query</button>
-          <button id="save">Save Query</button>
-          <div id="queryOut" class="muted"></div>
-        </article>
-        <article class="card">
-          <h2>Explorer</h2>
-          <button id="tables">List Tables</button>
-          <button id="saved">Load Saved Queries</button>
-          <button id="audit">Load Audit Log</button>
-          <input id="deleteId" placeholder="saved query id to delete" />
-          <button id="deleteSaved">Delete Saved Query</button>
-          <div id="infoOut" class="muted"></div>
-        </article>
-      </section>
-    </main>
-    <script>
-      const status=document.getElementById('status');
-      const queryOut=document.getElementById('queryOut');
-      const infoOut=document.getElementById('infoOut');
-      const esc=(s)=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
-      const show=(el,d)=>{ el.innerHTML=`<pre>${esc(JSON.stringify(d,null,2))}</pre>`; };
-      const val=(id)=>document.getElementById(id).value.trim();
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NeonScope — Cyberpunk SQL Workbench</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #000000;
+      --panel: #070b12;
+      --border-color: #3b82f6; /* Neon Blue */
+      --glow: 0 0 15px rgba(59, 130, 246, 0.4);
+      --neon-green: #22c55e;
+      --neon-amber: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #475569;
+    }
 
-      async function health(){ const r=await fetch('/api/health/db'); const d=await r.json(); status.textContent=d.ok?'API connected to database.':`API warning: ${d.error||'unavailable'}`; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-      document.getElementById('run').onclick=async()=>{
-        const body={name:val('name'),sql:val('sql'),limit:Number(val('limit')||50)};
-        const r=await fetch('/api/neonscope/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-        show(queryOut, await r.json().catch(()=>({error:'bad_response'})));
-      };
-      document.getElementById('save').onclick=async()=>{
-        const body={name:val('name'),sql:val('sql')};
-        const r=await fetch('/api/neonscope/saved',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-        show(queryOut, await r.json().catch(()=>({error:'bad_response'})));
-      };
-      document.getElementById('tables').onclick=async()=>{ const r=await fetch('/api/neonscope/tables'); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
-      document.getElementById('saved').onclick=async()=>{ const r=await fetch('/api/neonscope/saved'); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
-      document.getElementById('audit').onclick=async()=>{ const r=await fetch('/api/neonscope/audit'); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
-      document.getElementById('deleteSaved').onclick=async()=>{ const r=await fetch(`/api/neonscope/saved/${encodeURIComponent(val('deleteId'))}`,{method:'DELETE'}); show(infoOut, await r.json().catch(()=>({error:'bad_response'}))); };
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      padding: 24px;
+      overflow-x: hidden;
+    }
 
-      health().catch(()=>status.textContent='API unavailable.');
-    </script>
-  </body>
+    .command-center {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    header {
+      background: var(--panel);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--glow);
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 0.1em;
+      color: var(--border-color);
+      text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1 span {
+      font-size: 0.8rem;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-shadow: none;
+      letter-spacing: normal;
+    }
+
+    #status {
+      font-size: 0.9rem;
+      color: var(--neon-green);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #status.warning {
+      color: var(--neon-amber);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 1100px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel-card {
+      background: var(--panel);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--glow);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+    }
+
+    h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--border-color);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Monaco Style Code Editor */
+    .editor-wrapper {
+      position: relative;
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      background: #020408;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .editor-gutter {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 36px;
+      background: #05080f;
+      border-right: 1px solid var(--muted);
+      padding: 12px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #334155;
+      font-size: 0.85rem;
+      user-select: none;
+      line-height: 1.5;
+    }
+
+    .editor-textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--neon-green);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      padding: 12px 12px 12px 48px;
+      resize: vertical;
+      min-height: 180px;
+      line-height: 1.5;
+      outline: none;
+    }
+
+    .editor-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .input-limit {
+      background: #020408;
+      border: 1px solid var(--muted);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      width: 80px;
+      text-align: center;
+    }
+
+    .input-limit:focus {
+      outline: none;
+      border-color: var(--border-color);
+    }
+
+    .btn {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--border-color);
+      color: var(--border-color);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn:hover {
+      background: var(--border-color);
+      color: #000;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+    }
+
+    .btn.run-btn {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+    }
+
+    .btn.run-btn:hover {
+      background: var(--neon-green);
+      color: #000;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+    }
+
+    /* Output Results Table */
+    .results-wrapper {
+      max-height: 350px;
+      overflow: auto;
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      background: #020408;
+    }
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      text-align: left;
+    }
+
+    .results-table th {
+      background: #05080f;
+      color: var(--border-color);
+      padding: 10px;
+      border-bottom: 1px solid var(--muted);
+      position: sticky;
+      top: 0;
+    }
+
+    .results-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      color: var(--text);
+    }
+
+    .results-table tr:hover {
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .empty-state {
+      color: var(--muted);
+      padding: 24px;
+      text-align: center;
+    }
+
+    /* ERD Panel */
+    .erd-container {
+      background: #020408;
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 250px;
+      max-height: 400px;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Performance Meters */
+    .meters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .meter-card {
+      background: #020408;
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .meter-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meter-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--neon-green);
+    }
+
+    .meter-canvas-container {
+      width: 100px;
+      height: 60px;
+      position: relative;
+    }
+
+    /* Sidebar controls */
+    .explorer-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .query-list {
+      max-height: 240px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .query-item {
+      background: #020408;
+      border: 1px solid var(--muted);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .query-item:hover {
+      border-color: var(--border-color);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .query-item .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-small {
+      background: transparent;
+      border: 1px solid var(--neon-amber);
+      color: var(--neon-amber);
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-small:hover {
+      background: var(--neon-amber);
+      color: #000;
+    }
+
+    .sql-code-highlight {
+      font-family: inherit;
+      color: var(--neon-green);
+    }
+  </style>
+</head>
+<body>
+  <div class="command-center">
+    <header>
+      <h1>NeonScope <span>v0.2.0</span></h1>
+      <div id="status">⚡ Database Status Check...</div>
+    </header>
+
+    <div class="main-grid">
+      <!-- Left Pane (Query & Results) -->
+      <div class="grid" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="panel-card">
+          <h2>
+            SQL Command Terminal
+            <span id="terminal-cursor" style="color: var(--border-color)">_</span>
+          </h2>
+          
+          <div class="editor-wrapper">
+            <div class="editor-gutter" id="editor-gutter">
+              <div>1</div>
+            </div>
+            <textarea 
+              id="sql-editor" 
+              class="editor-textarea" 
+              spellcheck="false"
+              placeholder="-- Write read-only SELECT queries here&#10;SELECT * FROM ns_saved_queries;"
+            ></textarea>
+          </div>
+
+          <div class="editor-controls">
+            <input id="query-name" class="input-field input-limit" style="width: 180px; text-align: left;" placeholder="Query Name (Optional)" />
+            <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 0.8rem; color: var(--muted)">Limit:</span>
+              <input id="query-limit" type="number" class="input-limit" value="50" min="1" max="200" />
+              <button id="run-query" class="btn run-btn">Run Exec</button>
+              <button id="save-query" class="btn">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <h2>Query Outputs <span id="output-meta" style="font-size: 0.8rem; color: var(--muted);"></span></h2>
+          <div class="results-wrapper" id="results-wrapper">
+            <div class="empty-state">Execute a query in the terminal to inspect results.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Pane (ERD & Telemetry) -->
+      <div class="grid" style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- ERD Card -->
+        <div class="panel-card">
+          <h2>Entity Relation Map (ERD)</h2>
+          <div class="erd-container" id="erd-container">
+            <div class="empty-state">Loading table relationships...</div>
+          </div>
+        </div>
+
+        <!-- Telemetry Metrics Card -->
+        <div class="panel-card">
+          <h2>Performance Dials</h2>
+          
+          <div class="meters-grid">
+            <div class="meter-card">
+              <span class="meter-label">Cache Hit Ratio</span>
+              <div class="meter-canvas-container">
+                <canvas id="cache-gauge"></canvas>
+              </div>
+              <span id="cache-val" class="meter-value">-</span>
+            </div>
+
+            <div class="meter-card">
+              <span class="meter-label">Avg Query Pacing</span>
+              <div class="meter-canvas-container">
+                <canvas id="latency-gauge"></canvas>
+              </div>
+              <span id="latency-val" class="meter-value">-</span>
+            </div>
+          </div>
+
+          <div class="meters-grid" style="margin-top: 12px;">
+            <div class="meter-card" style="align-items: center;">
+              <span class="meter-label">Audit Runs</span>
+              <span id="stat-total-queries" class="meter-value" style="font-size: 1.8rem; margin-top: 8px;">-</span>
+            </div>
+            <div class="meter-card" style="align-items: center;">
+              <span class="meter-label">Rows Scanned</span>
+              <span id="stat-total-rows" class="meter-value" style="font-size: 1.8rem; margin-top: 8px;">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explorer Console -->
+        <div class="panel-card">
+          <h2>Database Explorer</h2>
+          <div class="explorer-buttons">
+            <button id="explorer-tables" class="btn btn-small">Schema Tables</button>
+            <button id="explorer-saved" class="btn btn-small">Saved Library</button>
+            <button id="explorer-audit" class="btn btn-small">Audit Logs</button>
+          </div>
+          <div class="query-list" id="explorer-list">
+            <div class="empty-state" style="padding: 10px 0;">Click an action above to populate.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Config Mermaid
+    mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+
+    // State Variables
+    const state = {
+      metrics: {
+        totalQueries: 0,
+        avgDurationMs: 0,
+        totalRows: 0,
+        cacheHitRatio: 100
+      }
+    };
+
+    // DOM Elements
+    const statusEl = document.getElementById('status');
+    const sqlEditor = document.getElementById('sql-editor');
+    const editorGutter = document.getElementById('editor-gutter');
+    const queryName = document.getElementById('query-name');
+    const queryLimit = document.getElementById('query-limit');
+    
+    const runQueryBtn = document.getElementById('run-query');
+    const saveQueryBtn = document.getElementById('save-query');
+    const resultsWrapper = document.getElementById('results-wrapper');
+    const outputMeta = document.getElementById('output-meta');
+    
+    const erdContainer = document.getElementById('erd-container');
+    const explorerTablesBtn = document.getElementById('explorer-tables');
+    const explorerSavedBtn = document.getElementById('explorer-saved');
+    const explorerAuditBtn = document.getElementById('explorer-audit');
+    const explorerList = document.getElementById('explorer-list');
+
+    // Init
+    async function init() {
+      setupEditorLineNumbers();
+      setupKeywordAutoUppercase();
+      
+      const ok = await checkHealth();
+      if (ok) {
+        loadERD();
+        loadMetrics();
+        loadExplorerSaved();
+      }
+    }
+
+    // Line numbers helper
+    function setupEditorLineNumbers() {
+      sqlEditor.addEventListener('input', () => {
+        const lines = sqlEditor.value.split('\n').length;
+        editorGutter.innerHTML = Array.from({ length: lines }, (_, i) => `<div>${i + 1}</div>`).join('');
+      });
+    }
+
+    // Auto-Uppercase SQL Keywords
+    function setupKeywordAutoUppercase() {
+      const keywords = new Set([
+        'select', 'from', 'where', 'join', 'on', 'left', 'right', 'inner', 
+        'outer', 'and', 'or', 'group', 'by', 'order', 'limit', 'insert', 
+        'into', 'values', 'update', 'set', 'delete', 'create', 'table', 
+        'drop', 'alter', 'with', 'as', 'coalesce', 'having', 'having'
+      ]);
+
+      sqlEditor.addEventListener('keyup', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          const value = sqlEditor.value;
+          const cursorPos = sqlEditor.selectionStart;
+          const textBeforeCursor = value.substring(0, cursorPos);
+          const textAfterCursor = value.substring(cursorPos);
+          
+          const words = textBeforeCursor.split(/([\s,;()])/);
+          if (words.length > 1) {
+            const lastWordIdx = words.length - 2; // Last word is before the space/new line delimiter
+            const lastWord = words[lastWordIdx];
+            if (keywords.has(lastWord.toLowerCase())) {
+              words[lastWordIdx] = lastWord.toUpperCase();
+              
+              const updatedTextBefore = words.join('');
+              sqlEditor.value = updatedTextBefore + textAfterCursor;
+              sqlEditor.selectionStart = cursorPos;
+              sqlEditor.selectionEnd = cursorPos;
+            }
+          }
+        }
+      });
+    }
+
+    // Health Checks
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health/db');
+        const d = await res.json();
+        if (d.ok) {
+          statusEl.textContent = '⚡ ONLINE';
+          statusEl.className = '';
+          return true;
+        } else {
+          statusEl.textContent = '⚠️ SCHEMA MISSING';
+          statusEl.className = 'warning';
+          return false;
+        }
+      } catch (err) {
+        statusEl.textContent = '❌ OFFLINE';
+        statusEl.className = 'warning';
+        return false;
+      }
+    }
+
+    // SQL execution
+    runQueryBtn.onclick = async () => {
+      const sql = sqlEditor.value.trim();
+      if (!sql) return;
+
+      resultsWrapper.innerHTML = '<div class="empty-state">Running SQL query...</div>';
+      outputMeta.textContent = '';
+
+      try {
+        const body = { name: queryName.value.trim(), sql, limit: Number(queryLimit.value || 50) };
+        const res = await fetch('/api/neonscope/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          renderTable(data);
+          loadMetrics(); // Refresh performance stats
+        } else {
+          resultsWrapper.innerHTML = `<div class="empty-state" style="color: var(--neon-amber)">Error: ${data.error || 'bad_request'} - ${data.detail || ''}</div>`;
+        }
+      } catch (err) {
+        resultsWrapper.innerHTML = '<div class="empty-state" style="color: var(--neon-amber)">Network Error.</div>';
+      }
+    };
+
+    saveQueryBtn.onclick = async () => {
+      const sql = sqlEditor.value.trim();
+      const name = queryName.value.trim();
+      if (!sql || !name) {
+        alert('Name and SQL script required to save.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/neonscope/saved', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, sql })
+        });
+        if (res.ok) {
+          queryName.value = '';
+          loadExplorerSaved();
+          alert('Query successfully saved to library.');
+        } else {
+          const err = await res.json();
+          alert('Error: ' + err.error);
+        }
+      } catch (err) {
+        alert('Network error while saving.');
+      }
+    };
+
+    // Render Table Output
+    function renderTable(data) {
+      if (!data.rows || !data.rows.length) {
+        resultsWrapper.innerHTML = '<div class="empty-state">Query executed successfully. 0 rows returned.</div>';
+        outputMeta.textContent = `(${data.durationMs}ms)`;
+        return;
+      }
+
+      outputMeta.textContent = `(${data.rowCount} rows · ${data.durationMs}ms)`;
+
+      let html = `<table class="results-table"><thead><tr>`;
+      data.columns.forEach(col => {
+        html += `<th>${col}</th>`;
+      });
+      html += `</tr></thead><tbody>`;
+
+      data.rows.forEach(row => {
+        html += `<tr>`;
+        data.columns.forEach(col => {
+          const val = row[col];
+          html += `<td>${val === null ? '<span style="color: var(--muted)">NULL</span>' : escapeHtml(val)}</td>`;
+        });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+      resultsWrapper.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      if (typeof str === 'object') return JSON.stringify(str);
+      return String(str).replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+
+    // Load Explorer categories
+    explorerTablesBtn.onclick = async () => {
+      explorerList.innerHTML = '<div class="empty-state">Fetching schema tables...</div>';
+      try {
+        const res = await fetch('/api/neonscope/tables');
+        const data = await res.json();
+        if (data.tables && data.tables.length) {
+          explorerList.innerHTML = data.tables.map(t => `
+            <div class="query-item" onclick="insertSqlText('SELECT * FROM ${t.table_name};')">
+              <span>📁 ${t.table_schema}.${t.table_name}</span>
+            </div>
+          `).join('');
+        } else {
+          explorerList.innerHTML = '<div class="empty-state">No user tables found.</div>';
+        }
+      } catch (err) {
+        explorerList.innerHTML = '<div class="empty-state">Failed to load tables.</div>';
+      }
+    };
+
+    async function loadExplorerSaved() {
+      explorerList.innerHTML = '<div class="empty-state">Fetching saved queries...</div>';
+      try {
+        const res = await fetch('/api/neonscope/saved');
+        const data = await res.json();
+        if (data.queries && data.queries.length) {
+          explorerList.innerHTML = data.queries.map(q => `
+            <div class="query-item">
+              <span onclick="insertSqlText(\`${q.sql_text.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">📝 ${q.name}</span>
+              <div class="actions">
+                <button class="btn-small" onclick="deleteSavedQuery('${q.id}')">Del</button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          explorerList.innerHTML = '<div class="empty-state">No saved queries.</div>';
+        }
+      } catch (err) {
+        explorerList.innerHTML = '<div class="empty-state">Failed to load saved queries.</div>';
+      }
+    }
+
+    explorerSavedBtn.onclick = loadExplorerSaved;
+
+    explorerAuditBtn.onclick = async () => {
+      explorerList.innerHTML = '<div class="empty-state">Fetching query audits...</div>';
+      try {
+        const res = await fetch('/api/neonscope/audit');
+        const data = await res.json();
+        if (data.events && data.events.length) {
+          explorerList.innerHTML = data.events.map(e => `
+            <div class="query-item" style="cursor: default;">
+              <span style="font-size: 0.75rem">${e.query_name || 'Anonymous Run'}</span>
+              <span style="color: var(--neon-green)">${e.row_count} rows · ${e.duration_ms}ms</span>
+            </div>
+          `).join('');
+        } else {
+          explorerList.innerHTML = '<div class="empty-state">No audit logs found.</div>';
+        }
+      } catch (err) {
+        explorerList.innerHTML = '<div class="empty-state">Failed to load audits.</div>';
+      }
+    };
+
+    window.insertSqlText = (text) => {
+      sqlEditor.value = text;
+      sqlEditor.dispatchEvent(new Event('input')); // Recalculate line numbers
+    };
+
+    window.deleteSavedQuery = async (id) => {
+      if (!confirm('Are you sure you want to delete this query?')) return;
+      try {
+        const res = await fetch(`/api/neonscope/saved/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          loadExplorerSaved();
+        }
+      } catch (err) {
+        alert('Network error while deleting.');
+      }
+    };
+
+    // Load ERD
+    async function loadERD() {
+      try {
+        const [tablesRes, relationsRes] = await Promise.all([
+          fetch('/api/neonscope/tables'),
+          fetch('/api/neonscope/erd')
+        ]);
+        const tablesData = await tablesRes.json();
+        const relationsData = await relationsRes.json();
+
+        const tables = tablesData.tables || [];
+        const relations = relationsData.relations || [];
+
+        if (tables.length === 0) {
+          erdContainer.innerHTML = '<div class="empty-state">No database tables to display.</div>';
+          return;
+        }
+
+        // Construct Mermaid Diagram
+        let erdMarkdown = `erDiagram\n`;
+        
+        // Define entities
+        tables.forEach(t => {
+          erdMarkdown += `  ${t.table_name} {\n  }\n`;
+        });
+
+        // Define relationships
+        relations.forEach(rel => {
+          erdMarkdown += `  ${rel.table_name} }|--|| ${rel.foreign_table_name} : "${rel.column_name}"\n`;
+        });
+
+        erdContainer.innerHTML = `<pre class="mermaid" id="mermaid-graph">${erdMarkdown}</pre>`;
+        
+        await mermaid.run({
+          nodes: [document.getElementById('mermaid-graph')]
+        });
+      } catch (err) {
+        erdContainer.innerHTML = '<div class="empty-state" style="color: var(--neon-amber)">Failed to render schema relationships.</div>';
+      }
+    }
+
+    // Load Performance Metrics
+    async function loadMetrics() {
+      try {
+        const res = await fetch('/api/neonscope/metrics');
+        const data = await res.json();
+        
+        state.metrics = data;
+
+        document.getElementById('stat-total-queries').textContent = data.totalQueries;
+        document.getElementById('stat-total-rows').textContent = data.totalRows;
+        
+        document.getElementById('cache-val').textContent = data.cacheHitRatio + '%';
+        document.getElementById('latency-val').textContent = data.avgDurationMs + 'ms';
+
+        // Redraw Dial Gauges
+        drawGauge('cache-gauge', data.cacheHitRatio / 100, '#22c55e');
+        drawGauge('latency-gauge', Math.min(1, data.avgDurationMs / 1000), '#3b82f6');
+      } catch (err) {
+        console.error('Failed to load metrics:', err);
+      }
+    }
+
+    // Draw Gauge Dial
+    function drawGauge(canvasId, ratio, color) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * devicePixelRatio;
+      canvas.height = rect.height * devicePixelRatio;
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+
+      const w = rect.width;
+      const h = rect.height;
+      
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h - 5;
+      const r = Math.min(cx, cy) - 5;
+
+      // Base Arch
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI);
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // Filled Arch with Glow
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, Math.PI, Math.PI + ratio * Math.PI);
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 8;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Run
+    init();
+  </script>
+</body>
 </html>
