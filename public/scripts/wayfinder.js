@@ -621,6 +621,41 @@ function initWalkMode(){
   if(ambientSelect) ambientSelect.value = settings.ambientOn || "off";
   if(ambientVolume) ambientVolume.value = String(settings.ambientVolume || 30);
 
+  const breathHelper = overlay.querySelector("[data-breath-helper]");
+  const breathCircle = overlay.querySelector("[data-breath-circle]");
+  const breathLabel = overlay.querySelector("[data-breath-label]");
+  let breathInterval = null;
+  let breathState = 0;
+
+  const updateBreathCycle = () => {
+    if (!breathCircle || !breathLabel) return;
+    if (breathState === 0) {
+      breathCircle.style.transform = "scale(1.4)";
+      breathCircle.style.opacity = "0.9";
+      breathLabel.textContent = "Inhale";
+      breathState = 1;
+    } else {
+      breathCircle.style.transform = "scale(1.0)";
+      breathCircle.style.opacity = "0.45";
+      breathLabel.textContent = "Exhale";
+      breathState = 0;
+    }
+  };
+
+  const startBreath = () => {
+    if (breathInterval) clearInterval(breathInterval);
+    breathState = 0;
+    updateBreathCycle();
+    breathInterval = setInterval(updateBreathCycle, 4000);
+  };
+
+  const stopBreath = () => {
+    if (breathInterval) {
+      clearInterval(breathInterval);
+      breathInterval = null;
+    }
+  };
+
   let active = 0;
   let remaining = stepSeconds;
   let interval = null;
@@ -633,6 +668,7 @@ function initWalkMode(){
   let idleTimer = null;
   let lastInteraction = Date.now();
   let audioCtx = null;
+  let pinkNoiseBuffer = null;
   let ambientNode = null;
   let sessionId = null;
 
@@ -641,6 +677,14 @@ function initWalkMode(){
     settingsScreen.hidden = name !== "settings";
     session.hidden = name !== "session";
     summary.hidden = name !== "summary";
+    if (breathHelper) {
+      breathHelper.hidden = (name === "summary");
+    }
+    if (name === "settings" || name === "session") {
+      startBreath();
+    } else {
+      stopBreath();
+    }
   };
 
   const renderSteps = () => {
@@ -723,28 +767,113 @@ function initWalkMode(){
     }
   };
 
+  const getPinkNoiseBuffer = (ctx) => {
+    if (pinkNoiseBuffer) return pinkNoiseBuffer;
+    const bufferSize = 4 * ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+      data[i] *= 0.11;
+      b6 = white * 0.115926;
+    }
+    pinkNoiseBuffer = buffer;
+    return pinkNoiseBuffer;
+  };
+
   const startAmbient = () => {
     if(!ambientOn) return;
     try{
       if(!audioCtx){
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
       if(ambientNode) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = 120;
-      gain.gain.value = ambientGain * 0.08;
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      ambientNode = { osc, gain };
-    }catch{}
+
+      const buffer = getPinkNoiseBuffer(audioCtx);
+      const source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+
+      const mainGain = audioCtx.createGain();
+      mainGain.gain.value = ambientGain;
+
+      // Path 1: Waves (Low-pass filtered pink noise)
+      const waveFilter = audioCtx.createBiquadFilter();
+      waveFilter.type = 'lowpass';
+      waveFilter.Q.value = 1.8;
+      
+      const waveLfo = audioCtx.createOscillator();
+      waveLfo.type = 'sine';
+      waveLfo.frequency.value = 0.08; // ~12.5s swell
+      
+      const waveLfoGain = audioCtx.createGain();
+      waveLfoGain.gain.value = 140;
+      waveFilter.frequency.value = 220;
+
+      waveLfo.connect(waveLfoGain);
+      waveLfoGain.connect(waveFilter.frequency);
+
+      // Path 2: Wind (Band-pass filtered pink noise)
+      const windFilter = audioCtx.createBiquadFilter();
+      windFilter.type = 'bandpass';
+      windFilter.Q.value = 1.2;
+
+      const windLfo = audioCtx.createOscillator();
+      windLfo.type = 'sine';
+      windLfo.frequency.value = 0.125; // 8s cycle (breath-synchronized)
+
+      const windLfoGain = audioCtx.createGain();
+      windLfoGain.gain.value = 350;
+      windFilter.frequency.value = 750;
+
+      windLfo.connect(windLfoGain);
+      windLfoGain.connect(windFilter.frequency);
+
+      // Connect source to filters
+      source.connect(waveFilter);
+      source.connect(windFilter);
+
+      // Mix gains
+      const wavePathGain = audioCtx.createGain();
+      wavePathGain.gain.value = 0.28;
+      waveFilter.connect(wavePathGain);
+      wavePathGain.connect(mainGain);
+
+      const windPathGain = audioCtx.createGain();
+      windPathGain.gain.value = 0.04;
+      windFilter.connect(windPathGain);
+      windPathGain.connect(mainGain);
+
+      mainGain.connect(audioCtx.destination);
+
+      source.start(0);
+      waveLfo.start(0);
+      windLfo.start(0);
+
+      ambientNode = { source, mainGain, waveLfo, windLfo };
+    }catch(e){
+      console.error(e);
+    }
   };
 
   const stopAmbient = () => {
     if(ambientNode){
-      ambientNode.osc.stop();
+      try {
+        ambientNode.source.stop();
+        ambientNode.waveLfo.stop();
+        ambientNode.windLfo.stop();
+      } catch(e) {}
       ambientNode = null;
     }
   };
@@ -798,6 +927,10 @@ function initWalkMode(){
     }
     stopAmbient();
     clearWalkSession();
+
+    // Render the interactive premium trail map
+    const currentSlug = overlay.dataset.slug;
+    renderTrailMap(currentSlug);
   };
 
   const open = () => {
@@ -910,7 +1043,9 @@ function initWalkMode(){
     ambientGain = Math.max(0, Math.min(1, Number(ambientVolume.value) / 100));
     settings.ambientVolume = Number(ambientVolume.value);
     writeJSON(STORAGE.settings, settings);
-    if(ambientNode?.gain) ambientNode.gain.gain.value = ambientGain * 0.08;
+    if(ambientNode?.mainGain) {
+      ambientNode.mainGain.gain.setValueAtTime(ambientGain, audioCtx.currentTime);
+    }
     resetIdle();
   });
 
@@ -1095,6 +1230,134 @@ function initSettings(){
     };
     writeJSON(STORAGE.settings, updated);
     applySettings();
+  });
+}
+
+function renderTrailMap(currentSlug) {
+  const container = document.querySelector("[data-trail-map]");
+  if (!container) return;
+
+  const waypoints = window.__WAYPOINTS__ || [];
+  if (!waypoints.length) return;
+
+  const width = 500;
+  const height = 400;
+
+  const cols = 10;
+  const rows = 10;
+  const colSpacing = width / (cols + 1);
+  const rowSpacing = height / (rows + 1);
+
+  const points = [];
+  for (let i = 0; i < waypoints.length; i++) {
+    const r = Math.floor(i / cols);
+    let c = i % cols;
+    if (r % 2 !== 0) {
+      c = cols - 1 - c;
+    }
+    
+    const offsetX = Math.sin(i * 2.3) * 6;
+    const offsetY = Math.cos(i * 1.7) * 6;
+
+    points.push({
+      x: (c + 1) * colSpacing + offsetX,
+      y: (r + 1) * rowSpacing + offsetY,
+      wp: waypoints[i],
+      index: i
+    });
+  }
+
+  const currentIndex = waypoints.findIndex(w => w.slug === currentSlug);
+  const completedSlugs = new Set(readJSON(STORAGE.completions, []).map(c => c.slug));
+
+  points.forEach(p => {
+    if (p.wp.slug === currentSlug) {
+      p.state = 'current';
+    } else if (completedSlugs.has(p.wp.slug) || (currentIndex !== -1 && p.index < currentIndex)) {
+      p.state = 'completed';
+    } else {
+      p.state = 'locked';
+    }
+  });
+
+  let activePathD = '';
+  let lockedPathD = '';
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const isSegmentActive = (p1.state === 'completed' && (p2.state === 'completed' || p2.state === 'current'));
+    const segmentD = `M ${p1.x.toFixed(1)},${p1.y.toFixed(1)} L ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+    if (isSegmentActive) {
+      activePathD += ' ' + segmentD;
+    } else {
+      lockedPathD += ' ' + segmentD;
+    }
+  }
+
+  let svgContent = `<svg viewBox="0 0 ${width} ${height}" class="trail-svg" width="100%" height="100%">
+    <defs>
+      <linearGradient id="activeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ffd700" />
+        <stop offset="100%" stop-color="#ff8c00" />
+      </linearGradient>
+      <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#7ee6ff" stop-opacity="1" />
+        <stop offset="100%" stop-color="#7ee6ff" stop-opacity="0" />
+      </radialGradient>
+      <filter id="shadow-effect" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+  `;
+
+  svgContent += `<path d="${lockedPathD}" class="trail-line locked" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="2.5" stroke-dasharray="4,4" />`;
+  if (activePathD.trim()) {
+    svgContent += `<path d="${activePathD}" class="trail-line active" fill="none" stroke="url(#activeGrad)" stroke-width="3" stroke-linecap="round" />`;
+  }
+
+  const currentNode = points.find(p => p.state === 'current');
+  if (currentNode) {
+    svgContent += `<circle cx="${currentNode.x.toFixed(1)}" cy="${currentNode.y.toFixed(1)}" r="18" fill="url(#glow)" opacity="0.6" class="glow-ring" />`;
+  }
+
+  points.forEach(p => {
+    let color = 'rgba(255,255,255,0.2)';
+    let radius = 4;
+    let className = 'trail-node locked';
+    let extra = '';
+
+    if (p.state === 'current') {
+      color = '#7ee6ff';
+      radius = 8;
+      className = 'trail-node current';
+      extra = `filter="url(#shadow-effect)"`;
+    } else if (p.state === 'completed') {
+      color = '#ffd700';
+      radius = 5.5;
+      className = 'trail-node completed';
+    }
+
+    svgContent += `
+      <g class="node-group" data-slug="${p.wp.slug}" style="cursor: pointer;">
+        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${radius + 6}" fill="transparent" class="node-hitbox" />
+        <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${radius}" fill="${color}" class="${className}" ${extra} />
+        <title>${p.wp.order}. ${p.wp.title} (${p.wp.mood})</title>
+      </g>
+    `;
+  });
+
+  svgContent += `</svg>`;
+  container.innerHTML = svgContent;
+
+  container.querySelectorAll('.node-group').forEach(group => {
+    group.addEventListener('click', () => {
+      const slug = group.getAttribute('data-slug');
+      if (slug) {
+        window.location.href = `/waypoints/${slug}`;
+      }
+    });
   });
 }
 

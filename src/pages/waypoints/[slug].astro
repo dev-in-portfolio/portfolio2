@@ -9,15 +9,34 @@ export async function getStaticPaths(){
 
 const { waypoint } = Astro.props;
 const slug = waypoint.data.slug ?? waypoint.slug;
+const waypoints = (await getCollection("waypoints")).sort((a, b) => a.data.order - b.data.order);
 ---
 <BaseLayout title={`Wayfinder — ${waypoint.data.title}`} chrome={false} bodyClass="walk-only">
-  <div class="walk-mode" data-walk-mode data-mood={waypoint.data.mood} data-type={waypoint.data.type}>
+  <script is:inline define:vars={{ waypoints }}>
+    window.__WAYPOINTS__ = waypoints.map((wp) => ({
+      slug: wp.data.slug ?? wp.slug,
+      title: wp.data.title,
+      order: wp.data.order,
+      mood: wp.data.mood,
+      type: wp.data.type
+    }));
+  </script>
+
+  <div class="walk-mode" data-walk-mode data-mood={waypoint.data.mood} data-type={waypoint.data.type} data-slug={slug}>
     <div class="walk-mode-panel">
       <div class="controls walk-controls-primary">
         <span class="pill" data-walk-label>Walk Mode</span>
         <span class="pill" data-walk-duration></span>
         <button class="pill" data-focus-toggle>Focus</button>
       </div>
+
+      <div class="breath-helper-container" data-breath-helper>
+        <div class="breath-circle-outer">
+          <div class="breath-circle-inner" data-breath-circle></div>
+          <div class="breath-label" data-breath-label>Inhale</div>
+        </div>
+      </div>
+
       <div class="walk-settings walk-screen" data-walk-settings>
         <h2>Session Settings</h2>
         <p class="muted">Set your pacing and atmosphere before the walk begins.</p>
@@ -76,6 +95,7 @@ const slug = waypoint.data.slug ?? waypoint.slug;
         </div>
       </div>
       <div class="walk-summary walk-screen" data-walk-summary hidden>
+        <div class="trail-map-container" data-trail-map></div>
         <p class="muted" data-walk-summary-text></p>
         <div class="walk-summary-meta" data-walk-summary-meta></div>
         <div class="walk-achievements" data-walk-achievements></div>
