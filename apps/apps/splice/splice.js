@@ -95,7 +95,6 @@ async function fileFromMusicLibrary() {
   const nowPlaying = $("nowPlaying");
   const clipMeta = $("clipMeta");
   const timelineEmpty = $("timelineEmpty");
-  const timelineList = $("timelineList");
   const clearTimelineBtn = $("clearTimelineBtn");
   const resetBtn = $("resetBtn");
   const playSeqBtn = $("playSeqBtn");
@@ -107,15 +106,46 @@ async function fileFromMusicLibrary() {
   const fmtSel = $("fmtSel");
   const presetBtns = [...document.querySelectorAll(".presetBtn")];
 
+  // Element mappings for inputs/mixer
+  const introTextEl = $("introText");
+  const introSecEl = $("introSec");
+  const outroTextEl = $("outroText");
+  const outroSecEl = $("outroSec");
+  const audioModeSel = $("audioMode");
+  const musicVolEl = $("musicVol");
+  const pdTrackSel = $("musicLibrary");
+  const audioFileEl = $("musicInput");
+
+  const addTextBtn = $("addTextBtn");
+  const timelineZoom = $("timelineZoom");
+  const timelineScrollArea = $("timelineScrollArea");
+  
+  const volMaster = $("volMaster");
+  const volClips = $("volClips");
+  const volMusic = $("volMusic");
+  const volMasterVal = $("volMasterVal");
+  const volClipsVal = $("volClipsVal");
+  const volMusicVal = $("volMusicVal");
+  
+  const seqDuration = $("seqDuration");
+  const seqTextCount = $("seqTextCount");
+
   const STORAGE_KEY = "splice_video_v1";
 
-  /** @type {{assets: any[], timeline: any[], preset: string, res: string, fmt: string}} */
+  /** @type {{assets: any[], timeline: any[], textOverlays: any[], audioBed: any[], preset: string, res: string, fmt: string, volumes: {master: number, clips: number, music: number}}} */
   const state = {
-    assets: [],   // { id, name, url, duration }
-    timeline: [], // { id, assetId, start, end, label }
+    assets: [],        // { id, name, url, duration }
+    timeline: [],      // { id, assetId, start, end, offset, label }
+    textOverlays: [],  // { id, start, end, text }
+    audioBed: [],      // { id, name, url, start, end, offset, assetDuration }
     preset: "Standard",
     res: "720p",
     fmt: "MP4",
+    volumes: {
+      master: 1.0,
+      clips: 0.8,
+      music: 0.6
+    }
   };
 
   const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36);
@@ -130,6 +160,17 @@ async function fileFromMusicLibrary() {
       toast.hidden = true;
       toast.classList.remove("ring-1","ring-white/20");
     }, ms);
+  }
+
+  function setBusy(active) {
+    if (renderBtn) {
+      renderBtn.disabled = active;
+      if (active) {
+        renderBtn.classList.add("opacity-50", "cursor-wait");
+      } else {
+        renderBtn.classList.remove("opacity-50", "cursor-wait");
+      }
+    }
   }
 
   function triggerDownload(filename, mime, dataStr){
@@ -204,9 +245,12 @@ function fmtTime(sec){
       const slim = {
         assets: state.assets.map(a => ({ id:a.id, name:a.name, url:a.url, duration:a.duration })),
         timeline: state.timeline,
+        textOverlays: state.textOverlays,
+        audioBed: state.audioBed,
         preset: state.preset,
         res: state.res,
-        fmt: state.fmt
+        fmt: state.fmt,
+        volumes: state.volumes
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
     }catch{}
@@ -239,7 +283,12 @@ function fmtTime(sec){
 
     for (const a of state.assets){
       const card = document.createElement("div");
-      card.className = "rounded-2xl border border-white/10 bg-black/30 overflow-hidden hover:bg-black/40 transition";
+      card.className = "rounded-2xl border border-white/10 bg-black/30 overflow-hidden hover:bg-black/40 transition cursor-grab";
+      card.draggable = true;
+      card.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", a.id);
+        e.dataTransfer.effectAllowed = "copy";
+      });
       card.innerHTML = `
         <div class="aspect-video bg-black/60">
           <video class="w-full h-full object-cover" src="${a.url}" muted playsinline preload="metadata"></video>
@@ -257,56 +306,148 @@ function fmtTime(sec){
     }
   }
 
-  function renderTimeline(){
-    if (state.timeline.length === 0){
-      timelineEmpty.hidden = false;
-      timelineList.hidden = true;
-      timelineList.innerHTML = "";
-      return;
-    }
-    timelineEmpty.hidden = true;
-    timelineList.hidden = false;
-    timelineList.innerHTML = "";
+  let zoomScale = 30; // pixels per second
+  let activeDrag = null;
 
-    state.timeline.forEach((c, idx) => {
-      const a = state.assets.find(x => x.id === c.assetId);
-      const name = a ? a.name : "(missing asset)";
-      const dur = a ? a.duration : 0;
-
-      const row = document.createElement("div");
-      row.className = "rounded-2xl border border-white/10 bg-black/30 p-3";
-      row.innerHTML = `
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <div class="text-[11px] font-semibold text-zinc-200 truncate">${escapeHtml(c.label || `Clip ${idx+1}`)}</div>
-            <div class="text-[10px] text-zinc-500 truncate">${escapeHtml(name)}</div>
-            <div class="mt-1 text-[10px] text-zinc-500">${fmtTime(c.start)} → ${fmtTime(c.end)} <span class="text-zinc-700">•</span> ${fmtTime(dur)}</div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button class="playClipBtn rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-semibold hover:bg-white/10 transition" data-id="${c.id}">Play</button>
-            <button class="upBtn rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-[10px] font-semibold hover:bg-white/10 transition" data-id="${c.id}">↑</button>
-            <button class="downBtn rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-[10px] font-semibold hover:bg-white/10 transition" data-id="${c.id}">↓</button>
-            <button class="delBtn rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-[10px] font-semibold hover:bg-white/10 transition" data-id="${c.id}">✕</button>
-          </div>
-        </div>
-
-        <div class="mt-3 grid grid-cols-3 gap-2">
-          <div>
-            <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Start</label>
-            <input class="startIn w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50" type="number" step="0.01" min="0" max="${dur}" value="${c.start}" data-id="${c.id}" />
-          </div>
-          <div>
-            <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">End</label>
-            <input class="endIn w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50" type="number" step="0.01" min="0" max="${dur}" value="${c.end}" data-id="${c.id}" />
-          </div>
-          <div>
-            <label class="text-[9px] uppercase tracking-[0.28em] text-zinc-600 font-bold">Label</label>
-            <input class="labelIn w-full mt-1 bg-[#0a0a0a] border border-white/10 rounded-xl py-2 px-2 text-[10px] font-bold outline-none focus:border-indigo-500/50" type="text" value="${escapeAttr(c.label||"")}" placeholder="Optional" data-id="${c.id}" />
-          </div>
-        </div>
-      `;
-      timelineList.appendChild(row);
+  function getSeqTotalDuration() {
+    let max = 5;
+    state.timeline.forEach(c => {
+      const endOffset = (c.offset || 0) + (c.end - c.start);
+      if (endOffset > max) max = endOffset;
     });
+    state.textOverlays.forEach(t => {
+      if (t.end > max) max = t.end;
+    });
+    state.audioBed.forEach(a => {
+      const endOffset = (a.offset || 0) + (a.end - a.start);
+      if (endOffset > max) max = endOffset;
+    });
+    return max;
+  }
+
+  function renderRuler(width) {
+    const ruler = $("timeRuler");
+    ruler.innerHTML = "";
+    const seconds = Math.ceil(width / zoomScale);
+    for (let s = 0; s <= seconds; s++) {
+      const left = s * zoomScale;
+      const isMajor = s % 5 === 0;
+      
+      const tick = document.createElement("div");
+      tick.className = `ruler-tick ${isMajor ? "major" : ""}`;
+      tick.style.left = `${left}px`;
+      ruler.appendChild(tick);
+      
+      if (isMajor) {
+        const label = document.createElement("div");
+        label.className = "ruler-label";
+        label.style.left = `${left}px`;
+        label.textContent = `${s}s`;
+        ruler.appendChild(label);
+      }
+    }
+  }
+
+  function renderVideoTrack() {
+    const track = $("videoTrack");
+    track.innerHTML = `<span class="absolute left-2 top-1 text-[9px] uppercase tracking-wider text-zinc-500 pointer-events-none select-none z-10">Video Clips</span>`;
+    
+    state.timeline.forEach((c) => {
+      const a = state.assets.find(x => x.id === c.assetId);
+      const name = a ? a.name : "(missing clip)";
+      const blockWidth = (c.end - c.start) * zoomScale;
+      const blockLeft = (c.offset || 0) * zoomScale;
+      
+      const block = document.createElement("div");
+      block.className = "timeline-block";
+      block.dataset.track = "video";
+      block.dataset.id = c.id;
+      block.style.left = `${blockLeft}px`;
+      block.style.width = `${blockWidth}px`;
+      
+      block.innerHTML = `
+        <div class="trim-handle trim-handle-left" data-handle="left"></div>
+        <div class="block-title select-none font-semibold text-[10px]">${escapeHtml(c.label || name)}</div>
+        <div class="block-delete" data-id="${c.id}">✕</div>
+        <div class="trim-handle trim-handle-right" data-handle="right"></div>
+      `;
+      track.appendChild(block);
+    });
+  }
+
+  function renderTextTrack() {
+    const track = $("textTrack");
+    track.innerHTML = `<span class="absolute left-2 top-1 text-[9px] uppercase tracking-wider text-zinc-500 pointer-events-none select-none z-10">Text Overlays</span>`;
+    
+    state.textOverlays.forEach((t) => {
+      const blockWidth = (t.end - t.start) * zoomScale;
+      const blockLeft = t.start * zoomScale;
+      
+      const block = document.createElement("div");
+      block.className = "timeline-block";
+      block.dataset.track = "text";
+      block.dataset.id = t.id;
+      block.style.left = `${blockLeft}px`;
+      block.style.width = `${blockWidth}px`;
+      
+      block.innerHTML = `
+        <div class="trim-handle trim-handle-left" data-handle="left"></div>
+        <div class="block-title select-none">${escapeHtml(t.text || "[Double Click to Edit]")}</div>
+        <div class="block-delete" data-id="${t.id}">✕</div>
+        <div class="trim-handle trim-handle-right" data-handle="right"></div>
+      `;
+      track.appendChild(block);
+    });
+  }
+
+  function renderAudioTrack() {
+    const track = $("audioTrack");
+    track.innerHTML = `<span class="absolute left-2 top-1 text-[9px] uppercase tracking-wider text-zinc-500 pointer-events-none select-none z-10">Audio Bed</span>`;
+    
+    state.audioBed.forEach((a) => {
+      const blockWidth = (a.end - a.start) * zoomScale;
+      const blockLeft = (a.offset || 0) * zoomScale;
+      
+      const block = document.createElement("div");
+      block.className = "timeline-block";
+      block.dataset.track = "audio";
+      block.dataset.id = a.id;
+      block.style.left = `${blockLeft}px`;
+      block.style.width = `${blockWidth}px`;
+      
+      block.innerHTML = `
+        <div class="trim-handle trim-handle-left" data-handle="left"></div>
+        <div class="block-title select-none">${escapeHtml(a.name)}</div>
+        <div class="block-delete" data-id="${a.id}">✕</div>
+        <div class="trim-handle trim-handle-right" data-handle="right"></div>
+      `;
+      track.appendChild(block);
+    });
+  }
+
+  function renderTimeline() {
+    const totalDuration = getSeqTotalDuration();
+    const scrollArea = $("timelineScrollArea");
+    const containerWidth = Math.max(scrollArea ? scrollArea.clientWidth : 800, totalDuration * zoomScale + 100);
+    
+    const tc = $("tracksContainer");
+    if (tc) tc.style.width = `${containerWidth}px`;
+    const tr = $("timeRuler");
+    if (tr) tr.style.width = `${containerWidth}px`;
+    
+    renderRuler(containerWidth);
+    
+    const isEmpty = state.timeline.length === 0 && state.textOverlays.length === 0 && state.audioBed.length === 0;
+    if (timelineEmpty) timelineEmpty.hidden = !isEmpty;
+    
+    renderVideoTrack();
+    renderTextTrack();
+    renderAudioTrack();
+    
+    const seqDuration = $("seqDuration");
+    if (seqDuration) seqDuration.textContent = `${totalDuration.toFixed(2)}s`;
+    const seqTextCount = $("seqTextCount");
+    if (seqTextCount) seqTextCount.textContent = state.textOverlays.length;
   }
 
   function setPlayer(assetUrl, start=0, end=null, label=""){
@@ -324,54 +465,124 @@ function fmtTime(sec){
     player.addEventListener("timeupdate", tick);
   }
 
-  async function playSequence(){
-    if (state.timeline.length === 0){
+  let _seqTimer = null;
+  let _seqTime = 0;
+
+  async function playSequence() {
+    if (state.timeline.length === 0) {
       showToast("Add clips to timeline first.");
       return;
     }
     stopSequence();
     state._seqStop = false;
-
-    for (let i=0; i<state.timeline.length; i++){
-      if (state._seqStop) break;
-      const clip = state.timeline[i];
-      const a = state.assets.find(x => x.id === clip.assetId);
-      if (!a) continue;
-
-      nowPlaying.textContent = `Sequence: ${clip.label || `Clip ${i+1}`}`;
-      clipMeta.textContent = `${fmtTime(clip.start)} → ${fmtTime(clip.end)}`;
-
-      player.src = a.url;
-      await player.play().catch(()=>{});
-
-      // seek
-      player.currentTime = Math.max(0, clip.start);
-
-      await new Promise((resolve) => {
-        const onTime = () => {
-          if (state._seqStop){ cleanup(); resolve(); return; }
-          if (player.currentTime >= clip.end){ cleanup(); resolve(); }
-        };
-        const onEnd = () => { cleanup(); resolve(); };
-        function cleanup(){
-          player.removeEventListener("timeupdate", onTime);
-          player.removeEventListener("ended", onEnd);
+    _seqTime = 0;
+    
+    const totalDuration = getSeqTotalDuration();
+    const fps = 10;
+    const interval = 1000 / fps;
+    
+    let activeMusicAudio = null;
+    if (state.audioBed.length > 0) {
+      const musicBlock = state.audioBed[0];
+      const musicChoice = pdTrackSel && pdTrackSel.value ? MUSIC_LIBRARY[pdTrackSel.value] : null;
+      activeMusicAudio = new Audio();
+      activeMusicAudio.crossOrigin = "anonymous";
+      
+      if (audioFileEl && audioFileEl.files && audioFileEl.files[0]) {
+        activeMusicAudio.src = URL.createObjectURL(audioFileEl.files[0]);
+      } else if (musicChoice) {
+        activeMusicAudio.src = musicChoice.url;
+      }
+      
+      if (activeMusicAudio.src) {
+        activeMusicAudio.volume = state.volumes.music * state.volumes.master;
+        activeMusicAudio.loop = true;
+      }
+    }
+    
+    let lastActiveClipId = null;
+    
+    const playTick = async () => {
+      if (state._seqStop) {
+        if (activeMusicAudio) activeMusicAudio.pause();
+        return;
+      }
+      
+      const playhead = $("playhead");
+      if (playhead) {
+        playhead.style.left = `${_seqTime * zoomScale}px`;
+      }
+      
+      // 1. Evaluate Video Clip at _seqTime
+      const activeClip = state.timeline.find(c => _seqTime >= (c.offset || 0) && _seqTime < (c.offset || 0) + (c.end - c.start));
+      if (activeClip) {
+        const asset = state.assets.find(a => a.id === activeClip.assetId);
+        if (asset) {
+          const clipTime = _seqTime - (activeClip.offset || 0) + activeClip.start;
+          
+          if (activeClip.id !== lastActiveClipId) {
+            lastActiveClipId = activeClip.id;
+            player.src = asset.url;
+            player.volume = state.volumes.clips * state.volumes.master;
+            await player.play().catch(() => {});
+          }
+          
+          if (Math.abs(player.currentTime - clipTime) > 0.35) {
+            player.currentTime = clipTime;
+          }
+          if (player.paused) {
+            player.play().catch(() => {});
+          }
+        }
+      } else {
+        if (!player.paused) {
           player.pause();
         }
-        player.addEventListener("timeupdate", onTime);
-        player.addEventListener("ended", onEnd);
-      });
-    }
-
-    if (!state._seqStop){
-      nowPlaying.textContent = "Sequence finished.";
-      clipMeta.textContent = "";
-    }
+        lastActiveClipId = null;
+      }
+      
+      // 2. Evaluate Text overlays
+      const activeText = state.textOverlays.find(t => _seqTime >= t.start && _seqTime < t.end);
+      if (activeText) {
+        nowPlaying.textContent = `Overlay: "${activeText.text}"`;
+      } else if (activeClip) {
+        nowPlaying.textContent = `Playing: ${activeClip.label || "Clip"}`;
+      } else {
+        nowPlaying.textContent = "Sequence playing...";
+      }
+      
+      // 3. Evaluate Audio Music Bed
+      if (activeMusicAudio && activeMusicAudio.src) {
+        const musicBlock = state.audioBed[0];
+        if (musicBlock && _seqTime >= (musicBlock.offset || 0) && _seqTime < (musicBlock.offset || 0) + (musicBlock.end - musicBlock.start)) {
+          if (activeMusicAudio.paused) {
+            activeMusicAudio.currentTime = _seqTime - (musicBlock.offset || 0) + musicBlock.start;
+            activeMusicAudio.play().catch(() => {});
+          }
+        } else {
+          if (!activeMusicAudio.paused) activeMusicAudio.pause();
+        }
+      }
+      
+      _seqTime += interval / 1000;
+      
+      if (_seqTime >= totalDuration) {
+        stopSequence();
+        if (activeMusicAudio) activeMusicAudio.pause();
+        nowPlaying.textContent = "Sequence finished.";
+        if (playhead) playhead.style.left = "0px";
+      } else {
+        _seqTimer = setTimeout(playTick, interval);
+      }
+    };
+    
+    playTick();
   }
 
-  function stopSequence(){
+  function stopSequence() {
     state._seqStop = true;
-    try{ player.pause(); }catch{}
+    clearTimeout(_seqTimer);
+    try { player.pause(); } catch {}
   }
 
   function escapeHtml(s){
@@ -389,7 +600,16 @@ function fmtTime(sec){
       const id = add.dataset.id;
       const a = state.assets.find(x => x.id === id);
       if (!a) return;
-      state.timeline.push({ id: uid(), assetId: a.id, start: 0, end: Math.max(0.01, a.duration), label: "" });
+      
+      const currentTotal = getSeqTotalDuration();
+      state.timeline.push({
+        id: uid(),
+        assetId: a.id,
+        start: 0,
+        end: Math.max(0.01, a.duration),
+        offset: currentTotal > 5 ? currentTotal : 0,
+        label: ""
+      });
       persist();
       renderTimeline();
       showToast("Added to timeline.");
@@ -406,75 +626,295 @@ function fmtTime(sec){
     }
   });
 
-  // Timeline events (buttons)
-  timelineList.addEventListener("click", (e) => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-    const id = btn.dataset.id;
-    const idx = state.timeline.findIndex(x => x.id === id);
-    if (idx < 0) return;
-
-    if (btn.classList.contains("delBtn")){
+  // ------------------------- Drag-Drop Timeline Engine -------------------------
+  
+  function deleteBlock(id) {
+    let idx = state.timeline.findIndex(x => x.id === id);
+    if (idx >= 0) {
       state.timeline.splice(idx, 1);
       persist(); renderTimeline();
+      showToast("Video clip deleted.");
       return;
     }
-    if (btn.classList.contains("upBtn") && idx > 0){
-      const t = state.timeline[idx];
-      state.timeline[idx] = state.timeline[idx-1];
-      state.timeline[idx-1] = t;
+    idx = state.textOverlays.findIndex(x => x.id === id);
+    if (idx >= 0) {
+      state.textOverlays.splice(idx, 1);
       persist(); renderTimeline();
+      showToast("Text overlay deleted.");
       return;
     }
-    if (btn.classList.contains("downBtn") && idx < state.timeline.length-1){
-      const t = state.timeline[idx];
-      state.timeline[idx] = state.timeline[idx+1];
-      state.timeline[idx+1] = t;
+    idx = state.audioBed.findIndex(x => x.id === id);
+    if (idx >= 0) {
+      state.audioBed.splice(idx, 1);
       persist(); renderTimeline();
+      showToast("Audio block deleted.");
       return;
     }
-    if (btn.classList.contains("playClipBtn")){
-      const c = state.timeline[idx];
-      const a = state.assets.find(x => x.id === c.assetId);
-      if (!a) return;
-      nowPlaying.textContent = `Playing: ${c.label || a.name}`;
-      clipMeta.textContent = `${fmtTime(c.start)} → ${fmtTime(c.end)}`;
-      setPlayer(a.url, c.start, c.end, c.label || a.name);
+  }
+
+  function onMouseMove(e) {
+    if (!activeDrag) return;
+    const dx = e.clientX - activeDrag.initialX;
+    const { item, type, assetDuration } = activeDrag;
+    
+    if (type === "move") {
+      const newLeft = Math.max(0, activeDrag.initialLeft + dx);
+      const newOffset = newLeft / zoomScale;
+      
+      if (activeDrag.track === "video" || activeDrag.track === "audio") {
+        item.offset = newOffset;
+      } else if (activeDrag.track === "text") {
+        const dur = item.end - item.start;
+        item.start = newOffset;
+        item.end = item.start + dur;
+      }
+    } else if (type === "right") {
+      const newWidth = Math.max(10, activeDrag.initialWidth + dx);
+      const newDuration = newWidth / zoomScale;
+      
+      if (activeDrag.track === "video" || activeDrag.track === "audio") {
+        const maxDur = assetDuration - item.start;
+        const finalDur = Math.min(maxDur, newDuration);
+        item.end = item.start + finalDur;
+      } else if (activeDrag.track === "text") {
+        item.end = item.start + newDuration;
+      }
+    } else if (type === "left") {
+      const newLeft = Math.max(0, activeDrag.initialLeft + dx);
+      const finalDx = newLeft - activeDrag.initialLeft;
+      const timelineStartChange = finalDx / zoomScale;
+      
+      if (activeDrag.track === "video" || activeDrag.track === "audio") {
+        const newStart = Math.max(0, item.start + timelineStartChange);
+        if (newStart < item.end - 0.1) {
+          item.offset = (item.offset || 0) + (newStart - item.start);
+          item.start = newStart;
+        }
+      } else if (activeDrag.track === "text") {
+        const newStart = newLeft / zoomScale;
+        if (newStart < item.end - 0.1) {
+          item.start = newStart;
+        }
+      }
+    }
+    renderTimeline();
+  }
+
+  function onMouseUp() {
+    if (activeDrag) {
+      persist();
+      activeDrag = null;
+    }
+    document.removeEventListener("mousemove", onMouseMove);
+    document.removeEventListener("mouseup", onMouseUp);
+  }
+
+  function initTimelineInteractions() {
+    const container = $("tracksContainer");
+    
+    container.addEventListener("mousedown", (e) => {
+      const handle = e.target.closest(".trim-handle");
+      const delBtn = e.target.closest(".block-delete");
+      const block = e.target.closest(".timeline-block");
+      
+      if (delBtn) {
+        deleteBlock(delBtn.dataset.id);
+        return;
+      }
+      if (!block) return;
+      
+      const blockId = block.dataset.id;
+      const trackType = block.dataset.track;
+      let item = null;
+      let assetDuration = 9999;
+      
+      if (trackType === "video") {
+        item = state.timeline.find(x => x.id === blockId);
+        const asset = state.assets.find(x => x.id === item.assetId);
+        if (asset) assetDuration = asset.duration;
+      } else if (trackType === "text") {
+        item = state.textOverlays.find(x => x.id === blockId);
+      } else if (trackType === "audio") {
+        item = state.audioBed.find(x => x.id === blockId);
+        assetDuration = item.assetDuration || 9999;
+      }
+      
+      if (!item) return;
+      e.preventDefault();
+      
+      const type = handle ? handle.dataset.handle : "move";
+      activeDrag = {
+        blockId,
+        track: trackType,
+        type,
+        initialX: e.clientX,
+        initialLeft: parseFloat(block.style.left) || 0,
+        initialWidth: parseFloat(block.style.width) || 0,
+        item,
+        assetDuration
+      };
+      
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    });
+    
+    container.addEventListener("dblclick", (e) => {
+      const block = e.target.closest(".timeline-block");
+      if (!block || block.dataset.track !== "text") return;
+      
+      const blockId = block.dataset.id;
+      const item = state.textOverlays.find(x => x.id === blockId);
+      if (!item) return;
+      
+      const currentText = item.text || "";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = currentText;
+      input.className = "bg-zinc-800 border border-indigo-500 text-white text-xs px-2 py-1 rounded w-full h-full absolute inset-0 z-20";
+      
+      block.appendChild(input);
+      input.focus();
+      input.select();
+      
+      const saveText = () => {
+        item.text = input.value.trim() || "Subtitle Text";
+        input.remove();
+        persist();
+        renderTimeline();
+      };
+      
+      input.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") saveText();
+        if (ev.key === "Escape") { input.remove(); }
+      });
+      input.addEventListener("blur", saveText);
+    });
+    
+    // Zoom control
+    const timelineZoom = $("timelineZoom");
+    if (timelineZoom) {
+      timelineZoom.addEventListener("input", (e) => {
+        zoomScale = Number(e.target.value) || 30;
+        renderTimeline();
+      });
+    }
+    
+    // Add Text Overlay
+    const addTextBtn = $("addTextBtn");
+    if (addTextBtn) {
+      addTextBtn.addEventListener("click", () => {
+        const total = getSeqTotalDuration();
+        state.textOverlays.push({
+          id: uid(),
+          start: Math.max(0, total - 4),
+          end: total,
+          text: "New subtitle overlay"
+        });
+        persist();
+        renderTimeline();
+        showToast("Added overlay. Double click block to edit text.");
+      });
+    }
+  }
+
+  function initDropZones() {
+    const videoTrack = $("videoTrack");
+    if (videoTrack) {
+      videoTrack.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";
+      });
+      videoTrack.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const id = e.dataTransfer.getData("text/plain");
+        const a = state.assets.find(x => x.id === id);
+        if (!a) return;
+        
+        const rect = videoTrack.getBoundingClientRect();
+        const dropX = e.clientX - rect.left + videoTrack.scrollLeft;
+        const dropOffset = Math.max(0, dropX / zoomScale);
+        
+        state.timeline.push({
+          id: uid(),
+          assetId: a.id,
+          start: 0,
+          end: Math.max(0.1, a.duration),
+          offset: dropOffset,
+          label: ""
+        });
+        persist();
+        renderTimeline();
+        showToast("Added clip to timeline.");
+      });
+    }
+  }
+
+  function handleMusicSelect() {
+    if (!pdTrackSel) return;
+    const choice = pdTrackSel.value;
+    if (!choice) {
+      state.audioBed = [];
+      persist();
+      renderTimeline();
       return;
     }
-  });
-
-  // Timeline inputs (trim + label)
-  timelineList.addEventListener("input", (e) => {
-    const startIn = e.target.closest(".startIn");
-    const endIn = e.target.closest(".endIn");
-    const labelIn = e.target.closest(".labelIn");
-    if (!startIn && !endIn && !labelIn) return;
-
-    const id = (startIn || endIn || labelIn).dataset.id;
-    const clip = state.timeline.find(x => x.id === id);
-    if (!clip) return;
-
-    const a = state.assets.find(x => x.id === clip.assetId);
-    const max = a ? a.duration : 0;
-
-    if (startIn){
-      const v = Number(startIn.value);
-      clip.start = Number.isFinite(v) ? Math.max(0, Math.min(max, v)) : 0;
-      if (clip.end <= clip.start) clip.end = Math.min(max, clip.start + 0.25);
+    const track = MUSIC_LIBRARY[choice];
+    if (track) {
+      state.audioBed = [{
+        id: uid(),
+        name: track.label,
+        url: track.url,
+        start: 0,
+        end: 35,
+        offset: 0,
+        assetDuration: 180
+      }];
+      persist();
+      renderTimeline();
     }
-    if (endIn){
-      const v = Number(endIn.value);
-      clip.end = Number.isFinite(v) ? Math.max(0, Math.min(max, v)) : Math.max(0.25, clip.start + 0.25);
-      if (clip.end <= clip.start) clip.start = Math.max(0, clip.end - 0.25);
-    }
-    if (labelIn){
-      clip.label = labelIn.value.slice(0, 80);
-    }
+  }
 
+  function handleMusicUpload() {
+    if (!audioFileEl) return;
+    const file = audioFileEl.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    state.audioBed = [{
+      id: uid(),
+      name: file.name,
+      url: url,
+      start: 0,
+      end: 45,
+      offset: 0,
+      assetDuration: 300
+    }];
     persist();
-    // light re-render not needed on each input, but keeps duration display consistent if clamped
-  });
+    renderTimeline();
+  }
+
+  function initMixerHandlers() {
+    if (volMaster) {
+      volMaster.addEventListener("input", (e) => {
+        state.volumes.master = parseFloat(e.target.value) || 0;
+        volMasterVal.textContent = `${Math.round(state.volumes.master * 100)}%`;
+        persist();
+      });
+    }
+    if (volClips) {
+      volClips.addEventListener("input", (e) => {
+        state.volumes.clips = parseFloat(e.target.value) || 0;
+        volClipsVal.textContent = `${Math.round(state.volumes.clips * 100)}%`;
+        persist();
+      });
+    }
+    if (volMusic) {
+      volMusic.addEventListener("input", (e) => {
+        state.volumes.music = parseFloat(e.target.value) || 0;
+        volMusicVal.textContent = `${Math.round(state.volumes.music * 100)}%`;
+        persist();
+      });
+    }
+  }
 
 
   // -------------------------------
@@ -629,7 +1069,7 @@ await ffmpeg.load();
   const audioMode = String(audioModeSel?.value || "musicOnly");
   const musicVol = Math.min(1, Math.max(0, parseFloat(musicVolEl?.value || "0.6") || 0.6));
   const pickPd = String(pdTrackSel?.value || "");
-  const pickedPd = MUSIC_LIBRARY.find(t => t.id === pickPd);
+  const pickedPd = MUSIC_LIBRARY[pickPd];
 
   // Prepare canvas
   const canvas = document.createElement("canvas");
@@ -748,7 +1188,7 @@ await ffmpeg.load();
     }
   }
 
-  async function drawClip(asset, tStart, tEnd) {
+  async function drawClip(item, asset, tStart, tEnd) {
     const vid = document.createElement("video");
     vid.muted = true;            // we only include music bed for reliability
     vid.playsInline = true;
@@ -803,6 +1243,24 @@ await ffmpeg.load();
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
       ctx.fillText(fmtTime(vid.currentTime), 26, 31);
+
+      // Draw subtitle text overlays
+      const globalTime = (item.offset || 0) + (vid.currentTime - tStart);
+      const activeOverlay = state.textOverlays.find(t => globalTime >= t.start && globalTime < t.end);
+      if (activeOverlay && activeOverlay.text) {
+        ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+        ctx.shadowBlur = 6;
+        ctx.fillStyle = "#ffffff";
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 4;
+        ctx.font = `600 ${Math.round(H * 0.045)}px Inter, system-ui, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        
+        ctx.strokeText(activeOverlay.text, W / 2, H - 40);
+        ctx.fillText(activeOverlay.text, W / 2, H - 40);
+        ctx.shadowBlur = 0; // reset
+      }
 
       // Prefer rVFC when available (smoother)
       if (vid.requestVideoFrameCallback) {
@@ -873,7 +1331,7 @@ await ffmpeg.load();
     for (const item of state.timeline) {
       const asset = state.assets.find(a => a.id === item.assetId);
       if (!asset) continue;
-      await drawClip(asset, item.start, item.end);
+      await drawClip(item, asset, item.start, item.end);
     }
 
     // Outro
@@ -1074,6 +1532,15 @@ function handleProjectExport(){
       b.classList.toggle("shadow-sm", active);
       b.classList.toggle("text-zinc-600", !active);
     });
+
+    // Initialize mixer handlers, drop zones, timeline interactions
+    initTimelineInteractions();
+    initDropZones();
+    initMixerHandlers();
+
+    if (pdTrackSel) pdTrackSel.addEventListener("change", handleMusicSelect);
+    if (audioFileEl) audioFileEl.addEventListener("change", handleMusicUpload);
+
     renderAssets();
     renderTimeline();
   })();

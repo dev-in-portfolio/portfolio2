@@ -1,6 +1,8 @@
 (() => {
   "use strict";
 
+  const log = console.error;
+
   // ------------------------------------------------------------
   // LingoLive AI — vanilla runtime that preserves the original TSX/Tailwind UI.
   // No build step required. Local-first; Live mode uses user's key.
@@ -127,6 +129,7 @@
     selectedLanguage: LANGUAGES[0],
     selectedLevel: LEVELS[0],
     playbackSpeed: 1.0,
+    selectedVoiceName: localStorage.getItem("lingo_selected_voice") || "",
     messages: safeJson(localStorage.getItem(K.messages), []),
     difficult: safeJson(localStorage.getItem(K.difficult), []),
     activePracticeWord: null,
@@ -149,6 +152,7 @@
     else localStorage.removeItem(K.apiKeyValid);
     localStorage.setItem(K.messages, JSON.stringify(state.messages.slice(-60)));
     localStorage.setItem(K.difficult, JSON.stringify(state.difficult));
+    localStorage.setItem("lingo_selected_voice", state.selectedVoiceName || "");
     if (state.keyValid && (state.apiKey || '').trim()) scheduleServerSync();
   }
 
@@ -226,9 +230,173 @@ async function serverLoadLatest() {
   }
 
   function getScoreColor(score) {
-    if (score >= 90) return "bg-green-50 border-green-200 text-green-700";
-    if (score >= 75) return "bg-amber-50 border-amber-200 text-amber-700";
-    return "bg-red-50 border-red-200 text-red-700";
+    if (score >= 90) return "bg-emerald-950/50 border-emerald-500/30 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.1)]";
+    if (score >= 75) return "bg-amber-950/50 border-amber-500/30 text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.1)]";
+    return "bg-rose-950/50 border-rose-500/30 text-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.1)]";
+  }
+
+  class VisualizerManager {
+    constructor() {
+      this.audioCtx = null;
+      this.analyser = null;
+      this.dataArray = null;
+      this.animationId = null;
+      this.stream = null;
+    }
+
+    async start(stream) {
+      this.stop();
+      this.stream = stream;
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        this.audioCtx = new AudioContextClass();
+        this.analyser = this.audioCtx.createAnalyser();
+        this.analyser.fftSize = 256;
+        const source = this.audioCtx.createMediaStreamSource(stream);
+        source.connect(this.analyser);
+
+        const bufferLength = this.analyser.frequencyBinCount;
+        this.dataArray = new Uint8Array(bufferLength);
+
+        this.draw();
+      } catch (err) {
+        log("Visualizer start error", err);
+      }
+    }
+
+    stop() {
+      if (this.animationId) {
+        cancelAnimationFrame(this.animationId);
+        this.animationId = null;
+      }
+      if (this.audioCtx) {
+        if (this.audioCtx.state !== "closed") {
+          this.audioCtx.close();
+        }
+        this.audioCtx = null;
+      }
+      if (this.stream) {
+        this.stream.getTracks().forEach(track => track.stop());
+        this.stream = null;
+      }
+      this.analyser = null;
+      this.dataArray = null;
+      
+      const svg = document.getElementById("audioWaveform");
+      if (svg) svg.innerHTML = "";
+    }
+
+    draw() {
+      if (!this.analyser) return;
+      this.animationId = requestAnimationFrame(() => this.draw());
+
+      this.analyser.getByteTimeDomainData(this.dataArray);
+
+      const svg = document.getElementById("audioWaveform");
+      if (!svg) return;
+
+      const width = svg.clientWidth || 400;
+      const height = svg.clientHeight || 60;
+
+      let pathData1 = "";
+      let pathData2 = "";
+      const len = this.dataArray.length;
+
+      const points1 = [];
+      const points2 = [];
+      const sliceWidth = width / (len - 1);
+
+      for (let i = 0; i < len; i++) {
+        const v = this.dataArray[i] / 128.0; 
+        const offset = (v - 1.0); 
+        
+        const x = i * sliceWidth;
+        const distFromCenter = Math.abs(i - len / 2) / (len / 2);
+        const windowFunc = Math.cos(distFromCenter * Math.PI / 2); 
+        
+        const y1 = height / 2 + offset * (height / 2.5) * windowFunc;
+        const y2 = height / 2 + Math.sin(i * 0.15 + Date.now() * 0.015) * offset * (height / 3.5) * windowFunc;
+
+        points1.push({ x, y: y1 });
+        points2.push({ x, y: y2 });
+      }
+
+      pathData1 = this.getBezierPath(points1);
+      pathData2 = this.getBezierPath(points2);
+
+      svg.innerHTML = `
+        <path d="${pathData1}" fill="none" stroke="url(#cyanGrad)" stroke-width="2.5" stroke-linecap="round" opacity="0.85" />
+        <path d="${pathData2}" fill="none" stroke="url(#blueGrad)" stroke-width="1.5" stroke-linecap="round" opacity="0.5" />
+        <defs>
+          <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#06b6d4" stop-opacity="0" />
+            <stop offset="50%" stop-color="#22d3ee" stop-opacity="1" />
+            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0" />
+            <stop offset="50%" stop-color="#60a5fa" stop-opacity="1" />
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+      `;
+    }
+
+    getBezierPath(points) {
+      if (points.length < 2) return "";
+      let path = `M ${points[0].x} ${points[0].y}`;
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = points[i];
+        const p1 = points[i + 1];
+        const cpX1 = p0.x + (p1.x - p0.x) / 2;
+        const cpY1 = p0.y;
+        const cpX2 = p0.x + (p1.x - p0.x) / 2;
+        const cpY2 = p1.y;
+        path += ` C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p1.x} ${p1.y}`;
+      }
+      return path;
+    }
+  }
+
+  const visualizer = new VisualizerManager();
+
+  function populateVoices() {
+    const select = document.getElementById("selectTtsVoice");
+    if (!select) return;
+    select.innerHTML = "";
+    if (!("speechSynthesis" in window)) {
+      const opt = document.createElement("option");
+      opt.textContent = "TTS Not Supported";
+      select.appendChild(opt);
+      return;
+    }
+    const voices = window.speechSynthesis.getVoices() || [];
+    const langCode = state.selectedLanguage.code.toLowerCase();
+    const filtered = voices.filter(v => (v.lang || "").toLowerCase().startsWith(langCode));
+
+    if (filtered.length === 0) {
+      const opt = document.createElement("option");
+      opt.textContent = "System Default";
+      opt.value = "";
+      select.appendChild(opt);
+      for (const v of voices.slice(0, 15)) {
+        const o = document.createElement("option");
+        o.textContent = `${v.name} (${v.lang})`;
+        o.value = v.name;
+        select.appendChild(o);
+      }
+    } else {
+      for (const v of filtered) {
+        const opt = document.createElement("option");
+        opt.textContent = `${v.name} (${v.lang})`;
+        opt.value = v.name;
+        select.appendChild(opt);
+      }
+    }
+
+    if (state.selectedVoiceName) {
+      select.value = state.selectedVoiceName;
+    }
   }
 
   function uid(prefix = "id") {
@@ -272,9 +440,9 @@ async function serverLoadLatest() {
     for (const lang of LANGUAGES) {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = `flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-all ${state.selectedLanguage.code === lang.code ? "border-blue-500 bg-blue-50 text-blue-700 font-bold shadow-sm" : "border-slate-200 bg-white hover:border-slate-300"}`;
+      btn.className = `flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-all ${state.selectedLanguage.code === lang.code ? "border-cyan-500 bg-cyan-950/30 text-cyan-400 font-bold shadow-[0_0_10px_rgba(6,182,212,0.15)]" : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200"}`;
       btn.innerHTML = `<span>${lang.flag}</span>${escapeHtml(lang.name)}`;
-      btn.addEventListener("click", () => { state.selectedLanguage = lang; persist(); renderAll(); });
+      btn.addEventListener("click", () => { state.selectedLanguage = lang; persist(); populateVoices(); renderAll(); });
       languageGrid.appendChild(btn);
     }
   }
@@ -284,7 +452,7 @@ async function serverLoadLatest() {
     for (const lvl of LEVELS) {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = `flex-1 px-2 py-2 rounded-xl border text-[10px] font-bold transition-all ${state.selectedLevel === lvl ? "border-blue-500 bg-blue-50 text-blue-700 shadow-sm" : "border-slate-200 hover:border-slate-300"}`;
+      btn.className = `flex-1 px-2 py-2 rounded-xl border text-[10px] font-bold transition-all ${state.selectedLevel === lvl ? "border-cyan-500 bg-cyan-950/30 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.15)]" : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200"}`;
       btn.textContent = lvl;
       btn.addEventListener("click", () => { state.selectedLevel = lvl; persist(); renderAll(); });
       levelRow.appendChild(btn);
@@ -294,8 +462,8 @@ async function serverLoadLatest() {
   function renderModePanel() {
     const isDemo = state.mode === "demo";
     modeLabel.textContent = isDemo ? "Demo (no key)" : "Live (BYO key)";
-    btnModeDemo.className = `px-3 py-2 rounded-xl border text-xs font-black ${isDemo ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"}`;
-    btnModeLive.className = `px-3 py-2 rounded-xl border text-xs font-black ${!isDemo ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-100"}`;
+    btnModeDemo.className = `px-3 py-2 rounded-xl border text-xs font-black ${isDemo ? "bg-slate-900 text-white border-slate-800" : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"}`;
+    btnModeLive.className = `px-3 py-2 rounded-xl border text-xs font-black ${!isDemo ? "bg-cyan-600 text-slate-950 border-cyan-600 shadow-[0_0_10px_rgba(6,182,212,0.2)]" : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"}`;
 
     liveKeyBlock.classList.toggle("hidden", isDemo);
     demoBlock.classList.toggle("hidden", !isDemo);
@@ -310,10 +478,10 @@ async function serverLoadLatest() {
     const empty = state.messages.length === 0;
     if (empty) {
       chatScroll.innerHTML = `
-        <div class="h-full flex flex-col items-center justify-center text-slate-300 space-y-4">
-          <div class="p-6 bg-slate-50 rounded-full"><i data-lucide="message-circle" class="w-[64px] h-[64px]"></i></div>
-          <p class="font-bold text-lg">Ready for your native partner?</p>
-          <p class="text-sm text-slate-400">Click start to begin a real-time conversation.</p>
+        <div class="h-full flex flex-col items-center justify-center text-slate-400 space-y-4 p-8">
+          <div class="p-6 bg-slate-900/60 border border-slate-800/80 rounded-full shadow-[0_0_20px_rgba(6,182,212,0.1)]"><i data-lucide="message-circle" class="w-[64px] h-[64px] text-cyan-400"></i></div>
+          <p class="font-bold text-lg text-slate-200">Ready for your neural language partner?</p>
+          <p class="text-sm text-slate-500">Click start to begin an immersive voice-assisted session.</p>
         </div>
       `;
     } else {
@@ -321,25 +489,25 @@ async function serverLoadLatest() {
         const wrap = document.createElement("div");
         wrap.className = `flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`;
         const bubble = document.createElement("div");
-        bubble.className = `max-w-[80%] rounded-2xl p-4 ${msg.role === "user" ? "bg-blue-600 text-white shadow-lg" : "bg-slate-100 text-slate-800 border border-slate-200"}`;
+        bubble.className = `max-w-[80%] rounded-2xl p-4 ${msg.role === "user" ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.15)] border border-cyan-500/20" : "bg-slate-900 border border-slate-800 text-slate-200"}`;
         bubble.innerHTML = `<p class="text-sm font-medium leading-relaxed">${escapeHtml(msg.text)}</p>`;
         wrap.appendChild(bubble);
 
         if (msg.role === "user" && msg.feedback) {
           const fb = msg.feedback;
           const fbWrap = document.createElement("div");
-          fbWrap.className = "mt-3 w-[80%] bg-white border-2 border-amber-100 rounded-2xl p-4 shadow-sm";
+          fbWrap.className = "mt-3 w-[80%] bg-slate-950 border border-slate-850 rounded-2xl p-4 shadow-sm";
           fbWrap.innerHTML = `
             <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2 font-black text-[10px] text-amber-600 uppercase tracking-tighter">
+              <div class="flex items-center gap-2 font-black text-[10px] text-cyan-400 uppercase tracking-tighter">
                 <i data-lucide="lightbulb" class="w-[16px] h-[16px]"></i> Analysis
               </div>
-              <div class="px-3 py-1 rounded-full border-2 font-black text-xs ${getScoreColor(fb.score)}">${fb.score}%</div>
+              <div class="px-3 py-1 rounded-full border font-black text-xs ${getScoreColor(fb.score)}">${fb.score}%</div>
             </div>
-            <p class="text-xs text-slate-600 italic mb-2">&quot;${escapeHtml(fb.improvement)}&quot;</p>
-            <div class="flex items-center justify-between pt-2 border-t border-slate-50">
-              <p class="text-sm font-bold text-green-700">${escapeHtml(fb.correction)}</p>
-              <button class="btnAddPractice p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors" title="Add to Mastery Lab">
+            <p class="text-xs text-slate-400 italic mb-2">&quot;${escapeHtml(fb.improvement)}&quot;</p>
+            <div class="flex items-center justify-between pt-2 border-t border-slate-900">
+              <p class="text-sm font-bold text-emerald-400">${escapeHtml(fb.correction)}</p>
+              <button class="btnAddPractice p-2 bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 rounded-lg hover:bg-cyan-950/80 transition-colors" title="Add to Mastery Lab">
                 <i data-lucide="plus" class="w-[16px] h-[16px]"></i>
               </button>
             </div>
@@ -352,7 +520,6 @@ async function serverLoadLatest() {
       }
     }
 
-    // Footer controls (demo vs live) match the original layout.
     chatFooter.innerHTML = "";
     if (state.mode === "demo") {
       const box = document.createElement("div");
@@ -360,16 +527,16 @@ async function serverLoadLatest() {
       box.innerHTML = `
         <div class="flex flex-col md:flex-row gap-3">
           <input id="demoDraft" value="${escapeAttr(state.demoDraft)}" placeholder="Demo input (edit me if you want)"
-            class="flex-1 px-4 py-4 rounded-2xl border border-slate-200 bg-white font-semibold" />
-          <button id="btnRunDemo" class="px-8 py-4 rounded-2xl bg-slate-900 text-white font-black shadow-xl hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-2">
+            class="flex-1 px-4 py-4 rounded-2xl border border-slate-800 bg-slate-950 text-slate-100 font-semibold focus:outline-none focus:border-cyan-500/60" />
+          <button id="btnRunDemo" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 text-slate-950 font-black shadow-lg shadow-cyan-950/50 hover:from-cyan-500 hover:to-blue-500 active:scale-95 transition-all flex items-center justify-center gap-2">
             <i data-lucide="sparkles" class="w-[18px] h-[18px]"></i> Run Demo Turn
           </button>
         </div>
         <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
-          <button id="btnRestart" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-black text-xs hover:bg-slate-50 flex items-center gap-2">
+          <button id="btnRestart" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-350 font-black text-xs hover:bg-slate-850 flex items-center gap-2 transition-all">
             <i data-lucide="rotate-ccw" class="w-[14px] h-[14px]"></i> Restart
           </button>
-          <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Demo Mode — no mic, no key, no surprises</p>
+          <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Demo Mode — no mic, no key, no surprises</p>
         </div>
       `;
       chatFooter.appendChild(box);
@@ -379,12 +546,18 @@ async function serverLoadLatest() {
       box.querySelector("#btnRestart").addEventListener("click", () => { state.messages = []; state.demoTurnIndex = 0; state.demoDraft = DEMO_TURNS[0]?.user || ""; setError(null); persist(); renderAll(); });
     } else {
       const wrap = document.createElement("div");
-      wrap.className = "flex flex-col items-center gap-4";
+      wrap.className = "flex flex-col items-center gap-4 w-full";
+      
+      const waveformSvgHtml = state.isSessionActive 
+        ? `<svg id="audioWaveform" class="w-full max-w-lg h-16 transition-all duration-300" viewBox="0 0 400 60"></svg>`
+        : ``;
+        
       wrap.innerHTML = `
-        <button id="btnStartStop" class="group relative px-12 py-5 rounded-3xl flex items-center gap-4 text-xl font-black shadow-2xl transition-all active:scale-95 ${state.isSessionActive ? "bg-red-600 text-white shadow-red-200" : "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200"}">
+        ${waveformSvgHtml}
+        <button id="btnStartStop" class="group relative px-12 py-5 rounded-3xl flex items-center gap-4 text-xl font-black shadow-2xl transition-all active:scale-95 ${state.isSessionActive ? "bg-rose-600 text-white shadow-rose-950/40" : "bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black shadow-cyan-950/25"}">
           ${state.isSessionActive ? "<i data-lucide=\"square\" class=\"w-[24px] h-[24px]\"></i> Stop" : "<i data-lucide=\"mic\" class=\"w-[24px] h-[24px]\"></i> Start Chat"}
         </button>
-        <p class="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-[0.2em]">Live Mode — realtime mic + audio</p>
+        <p class="text-[10px] font-black text-slate-500 mt-1 uppercase tracking-[0.2em]">Live Mode — realtime mic + audio</p>
         <p class="text-xs text-slate-500 max-w-2xl text-center">
           Tip: If your browser doesn't support mic transcription, you can still practice in Demo Mode.
         </p>
@@ -412,8 +585,8 @@ async function serverLoadLatest() {
 
     if (count === 0) {
       labList.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-16 text-slate-400 opacity-60 text-center px-6">
-          <i data-lucide="star" class="w-[40px] h-[40px] mb-4 text-blue-200"></i>
+        <div class="flex flex-col items-center justify-center py-16 text-slate-500 opacity-60 text-center px-6">
+          <i data-lucide="star" class="w-[40px] h-[40px] mb-4 text-cyan-400 animate-pulse"></i>
           <p class="text-sm italic">Master difficult words here.</p>
         </div>
       `;
@@ -423,42 +596,97 @@ async function serverLoadLatest() {
 
     labList.innerHTML = "";
     for (const w of state.difficult) {
-      const card = document.createElement("div");
-      card.className = "group relative bg-white border border-slate-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-lg transition-all";
-      const stageClass = w.currentStage === "word" ? "bg-slate-100 text-slate-500" : (w.currentStage === "sentence" ? "bg-amber-100 text-amber-600" : "bg-green-100 text-green-600");
-      card.innerHTML = `
-        <div class="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button class="btnResetOne p-1.5 text-slate-300 hover:text-blue-500" title="Reset progress"><i data-lucide="rotate-ccw" class="w-[14px] h-[14px]"></i></button>
-          <button class="btnDelOne p-1.5 text-slate-300 hover:text-red-500" title="Delete word"><i data-lucide="trash-2" class="w-[14px] h-[14px]"></i></button>
+      const container = document.createElement("div");
+      container.className = "perspective-1000 w-full h-[220px] my-4";
+
+      const inner = document.createElement("div");
+      inner.className = "flip-card-inner relative w-full h-full transition-transform duration-500 transform-style-3d";
+
+      // FRONT SIDE
+      const front = document.createElement("div");
+      front.className = "flip-card-front absolute inset-0 w-full h-full backface-hidden rounded-2xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col justify-between shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:border-cyan-500/40 transition-colors";
+      
+      const stageClass = w.currentStage === "word" ? "bg-slate-850 text-slate-400 border border-slate-800" : (w.currentStage === "sentence" ? "bg-amber-950/50 text-amber-400 border border-amber-500/20" : "bg-emerald-950/50 text-emerald-400 border border-emerald-500/20");
+      
+      front.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-black uppercase text-cyan-400 tracking-wider bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">${escapeHtml(w.language)}</span>
+          <div class="text-[10px] font-black px-2 py-0.5 rounded ${stageClass}">${escapeHtml(w.currentStage.toUpperCase())}</div>
         </div>
 
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[10px] font-black uppercase text-blue-600 tracking-wider bg-blue-50 px-2 py-1 rounded-md border border-blue-100">${escapeHtml(w.language)}</span>
-          <div class="flex items-center gap-1">
-            <div class="text-[10px] font-black px-2 py-0.5 rounded-full uppercase ${stageClass}">${escapeHtml(w.currentStage)}</div>
+        <div class="my-2">
+          <p class="text-xl font-bold text-slate-100 tracking-tight leading-tight line-clamp-2">${escapeHtml(w.text)}</p>
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            <span>Mastery</span>
+            <span class="text-cyan-400">${Number(w.mastery || 0)}%</span>
+          </div>
+          <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800 p-0.5">
+            <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-full rounded-full transition-all duration-1000 ease-out shadow-sm" style="width:${Math.max(0, Math.min(100, Number(w.mastery || 0)))}%"></div>
           </div>
         </div>
 
-        <p class="text-lg font-black text-slate-800 mb-4 tracking-tight leading-tight">${escapeHtml(w.text)}</p>
-
-        <div class="space-y-1.5 mb-5">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mastery</span>
-            <span class="text-xs font-black text-blue-600">${Number(w.mastery || 0)}%</span>
-          </div>
-          <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden border border-slate-200 p-0.5">
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-1000 ease-out shadow-sm" style="width:${Math.max(0, Math.min(100, Number(w.mastery || 0)))}%"></div>
-          </div>
+        <div class="flex items-center justify-between text-slate-500 text-[11px] mt-2 pt-2 border-t border-slate-800/60">
+          <span class="flex items-center gap-1"><i data-lucide="help-circle" class="w-3.5 h-3.5 text-cyan-500"></i> Click to Flip</span>
+          <button class="btnDelOne p-1 text-slate-500 hover:text-rose-400 transition-colors" title="Delete word"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
         </div>
-
-        <button class="btnResume w-full py-3 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-blue-200 active:scale-95">
-          <i data-lucide="target" class="w-[14px] h-[14px]"></i> Resume Training
-        </button>
       `;
-      card.querySelector(".btnResume").addEventListener("click", () => { state.activePracticeWord = w; setView("lab"); closeHistory(); renderLab(); });
-      card.querySelector(".btnResetOne").addEventListener("click", () => resetSingleMastery(w.id));
-      card.querySelector(".btnDelOne").addEventListener("click", () => removeDifficultWord(w.id));
-      labList.appendChild(card);
+
+      // BACK SIDE
+      const back = document.createElement("div");
+      back.className = "flip-card-back absolute inset-0 w-full h-full backface-hidden rounded-2xl border border-cyan-500/30 bg-slate-950 p-5 flex flex-col justify-between shadow-[0_4px_15px_rgba(6,182,212,0.15)] transform rotate-y-180";
+      
+      const sc = w.feedback?.score || 0;
+      back.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Feedback</span>
+          <div class="px-2.5 py-0.5 rounded-full border font-black text-xs ${getScoreColor(sc)}">${sc}%</div>
+        </div>
+
+        <div class="flex-1 my-3 overflow-y-auto custom-scrollbar pr-1">
+          <p class="text-xs text-slate-355 italic mb-2 leading-relaxed">&quot;${escapeHtml(w.feedback?.improvement || "No improvement notes yet.")}&quot;</p>
+          <p class="text-xs font-bold text-emerald-400 leading-normal">${escapeHtml(w.feedback?.correction || "")}</p>
+        </div>
+
+        <div class="flex gap-2 border-t border-slate-900 pt-3">
+          <button class="btnListen flex-1 py-2 bg-slate-900 hover:bg-slate-850 text-slate-200 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 border border-slate-800">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Speak
+          </button>
+          <button class="btnResume flex-1 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/10 active:scale-95">
+            <i data-lucide="target" class="w-3.5 h-3.5"></i> Train
+          </button>
+        </div>
+      `;
+
+      // Event Listeners
+      inner.addEventListener("click", () => {
+        inner.classList.toggle("flipped");
+      });
+
+      front.querySelector(".btnDelOne").addEventListener("click", (e) => {
+        e.stopPropagation();
+        removeDifficultWord(w.id);
+      });
+
+      back.querySelector(".btnListen").addEventListener("click", (e) => {
+        e.stopPropagation();
+        speakText(w.text);
+      });
+
+      back.querySelector(".btnResume").addEventListener("click", (e) => {
+        e.stopPropagation();
+        state.activePracticeWord = w;
+        setView("lab");
+        closeHistory();
+        renderLab();
+      });
+
+      inner.appendChild(front);
+      inner.appendChild(back);
+      container.appendChild(inner);
+      labList.appendChild(container);
     }
     ensureIcons();
   }
@@ -484,45 +712,46 @@ async function serverLoadLatest() {
     labBody.innerHTML = `
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-5xl font-black text-slate-900 tracking-tight mb-2">${escapeHtml(w.text)}</h2>
+          <h2 class="text-5xl font-black text-slate-100 tracking-tight mb-2">${escapeHtml(w.text)}</h2>
           <div class="flex gap-4">
-            <div class="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-full text-xs font-black border border-green-100 shadow-sm">
+            <div class="flex items-center gap-1.5 px-3 py-1 bg-emerald-950/40 text-emerald-400 rounded-full text-xs font-black border border-emerald-500/20 shadow-sm">
               <i data-lucide="check-circle-2" class="w-[14px] h-[14px]"></i> ${stage.toUpperCase()} DRILL
             </div>
-            <div class="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-black border border-blue-100 shadow-sm">
+            <div class="flex items-center gap-1.5 px-3 py-1 bg-cyan-950/40 text-cyan-400 rounded-full text-xs font-black border border-cyan-500/20 shadow-sm">
               <i data-lucide="star" class="w-[14px] h-[14px]"></i> ${Number(w.mastery || 0)}% MASTERY
             </div>
           </div>
         </div>
-        <button id="btnRefAudio" class="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-100 transition-all shadow-inner border border-blue-100">
+        <button id="btnRefAudio" class="w-20 h-20 bg-slate-900 border border-slate-800 text-cyan-400 rounded-full flex items-center justify-center hover:bg-slate-850 hover:text-cyan-300 transition-all shadow-inner">
           <i data-lucide="volume-2" class="w-[32px] h-[32px]"></i>
         </button>
       </div>
 
       <div class="grid grid-cols-3 gap-4">
         ${["word","sentence","challenge"].map((s, idx) => `
-          <div class="p-4 rounded-2xl border-2 transition-all flex flex-col items-center text-center ${stage === s ? "border-blue-500 bg-blue-50 shadow-lg scale-105" : "border-slate-100 opacity-40"}">
-            <div class="w-10 h-10 rounded-full mb-3 flex items-center justify-center font-black ${stage === s ? "bg-blue-600 text-white shadow-blue-200" : "bg-slate-200 text-slate-500"}">${idx+1}</div>
+          <div class="p-4 rounded-2xl border transition-all flex flex-col items-center text-center ${stage === s ? "border-cyan-500 bg-cyan-950/20 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.15)] scale-105" : "border-slate-800 opacity-40 text-slate-400"}">
+            <div class="w-10 h-10 rounded-full mb-3 flex items-center justify-center font-black ${stage === s ? "bg-cyan-600 text-slate-950 shadow-cyan-500/10" : "bg-slate-800 text-slate-400"}">${idx+1}</div>
             <span class="text-[10px] font-black uppercase tracking-widest">${s}</span>
           </div>
         `).join("")}
       </div>
 
-      <div class="flex-1 bg-slate-50 border-4 border-dashed border-slate-200 rounded-[40px] flex flex-col items-center justify-center p-12 text-center transition-all">
+      <div class="flex-1 bg-slate-950/40 border-2 border-dashed border-slate-800 rounded-[40px] flex flex-col items-center justify-center p-12 text-center transition-all">
         ${state.isSessionActive ? `
           <div class="animate-in zoom-in duration-500 flex flex-col items-center max-w-2xl w-full">
-            <div class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white pulse-animation shadow-2xl mb-6">
+            <div class="w-24 h-24 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-full flex items-center justify-center pulse-animation shadow-2xl mb-6">
               <i data-lucide="mic" class="w-[40px] h-[40px]"></i>
             </div>
-            <h3 class="text-xl font-black text-slate-800 mb-2 uppercase tracking-tight">Your Turn</h3>
-            <p class="text-2xl font-black text-slate-800 italic">&quot;${escapeHtml(stage === "word" ? w.text : (state.drillTargetText || w.text))}&quot;</p>
-            <p class="text-slate-400 font-bold text-xs uppercase mt-6 tracking-widest">Listening for pronunciation...</p>
+            <svg id="audioWaveform" class="w-full max-w-lg h-16 transition-all duration-300 mb-4" viewBox="0 0 400 60"></svg>
+            <h3 class="text-xl font-black text-slate-200 mb-2 uppercase tracking-tight">Your Turn</h3>
+            <p class="text-2xl font-black text-cyan-400 italic">&quot;${escapeHtml(stage === "word" ? w.text : (state.drillTargetText || w.text))}&quot;</p>
+            <p class="text-slate-500 font-bold text-xs uppercase mt-6 tracking-widest">Listening for pronunciation...</p>
           </div>
         ` : `
           <div class="max-w-md">
-            <h3 class="text-2xl font-black text-slate-800 mb-4">Stage ${stageNum} Goal</h3>
-            <p class="text-slate-600 font-medium mb-10 leading-relaxed">${escapeHtml(goalText)}</p>
-            <button id="btnBeginStage" class="px-12 py-5 bg-blue-600 text-white rounded-3xl text-xl font-black shadow-2xl hover:bg-blue-700 transition-all hover:scale-105 active:scale-95">
+            <h3 class="text-2xl font-black text-slate-200 mb-4">Stage ${stageNum} Goal</h3>
+            <p class="text-slate-400 font-medium mb-10 leading-relaxed">${escapeHtml(goalText)}</p>
+            <button id="btnBeginStage" class="px-12 py-5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-slate-950 rounded-3xl text-xl font-black shadow-2xl transition-all hover:scale-105 active:scale-95 shadow-cyan-950/30">
               Begin Stage Drill
             </button>
           </div>
@@ -531,15 +760,15 @@ async function serverLoadLatest() {
 
       ${recentAttempts.length ? `
         <div class="max-h-[300px] overflow-y-auto space-y-4 pr-4 custom-scrollbar">
-          <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white sticky top-0 py-2">Attempt Log</h4>
+          <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-[#030712] sticky top-0 py-2">Attempt Log</h4>
           ${recentAttempts.map(m => {
             const sc = m.feedback.score;
             const trophy = sc >= 90 ? `<i data-lucide="trophy" class="w-[24px] h-[24px] text-yellow-500 shrink-0"></i>` : ``;
             return `
-              <div class="p-4 bg-white border border-slate-100 rounded-2xl shadow-sm flex items-center gap-6 group hover:border-blue-200 transition-all">
-                <div class="w-12 h-12 shrink-0 flex items-center justify-center rounded-full border-2 font-black text-sm ${getScoreColor(sc)} shadow-inner bg-white">${sc}</div>
+              <div class="p-4 bg-slate-900/60 border border-slate-850 rounded-2xl shadow-sm flex items-center gap-6 group hover:border-cyan-500/30 transition-all">
+                <div class="w-12 h-12 shrink-0 flex items-center justify-center rounded-full border-2 font-black text-sm ${getScoreColor(sc)} shadow-inner bg-slate-950">${sc}</div>
                 <div class="flex-1">
-                  <p class="text-base font-bold text-slate-800 italic group-hover:text-blue-600 transition-colors">&quot;${escapeHtml(m.text)}&quot;</p>
+                  <p class="text-base font-bold text-slate-200 italic group-hover:text-cyan-400 transition-colors">&quot;${escapeHtml(m.text)}&quot;</p>
                   <p class="text-xs text-slate-400 mt-1">${escapeHtml(m.feedback.improvement)}</p>
                 </div>
                 ${trophy}
@@ -746,9 +975,13 @@ Return ONLY valid JSON with keys: improvement (string), correction (string), sco
       if (!("speechSynthesis" in window)) return;
       const u = new SpeechSynthesisUtterance(String(text));
       u.rate = state.playbackSpeed;
-      // best-effort voice selection
       const voices = window.speechSynthesis.getVoices?.() || [];
-      const v = voices.find(vv => (vv.lang || "").toLowerCase().startsWith(state.selectedLanguage.code)) || voices[0];
+      const selectedName = document.getElementById("selectTtsVoice")?.value || state.selectedVoiceName;
+      let v = voices.find(vv => vv.name === selectedName);
+      if (!v) {
+        const langCode = state.selectedLanguage.code.toLowerCase();
+        v = voices.find(vv => (vv.lang || "").toLowerCase().startsWith(langCode)) || voices[0];
+      }
       if (v) u.voice = v;
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(u);
@@ -766,12 +999,20 @@ Return ONLY valid JSON with keys: improvement (string), correction (string), sco
 
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
-      // Graceful fallback: no mic support, auto-prompt user to use Demo.
       setError("This browser doesn't support Speech Recognition. Switch to Demo Mode for instant practice.");
       state.isSessionActive = false;
       renderAll();
       return;
     }
+
+    // Start Web Audio voice visualizer stream
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        visualizer.start(stream);
+      })
+      .catch(err => {
+        log("Mic capture for visualizer failed", err);
+      });
 
     rec = new SR();
     rec.lang = state.selectedLanguage.code === "en" ? "en-US" : (state.selectedLanguage.code);
@@ -789,7 +1030,6 @@ Return ONLY valid JSON with keys: improvement (string), correction (string), sco
       stopSession();
     };
     rec.onend = () => {
-      // end after one utterance; user can press Start again
       stopSession();
     };
     try {
@@ -839,6 +1079,7 @@ Return ONLY valid JSON with keys: improvement (string), correction (string), sco
     state.isSessionActive = false;
     try { rec?.stop?.(); } catch {}
     rec = null;
+    visualizer.stop();
     renderAll();
   }
 
@@ -947,6 +1188,21 @@ Return ONLY valid JSON with keys: improvement (string), correction (string), sco
       persist();
       renderAll();
     });
+
+    const selectTts = document.getElementById("selectTtsVoice");
+    if (selectTts) {
+      selectTts.addEventListener("change", () => {
+        state.selectedVoiceName = selectTts.value;
+        persist();
+      });
+    }
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        populateVoices();
+      };
+    }
+    populateVoices();
 
     ensureIcons();
   }
