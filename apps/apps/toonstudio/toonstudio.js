@@ -1,8 +1,8 @@
-
 /* ToonStudio Pro — Vanilla Static Runtime (no build step)
    - Preserves original Tailwind/FontAwesome styling & layout
    - Local-first: key stored in localStorage
    - Demo mode works offline
+   - Upgraded to Frame Animator Edition with Layer Canvas, Onion Skinning, and Playback Timeline
 */
 (() => {
   const $ = (sel, root = document) => root.querySelector(sel);
@@ -29,14 +29,33 @@
       concept: "",
       characters: [],
       storyboard: [],
+      frames: [
+        { id: "f1", layers: { "Background": "", "Character": "", "Foreground": "" } }
+      ]
     },
     demoOn: false,
+    activeFrameIndex: 0,
+    activeLayerName: "Character",
+    activeTool: "pen",
+    brushSize: 6,
+    brushOpacity: 1.0,
+    brushShape: "round",
+    brushColor: "#6366f1",
+    onionSkinOn: true,
+    playbackFps: 6
   };
 
   function loadProject() {
     try {
       const raw = localStorage.getItem(LS.project);
-      return raw ? JSON.parse(raw) : null;
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (parsed && (!parsed.frames || parsed.frames.length === 0)) {
+        parsed.frames = [
+          { id: "f1", layers: { "Background": "", "Character": "", "Foreground": "" } }
+        ];
+      }
+      return parsed;
     } catch {
       return null;
     }
@@ -45,55 +64,58 @@
   function saveProject() {
     try {
       localStorage.setItem(LS.project, JSON.stringify(state.project));
-    scheduleServerSync();
       scheduleServerSync();
     } catch {}
   }
 
-// ------------------------- Backend Sync (optional) -------------------------
-// Uses Netlify Functions via /api/* redirect. Silent fallback if offline/unconfigured.
-const SERVER = { saveUrl: "/api/toon-project-save" };
-let _syncTimer = null;
+  // ------------------------- Backend Sync (optional) -------------------------
+  const SERVER = { saveUrl: "/api/toon-project-save" };
+  let _syncTimer = null;
 
-function buildServerPayload() {
-  return { kind: "toonstudio_project_v1", ts: Date.now(), project: state.project };
-}
+  function buildServerPayload() {
+    return { kind: "toonstudio_project_v1", ts: Date.now(), project: state.project };
+  }
 
-async function serverSaveNow() {
-  const clientId = (state.apiKey || "").trim();
-  if (!clientId) return;
-  try {
-    await fetch(SERVER.saveUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_id: clientId, payload: buildServerPayload() }),
-    });
-  } catch (_) {}
-}
+  async function serverSaveNow() {
+    const clientId = (state.apiKey || "").trim();
+    if (!clientId) return;
+    try {
+      await fetch(SERVER.saveUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client_id: clientId, payload: buildServerPayload() }),
+      });
+    } catch (_) {}
+  }
 
-function scheduleServerSync() {
-  const clientId = (state.apiKey || "").trim();
-  if (!clientId) return;
-  clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(() => { serverSaveNow(); }, 900);
-}
+  function scheduleServerSync() {
+    const clientId = (state.apiKey || "").trim();
+    if (!clientId) return;
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(() => { serverSaveNow(); }, 900);
+  }
 
-async function serverLoadLatest() {
-  const clientId = (state.apiKey || "").trim();
-  if (!clientId) return;
-  try {
-    const res = await fetch(`${SERVER.saveUrl}?client_id=${encodeURIComponent(clientId)}&limit=1`, { method: "GET" });
-    if (!res.ok) return;
-    const data = await res.json().catch(() => null);
-    const p = data?.items?.[0]?.payload;
-    if (!p || typeof p !== "object") return;
-    if (p.project && typeof p.project === "object") {
-      state.project = p.project;
-      saveProject();
-      render();
-    }
-  } catch (_) {}
-}
+  async function serverLoadLatest() {
+    const clientId = (state.apiKey || "").trim();
+    if (!clientId) return;
+    try {
+      const res = await fetch(`${SERVER.saveUrl}?client_id=${encodeURIComponent(clientId)}&limit=1`, { method: "GET" });
+      if (!res.ok) return;
+      const data = await res.json().catch(() => null);
+      const p = data?.items?.[0]?.payload;
+      if (!p || typeof p !== "object") return;
+      if (p.project && typeof p.project === "object") {
+        state.project = p.project;
+        if (!state.project.frames || state.project.frames.length === 0) {
+          state.project.frames = [
+            { id: "f1", layers: { "Background": "", "Character": "", "Foreground": "" } }
+          ];
+        }
+        saveProject();
+        render();
+      }
+    } catch (_) {}
+  }
 
   function setError(msg) {
     state.error = msg || "";
@@ -114,7 +136,17 @@ async function serverLoadLatest() {
   }
 
   function resetProject() {
-    state.project = { style: "Pixar", concept: "", characters: [], storyboard: [] };
+    state.project = {
+      style: "Pixar",
+      concept: "",
+      characters: [],
+      storyboard: [],
+      frames: [
+        { id: "f1", layers: { "Background": "", "Character": "", "Foreground": "" } }
+      ]
+    };
+    state.activeFrameIndex = 0;
+    state.activeLayerName = "Character";
     state.demoOn = false;
     saveProject();
     setStep("SETUP");
@@ -164,31 +196,39 @@ async function serverLoadLatest() {
       { id: "s2", title: "The Rift", visual: "A tear in the cardboard reveals a bigger universe.", beats: ["Discovery", "Decision", "Countdown"] },
       { id: "s3", title: "Finale", visual: "Epic battle… with craft supplies.", beats: ["Climax", "Twist", "Triumphant button"] }
     ];
+    state.project.frames = [
+      { id: "f1", layers: { "Background": "", "Character": "", "Foreground": "" } },
+      { id: "f2", layers: { "Background": "", "Character": "", "Foreground": "" } },
+      { id: "f3", layers: { "Background": "", "Character": "", "Foreground": "" } }
+    ];
+    state.activeFrameIndex = 0;
     saveProject();
     setStep("CHARACTERS");
   }
 
   async function generateScriptSuggestion() {
-    // Backend-present UX: behave cleanly even if offline.
-    // For now: in-browser call if key is present; otherwise deterministic demo suggestion.
     const concept = state.project.concept.trim();
     if (!concept) return setError("Add a concept first.");
     state.loading = true; render();
 
     try {
       if (!state.apiKey) {
-        // Offline-safe suggestion
         state.project.storyboard = [
           { id: "s1", title: "Setup", visual: "Introduce tone and protagonist.", beats: ["Hook", "Character", "Goal"] },
           { id: "s2", title: "Conflict", visual: "Obstacle escalates.", beats: ["Complication", "Choice", "Risk"] },
           { id: "s3", title: "Payoff", visual: "Resolution with Pixar-style heart.", beats: ["Climax", "Emotion", "Tag"] },
         ];
+        state.project.frames = [
+          { id: "f1", layers: { "Background": "", "Character": "", "Foreground": "" } },
+          { id: "f2", layers: { "Background": "", "Character": "", "Foreground": "" } },
+          { id: "f3", layers: { "Background": "", "Character": "", "Foreground": "" } }
+        ];
+        state.activeFrameIndex = 0;
         saveProject();
         setStep("STORYBOARD");
         return;
       }
 
-      // Call Gemini REST directly (works if browser allows). If blocked, we fail gracefully.
       const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + encodeURIComponent(state.apiKey);
       const prompt = `You are ToonStudio. Create a 3-scene storyboard outline (title + visual description + 3 beats) for this concept:\n\n${concept}\n\nReturn JSON with: scenes:[{id,title,visual,beats:[..]}].`;
       const res = await fetch(url, {
@@ -209,6 +249,12 @@ async function serverLoadLatest() {
         visual: s.visual || "",
         beats: Array.isArray(s.beats) ? s.beats.slice(0, 5) : []
       }));
+      state.project.frames = [
+        { id: "f1", layers: { "Background": "", "Character": "", "Foreground": "" } },
+        { id: "f2", layers: { "Background": "", "Character": "", "Foreground": "" } },
+        { id: "f3", layers: { "Background": "", "Character": "", "Foreground": "" } }
+      ];
+      state.activeFrameIndex = 0;
       saveProject();
       setStep("STORYBOARD");
     } catch (e) {
@@ -219,12 +265,10 @@ async function serverLoadLatest() {
   }
 
   function exportProject() {
-    // Guard against double-taps / duplicated click events on mobile.
     const now = Date.now();
     if (state.__exportCooldownUntil && now < state.__exportCooldownUntil) return;
     state.__exportCooldownUntil = now + 2000;
 
-    // Demo mode does not export. Prompt the user to add their own key and create a project.
     if (state.demoOn) {
       openSetup();
       const desc = document.getElementById("ts-setup-desc");
@@ -249,8 +293,12 @@ async function serverLoadLatest() {
         style: parsed.style || "Pixar",
         concept: parsed.concept || "",
         characters: Array.isArray(parsed.characters) ? parsed.characters : [],
-        storyboard: Array.isArray(parsed.storyboard) ? parsed.storyboard : []
+        storyboard: Array.isArray(parsed.storyboard) ? parsed.storyboard : [],
+        frames: Array.isArray(parsed.frames) ? parsed.frames : [
+          { id: "f1", layers: { "Background": "", "Character": "", "Foreground": "" } }
+        ]
       };
+      state.activeFrameIndex = 0;
       saveProject();
       render();
     } catch (e) {
@@ -258,12 +306,300 @@ async function serverLoadLatest() {
     }
   }
 
+  // ------------------------- Timeline Actions -------------------------
+  function addFrame() {
+    const newFrame = {
+      id: "f" + Math.random().toString(36).slice(2, 6),
+      layers: { "Background": "", "Character": "", "Foreground": "" }
+    };
+    state.project.frames.splice(state.activeFrameIndex + 1, 0, newFrame);
+    state.activeFrameIndex++;
+    saveProject();
+    render();
+  }
+
+  function duplicateFrame() {
+    const curr = state.project.frames[state.activeFrameIndex];
+    const newFrame = {
+      id: "f" + Math.random().toString(36).slice(2, 6),
+      layers: { ...curr.layers }
+    };
+    state.project.frames.splice(state.activeFrameIndex + 1, 0, newFrame);
+    state.activeFrameIndex++;
+    saveProject();
+    render();
+  }
+
+  function deleteFrame() {
+    if (state.project.frames.length <= 1) {
+      setError("Cannot delete the only frame.");
+      return;
+    }
+    state.project.frames.splice(state.activeFrameIndex, 1);
+    state.activeFrameIndex = Math.max(0, state.activeFrameIndex - 1);
+    saveProject();
+    render();
+  }
+
+  // ------------------------- Canvas Drawing Core -------------------------
+  let drawing = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  function initCanvasDrawing() {
+    const drawCanvas = $("#drawCanvas");
+    if (!drawCanvas) return;
+
+    const onionCanvas = $("#onionCanvas");
+    const bgCanvas = $("#layer-Background");
+    const charCanvas = $("#layer-Character");
+    const foreCanvas = $("#layer-Foreground");
+
+    const canvases = [onionCanvas, bgCanvas, charCanvas, foreCanvas, drawCanvas];
+    canvases.forEach(c => {
+      if (c) {
+        c.width = 640;
+        c.height = 360;
+      }
+    });
+
+    const drawCtx = drawCanvas.getContext("2d");
+    const frame = state.project.frames[state.activeFrameIndex];
+    if (!frame) return;
+
+    // 1. Draw layers
+    const layers = ["Background", "Character", "Foreground"];
+    layers.forEach(layerName => {
+      const canvas = $(`#layer-${layerName}`);
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const dataUrl = frame.layers[layerName];
+        if (dataUrl) {
+          const img = new Image();
+          img.onload = () => ctx.drawImage(img, 0, 0);
+          img.src = dataUrl;
+        }
+      }
+    });
+
+    // 2. Draw Onion Skin (previous frame at 25% opacity)
+    if (onionCanvas && state.onionSkinOn && state.activeFrameIndex > 0) {
+      const prevFrame = state.project.frames[state.activeFrameIndex - 1];
+      const ctx = onionCanvas.getContext("2d");
+      ctx.clearRect(0, 0, onionCanvas.width, onionCanvas.height);
+      ctx.globalAlpha = 0.25;
+
+      layers.forEach(layerName => {
+        const dataUrl = prevFrame.layers[layerName];
+        if (dataUrl) {
+          const img = new Image();
+          img.onload = () => ctx.drawImage(img, 0, 0);
+          img.src = dataUrl;
+        }
+      });
+    }
+
+    // 3. Mouse/Touch Coordinates Helper
+    const getMousePos = (canvas, evt) => {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (evt.clientX - rect.left) * (canvas.width / rect.width),
+        y: (evt.clientY - rect.top) * (canvas.height / rect.height)
+      };
+    };
+
+    // 4. Input Events
+    const startDraw = (e) => {
+      const pos = getMousePos(drawCanvas, e);
+      drawing = true;
+      lastX = pos.x;
+      lastY = pos.y;
+
+      drawCtx.strokeStyle = state.brushColor;
+      drawCtx.lineWidth = state.brushSize;
+      drawCtx.lineCap = "round";
+      drawCtx.lineJoin = "round";
+      drawCtx.globalAlpha = state.brushOpacity;
+
+      if (state.activeTool === "eraser") {
+        const activeCanvas = $(`#layer-${state.activeLayerName}`);
+        if (activeCanvas) {
+          const actCtx = activeCanvas.getContext("2d");
+          actCtx.globalCompositeOperation = "destination-out";
+          actCtx.lineWidth = state.brushSize;
+          actCtx.lineCap = "round";
+          actCtx.lineJoin = "round";
+          actCtx.beginPath();
+          actCtx.moveTo(pos.x, pos.y);
+        }
+      } else if (state.activeTool === "pen" || state.activeTool === "brush") {
+        drawCtx.beginPath();
+        drawCtx.moveTo(pos.x, pos.y);
+      }
+    };
+
+    const moveDraw = (e) => {
+      if (!drawing) return;
+      const pos = getMousePos(drawCanvas, e);
+
+      if (state.activeTool === "eraser") {
+        const activeCanvas = $(`#layer-${state.activeLayerName}`);
+        if (activeCanvas) {
+          const actCtx = activeCanvas.getContext("2d");
+          actCtx.lineTo(pos.x, pos.y);
+          actCtx.stroke();
+        }
+      } else if (state.activeTool === "pen") {
+        drawCtx.lineTo(pos.x, pos.y);
+        drawCtx.stroke();
+      } else if (state.activeTool === "brush") {
+        if (state.brushShape === "round") {
+          drawCtx.lineTo(pos.x, pos.y);
+          drawCtx.stroke();
+        } else if (state.brushShape === "calligraphy") {
+          const dist = Math.hypot(pos.x - lastX, pos.y - lastY);
+          const steps = Math.ceil(dist / 2);
+          for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const cx = lastX + (pos.x - lastX) * t;
+            const cy = lastY + (pos.y - lastY) * t;
+            drawCtx.fillStyle = state.brushColor;
+            drawCtx.save();
+            drawCtx.translate(cx, cy);
+            drawCtx.rotate(Math.PI / 4);
+            drawCtx.fillRect(-state.brushSize / 2, -2, state.brushSize, 4);
+            drawCtx.restore();
+          }
+        } else if (state.brushShape === "spray") {
+          const radius = state.brushSize * 1.5;
+          const density = 6;
+          drawCtx.fillStyle = state.brushColor;
+          for (let i = 0; i < density; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const r = Math.random() * radius;
+            const sx = pos.x + Math.cos(angle) * r;
+            const sy = pos.y + Math.sin(angle) * r;
+            drawCtx.fillRect(sx, sy, 1.5, 1.5);
+          }
+        }
+      } else if (state.activeTool === "line") {
+        drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        drawCtx.beginPath();
+        drawCtx.moveTo(lastX, lastY);
+        drawCtx.lineTo(pos.x, pos.y);
+        drawCtx.stroke();
+      } else if (state.activeTool === "rectangle") {
+        drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        drawCtx.beginPath();
+        drawCtx.rect(lastX, lastY, pos.x - lastX, pos.y - lastY);
+        drawCtx.stroke();
+      } else if (state.activeTool === "circle") {
+        drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        drawCtx.beginPath();
+        const r = Math.hypot(pos.x - lastX, pos.y - lastY);
+        drawCtx.arc(lastX, lastY, r, 0, Math.PI * 2);
+        drawCtx.stroke();
+      }
+
+      // Update positions for non-shape tools
+      if (state.activeTool !== "line" && state.activeTool !== "rectangle" && state.activeTool !== "circle") {
+        lastX = pos.x;
+        lastY = pos.y;
+      }
+    };
+
+    const endDraw = () => {
+      if (!drawing) return;
+      drawing = false;
+
+      const activeCanvas = $(`#layer-${state.activeLayerName}`);
+      if (activeCanvas) {
+        const actCtx = activeCanvas.getContext("2d");
+
+        if (state.activeTool === "eraser") {
+          actCtx.globalCompositeOperation = "source-over";
+        } else {
+          actCtx.drawImage(drawCanvas, 0, 0);
+          drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        }
+
+        frame.layers[state.activeLayerName] = activeCanvas.toDataURL();
+        saveProject();
+      }
+    };
+
+    drawCanvas.addEventListener("mousedown", startDraw);
+    drawCanvas.addEventListener("mousemove", moveDraw);
+    drawCanvas.addEventListener("mouseup", endDraw);
+    drawCanvas.addEventListener("mouseleave", endDraw);
+
+    // Touch support mapping
+    const handleTouch = (evt, mouseEvtName) => {
+      const touch = evt.touches[0] || evt.changedTouches[0];
+      if (!touch) return;
+      const mouseEvt = new MouseEvent(mouseEvtName, {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+      drawCanvas.dispatchEvent(mouseEvt);
+    };
+    drawCanvas.addEventListener("touchstart", (e) => { e.preventDefault(); handleTouch(e, "mousedown"); }, { passive: false });
+    drawCanvas.addEventListener("touchmove", (e) => { e.preventDefault(); handleTouch(e, "mousemove"); }, { passive: false });
+    drawCanvas.addEventListener("touchend", (e) => { e.preventDefault(); handleTouch(e, "mouseup"); }, { passive: false });
+  }
+
+  // ------------------------- Playback Preview Loop -------------------------
+  let previewTimer = null;
+  let previewIndex = 0;
+  let isPlayingPreview = false;
+
+  function playPreview() {
+    const canvas = $("#previewCanvas");
+    if (!canvas) return;
+    canvas.width = 640;
+    canvas.height = 360;
+
+    stopPreview();
+    isPlayingPreview = true;
+    previewIndex = 0;
+
+    const run = () => {
+      if (!isPlayingPreview) return;
+
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const frame = state.project.frames[previewIndex];
+      if (frame) {
+        const layers = ["Background", "Character", "Foreground"];
+        layers.forEach(layerName => {
+          const dataUrl = frame.layers[layerName];
+          if (dataUrl) {
+            const img = new Image();
+            img.onload = () => ctx.drawImage(img, 0, 0);
+            img.src = dataUrl;
+          }
+        });
+      }
+
+      previewIndex = (previewIndex + 1) % state.project.frames.length;
+      const delay = 1000 / state.playbackFps;
+      previewTimer = setTimeout(run, delay);
+    };
+    run();
+  }
+
+  function stopPreview() {
+    isPlayingPreview = false;
+    clearTimeout(previewTimer);
+  }
+
   function render() {
     const app = $("#app");
     if (!app) return;
 
     const topOffset = "var(--nxTopNavPx, 0px)";
-
     const stepIndex = STEPS.indexOf(state.step);
 
     app.innerHTML = `
@@ -318,7 +654,7 @@ async function serverLoadLatest() {
           </div>
         </nav>
 
-        <main class="max-w-[1440px] mx-auto p-4 md:p-10 relative z-10 flex-grow w-full">
+        <main class="max-w-[1440px] mx-auto p-4 md:p-8 relative z-10 flex-grow w-full">
           ${state.error ? `
             <div class="fixed z-[100] glass-thick border-red-500/50 px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-fadeIn"
                  style="top: calc(${topOffset} + 84px); left:50%; transform:translateX(-50%);">
@@ -372,9 +708,15 @@ async function serverLoadLatest() {
       </div>
     `;
 
-    // show modal if requested via state
-    // Attach events
+    // Attach canvas drawing and preview setups
     appEvents();
+    if (state.step === "PRODUCTION") {
+      setTimeout(initCanvasDrawing, 50);
+    } else if (state.step === "PREVIEW") {
+      setTimeout(playPreview, 50);
+    } else {
+      stopPreview();
+    }
   }
 
   function renderStep() {
@@ -385,28 +727,28 @@ async function serverLoadLatest() {
 
     if (state.step === "SETUP") {
       return `
-        <div class="max-w-4xl mx-auto space-y-16 py-12">
-          <div class="space-y-6 text-center">
-            <h2 class="text-6xl md:text-8xl font-outfit font-extrabold tracking-tight text-white leading-tight">
-              Bring your <span class="text-indigo-500">vision</span> to life.
+        <div class="max-w-4xl mx-auto space-y-12 py-6">
+          <div class="space-y-4 text-center">
+            <h2 class="text-5xl md:text-7xl font-outfit font-extrabold tracking-tight text-white leading-tight">
+              Bring your <span class="text-indigo-400">vision</span> to life.
             </h2>
-            <p class="text-slate-400 text-lg md:text-xl font-light max-w-2xl mx-auto">
+            <p class="text-slate-400 text-base md:text-lg font-light max-w-xl mx-auto">
               A professional AI engine for high-fidelity cartoon production.
             </p>
           </div>
 
-          <div class="space-y-6">
+          <div class="space-y-4">
             <div class="flex items-center justify-between px-2">
               <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Cinematic Aesthetic</span>
               <span class="text-xs font-bold text-indigo-400">${style}</span>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               ${STYLES.map(s => `
                 <button data-action="set-style" data-style="${s}"
-                  class="p-6 rounded-2xl border transition-all text-center relative overflow-hidden group ${
+                  class="p-4 rounded-xl border transition-all text-center relative overflow-hidden group ${
                     project.style === s ? "bg-indigo-600/10 border-indigo-500" : "bg-slate-900 border-white/5 hover:border-white/20"
                   }">
-                  <span class="block text-[11px] font-bold tracking-tighter uppercase transition-colors relative z-10 ${
+                  <span class="block text-[10px] font-bold tracking-tighter uppercase transition-colors relative z-10 ${
                     project.style === s ? "text-white" : "text-slate-500 group-hover:text-slate-300"
                   }">${s}</span>
                 </button>
@@ -414,26 +756,21 @@ async function serverLoadLatest() {
             </div>
           </div>
 
-          <div class="glass p-1 rounded-[42px] neon-border">
-            <div class="bg-slate-900/50 rounded-[40px] p-8 md:p-12 space-y-10">
+          <div class="glass p-1 rounded-3xl neon-border">
+            <div class="bg-slate-900/50 rounded-3xl p-6 md:p-8 space-y-8">
               <textarea id="ts-concept"
                 placeholder="Pitch your production concept... (e.g. A space-faring bounty hunter arrives at a neon-drenched oasis on a desert planet)"
-                class="w-full h-40 md:h-60 bg-transparent border-none text-2xl md:text-4xl font-light text-white focus:ring-0 outline-none transition-all resize-none placeholder:text-slate-800">${concept}</textarea>
+                class="w-full h-32 md:h-48 bg-transparent border-none text-xl md:text-2xl font-light text-white focus:ring-0 outline-none transition-all resize-none placeholder:text-slate-800">${concept}</textarea>
 
-              <div class="flex flex-col sm:flex-row gap-6 pt-10 border-t border-white/5">
-                <button data-action="demo" class="px-10 py-5 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl font-bold flex items-center justify-center gap-4 transition-all active:scale-95 ${state.loading ? "opacity-50" : ""}">
+              <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-white/5">
+                <button data-action="demo" class="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95 ${state.loading ? "opacity-50" : ""}">
                   <i class="fa-solid fa-film text-indigo-400"></i>
                   Demo
                 </button>
-                <button data-action="architect" ${disabled} class="flex-1 py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold flex items-center justify-center gap-4 transition-all shadow-2xl shadow-indigo-600/20 active:scale-95 disabled:opacity-50">
+                <button data-action="architect" ${disabled} class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-all shadow-2xl shadow-indigo-600/20 active:scale-95 disabled:opacity-50">
                   <i class="fa-solid fa-wand-magic-sparkles"></i>
                   Architect Script
                 </button>
-              </div>
-
-              <div class="pt-6 text-xs text-slate-500 flex items-center justify-between">
-                <span>Status: <span class="text-emerald-400 font-mono">CONNECTED</span></span>
-                <button data-action="open-setup" class="text-indigo-300 hover:text-white font-black tracking-[0.2em] uppercase text-[10px]">Setup</button>
               </div>
             </div>
           </div>
@@ -443,27 +780,27 @@ async function serverLoadLatest() {
 
     if (state.step === "CHARACTERS") {
       const cards = (project.characters || []).map(c => `
-        <div class="glass rounded-3xl p-6 border border-white/5 hover:border-white/10 transition-all">
+        <div class="glass rounded-2xl p-5 border border-white/5 hover:border-white/10 transition-all">
           <div class="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400">Character</div>
-          <div class="text-2xl font-outfit font-extrabold text-white mt-2">${escapeHtml(c.name || "")}</div>
-          <div class="text-sm text-slate-400 mt-3">${escapeHtml(c.description || "")}</div>
+          <div class="text-xl font-outfit font-extrabold text-white mt-1">${escapeHtml(c.name || "")}</div>
+          <div class="text-xs text-slate-400 mt-2">${escapeHtml(c.description || "")}</div>
         </div>
       `).join("");
 
       return `
-        <div class="max-w-5xl mx-auto space-y-8 py-8">
+        <div class="max-w-5xl mx-auto space-y-6 py-4">
           <div class="flex items-end justify-between gap-6">
             <div>
               <div class="text-[10px] font-black uppercase tracking-[0.35em] text-slate-500">Casting</div>
-              <div class="text-4xl md:text-5xl font-outfit font-extrabold text-white mt-2">Characters</div>
-              <div class="text-sm text-slate-400 mt-3">Your cast is ready. Proceed to storyboard when satisfied.</div>
+              <div class="text-3xl font-outfit font-extrabold text-white mt-1">Characters</div>
+              <div class="text-xs text-slate-400 mt-2">Your cast is ready. Proceed to storyboard when satisfied.</div>
             </div>
-            <button data-action="next" data-next="STORYBOARD" class="px-6 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black tracking-widest text-[11px] shadow-2xl shadow-indigo-600/20">
+            <button data-action="next" data-next="STORYBOARD" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black tracking-widest text-[10px] uppercase shadow-2xl shadow-indigo-600/20">
               Next: Storyboard
             </button>
           </div>
 
-          <div class="grid md:grid-cols-3 gap-6">
+          <div class="grid md:grid-cols-3 gap-4">
             ${cards || `<div class="text-slate-500">No characters yet. Use Demo or Architect Script.</div>`}
           </div>
         </div>
@@ -472,39 +809,271 @@ async function serverLoadLatest() {
 
     if (state.step === "STORYBOARD") {
       const rows = (project.storyboard || []).map(s => `
-        <div class="glass rounded-3xl p-6 border border-white/5">
+        <div class="glass rounded-2xl p-5 border border-white/5">
           <div class="flex items-center justify-between">
-            <div class="text-xl font-outfit font-extrabold text-white">${escapeHtml(s.title || "")}</div>
+            <div class="text-lg font-outfit font-extrabold text-white">${escapeHtml(s.title || "")}</div>
             <div class="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400">Scene</div>
           </div>
-          <div class="text-sm text-slate-400 mt-3">${escapeHtml(s.visual || "")}</div>
-          <ul class="mt-4 space-y-2 text-sm">
-            ${(s.beats || []).map(b => `<li class="text-slate-300 flex items-start gap-3"><span class="mt-1 w-2 h-2 rounded-full bg-indigo-500/70"></span><span>${escapeHtml(b)}</span></li>`).join("")}
+          <div class="text-xs text-slate-400 mt-2">${escapeHtml(s.visual || "")}</div>
+          <ul class="mt-3 space-y-1 text-xs">
+            ${(s.beats || []).map(b => `<li class="text-slate-300 flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-500/70 flex-shrink-0"></span><span>${escapeHtml(b)}</span></li>`).join("")}
           </ul>
         </div>
       `).join("");
 
       return `
-        <div class="max-w-5xl mx-auto space-y-8 py-8">
+        <div class="max-w-5xl mx-auto space-y-6 py-4">
           <div class="flex items-end justify-between gap-6">
             <div>
               <div class="text-[10px] font-black uppercase tracking-[0.35em] text-slate-500">Planning</div>
-              <div class="text-4xl md:text-5xl font-outfit font-extrabold text-white mt-2">Storyboard</div>
-              <div class="text-sm text-slate-400 mt-3">Outline ready. Production and preview can be wired next.</div>
+              <div class="text-3xl font-outfit font-extrabold text-white mt-1">Storyboard</div>
+              <div class="text-xs text-slate-400 mt-2">Outline ready. Setup frames on the production line next.</div>
             </div>
-            <button data-action="next" data-next="PRODUCTION" class="px-6 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black tracking-widest text-[11px] shadow-2xl shadow-indigo-600/20">
+            <button data-action="next" data-next="PRODUCTION" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black tracking-widest text-[10px] uppercase shadow-2xl shadow-indigo-600/20">
               Next: Production
             </button>
           </div>
 
-          <div class="grid gap-6">
+          <div class="grid gap-4">
             ${rows || `<div class="text-slate-500">No storyboard yet. Use Architect Script.</div>`}
           </div>
         </div>
       `;
     }
 
-    // Placeholder for later stages (kept visually consistent)
+    if (state.step === "PRODUCTION") {
+      const frames = project.frames || [];
+      const frameOptions = frames.map((f, i) => `
+        <div data-act="select-frame" data-index="${i}" class="group relative flex-shrink-0 w-24 aspect-video rounded-lg border overflow-hidden cursor-pointer transition-all ${
+          state.activeFrameIndex === i ? "border-indigo-500 bg-indigo-600/10 shadow-lg" : "border-white/10 bg-slate-900 hover:border-white/20"
+        }">
+          <div class="absolute inset-0 flex items-center justify-center text-[10px] font-mono font-bold text-slate-400 group-hover:text-white z-10">
+            Frame ${i + 1}
+          </div>
+          <!-- Tiny Layer Previews -->
+          <div class="absolute inset-0 flex flex-col gap-[2px] p-1 opacity-20">
+            <div class="h-1 bg-white/50 rounded"></div>
+            <div class="h-1 bg-white/50 rounded"></div>
+          </div>
+        </div>
+      `).join("");
+
+      const layers = ["Background", "Character", "Foreground"];
+      const layerOptions = layers.map(l => `
+        <button data-act="select-layer" data-name="${l}" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
+          state.activeLayerName === l ? "bg-indigo-600/20 border-indigo-500/50 text-white" : "bg-white/5 border-transparent text-slate-400 hover:bg-white/10"
+        }">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid ${
+              l === "Background" ? "fa-image" :
+              l === "Character" ? "fa-user-astronaut" : "fa-cloud-moon"
+            }"></i>
+            ${l}
+          </span>
+          ${state.activeLayerName === l ? `<i class="fa-solid fa-check text-indigo-400"></i>` : ""}
+        </button>
+      `).join("");
+
+      const tools = [
+        { id: "pen", label: "Pen", icon: "fa-pen" },
+        { id: "brush", label: "Brush", icon: "fa-brush" },
+        { id: "eraser", label: "Eraser", icon: "fa-eraser" },
+        { id: "line", label: "Line", icon: "fa-slash" },
+        { id: "rectangle", label: "Rectangle", icon: "fa-square-o" },
+        { id: "circle", label: "Circle", icon: "fa-circle-o" }
+      ];
+
+      return `
+        <div class="max-w-6xl mx-auto space-y-6">
+          <div class="flex items-center justify-between border-b border-white/5 pb-4">
+            <div>
+              <div class="text-[10px] font-black uppercase tracking-[0.35em] text-slate-500">Animation Suite</div>
+              <h2 class="text-3xl font-outfit font-extrabold text-white mt-1">Toon Creator Room</h2>
+            </div>
+            <button data-action="next" data-next="PREVIEW" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black tracking-widest text-[10px] uppercase shadow-lg shadow-indigo-600/20">
+              Next: Play & Export
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-[240px_1fr_220px] gap-6">
+            <!-- Left Panel: Drawing Palette -->
+            <div class="glass p-5 rounded-2xl space-y-5">
+              <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">Toolbox</div>
+              <div class="grid grid-cols-2 gap-2">
+                ${tools.map(t => `
+                  <button data-act="select-tool" data-tool="${t.id}" class="flex flex-col items-center gap-2 p-3 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all ${
+                    state.activeTool === t.id ? "bg-indigo-600/20 border-indigo-500 text-white" : "bg-white/5 border-transparent text-slate-400 hover:bg-white/10"
+                  }">
+                    <i class="fa-solid ${t.icon} text-base"></i>
+                    ${t.label}
+                  </button>
+                `).join("")}
+              </div>
+
+              <!-- Brush Presets -->
+              ${state.activeTool === "brush" ? `
+                <div class="space-y-2 pt-3 border-t border-white/5 animate-fadeIn">
+                  <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">Brush Shapes</div>
+                  <div class="grid grid-cols-3 gap-1">
+                    ${["round", "calligraphy", "spray"].map(s => `
+                      <button data-act="set-brush-shape" data-shape="${s}" class="py-1 rounded text-[8px] font-bold uppercase border transition-all ${
+                        state.brushShape === s ? "bg-white/10 border-white/30 text-white" : "bg-black/50 border-transparent text-slate-500 hover:text-slate-300"
+                      }">${s}</button>
+                    `).join("")}
+                  </div>
+                </div>
+              ` : ""}
+
+              <div class="space-y-4 pt-3 border-t border-white/5">
+                <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
+                  <span>Size</span>
+                  <span class="font-mono text-indigo-400">${state.brushSize}px</span>
+                </div>
+                <input id="brushSize" type="range" min="1" max="40" value="${state.brushSize}" class="w-full accent-indigo-500" />
+
+                <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
+                  <span>Opacity</span>
+                  <span class="font-mono text-indigo-400">${Math.round(state.brushOpacity * 100)}%</span>
+                </div>
+                <input id="brushOpacity" type="range" min="0.1" max="1" step="0.05" value="${state.brushOpacity}" class="w-full accent-indigo-500" />
+              </div>
+
+              <!-- Color Palette -->
+              <div class="space-y-3 pt-3 border-t border-white/5">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">Swatches</div>
+                <div class="grid grid-cols-6 gap-1.5">
+                  ${["#ffffff", "#ef4444", "#f97316", "#f59e0b", "#10b981", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#d946ef", "#000000", "#475569"].map(c => `
+                    <button data-act="set-brush-color" data-color="${c}" class="w-6 h-6 rounded-md border transition-all ${
+                      state.brushColor === c ? "border-white scale-110" : "border-white/10 hover:scale-105"
+                    }" style="background-color:${c}"></button>
+                  `).join("")}
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-[9px] uppercase font-bold text-slate-500">Custom:</span>
+                  <input id="colorPicker" type="color" value="${state.brushColor}" class="w-8 h-8 rounded border border-white/10 bg-transparent cursor-pointer" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Center Panel: The Stacked Canvas Draw Area -->
+            <div class="flex flex-col items-center gap-4">
+              <div class="relative w-full aspect-video bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                <!-- Onion skin canvas -->
+                <canvas id="onionCanvas" class="absolute inset-0 w-full h-full pointer-events-none opacity-20 z-0"></canvas>
+                <!-- Layers -->
+                <canvas id="layer-Background" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+                <canvas id="layer-Character" class="absolute inset-0 w-full h-full pointer-events-none z-20"></canvas>
+                <canvas id="layer-Foreground" class="absolute inset-0 w-full h-full pointer-events-none z-30"></canvas>
+                <!-- Interactive Draw Layer -->
+                <canvas id="drawCanvas" class="absolute inset-0 w-full h-full z-40 cursor-crosshair"></canvas>
+              </div>
+
+              <!-- Animation Frame Strips Timeline -->
+              <div class="w-full glass rounded-2xl p-4 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                  <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">Timeline</div>
+                  <div class="flex gap-2">
+                    <button data-action="add-frame" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold uppercase tracking-wider">＋ Frame</button>
+                    <button data-action="duplicate-frame" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold uppercase tracking-wider">⎗ Duplicate</button>
+                    <button data-action="delete-frame" class="px-3 py-1.5 rounded-lg bg-red-600/10 hover:bg-red-600/20 border border-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-wider">✕ Delete</button>
+                  </div>
+                </div>
+                <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                  ${frameOptions}
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Panel: Layers List -->
+            <div class="glass p-5 rounded-2xl space-y-5">
+              <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">Layers</div>
+              <div class="space-y-2">
+                ${layerOptions}
+              </div>
+
+              <div class="pt-4 border-t border-white/5 space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Onion Skin</span>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="onionSkinToggle" type="checkbox" ${state.onionSkinOn ? "checked" : ""} class="sr-only peer" />
+                    <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                  </label>
+                </div>
+                <p class="text-[10px] text-slate-500 leading-snug">Displays the previous frame in transparency underneath your active workspace.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (state.step === "PREVIEW") {
+      const list = project.storyboard.map((s, i) => `
+        <div class="p-4 rounded-xl border border-white/5 bg-slate-900/40 text-xs">
+          <div class="flex justify-between font-bold text-slate-300">
+            <span>Scene ${i+1}: ${escapeHtml(s.title)}</span>
+            <span class="text-[9px] uppercase tracking-wider text-indigo-400">Storyboard Ref</span>
+          </div>
+          <div class="text-slate-500 mt-1 font-mono">${escapeHtml(s.visual)}</div>
+        </div>
+      `).join("");
+
+      return `
+        <div class="max-w-5xl mx-auto space-y-6">
+          <div class="flex items-center justify-between border-b border-white/5 pb-4">
+            <div>
+              <div class="text-[10px] font-black uppercase tracking-[0.35em] text-slate-500">Preview Engine</div>
+              <h2 class="text-3xl font-outfit font-extrabold text-white mt-1">Studio Screening Room</h2>
+            </div>
+            <button data-action="export" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black tracking-widest text-[10px] uppercase shadow-lg shadow-indigo-600/20">
+              Export Project
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+            <div class="flex flex-col items-center gap-4">
+              <div class="w-full aspect-video bg-black border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
+                <canvas id="previewCanvas" class="w-full h-full"></canvas>
+              </div>
+
+              <!-- Playback Control Center -->
+              <div class="w-full glass rounded-2xl p-5 flex items-center justify-between gap-6">
+                <div class="flex items-center gap-4">
+                  <button data-act="play" class="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-lg transition-transform active:scale-95">
+                    <i class="fa-solid fa-play text-lg pl-1"></i>
+                  </button>
+                  <button data-act="pause" class="w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center transition-transform active:scale-95">
+                    <i class="fa-solid fa-pause text-lg"></i>
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-4 flex-grow max-w-xs">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Speed</span>
+                  <input id="fpsRange" type="range" min="1" max="15" value="${state.playbackFps}" class="w-full accent-indigo-500" />
+                  <span class="font-mono text-xs text-indigo-400 w-12">${state.playbackFps} FPS</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Script / Concept reference -->
+            <div class="glass p-5 rounded-2xl space-y-5 h-fit">
+              <div>
+                <div class="text-[10px] font-black uppercase tracking-widest text-indigo-400">Concept Pitch</div>
+                <p class="text-sm text-slate-300 mt-2 font-light leading-relaxed">"${escapeHtml(project.concept)}"</p>
+              </div>
+
+              <div class="pt-4 border-t border-white/5 space-y-3">
+                <div class="text-[10px] font-black uppercase tracking-widest text-slate-500">Storyboard Beats</div>
+                <div class="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar">
+                  ${list || `<div class="text-slate-500">No scene outlines found.</div>`}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="max-w-4xl mx-auto py-16 text-center space-y-6">
         <div class="text-[10px] font-black uppercase tracking-[0.35em] text-slate-500">Stage</div>
@@ -522,10 +1091,14 @@ async function serverLoadLatest() {
     `;
   }
 
-  function appEvents() {
-    // Main click handlers
+  let globalEventsBound = false;
+  function initOnce() {
+    if (globalEventsBound) return;
+    globalEventsBound = true;
+
+    // Click listeners
     document.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-action], [data-step]");
+      const btn = e.target.closest("[data-action], [data-step], [data-act]");
       if (!btn) return;
 
       const step = btn.getAttribute("data-step");
@@ -535,43 +1108,99 @@ async function serverLoadLatest() {
       }
 
       const action = btn.getAttribute("data-action");
-      if (!action) return;
-
-      if (action === "go-setup") return setStep("SETUP");
-      if (action === "open-setup") return openSetup();
-      if (action === "close-setup") return closeSetup();
-      if (action === "save-key") return saveKey();
-      if (action === "clear-error") return setError("");
-      if (action === "reset") return resetProject();
-      if (action === "demo") return demo();
-      if (action === "architect") return generateScriptSuggestion();
-      if (action === "export") return exportProject();
-      if (action === "next") {
-        const nxt = btn.getAttribute("data-next");
-        if (nxt) setStep(nxt);
-        return;
-      }
-      if (action === "set-style") {
-        const s = btn.getAttribute("data-style");
-        if (s) {
-          state.project.style = s;
-          saveProject();
-          render();
+      if (action) {
+        if (action === "go-setup") return setStep("SETUP");
+        if (action === "open-setup") return openSetup();
+        if (action === "close-setup") return closeSetup();
+        if (action === "save-key") return saveKey();
+        if (action === "clear-error") return setError("");
+        if (action === "reset") return resetProject();
+        if (action === "demo") return demo();
+        if (action === "architect") return generateScriptSuggestion();
+        if (action === "export") return exportProject();
+        if (action === "add-frame") return addFrame();
+        if (action === "duplicate-frame") return duplicateFrame();
+        if (action === "delete-frame") return deleteFrame();
+        if (action === "next") {
+          const nxt = btn.getAttribute("data-next");
+          if (nxt) setStep(nxt);
+          return;
         }
-        return;
+        if (action === "set-style") {
+          const s = btn.getAttribute("data-style");
+          if (s) {
+            state.project.style = s;
+            saveProject();
+            render();
+          }
+          return;
+        }
       }
-    }, { passive: true });
 
-    // textarea persistence
+      const act = btn.getAttribute("data-act");
+      if (act) {
+        if (act === "close-setup") return closeSetup();
+        if (act === "select-frame") {
+          const idx = parseInt(btn.getAttribute("data-index"));
+          if (!isNaN(idx)) {
+            state.activeFrameIndex = idx;
+            render();
+          }
+        }
+        if (act === "select-layer") {
+          const name = btn.getAttribute("data-name");
+          if (name) {
+            state.activeLayerName = name;
+            render();
+          }
+        }
+        if (act === "select-tool") {
+          const tool = btn.getAttribute("data-tool");
+          if (tool) {
+            state.activeTool = tool;
+            render();
+          }
+        }
+        if (act === "set-brush-shape") {
+          const shape = btn.getAttribute("data-shape");
+          if (shape) {
+            state.brushShape = shape;
+            render();
+          }
+        }
+        if (act === "set-brush-color") {
+          const color = btn.getAttribute("data-color");
+          if (color) {
+            state.brushColor = color;
+            render();
+          }
+        }
+        if (act === "play") {
+          playPreview();
+        }
+        if (act === "pause") {
+          stopPreview();
+        }
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeSetup();
+    });
+  }
+
+  function appEvents() {
+    initOnce();
+
+    // Inputs selectors
     const ta = $("#ts-concept");
     if (ta) {
       ta.addEventListener("input", () => {
         state.project.concept = ta.value;
         saveProject();
-      }, { passive: true });
+      });
     }
 
-    // import
     const file = $("#ts-import");
     if (file) {
       file.addEventListener("change", async () => {
@@ -581,10 +1210,59 @@ async function serverLoadLatest() {
       });
     }
 
-    // setup modal close on escape
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeSetup();
-    });
+    const brushSize = $("#brushSize");
+    if (brushSize) {
+      brushSize.addEventListener("input", (e) => {
+        state.brushSize = parseInt(e.target.value);
+        const valSpan = brushSize.previousElementSibling.lastElementChild;
+        if (valSpan) valSpan.textContent = `${state.brushSize}px`;
+      });
+      brushSize.addEventListener("change", () => {
+        render(); // redraw/sync palette values
+      });
+    }
+
+    const brushOpacity = $("#brushOpacity");
+    if (brushOpacity) {
+      brushOpacity.addEventListener("input", (e) => {
+        state.brushOpacity = parseFloat(e.target.value);
+        const valSpan = brushOpacity.previousElementSibling.lastElementChild;
+        if (valSpan) valSpan.textContent = `${Math.round(state.brushOpacity * 100)}%`;
+      });
+      brushOpacity.addEventListener("change", () => {
+        render();
+      });
+    }
+
+    const colorPicker = $("#colorPicker");
+    if (colorPicker) {
+      colorPicker.addEventListener("input", (e) => {
+        state.brushColor = e.target.value;
+      });
+      colorPicker.addEventListener("change", () => {
+        render();
+      });
+    }
+
+    const onionSkinToggle = $("#onionSkinToggle");
+    if (onionSkinToggle) {
+      onionSkinToggle.addEventListener("change", (e) => {
+        state.onionSkinOn = e.target.checked;
+        render();
+      });
+    }
+
+    const fpsRange = $("#fpsRange");
+    if (fpsRange) {
+      fpsRange.addEventListener("input", (e) => {
+        state.playbackFps = parseInt(e.target.value);
+        const fpsSpan = fpsRange.nextElementSibling;
+        if (fpsSpan) fpsSpan.textContent = `${state.playbackFps} FPS`;
+        if (isPlayingPreview) {
+          playPreview(); // speed up / slow down loop
+        }
+      });
+    }
   }
 
   function escapeHtml(s) {
@@ -596,9 +1274,7 @@ async function serverLoadLatest() {
       .replaceAll("'", "&#039;");
   }
 
-  // Initial render
+  // Initial load
   render();
-if ((state.apiKey || '').trim()) serverLoadLatest();
-
-  // Show setup if key absent and user tries to use key-required flows (handled by UI)
+  if ((state.apiKey || '').trim()) serverLoadLatest();
 })();

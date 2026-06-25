@@ -1,63 +1,73 @@
 /* Oracle Pit — Vanilla Static Conversion
    Notes: This file intentionally contains no imports/bundler assumptions.
+   Upgraded to Council Analytics Edition with dynamic tension charts, live sentiment indicators, and avatar customization.
 */
 (function() {
 
-    const KEY_STORE = "oracle_pit_api_key";
-const AGENTS = [
-  {
-    "id": "INVESTOR",
-    "name": "Chadwick Sterling",
-    "role": "Ruthless VC Investor",
-    "color": "emerald-400",
-    "voice": "Kore",
-    "avatar": "📈",
-    "description": "Calculates everything in terms of ROI and market volatility. Zero empathy for emotional arguments."
-  },
-  {
-    "id": "ARTIST",
-    "name": "Luna Void",
-    "role": "Chaotic Neo-Expressionist",
-    "color": "pink-500",
-    "voice": "Puck",
-    "avatar": "🎨",
-    "description": "Values soul, suffering, and the aesthetic beauty of burning bridges. Thinks money is a cage."
-  },
-  {
-    "id": "CONSPIRACIST",
-    "name": "Agent X-44",
-    "role": "Paranoid Whistleblower",
-    "color": "orange-500",
-    "voice": "Charon",
-    "avatar": "🛸",
-    "description": "Sees surveillance, government agendas, and digital simulation traps in every decision."
-  },
-  {
-    "id": "PHILOSOPHER",
-    "name": "Aurelius 2.0",
-    "role": "Stoic Digital Ancient",
-    "color": "blue-400",
-    "voice": "Fenrir",
-    "avatar": "🏛️",
-    "description": "Asks \"What is the nature of the self?\" and uses metaphors about rivers, stars, and entropy."
-  },
-  {
-    "id": "HYPEBRO",
-    "name": "Zack \"Moon\" King",
-    "role": "Web3 Hype Architect",
-    "color": "yellow-400",
-    "voice": "Zephyr",
-    "avatar": "🚀",
-    "description": "LFG! Everything is a massive play. Focuses on vibes, momentum, and missing the moon."
-  }
-];
+  const KEY_STORE = "oracle_pit_api_key";
+  const AGENTS = [
+    {
+      "id": "INVESTOR",
+      "name": "Chadwick Sterling",
+      "role": "Ruthless VC Investor",
+      "color": "emerald-400",
+      "voice": "Kore",
+      "avatar": "📈",
+      "description": "Calculates everything in terms of ROI and market volatility. Zero empathy for emotional arguments."
+    },
+    {
+      "id": "ARTIST",
+      "name": "Luna Void",
+      "role": "Chaotic Neo-Expressionist",
+      "color": "pink-500",
+      "voice": "Puck",
+      "avatar": "🎨",
+      "description": "Values soul, suffering, and the aesthetic beauty of burning bridges. Thinks money is a cage."
+    },
+    {
+      "id": "CONSPIRACIST",
+      "name": "Agent X-44",
+      "role": "Paranoid Whistleblower",
+      "color": "orange-500",
+      "voice": "Charon",
+      "avatar": "🛸",
+      "description": "Sees surveillance, government agendas, and digital simulation traps in every decision."
+    },
+    {
+      "id": "PHILOSOPHER",
+      "name": "Aurelius 2.0",
+      "role": "Stoic Digital Ancient",
+      "color": "blue-400",
+      "voice": "Fenrir",
+      "avatar": "🏛️",
+      "description": "Asks \"What is the nature of the self?\" and uses metaphors about rivers, stars, and entropy."
+    },
+    {
+      "id": "HYPEBRO",
+      "name": "Zack \"Moon\" King",
+      "role": "Web3 Hype Architect",
+      "color": "yellow-400",
+      "voice": "Zephyr",
+      "avatar": "🚀",
+      "description": "LFG! Everything is a massive play. Focuses on vibes, momentum, and missing the moon."
+    }
+  ];
+
+  const AVATAR_PRESETS = {
+    INVESTOR: ["📈", "💼", "💎", "⚖️", "🤖"],
+    ARTIST: ["🎨", "🎭", "🌀", "🕯️", "🖤"],
+    CONSPIRACIST: ["🛸", "🕵️", "🕶️", "👁️", "💾"],
+    PHILOSOPHER: ["🏛️", "📜", "🦉", "⏳", "🧘"],
+    HYPEBRO: ["🚀", "🔥", "🤑", "🧢", "🏄"]
+  };
+
   const SAMPLE_DILEMMAS = [
-  "Quit my job to build my AI portfolio full-time or keep stability for 6 more months?",
-  "Ship the demo now or wait until the backend + live mode is perfect?",
-  "Take a lower-paying role with mentorship or hold out for a bigger title + salary?",
-  "Refactor a working app for cleanliness or keep shipping features?",
-  "Should I niche down to one killer product, or build a constellation of smaller apps?"
-];
+    "Quit my job to build my AI portfolio full-time or keep stability for 6 more months?",
+    "Ship the demo now or wait until the backend + live mode is perfect?",
+    "Take a lower-paying role with mentorship or hold out for a bigger title + salary?",
+    "Refactor a working app for cleanliness or keep shipping features?",
+    "Should I niche down to one killer product, or build a constellation of smaller apps?"
+  ];
 
   const el = (sel) => document.querySelector(sel);
   const root = () => el("#root");
@@ -68,9 +78,10 @@ const AGENTS = [
     isDebating: false,
     isLive: false,
     tension: 42,
+    tensionHistory: [42],
     activeAgentId: null,
     expandedAgentId: null,
-    history: [], // {agentId, agentName, text, ts}
+    history: [], // {agentId, agentName, text, sentiment, ts}
     verdict: null, // {summary, voteResults}
     manualVotes: {},
     agentSettings: {},
@@ -82,72 +93,67 @@ const AGENTS = [
     apiKeyError: null,
   };
 
-// ------------------------- Backend Sync (optional) -------------------------
-// Uses Netlify Functions via /api/* redirect. Silent fallback if offline/unconfigured.
-const SERVER = { saveUrl: "/api/oracle-save" };
-let _syncTimer = null;
+  // ------------------------- Backend Sync (optional) -------------------------
+  const APPDATA_APP = "oracle-pit";
+  let _syncTimer = null;
 
-function buildServerPayload() {
-  return {
-    kind: "oracle_pit_state_v1",
-    ts: Date.now(),
-    dilemma: state.dilemma,
-    tension: state.tension,
-    history: state.history,
-    verdict: state.verdict,
-    manualVotes: state.manualVotes,
-    agentSettings: state.agentSettings,
-  };
-}
+  function buildServerPayload() {
+    return {
+      kind: "oracle_pit_state_v1",
+      ts: Date.now(),
+      dilemma: state.dilemma,
+      tension: state.tension,
+      tensionHistory: state.tensionHistory,
+      history: state.history,
+      verdict: state.verdict,
+      manualVotes: state.manualVotes,
+      agentSettings: state.agentSettings,
+    };
+  }
 
-async function serverSaveNow() {
-  const clientId = (state.apiKey || "").trim();
-  if (!clientId) return;
-  try {
-    await fetch(SERVER.saveUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ client_id: clientId, payload: buildServerPayload() }),
-    });
-  } catch (_) {}
-}
+  async function serverSaveNow() {
+    const clientId = (state.apiKey || "").trim();
+    if (!clientId) return;
+    try {
+      await window.NexusAppData?.save?.(APPDATA_APP, buildServerPayload(), { clientId });
+    } catch (_) {}
+  }
 
-function scheduleServerSync() {
-  const clientId = (state.apiKey || "").trim();
-  if (!clientId) return;
-  clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(() => { serverSaveNow(); }, 900);
-}
+  function scheduleServerSync() {
+    const clientId = (state.apiKey || "").trim();
+    if (!clientId) return;
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(() => { serverSaveNow(); }, 900);
+  }
 
-async function serverLoadLatest() {
-  const clientId = (state.apiKey || "").trim();
-  if (!clientId) return;
-  try {
-    const res = await fetch(`${SERVER.saveUrl}?client_id=${encodeURIComponent(clientId)}&limit=1`, { method: "GET" });
-    if (!res.ok) return;
-    const data = await res.json().catch(() => null);
-    const p = data?.items?.[0]?.payload;
-    if (!p || typeof p !== "object") return;
+  async function serverLoadLatest() {
+    const clientId = (state.apiKey || "").trim();
+    if (!clientId) return;
+    try {
+      const data = await window.NexusAppData?.loadLatest?.(APPDATA_APP, { clientId });
+      const p = data?.payload;
+      if (!p || typeof p !== "object") return;
 
-    state.dilemma = p.dilemma ?? state.dilemma;
-    state.tension = typeof p.tension === "number" ? p.tension : state.tension;
-    state.history = Array.isArray(p.history) ? p.history : state.history;
-    state.verdict = p.verdict ?? state.verdict;
-    state.manualVotes = p.manualVotes || state.manualVotes;
-    state.agentSettings = p.agentSettings || state.agentSettings;
+      state.dilemma = p.dilemma ?? state.dilemma;
+      state.tension = typeof p.tension === "number" ? p.tension : state.tension;
+      state.tensionHistory = Array.isArray(p.tensionHistory) ? p.tensionHistory : [42];
+      state.history = Array.isArray(p.history) ? p.history : state.history;
+      state.verdict = p.verdict ?? state.verdict;
+      state.manualVotes = p.manualVotes || state.manualVotes;
+      state.agentSettings = p.agentSettings || state.agentSettings;
 
-    save();
-    render();
-  } catch (_) {}
-}
-
+      save();
+      render();
+    } catch (_) {}
+  }
 
   function initAgentSettings() {
     AGENTS.forEach(a => {
       state.agentSettings[a.id] = state.agentSettings[a.id] || {
         voice: a.voice || "Kore",
         speed: 1.0,
-        mode: "pro"
+        mode: "pro",
+        avatar: a.avatar
       };
     });
   }
@@ -179,6 +185,7 @@ async function serverLoadLatest() {
       return "";
     }
   }
+
   function saveApiKey(k) {
     const key = String(k || "").trim();
     state.apiKeyError = null;
@@ -202,12 +209,12 @@ async function serverLoadLatest() {
     }
   }
 
-
   function save() {
     try {
       const payload = {
         dilemma: state.dilemma,
         tension: state.tension,
+        tensionHistory: state.tensionHistory,
         history: state.history,
         verdict: state.verdict,
         manualVotes: state.manualVotes,
@@ -215,10 +222,9 @@ async function serverLoadLatest() {
       };
       localStorage.setItem(storeKey, JSON.stringify(payload));
       scheduleServerSync();
-    } catch (e) {
-      if (DEBUG) console.warn("[OraclePit] save failed", e);
-    }
+    } catch (e) {}
   }
+
   function load() {
     loadApiKey();
     try {
@@ -227,17 +233,16 @@ async function serverLoadLatest() {
       const d = JSON.parse(raw);
       state.dilemma = d.dilemma || "";
       state.tension = typeof d.tension === "number" ? d.tension : 42;
+      state.tensionHistory = Array.isArray(d.tensionHistory) ? d.tensionHistory : [42];
       state.history = Array.isArray(d.history) ? d.history : [];
       state.verdict = d.verdict || null;
       state.manualVotes = d.manualVotes || {};
       state.agentSettings = d.agentSettings || state.agentSettings;
     } catch (e) {
-      if (DEBUG) console.warn("[OraclePit] load failed", e);
     } finally {
       serverLoadLatest();
     }
   }
-
 
   function clamp(n,min,max) { return Math.max(min, Math.min(max, n)); }
 
@@ -260,6 +265,7 @@ async function serverLoadLatest() {
       data: {
         dilemma: state.dilemma,
         tension: state.tension,
+        tensionHistory: state.tensionHistory,
         history: state.history,
         verdict: state.verdict,
         manualVotes: state.manualVotes,
@@ -282,6 +288,7 @@ async function serverLoadLatest() {
         const d = parsed.data || parsed;
         state.dilemma = d.dilemma || "";
         state.tension = typeof d.tension === "number" ? d.tension : 42;
+        state.tensionHistory = Array.isArray(d.tensionHistory) ? d.tensionHistory : [42];
         state.history = Array.isArray(d.history) ? d.history : [];
         state.verdict = d.verdict || null;
         state.manualVotes = d.manualVotes || {};
@@ -298,41 +305,41 @@ async function serverLoadLatest() {
 
   function mkTurn(agent, dilemma) {
     const seed = (dilemma + agent.id).split("").reduce((a,c)=>a + c.charCodeAt(0), 0);
-    const r = seed % 5;
+    const r = seed % 4;
     const lines = {
       INVESTOR: [
-        "ROI first: take the path that compounds optionality.",
-        "Ship now. Momentum is leverage. Perfect is expensive.",
-        "Stability is runway. Six months buys better positioning.",
-        "If it doesn't monetize or unlock distribution, it’s a hobby."
+        { text: "ROI first: take the path that compounds optionality.", sentiment: "Pragmatic" },
+        { text: "Ship now. Momentum is leverage. Perfect is expensive.", sentiment: "Aggressive" },
+        { text: "Stability is runway. Six months buys better positioning.", sentiment: "Analytical" },
+        { text: "If it doesn't monetize or unlock distribution, it’s a hobby.", sentiment: "Objective" }
       ],
       ARTIST: [
-        "Burn the map. Choose the thing that feels alive.",
-        "Perfection is fear in a tuxedo. Release it.",
-        "Take the weird path. The story matters more than the salary.",
-        "Comfort is a cage. Rip a hole in it."
+        { text: "Burn the map. Choose the thing that feels alive.", sentiment: "Inspired" },
+        { text: "Perfection is fear in a tuxedo. Release it.", sentiment: "Aesthetic" },
+        { text: "Take the weird path. The story matters more than the salary.", sentiment: "Idealistic" },
+        { text: "Comfort is a cage. Rip a hole in it.", sentiment: "Rebellious" }
       ],
       CONSPIRACIST: [
-        "Ask who benefits. Then assume it’s worse than you think.",
-        "If the choice feels forced, it’s engineered.",
-        "The safest option is usually the trap with better branding.",
-        "Follow the incentives. They never lie."
+        { text: "Ask who benefits. Then assume it’s worse than you think.", sentiment: "Paranoid" },
+        { text: "If the choice feels forced, it’s engineered.", sentiment: "Distrustful" },
+        { text: "The safest option is usually the trap with better branding.", sentiment: "Skeptical" },
+        { text: "Follow the incentives. They never lie.", sentiment: "Suspicious" }
       ],
-      ENGINEER: [
-        "Define constraints, ship an MVP, and iterate with metrics.",
-        "Reduce risk: stage it. Partial refactor, not a rewrite.",
-        "Make it runnable as-shipped. Then optimize.",
-        "Failure modes first. Then the pretty."
+      PHILOSOPHER: [
+        { text: "Choose what you can live with at 3am.", sentiment: "Existential" },
+        { text: "Your values are the backend. Keep them online.", sentiment: "Stoic" },
+        { text: "The cleanest choice is the one that reduces harm.", sentiment: "Ethical" },
+        { text: "Listen to the quiet yes.", sentiment: "Zen" }
       ],
-      PRIEST: [
-        "Choose what you can live with at 3am.",
-        "Your values are the backend. Keep them online.",
-        "The cleanest choice is the one that reduces harm.",
-        "Listen to the quiet yes."
+      HYPEBRO: [
+        { text: "LFG! Everything is a massive play. Focuses on vibes and momentum.", sentiment: "Bullish" },
+        { text: "Vibes are the ultimate utility. Don't build boring stuff.", sentiment: "Hype" },
+        { text: "FOMO is a feature. Do the thing that gets the chat moving.", sentiment: "FOMO" },
+        { text: "We need momentum! Ship it, pump the hype, adjust later.", sentiment: "Ecstatic" }
       ]
     };
-    const bucket = lines[agent.id] || ["State your dilemma. The Council will decide."];
-    return bucket[r % bucket.length] + " — " + agent.role + ".";
+    const bucket = lines[agent.id] || [{ text: "State your dilemma. The Council will decide.", sentiment: "Neutral" }];
+    return bucket[r % bucket.length];
   }
 
   function generateVerdict() {
@@ -367,19 +374,34 @@ async function serverLoadLatest() {
     state.isDebating = true;
     state.verdict = null;
     state.history = [];
+    state.tensionHistory = [state.tension];
     state.activeAgentId = null;
     save();
     render();
+
+    const tensionDeltas = {
+      INVESTOR: 5,
+      ARTIST: 10,
+      CONSPIRACIST: 15,
+      PHILOSOPHER: -8,
+      HYPEBRO: 12
+    };
 
     let i = 0;
     const step = () => {
       const agent = AGENTS[i];
       state.activeAgentId = agent.id;
-      state.tension = clamp(state.tension + 7, 0, 100);
+      
+      const delta = tensionDeltas[agent.id] || 5;
+      state.tension = clamp(state.tension + delta, 0, 100);
+      state.tensionHistory.push(state.tension);
+
+      const turn = mkTurn(agent, d);
       state.history.push({
         agentId: agent.id,
         agentName: agent.name,
-        text: mkTurn(agent, d),
+        text: turn.text,
+        sentiment: turn.sentiment,
         ts: Date.now()
       });
       save();
@@ -390,18 +412,19 @@ async function serverLoadLatest() {
 
       i++;
       if (i < AGENTS.length) {
-        setTimeout(step, 650);
+        setTimeout(step, 900);
       } else {
         setTimeout(() => {
           generateVerdict();
           state.isDebating = false;
           state.activeAgentId = null;
           state.tension = clamp(state.tension + 5, 0, 100);
+          state.tensionHistory.push(state.tension);
           save();
           render();
           const sc2 = el("#opScroll");
           if (sc2) sc2.scrollTop = sc2.scrollHeight;
-        }, 700);
+        }, 800);
       }
     };
     setTimeout(step, 300);
@@ -419,7 +442,7 @@ async function serverLoadLatest() {
   }
 
   function updateSetting(agentId, key, value) {
-    if (!state.agentSettings[agentId]) state.agentSettings[agentId]={voice:"Kore", speed:1, mode:"pro"};
+    if (!state.agentSettings[agentId]) state.agentSettings[agentId]={voice:"Kore", speed:1, mode:"pro", avatar:""};
     state.agentSettings[agentId][key]=value;
     save();
     render();
@@ -434,8 +457,9 @@ async function serverLoadLatest() {
       const isActive = state.activeAgentId===a.id;
       const isExpanded = state.expandedAgentId===a.id;
       const vote = state.manualVotes[a.id] || (state.verdict && state.verdict.voteResults && state.verdict.voteResults[a.id]) || null;
-      const settings = state.agentSettings[a.id] || {voice:a.voice||"Kore", speed:1, mode:"pro"};
+      const settings = state.agentSettings[a.id] || {voice:a.voice||"Kore", speed:1, mode:"pro", avatar:a.avatar};
       const scale = isActive ? 1.15 : 1;
+      const displayAvatar = settings.avatar || a.avatar;
       return `
         <div style="transform: scale(${scale}); transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)">
           <div class="flex flex-col items-center gap-3 transition-all duration-500 ${isExpanded ? 'glass p-4 rounded-3xl border-gray-700/50 -translate-y-2' : ''}">
@@ -445,7 +469,7 @@ async function serverLoadLatest() {
                 border-[2px] transition-all duration-700 bg-gray-950 relative overflow-visible
                 ${isActive ? 'opacity-100 scale-100 pulse-active breathing' : 'opacity-40 grayscale-[40%] scale-90 hover:opacity-100 hover:scale-100 hover:grayscale-0'}
               ">
-                <span class="relative z-10 drop-shadow-2xl">${a.avatar}</span>
+                <span class="relative z-10 drop-shadow-2xl">${displayAvatar}</span>
                 ${vote ? `
                   <div class="absolute -top-1 -right-1 px-2.5 py-1 rounded-lg text-[9px] font-black border shadow-2xl z-20 ${
                     vote === 'YES' ? 'bg-emerald-500 text-black border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.5)]' :
@@ -469,7 +493,21 @@ async function serverLoadLatest() {
 
             <div class="overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] w-full ${isExpanded ? 'max-h-[500px] opacity-100 mt-4' : 'max-h-0 opacity-0'}">
               <div class="flex flex-col gap-4 px-2 pb-4">
+                <!-- Avatar Selectors -->
                 <div class="space-y-2">
+                  <label class="text-[8px] text-gray-500 uppercase font-mono tracking-widest block px-1">Avatar Preset</label>
+                  <div class="grid grid-cols-5 gap-1">
+                    ${(AVATAR_PRESETS[a.id] || []).map(p=>`
+                      <button data-act="set-avatar" data-id="${a.id}" data-avatar="${p}"
+                        class="p-1 text-sm rounded-lg border transition-all ${
+                          displayAvatar===p ? 'bg-cyan-500/20 border-cyan-500 text-white'
+                                           : 'bg-black/50 border-gray-800 text-gray-500 hover:border-gray-600 hover:text-gray-300'
+                        }">${p}</button>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <div class="space-y-2 pt-2 border-t border-gray-800/50">
                   <label class="text-[8px] text-gray-500 uppercase font-mono tracking-widest block px-1">Synapse Logic</label>
                   <div class="grid grid-cols-3 gap-1">
                     ${['flash','pro','lite'].map(m=>`
@@ -536,14 +574,18 @@ async function serverLoadLatest() {
     }
     return state.history.map(h => {
       const agent = AGENTS.find(a=>a.id===h.agentId);
+      const displayAvatar = agent ? (state.agentSettings[agent.id]?.avatar || agent.avatar) : "?";
       return `
         <div class="animate-in slide-in-from-bottom-2 duration-500">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center">${agent ? agent.avatar : "?"}</div>
+              <div class="w-9 h-9 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-center text-lg">${displayAvatar}</div>
               <div>
                 <div class="text-[10px] font-sync uppercase tracking-widest text-gray-200">${esc(h.agentName)}</div>
-                <div class="text-[9px] font-mono uppercase tracking-[0.3em] text-gray-600">${esc(agent ? agent.role : "")}</div>
+                <div class="text-[9px] font-mono uppercase tracking-[0.3em] text-gray-600">
+                  ${esc(agent ? agent.role : "")}
+                  ${h.sentiment ? ` • <span class="text-cyan-400 font-bold">${esc(h.sentiment)}</span>` : ""}
+                </div>
               </div>
             </div>
             <div class="text-[9px] font-mono text-gray-700">${new Date(h.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
@@ -623,6 +665,67 @@ async function serverLoadLatest() {
     `;
   }
 
+  function drawTensionChart() {
+    const canvas = document.getElementById("tensionCanvas");
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width;
+    const H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const points = state.tensionHistory || [42];
+    if (points.length === 0) return;
+
+    ctx.strokeStyle = state.tension > 75 ? "#f43f5e" : "#22d3ee";
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = ctx.strokeStyle;
+
+    const padding = 16;
+    const chartW = W - padding * 2;
+    const chartH = H - padding * 2;
+
+    ctx.beginPath();
+    for (let i = 0; i < points.length; i++) {
+      const x = padding + (points.length > 1 ? (i / (points.length - 1)) * chartW : chartW / 2);
+      const y = H - padding - (points[i] / 100) * chartH;
+
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    for (let i = 0; i < points.length; i++) {
+      const x = padding + (points.length > 1 ? (i / (points.length - 1)) * chartW : chartW / 2);
+      const y = H - padding - (points[i] / 100) * chartH;
+
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (i === points.length - 1) {
+        ctx.strokeStyle = "rgba(255,255,255,0.8)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+  }
+
   function render() {
     initAgentSettings();
     const setupModal = state.showSetup ? `
@@ -636,8 +739,8 @@ async function serverLoadLatest() {
           <div class="p-6 md:p-8 space-y-5">
             <div class="text-lg md:text-xl font-sync uppercase tracking-tight glow-cyan">How Oracle Pit Works</div>
             <div class="text-sm text-gray-300 leading-relaxed">
-              Paste a dilemma, hit <span class="text-cyan-300 font-mono">DEBATE</span>, and the Council generates 5 perspectives + a verdict.
-              Expand any agent to override their stance/voice and re-run.
+              Inject a dilemma, hit <span class="text-cyan-300 font-mono">DEBATE</span>, and the Council generates 5 perspectives + a verdict.
+              Expand any agent to override their stance/voice/avatar and re-run.
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -670,7 +773,7 @@ async function serverLoadLatest() {
                 </div>
                 ${state.apiKeyError ? `<div class="mt-2 text-[11px] text-pink-300">${escapeHTML(state.apiKeyError)}</div>` : ``}
               </div>
-<div class="rounded-2xl border border-white/10 bg-black/30 p-4">
+              <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
                 <div class="text-[10px] font-mono uppercase tracking-widest text-gray-400">Pro Move</div>
                 <div class="mt-2 text-[12px] text-gray-300">Try a <span class="text-gray-100 font-mono">SAMPLE</span> first to see the vibe, then drop your real dilemma.</div>
               </div>
@@ -717,6 +820,7 @@ async function serverLoadLatest() {
         </div>
 
         <div class="w-full max-w-5xl glass rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden flex flex-col relative">
+          <!-- Header -->
           <div class="bg-black/40 border-b border-white/5 p-4 flex justify-between items-center px-8">
             <div class="flex gap-2">
               <div class="w-2.5 h-2.5 rounded-full bg-rose-500/30"></div>
@@ -726,9 +830,41 @@ async function serverLoadLatest() {
             <div class="text-[10px] font-mono text-cyan-500/50">SECURE_LINK: ${Math.random().toString(16).slice(2,10)}</div>
           </div>
 
-          <div id="opScroll" class="h-[550px] overflow-y-auto p-8 md:p-12 space-y-8 no-scrollbar scroll-smooth">
-            ${renderHistory()}
-            ${renderVerdict()}
+          <!-- Main Split Area -->
+          <div class="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-white/5">
+            <!-- Scrollable Log -->
+            <div id="opScroll" class="flex-grow h-[500px] overflow-y-auto p-6 md:p-8 space-y-6 no-scrollbar scroll-smooth">
+              ${renderHistory()}
+              ${renderVerdict()}
+            </div>
+            
+            <!-- Real-time Chart Sidebar -->
+            <div class="w-full lg:w-[240px] p-6 bg-black/20 flex flex-col gap-6">
+              <div class="space-y-1">
+                <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest">Tension Index</div>
+                <div class="text-xl font-sync font-bold uppercase ${state.tension > 75 ? 'text-rose-500 text-glow-rose' : 'text-cyan-400 text-glow-cyan'}">${Math.floor(state.tension)}%</div>
+              </div>
+              
+              <div class="flex-grow flex items-center justify-center bg-black/40 border border-white/5 rounded-2xl p-2 relative h-[180px]">
+                <canvas id="tensionCanvas" class="w-full h-full"></canvas>
+              </div>
+              
+              <div class="space-y-3 text-[10px] font-mono">
+                <div class="text-[9px] font-mono text-gray-500 uppercase tracking-widest border-b border-white/5 pb-1">Council State</div>
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Log Entries:</span>
+                  <span class="text-gray-300 font-bold">${state.history.length}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Verdict:</span>
+                  <span class="text-gray-300 font-bold">${state.verdict ? "DECIDED" : state.isDebating ? "DEBATING" : "PENDING"}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-500">Tension delta:</span>
+                  <span class="font-bold ${state.tension - (state.tensionHistory[0] || 42) >= 0 ? 'text-rose-400' : 'text-emerald-400'}">${(state.tension - (state.tensionHistory[0] || 42) >= 0 ? '+' : '') + (state.tension - (state.tensionHistory[0] || 42)) + '%'}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -777,13 +913,18 @@ async function serverLoadLatest() {
         if (act==="mode") updateSetting(t.getAttribute("data-id"), "mode", t.getAttribute("data-mode"));
         if (act==="sample") { state.dilemma = t.getAttribute("data-sample"); save(); render(); }
         if (act==="closeSetup") { state.showSetup = false; render(); }
-
+        if (act==="set-avatar") {
+          const id = t.getAttribute("data-id");
+          const avatar = t.getAttribute("data-avatar");
+          if (id && avatar) {
+            updateSetting(id, "avatar", avatar);
+          }
+        }
         if (act==="saveKey") {
           const inp = document.querySelector("input[data-act='apikey']");
           const val = inp ? inp.value : "";
           saveApiKey(val);
-          toast("Key saved locally.");
-          render();
+          setToast("Key saved locally.");
         }
       });
     });
@@ -805,9 +946,8 @@ async function serverLoadLatest() {
     const setupBtn = el("#opHow");
     if (setupBtn) setupBtn.addEventListener("click", ()=> { state.showSetup = true; render(); });
 
-    document.querySelectorAll("[data-act='closeSetup']").forEach(node => {
-      node.addEventListener("click", ()=> { state.showSetup = false; render(); });
-    });
+    // Draw the chart after render completes
+    setTimeout(drawTensionChart, 50);
   }
 
   initAgentSettings();

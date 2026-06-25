@@ -108,8 +108,117 @@ body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; 
   color:#eef3ff !important;
 }
 .presetBtn[data-active="true"]{
-  background: rgba(255,255,255,0.12) !important;
-  border-color: rgba(255,255,255,0.22) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* Timeline Editing Studio styling */
+.track-lane {
+  background: rgba(255, 255, 255, 0.01);
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+.track-lane:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.timeline-block {
+  position: absolute;
+  height: 38px;
+  top: 6px;
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: grab;
+  user-select: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.timeline-block:active {
+  cursor: grabbing;
+}
+
+.timeline-block[data-track="video"] {
+  background: linear-gradient(90deg, rgba(57, 255, 20, 0.12), rgba(99, 102, 241, 0.18)) !important;
+  border: 1px solid rgba(57, 255, 20, 0.3) !important;
+}
+.timeline-block[data-track="text"] {
+  background: linear-gradient(90deg, rgba(255, 27, 141, 0.12), rgba(167, 139, 250, 0.18)) !important;
+  border: 1px solid rgba(255, 27, 141, 0.3) !important;
+}
+.timeline-block[data-track="audio"] {
+  background: linear-gradient(90deg, rgba(6, 182, 212, 0.12), rgba(59, 130, 246, 0.18)) !important;
+  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+}
+
+.trim-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: ew-resize;
+  z-index: 10;
+  transition: background 0.12s ease;
+}
+.trim-handle:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+.trim-handle-left {
+  left: 0;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+.trim-handle-right {
+  right: 0;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.block-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
+  pointer-events: none;
+}
+.block-delete {
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.12s ease;
+  font-size: 10px;
+  padding: 2px 4px;
+}
+.block-delete:hover {
+  opacity: 1;
+  color: #ef4444;
+}
+
+.ruler-tick {
+  position: absolute;
+  bottom: 0;
+  height: 6px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.ruler-tick.major {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.25);
+}
+.ruler-label {
+  position: absolute;
+  bottom: 10px;
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.3);
+  transform: translateX(-50%);
+  font-family: monospace;
 }
 </style>
 </head>
@@ -184,17 +293,9 @@ body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; 
             <div id="clipMeta"></div>
           </div>
 
-          <div class="mt-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Timeline</div>
-                <div class="text-sm font-semibold">Sequence</div>
-              </div>
-              <button id="clearTimelineBtn" class="text-[11px] text-zinc-400 hover:text-zinc-200">Clear timeline</button>
-            </div>
-
-            <div id="timelineEmpty" class="mt-3 text-sm text-zinc-500">Timeline is empty. Add clips from the library.</div>
-            <div id="timelineList" class="mt-3 space-y-2" hidden></div>
+          <div class="mt-4 pt-4 border-t border-white/5 flex items-center justify-between text-xs text-zinc-500">
+            <div>Sequence Time: <span id="seqDuration" class="text-zinc-300 font-mono font-bold">0.00s</span></div>
+            <div>Overlays: <span id="seqTextCount" class="text-zinc-300 font-bold">0</span></div>
           </div>
         </div>
       </section>
@@ -331,6 +432,88 @@ body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; 
           </div>
         </div>
       </aside>
+      <!-- Bottom Timeline Workspace -->
+      <section class="col-span-full rounded-2xl border border-white/10 bg-white/5 shadow-xl overflow-hidden nxCard mt-4">
+        <div class="p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div>
+              <div class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Timeline</div>
+              <div class="text-sm font-semibold">Editing Room</div>
+            </div>
+            <button id="addTextBtn" class="rounded-xl nxBtnGhost px-3 py-1.5 text-xs font-semibold hover:bg-white/10 transition">
+              ＋ Add Text Overlay
+            </button>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-zinc-400 font-bold uppercase">Zoom</span>
+              <input type="range" id="timelineZoom" min="15" max="80" value="30" class="w-24 accent-indigo-500" />
+            </div>
+            <button id="clearTimelineBtn" class="text-xs text-zinc-400 hover:text-zinc-200">Clear timeline</button>
+          </div>
+        </div>
+
+        <div class="p-4 flex flex-col lg:flex-row gap-4 relative">
+          <!-- Tracks Container -->
+          <div class="flex-1 overflow-x-auto relative min-h-[190px]" id="timelineScrollArea">
+            <!-- Time Ruler -->
+            <div id="timeRuler" class="h-6 border-b border-white/5 relative select-none"></div>
+
+            <!-- Tracks Stack -->
+            <div class="space-y-1 relative" id="tracksContainer">
+              <!-- Video Track -->
+              <div class="flex items-center border-b border-white/5 min-h-[50px] relative track-lane" id="videoTrack" data-track="video">
+                <span class="absolute left-2 top-1 text-[9px] uppercase tracking-wider text-zinc-500 pointer-events-none select-none z-10">Video Clips</span>
+              </div>
+
+              <!-- Text Overlay Track -->
+              <div class="flex items-center border-b border-white/5 min-h-[50px] relative track-lane" id="textTrack" data-track="text">
+                <span class="absolute left-2 top-1 text-[9px] uppercase tracking-wider text-zinc-500 pointer-events-none select-none z-10">Text Overlays</span>
+              </div>
+
+              <!-- Audio Track -->
+              <div class="flex items-center min-h-[50px] relative track-lane" id="audioTrack" data-track="audio">
+                <span class="absolute left-2 top-1 text-[9px] uppercase tracking-wider text-zinc-500 pointer-events-none select-none z-10">Audio Bed</span>
+              </div>
+              
+              <!-- Playhead line -->
+              <div id="playhead" class="absolute top-0 bottom-0 w-[2px] bg-red-500 shadow-[0_0_8px_red] pointer-events-none z-30" style="left: 0px;">
+                <div class="w-3 h-3 bg-red-500 rounded-full -ml-[5px] -mt-1 border border-white"></div>
+              </div>
+            </div>
+            <div id="timelineEmpty" class="absolute inset-0 flex items-center justify-center text-sm text-zinc-500 pointer-events-none z-10">Timeline is empty. Drag clips here from the library.</div>
+          </div>
+
+          <!-- Audio Mixer Panel (Track level sliders) -->
+          <div class="w-full lg:w-[200px] border-t lg:border-t-0 lg:border-l border-white/10 pt-4 lg:pt-0 lg:pl-4 space-y-4" id="audioMixer">
+            <div class="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-bold">Audio Mixer</div>
+            
+            <div class="space-y-1">
+              <div class="flex justify-between text-[9px] text-zinc-400 font-bold uppercase">
+                <span>Master</span>
+                <span id="volMasterVal">100%</span>
+              </div>
+              <input type="range" id="volMaster" min="0" max="1" step="0.05" value="1.0" class="w-full accent-indigo-500" />
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-[9px] text-zinc-400 font-bold uppercase">
+                <span>Clips</span>
+                <span id="volClipsVal">80%</span>
+              </div>
+              <input type="range" id="volClips" min="0" max="1" step="0.05" value="0.8" class="w-full accent-indigo-500" />
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-[9px] text-zinc-400 font-bold uppercase">
+                <span>Music</span>
+                <span id="volMusicVal">60%</span>
+              </div>
+              <input type="range" id="volMusic" min="0" max="1" step="0.05" value="0.6" class="w-full accent-indigo-500" />
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
