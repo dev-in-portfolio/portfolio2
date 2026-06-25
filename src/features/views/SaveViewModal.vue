@@ -47,41 +47,55 @@ watch(
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(8, 8, 16, 0.45);
+  background: rgba(4, 6, 13, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: grid;
   place-items: center;
-  z-index: 20;
+  z-index: 999;
 }
 
 .modal {
-  background: #fff;
-  padding: 1.5rem;
+  background: var(--panel-solid);
+  border: 1px solid var(--border);
+  padding: 1.75rem;
   border-radius: 16px;
   width: min(420px, 90vw);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), 0 0 20px var(--accent-glow);
+  color: var(--ink);
 }
 
 input {
   width: 100%;
-  padding: 0.6rem 0.7rem;
+  padding: 0.65rem 0.85rem;
   border-radius: 10px;
+  background: #020409;
+  color: var(--ink);
   border: 1px solid var(--border);
-  margin: 0.75rem 0;
+  margin: 1rem 0;
+  outline: none;
+  font-family: inherit;
+}
+
+input:focus {
+  border-color: var(--accent-neon);
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 .actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .status {
-  color: var(--muted);
+  color: var(--accent-neon);
   font-size: 0.8rem;
   margin-top: 0.5rem;
 }
 
 .muted {
   color: var(--muted);
+  font-size: 0.85rem;
   margin-bottom: 0.5rem;
 }
 </style>

@@ -125,9 +125,16 @@ watch(
 }
 
 select {
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 10px;
   border: 1px solid var(--border);
+  background: #020409;
+  color: var(--ink);
+  outline: none;
+}
+
+select:focus {
+  border-color: var(--accent-neon);
 }
 
 .status {

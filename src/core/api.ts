@@ -19,6 +19,23 @@ export type SwitchboardView = {
 
 const base = '/api/switchboard';
 
+function getLocalViews(): SwitchboardView[] {
+  try {
+    const raw = localStorage.getItem('switchboard_views_fallback');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function setLocalViews(views: SwitchboardView[]) {
+  try {
+    localStorage.setItem('switchboard_views_fallback', JSON.stringify(views));
+  } catch (e) {
+    console.error('Failed to write local views:', e);
+  }
+}
+
 async function request(path: string, options: RequestInit = {}) {
   const headers = new Headers(options.headers || {});
   headers.set('Content-Type', 'application/json');
@@ -32,33 +49,82 @@ async function request(path: string, options: RequestInit = {}) {
 }
 
 export async function fetchViews(route: string): Promise<SwitchboardView[]> {
-  const data = await request(`/views?route=${encodeURIComponent(route)}`);
-  return data.views;
+  try {
+    const data = await request(`/views?route=${encodeURIComponent(route)}`);
+    return data.views;
+  } catch (err) {
+    console.warn('API fetch failed, falling back to localStorage:', err);
+    return getLocalViews().filter(v => v.route === route);
+  }
 }
 
 export async function createView(name: string, route: string, state: ViewState) {
-  const data = await request('/views', {
-    method: 'POST',
-    body: JSON.stringify({ name, route, state }),
-  });
-  return data.view as SwitchboardView;
+  try {
+    const data = await request('/views', {
+      method: 'POST',
+      body: JSON.stringify({ name, route, state }),
+    });
+    return data.view as SwitchboardView;
+  } catch (err) {
+    console.warn('API create failed, falling back to localStorage:', err);
+    const newView: SwitchboardView = {
+      id: 'local_' + Math.random().toString(36).substring(2, 11),
+      name,
+      route,
+      state,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    const views = getLocalViews();
+    views.push(newView);
+    setLocalViews(views);
+    return newView;
+  }
 }
 
 export async function updateView(id: string, payload: Partial<{ name: string; state: ViewState }>) {
-  const data = await request(`/views/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(payload),
-  });
-  return data.view as SwitchboardView;
+  try {
+    const data = await request(`/views/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+    return data.view as SwitchboardView;
+  } catch (err) {
+    console.warn('API update failed, falling back to localStorage:', err);
+    const views = getLocalViews();
+    const idx = views.findIndex(v => v.id === id);
+    if (idx === -1) throw new Error('View not found locally');
+    views[idx] = {
+      ...views[idx],
+      ...payload,
+      updated_at: new Date().toISOString(),
+    };
+    setLocalViews(views);
+    return views[idx];
+  }
 }
 
 export async function deleteView(id: string) {
-  await request(`/views/${id}`, { method: 'DELETE' });
+  try {
+    await request(`/views/${id}`, { method: 'DELETE' });
+  } catch (err) {
+    console.warn('API delete failed, falling back to localStorage:', err);
+    const views = getLocalViews();
+    const filtered = views.filter(v => v.id !== id);
+    setLocalViews(filtered);
+  }
 }
 
 export async function fetchShare(id: string) {
-  const res = await fetch(`${base}/share/${id}`);
-  if (!res.ok) throw new Error('Share not found');
-  const data = await res.json();
-  return data.view as SwitchboardView;
+  try {
+    const res = await fetch(`${base}/share/${id}`);
+    if (!res.ok) throw new Error('Share not found');
+    const data = await res.json();
+    return data.view as SwitchboardView;
+  } catch (err) {
+    console.warn('API fetchShare failed, searching locally:', err);
+    const view = getLocalViews().find(v => v.id === id);
+    if (!view) throw new Error('Share not found');
+    return view;
+  }
 }
