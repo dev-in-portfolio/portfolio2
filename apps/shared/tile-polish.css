@@ -1,0 +1,232 @@
+/* Tile / card styling only (no global phase overrides).
+   Reason: earlier Phase A/C/D overrides disabled transforms/filters globally and made tiles appear glitchy.
+*/
+
+.tile,
+.card,
+.nxs-tile {
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  overflow: hidden;
+}
+
+.tile img,
+.card img,
+.nxs-tile img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tile:hover,
+.card:hover,
+.nxs-tile:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 38px rgba(0,0,0,0.45);
+}
+
+.tile:active,
+.card:active,
+.nxs-tile:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.tile + .tile,
+.card + .card,
+.nxs-tile + .nxs-tile {
+  margin-top: 16px;
+}
+
+/* Home polish override: allow natural 16:9 aspect ratio without forcing fixed height */
+/* === Recommended Path Tile (compact) === */
+/* === More Tile === */
+
+
+/* === Hybrid Editorial Tile System (C) === */
+.inline-tile{
+  position: relative;
+  background: linear-gradient(180deg, rgba(18,22,35,0.92) 0%, rgba(12,16,28,0.88) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.inline-tile::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:4px;
+  background: linear-gradient(180deg, rgba(168,85,247,0.85) 0%, rgba(59,130,246,0.55) 100%);
+  
+}
+
+.inline-tile h3{
+  font-size: 14px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  opacity: 0.95;
+}
+
+
+.inline-tile p{
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.9;
+}
+
+
+/* Slightly tighter cards for short statements */
+.inline-tile--tight{
+  padding: 16px 18px;
+}
+
+@media (max-width: 520px){
+  .inline-tile{
+    padding: 16px 16px;
+    border-radius: 14px;
+  }
+  .inline-tile p{
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.9;
+}
+
+}
+
+
+
+/* === Inline Tiles Full-Width === */
+.inline-tile{
+  width: 100% !important;
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+}
+.inline-tile p{
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.9;
+}
+
+
+/* === Full-bleed wrapper (used for stacked tiles like Recommended Path + Scope) ===
+   The wrapper should NOT look like an extra tile.
+   It should simply let the inner tiles span the available width. */
+.inline-tile.full-bleed{
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.inline-tile.full-bleed::before,
+.inline-tile.full-bleed::after{
+  display: none !important;
+  content: none !important;
+}
+.inline-tile.full-bleed > .inline-tile{
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.inline-tile.full-bleed > .inline-tile + .inline-tile{
+  margin-top: 14px !important;
+}
+
+
+/* === Thumb De-Dimming === */
+.thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img{
+  filter: none !important;
+  opacity: 1 !important;
+}
+.thumb::after, .tile-thumb::after, .app-thumb::after, .nxs-thumb::after, .thumbs::after,
+.thumb::before, .tile-thumb::before, .app-thumb::before, .nxs-thumb::before, .thumbs::before{
+  display: none !important;
+  content: none !important;
+}
+
+
+/* === Force remove thumb dimming (override) === */
+img{ filter: none !important; opacity: 1 !important; }
+.tile img, .card img, .thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img,
+.tile picture img, picture img { filter:none !important; opacity:1 !important; mix-blend-mode: normal !important; }
+.tile::before, .tile::after,
+.card::before, .card::after,
+.thumb::before, .thumb::after,
+.tile-thumb::before, .tile-thumb::after,
+.app-thumb::before, .app-thumb::after,
+.nxs-thumb::before, .nxs-thumb::after,
+.thumbs::before, .thumbs::after,
+.tile img::before, .tile img::after { display:none !important; content:none !important; }
+
+
+/* === Full-width for Start Here + key tiles === */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* If they sit inside a grid, make them span the grid */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  grid-column: 1 / -1 !important;
+}
+
+
+/* === Locked Thumbnails (stable crop across breakpoints) === */
+.tile .tileThumb{
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  display: block;
+}
+/* Use the anchor tile as the crop box */
+.tile{
+  overflow: hidden;
+}
+.tile > .tileThumb{
+  aspect-ratio: 16 / 9;
+}
+/* If the browser ignores aspect-ratio on img, give it a predictable box */
+@supports not (aspect-ratio: 16 / 9){
+  .tile > .tileThumb{height: 180px;}
+}
+
+
+.inline-tile, .inline-tile *{
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+
+/* === Pill styling (ensures HealthSettings is a real pill) === */
+.row .pill{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(15,18,30,0.55);
+  text-decoration: none;
+  font-weight: 650;
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(255,255,255,0.92);
+}
+.row .pill:hover{ background: rgba(25,28,45,0.62); }
+.row .pill:active{ transform: translateY(1px); }
+

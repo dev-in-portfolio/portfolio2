@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<title>Tectonic Canvas</title>
+<style>
+    :root{
+      --bg:#05060b;
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.65);
+      --border:rgba(255,255,255,.14);
+    }
+    html,body{height:100%; margin:0; background: radial-gradient(1200px 900px at 40% 30%, #0a1636 0%, var(--bg) 55%, #02030a 100%); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+    canvas{width:100%;height:100%;display:block}
+    .hud{
+      position:fixed; left:12px; bottom:12px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      max-width: 520px;
+      font-size:12pt;
+      line-height:1.35;
+      pointer-events:none;
+    }
+    .hud b{font-weight:950}
+    .hud .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; color:var(--muted)}
+  </style>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<canvas id="c"></canvas>
+<div class="hud">
+<div><b>TECTONIC</b> — Global Seismic Monitor</div>
+<div class="row">
+<span>Activity: <b id="hudA">0.55</b></span>
+<span>Magnitude: <b id="hudM">5.8</b></span>
+<span>Spin: <b id="hudS">0.40</b></span>
+<span>Depth: <b id="hudD">0.35</b></span>
+</div>
+</div>
+<script>
+/* New Tectonic canvas: WebGL globe + fault lines + pulse markers.
+   External hooks (shell controls) are exposed at the end. */
+const canvas = document.getElementById("c");
+const gl = canvas.getContext("webgl", { antialias:true, alpha:false, premultipliedAlpha:false });
+if(!gl){ document.body.innerHTML = "<div style='padding:20px;font:12pt system-ui;color:white'>WebGL unavailable</div>"; throw new Error("no webgl"); }
+
+function resize(){
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+  const w = Math.floor(innerWidth*dpr), h = Math.floor(innerHeight*dpr);
+  if(canvas.width!==w||canvas.height!==h){ canvas.width=w; canvas.height=h; gl.viewport(0,0,w,h); }
+}
+addEventListener("resize", resize, {passive:true}); resize();
+
+const VERT = `
+attribute vec2 aPos;
+varying vec2 vUv;
+void main(){
+  vUv = aPos*0.5+0.5;
+  gl_Position = vec4(aPos,0.0,1.0);
+}`;
+
+const FRAG = `
+precision highp float;
+varying vec2 vUv;
+uniform vec2 uRes;
+uniform float uT;
+uniform float uActivity;   // 0..1
+uniform float uMag;        // 3..9-ish
+uniform float uSpin;       // 0..1
+uniform float uDepthBias;  // 0..1
+uniform float uRotOff;     // radians
+
+// hash/noise
+float h1(float n){ return fract(sin(n)*43758.5453123); }
+float h2(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453123); }
+float n2(vec2 p){
+  vec2 i=floor(p), f=fract(p);
+  float a=h2(i), b=h2(i+vec2(1,0)), c=h2(i+vec2(0,1)), d=h2(i+vec2(1,1));
+  vec2 u=f*f*(3.0-2.0*f);
+  return mix(a,b,u.x)+ (c-a)*u.y*(1.0-u.x)+ (d-b)*u.x*u.y;
+}
+mat2 rot(float a){ float s=sin(a), c=cos(a); return mat2(c,-s,s,c); }
+
+vec3 sphere(vec2 uv, out float m){
+  vec2 p = (uv-0.5)*2.0;
+  p.x *= uRes.x/uRes.y;
+  float r2 = dot(p,p);
+  m = step(r2, 1.0);
+  float z = sqrt(max(0.0, 1.0-r2));
+  return vec3(p, z);
+}
+vec2 lonlat(vec3 n){
+  float lon = atan(n.x, n.z);
+  float lat = asin(clamp(n.y,-1.0,1.0));
+  return vec2(lon, lat);
+}
+
+float fbm(vec2 p){
+  float f=0.0;
+  float a=0.5;
+  for(int i=0;i<5;i++){
+    f += a*n2(p);
+    p = rot(0.7)*p*2.03 + vec2(0.17,0.13);
+    a *= 0.55;
+  }
+  return f;
+}
+
+float faultMask(vec2 ll){
+  vec2 q = vec2(ll.x*1.25, ll.y*1.85);
+  float f = fbm(q);
+  // "ridge" extraction to look like plate boundaries
+  float ridge = 1.0-abs(f*2.0-1.0);
+  ridge = pow(clamp(ridge,0.0,1.0), 7.0);
+  // add secondary micro-cracks
+  float micro = fbm(q*3.2 + vec2(3.0,1.0));
+  micro = pow(clamp(1.0-abs(micro*2.0-1.0),0.0,1.0), 10.0);
+  return clamp(ridge + 0.35*micro, 0.0, 1.0);
+}
+
+float marker(vec2 ll, float seed){
+  float a = h1(seed*12.3)*6.283185;
+  float b = (h1(seed*7.7)*2.0-1.0)*1.2; // lat
+  vec2 p = vec2(a, b);
+  p.x += 0.20*sin(uT*0.22+seed);
+  p.y += 0.08*cos(uT*0.17+seed*2.0);
+  float d = distance(ll, p);
+  float ring = exp(-d*22.0) + 0.65*exp(-abs(d-0.20)*45.0);
+  return ring;
+}
+
+// screen-space starfield + drifting dust
+vec3 starfield(vec2 uv){
+  vec2 p = uv*uRes/600.0;
+  float s = h2(p);
+  float star = smoothstep(0.996, 1.0, s);
+  float tw = 0.6 + 0.4*sin(uT*2.0 + s*40.0);
+  star *= tw;
+  // dust
+  float dust = n2(p*3.0 + vec2(uT*0.03, -uT*0.02));
+  dust = smoothstep(0.72, 1.0, dust) * 0.12;
+  return vec3(0.02,0.03,0.07) + star*vec3(0.9,0.95,1.0) + dust*vec3(0.15,0.25,0.45);
+}
+
+void main(){
+  float mask;
+  vec3 n = sphere(vUv, mask);
+
+  if(mask < 0.5){
+    gl_FragColor = vec4(starfield(vUv), 1.0);
+    return;
+  }
+
+  // spin globe + gesture offset
+  float spin = mix(0.05, 0.55, uSpin);
+  n.xz = rot(uT*spin + uRotOff)*n.xz;
+  vec2 ll = lonlat(n);
+
+  // lighting
+  vec3 L = normalize(vec3(-0.35,0.25,0.9));
+  float ndl = clamp(dot(L, n), 0.0, 1.0);
+  float light = ndl*0.75 + 0.35;
+
+  // procedural land/ocean
+  float cont = fbm(vec2(ll.x*0.65, ll.y*1.05));
+  float cont2 = fbm(vec2(ll.x*2.2, ll.y*2.2));
+  float landMask = smoothstep(0.46, 0.62, cont*0.85 + 0.18*cont2);
+  vec3 ocean = mix(vec3(0.02,0.07,0.17), vec3(0.02,0.15,0.26), light);
+  vec3 land  = mix(vec3(0.05,0.10,0.07), vec3(0.11,0.18,0.10), light);
+  vec3 base = mix(ocean, land, landMask);
+
+  // subtle topo shading on land
+  float topo = fbm(vec2(ll.x*4.0, ll.y*4.0));
+  base += landMask * (topo-0.5) * vec3(0.04,0.05,0.04);
+
+  // ---- EFFECT 1: plate-boundary fault lines w/ animated flare ----
+  float fault = faultMask(ll);
+  float flick = 0.55 + 0.45*sin(uT*2.4 + fbm(ll*6.0)*6.0);
+  float faultGlow = fault * (0.25 + 1.35*uActivity) * flick;
+  vec3 faultCol = vec3(0.10, 0.95, 0.85) * faultGlow;
+
+  // ---- EFFECT 2: propagating seismic wave rings from markers ----
+  float waves = 0.0;
+  float mk = 0.0;
+  for(int i=0;i<7;i++){
+    float seed = float(i)+1.0;
+    float a = h1(seed*12.3)*6.283185;
+    float b = (h1(seed*7.7)*2.0-1.0)*1.2;
+    vec2 p = vec2(a, b);
+    p.x += 0.20*sin(uT*0.22+seed);
+    p.y += 0.08*cos(uT*0.17+seed*2.0);
+    float d = distance(ll, p);
+    mk += exp(-d*22.0);
+    float phase = fract(uT*0.18 + h1(seed*3.1));
+    float r = mix(0.02, 0.55, phase);
+    float ring = exp(-abs(d-r)*55.0);
+    waves += ring;
+  }
+  float pulse = (0.45 + 0.55*sin(uT*1.25)) * (0.65 + 0.35*uActivity);
+  float depthAtten = mix(1.15, 0.55, uDepthBias);
+  float mkGlow = mk * pulse * smoothstep(3.0, 9.0, uMag) * depthAtten;
+  float waveGlow = waves * (0.25 + 0.85*uActivity) * smoothstep(4.2, 9.0, uMag) * 0.55;
+
+  vec3 mkCol = vec3(1.0, 0.55, 0.25) * mkGlow;
+  vec3 waveCol = vec3(1.0, 0.85, 0.35) * waveGlow;
+
+  // ---- EFFECT 3: night-lights / city sparkle on land side ----
+  float night = pow(1.0-ndl, 2.2);
+  float cities = n2(vec2(ll.x*18.0, ll.y*24.0));
+  cities = smoothstep(0.93, 1.0, cities);
+  vec3 cityCol = vec3(1.0, 0.78, 0.35) * cities * night * landMask * 0.65;
+
+  // ---- EFFECT 4: aurora arcs near poles (subtle, cinematic) ----
+  float pole = smoothstep(0.35, 1.15, abs(ll.y));
+  float aur = fbm(vec2(ll.x*2.5 + uT*0.05, ll.y*6.0));
+  aur = smoothstep(0.58, 0.78, aur) * pole;
+  vec3 aurCol = vec3(0.20, 0.85, 0.55) * aur * (0.25 + 0.35*night);
+
+  // atmosphere rim + glow
+  float rim = pow(1.0 - n.z, 2.15);
+  vec3 atm = vec3(0.10,0.26,0.62) * rim * 0.62;
+  // tiny bloom-ish lift
+  vec3 col = base + faultCol + mkCol + waveCol + cityCol + aurCol + atm;
+  col += vec3(0.06,0.08,0.12) * rim * (0.35 + 0.65*uActivity);
+
+  // vignette
+  vec2 p = (vUv-0.5);
+  col *= 1.0 - 0.18*dot(p,p);
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+function compile(type, src){
+  const s=gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+    throw new Error(gl.getShaderInfoLog(s)||"shader compile fail");
+  }
+  return s;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+gl.linkProgram(prog);
+if(!gl.getProgramParameter(prog, gl.LINK_STATUS)){
+  throw new Error(gl.getProgramInfoLog(prog)||"link fail");
+}
+gl.useProgram(prog);
+
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1,  -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+const aPos = gl.getAttribLocation(prog, "aPos");
+gl.enableVertexAttribArray(aPos);
+gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+const uRes = gl.getUniformLocation(prog, "uRes");
+const uT = gl.getUniformLocation(prog, "uT");
+const uActivity = gl.getUniformLocation(prog, "uActivity");
+const uMag = gl.getUniformLocation(prog, "uMag");
+const uSpin = gl.getUniformLocation(prog, "uSpin");
+const uDepthBias = gl.getUniformLocation(prog, "uDepthBias");
+const uRotOff = gl.getUniformLocation(prog, "uRotOff");
+
+let activity = 0.55;
+let magnitude = 5.8;
+let spin = 0.40;
+let depthBias = 0.35;
+let rotOff = 0.0;
+
+const hudA = document.getElementById("hudA");
+const hudM = document.getElementById("hudM");
+const hudS = document.getElementById("hudS");
+const hudD = document.getElementById("hudD");
+
+function setHud(){
+  hudA.textContent = activity.toFixed(2);
+  hudM.textContent = magnitude.toFixed(1);
+  hudS.textContent = spin.toFixed(2);
+  hudD.textContent = depthBias.toFixed(2);
+}
+setHud();
+
+let t0 = performance.now();
+function loop(now){
+  resize();
+  const t = (now - t0) * 0.001;
+  gl.uniform2f(uRes, canvas.width, canvas.height);
+  gl.uniform1f(uT, t);
+  gl.uniform1f(uActivity, activity);
+  gl.uniform1f(uMag, magnitude);
+  gl.uniform1f(uSpin, spin);
+  gl.uniform1f(uDepthBias, depthBias);
+  gl.uniform1f(uRotOff, rotOff);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+
+// ---------------- GESTURE CONTROLS (A77) ----------------
+// One-finger drag: rotate globe (rotOff). Vertical drag: activity.
+// Two-finger pinch: magnitude. Two-finger rotate (optional): spin.
+let ptr = new Map();
+let last = { x:0, y:0, rot:0, act:0, mag:0, dist:0 };
+
+function sendGestureState(){
+  try{
+    window.parent && window.parent.postMessage({
+      type:"tectonic-gesture",
+      state:{ activity, magnitude, spin, depthBias, rotOff }
+    }, "*");
+  }catch(e){}
+}
+
+canvas.style.touchAction = "none";
+
+canvas.addEventListener("pointerdown", (e)=>{
+  canvas.setPointerCapture(e.pointerId);
+  ptr.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if(ptr.size === 1){
+    last.x = e.clientX; last.y = e.clientY;
+    last.rot = rotOff;
+    last.act = activity;
+  } else if(ptr.size === 2){
+    const a0 = Array.from(ptr.values());
+    const dx = a0[0].x - a0[1].x, dy = a0[0].y - a0[1].y;
+    last.dist = Math.hypot(dx,dy);
+    last.mag = magnitude;
+  }
+});
+
+canvas.addEventListener("pointermove", (e)=>{
+  if(!ptr.has(e.pointerId)) return;
+  ptr.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  if(ptr.size === 1){
+    const dx = (e.clientX - last.x);
+    const dy = (e.clientY - last.y);
+    const w = Math.max(1, canvas.clientWidth);
+    const h = Math.max(1, canvas.clientHeight);
+
+    // rotate offset: horizontal drag
+    rotOff = last.rot + (dx / w) * Math.PI * 2.0;
+
+    // activity: subtle vertical drag
+    activity = Math.max(0.0, Math.min(1.0, last.act + (-dy / h) * 0.9));
+    setHud();
+    sendGestureState();
+    return;
+  }
+
+  if(ptr.size === 2){
+    const a0 = Array.from(ptr.values());
+    const dx = a0[0].x - a0[1].x, dy = a0[0].y - a0[1].y;
+    const dist = Math.hypot(dx,dy);
+    const ratio = dist / Math.max(20, last.dist);
+
+    // pinch: magnitude (log-ish)
+    magnitude = Math.max(3.0, Math.min(9.5, last.mag * (1.0 + (ratio-1.0)*0.9)));
+    setHud();
+    sendGestureState();
+  }
+});
+
+canvas.addEventListener("pointerup", (e)=>{
+  if(ptr.has(e.pointerId)) ptr.delete(e.pointerId);
+});
+canvas.addEventListener("pointercancel", (e)=>{
+  if(ptr.has(e.pointerId)) ptr.delete(e.pointerId);
+});
+
+// ---- External hooks for shell controls ----
+window.__tectonic_setActivity = (v)=>{ activity = Math.max(0.0, Math.min(1.0, v)); setHud(); };
+window.__tectonic_setMagnitude = (v)=>{ magnitude = Math.max(3.0, Math.min(9.5, v)); setHud(); };
+window.__tectonic_setSpin = (v)=>{ spin = Math.max(0.0, Math.min(1.0, v)); setHud(); };
+window.__tectonic_setDepthBias = (v)=>{ depthBias = Math.max(0.0, Math.min(1.0, v)); setHud(); };
+window.__tectonic_setRotOff = (v)=>{ rotOff = v; };
+</script>
+<script>
+window.addEventListener("message",(ev)=>{
+  const d = ev.data||{};
+  if(d.type!=="tectonic-control") return;
+  if(typeof window.__tectonic_setActivity==="function") window.__tectonic_setActivity(d.activity);
+  if(typeof window.__tectonic_setMagnitude==="function") window.__tectonic_setMagnitude(d.magnitude);
+  if(typeof window.__tectonic_setSpin==="function") window.__tectonic_setSpin(d.spin);
+});
+window.parent && window.parent.postMessage({type:"tectonic-ready"}, "*");
+</script>
+<script src="/shared/app-settings.js?v=20260101"></script>
+</body>
+</html>

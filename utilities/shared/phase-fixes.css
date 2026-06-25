@@ -1,0 +1,207 @@
+/* Phase F (requested fixes)
+   1) Add safe top spacing so the top of the page is always visible under the fixed Nexus bar.
+   2) Improve typography rhythm (without changing content).
+   3) Stabilize tiles (no glitchy hover/transform issues on tablet).
+*/
+
+:root{
+  --nexusbar-h: 72px;
+  --top-safe: env(safe-area-inset-top, 0px);
+  --top-gap: 28px; /* ~"3x enter" worth of breathing room */
+}
+
+/* Ensure content starts below the fixed header on all devices */
+body{
+  padding-top: calc(var(--top-safe) + var(--nexusbar-h) + var(--top-gap));
+}
+
+/* If you have a wrapper/main, make sure it doesn't get clipped */
+main{ overflow: visible; }
+
+/* Nexus bar stays on top, pills stay below */
+.nexusbar,
+.nxBar,
+#nexusbar{
+  z-index: 1000 !important;
+}
+
+.startHere,
+.startHereCard,
+#startHere{
+  scroll-margin-top: calc(var(--top-safe) + var(--nexusbar-h) + 24px);
+}
+
+/* Tablet-specific extra breathing room */
+@media (min-width: 700px){
+  :root{ --top-gap: 40px; }
+}
+
+/* Typography polish so it doesn't look like "my first webpage" */
+body{
+  letter-spacing: 0.2px;
+}
+
+h1, h2, h3{
+  letter-spacing: 0.4px;
+}
+
+p{ max-width: 75ch; }
+
+/* Tile stability: keep transforms enabled, but avoid rendering jitter */
+.tile,
+.card,
+.nxs-tile{
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Reduce accidental hover flicker on touch devices */
+@media (hover: none){
+  .tile:hover,
+  .card:hover,
+  .nxs-tile:hover{
+    transform: none;
+  }
+}
+
+
+/* === Recommended Path Tile (compact) === */
+/* === More Tile === */
+
+
+/* === Hybrid Editorial Tile System (C) === */
+.inline-tile{
+  position: relative;
+  background: linear-gradient(180deg, rgba(18,22,35,0.92) 0%, rgba(12,16,28,0.88) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.inline-tile::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:4px;
+  background: linear-gradient(180deg, rgba(168,85,247,0.85) 0%, rgba(59,130,246,0.55) 100%);
+  
+}
+
+.inline-tile h3{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  
+}
+
+.inline-tile p{
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0;
+  
+  max-width: 70ch;
+}
+
+/* Slightly tighter cards for short statements */
+.inline-tile--tight{
+  padding: 16px 18px;
+}
+
+@media (max-width: 520px){
+  .inline-tile{
+    padding: 16px 16px;
+    border-radius: 14px;
+  }
+  .inline-tile p{
+    font-size: 14px;
+  }
+}
+
+
+
+/* === Inline Tiles Full-Width === */
+.inline-tile{
+  width: 100% !important;
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+}
+.inline-tile p{ max-width: none; }
+
+
+/* === Thumb De-Dimming === */
+.thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img{
+  filter: none !important;
+  opacity: 1 !important;
+}
+.thumb::after, .tile-thumb::after, .app-thumb::after, .nxs-thumb::after, .thumbs::after,
+.thumb::before, .tile-thumb::before, .app-thumb::before, .nxs-thumb::before, .thumbs::before{
+  display: none !important;
+  content: none !important;
+}
+
+
+/* === Force remove thumb dimming (override) === */
+img{ filter: none !important; opacity: 1 !important; }
+.tile img, .card img, .thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img,
+.tile picture img, picture img { filter:none !important; opacity:1 !important; mix-blend-mode: normal !important; }
+.tile::before, .tile::after,
+.card::before, .card::after,
+.thumb::before, .thumb::after,
+.tile-thumb::before, .tile-thumb::after,
+.app-thumb::before, .app-thumb::after,
+.nxs-thumb::before, .nxs-thumb::after,
+.thumbs::before, .thumbs::after,
+.tile img::before, .tile img::after { display:none !important; content:none !important; }
+
+
+/* === Full-width for Start Here + key tiles === */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* If they sit inside a grid, make them span the grid */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  grid-column: 1 / -1 !important;
+}
+
+
+/* Full-width breakout for specific tiles */
+.full-bleed {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  border-radius: 0 !important;
+}
+
+/* Remove any dimmer/overlay from thumbnails */
+.thumb::after,
+.thumbOverlay,
+.thumb-overlay,
+.tile::after {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+
+/* Ensure no thumbnail dimming overlays */
+.tile::before,.tile::after{display:none !important; content:none !important;}
+.tileThumb{filter:none !important; opacity:1 !important;}
+
+/* === Deep Health UI === */
+.healthGrid{display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px;}
+.healthCol{border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:12px; background: rgba(15,18,30,0.35);}
+.healthCol h3{margin:0 0 8px 0; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; opacity:0.9;}
+.healthCol ul{margin:0; padding-left:18px; max-height:280px; overflow:auto;}
+.healthCol li{font-size:12px; line-height:1.4; opacity:0.85; margin:0 0 6px 0;}
+@media (max-width: 860px){ .healthGrid{grid-template-columns: 1fr;} .healthCol ul{max-height:none;} }

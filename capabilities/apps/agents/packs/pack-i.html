@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Pack I — LLM + AI Utilities</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="wrap">
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Pack I — LLM + AI Utilities</h1>
+<p class="muted">A curated set of agents with a shared permission &amp; risk profile.</p>
+<div class="kv">
+<a class="btn primary" download="" href="/apps/agents/assets/packs/pack-i.agentpack.zip">Download pack-i.agentpack.zip</a>
+</div>
+<div class="sep"></div>
+<h3>Pack permissions</h3>
+<div class="kv"><span class="tag">No special permissions</span></div>
+<div class="sep"></div>
+<h3>Quickstart</h3>
+<ul class="muted" style="margin-top:8px">
+<li>Download the pack bundle.</li>
+<li>Unzip it locally and review <code>pack.json</code> + each agent stub.</li>
+<li>Use the Local Runner to install (demo) packs, then run agents against demo targets.</li>
+</ul>
+<div class="sep"></div>
+<h3>Agents in this pack</h3>
+<div class="grid">
+<a class="card" href="/apps/agents/store/clipboard-manager-agent-productivity.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Clipboard Manager Agent (Productivity)</h3>
+<p class="muted" style="margin:0 0 10px">Reads the current clipboard content or writes new content to it. Useful for chaining agents (e.g., "Summarize text" -&gt; "Copy to clipboard").</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/crypto-wallet-agent-web3.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Crypto Wallet Agent (Web3)</h3>
+<p class="muted" style="margin:0 0 10px">Generates a fresh, cryptographically secure Ethereum wallet (Public Address + Private Key) using ethers.js. Can be used for cold storage or dev testing.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/llm-client-agent-the-brain.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">LLM Client Agent (The "Brain")</h3>
+<p class="muted" style="margin:0 0 10px">Connects to a local AI server (like Ollama) or OpenAI to generate text. It attempts to be "smart" by detecting if the local AI is offline and failing gracefully.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/midi-composer-agent-music.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">MIDI Composer Agent (Music)</h3>
+<p class="muted" style="margin:0 0 10px">Generates a random, melodic musical sequence and saves it as a standard .mid file. You can drag this file into GarageBand or Ableton to hear it.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/sentiment-analyzer-agent-emotional-intelligence.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Sentiment Analyzer Agent (Emotional Intelligence)</h3>
+<p class="muted" style="margin:0 0 10px">Uses a local dictionary-based approach (AFINN-165) to score the emotional tone of text. Runs entirely offline with zero latency.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+</div>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.4.1</div>
+</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

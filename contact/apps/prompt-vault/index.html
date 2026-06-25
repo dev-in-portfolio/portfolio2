@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Prompt Vault</title>
+
+  <!-- Nexus (global) -->
+  <link rel="stylesheet" href="../../shared/nexus-topnav.css" />
+  <link rel="stylesheet" href="../../shared/nexus-topnav-v2.css" />
+
+  <!-- App -->
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- Nexus top nav injects here -->
+  <script src="../../shared/nexus-topnav-v2.js"></script>
+
+  
+<div id="storageBanner" class="pv-banner" hidden>
+  <div class="pv-banner__title">Heads up: your prompts are stored in this browser.</div>
+  <div class="pv-banner__body">
+    If you clear cookies / site data, they disappear. Use <b>Export</b> for a backup.
+    Auto-backup to Downloads is <b data-slot="backupState">ON</b>.
+  </div>
+  <div class="pv-banner__actions">
+    <button class="pvBtn pvBtnGhost" type="button" data-action="toggleBackup">Toggle Auto‑Backup</button>
+    <button class="pvBtn" type="button" data-action="dismiss">OK</button>
+  </div>
+</div>
+
+<main class="pv">
+    <header class="pvHeader">
+      <div class="pvTitle">
+        <div class="pvTitleMain">Prompt Vault</div>
+        <div class="pvTitleSub">Local-first. Lockable. Drag-and-drop safe.</div>
+      </div>
+
+      <div class="pvActions">
+        <button class="pvBtn pvBtnGhost" id="btnLock" type="button" title="Lock the vault">Lock</button>
+        <button class="pvBtn pvBtnGhost" id="btnChangePass" type="button" title="Change passcode">Change passcode</button>
+        <button class="pvBtn pvBtnGhost" id="btnExport" type="button" title="Export prompts as JSON">Export</button>
+        <label class="pvBtn pvBtnGhost pvFileBtn" title="Import prompts JSON">
+          Import<input id="fileImport" type="file" accept="application/json" />
+        </label>
+        <button class="pvBtn" id="btnNew" type="button">New prompt</button>
+      </div>
+    </header>
+
+    <section class="pvToolbar">
+      <input id="q" class="pvSearch" type="search" placeholder="Search title, tags, or body…" autocomplete="off" />
+      <div class="pvMeta" id="meta"></div>
+    </section>
+
+    <section class="pvGrid">
+      <aside class="pvSidebar">
+        <div class="pvSideTitle">Filters</div>
+        <div class="pvChips" id="tagChips"></div>
+        <div class="pvSideHint">
+          Tip: tags are comma-separated. Example: <span class="pvMono">sales, medicare, objection</span>
+        </div>
+      </aside>
+
+      <section class="pvList" id="list" aria-live="polite"></section>
+    </section>
+  </main>
+
+  <!-- Lock screen -->
+  <div class="pvLock" id="lock" hidden>
+    <div class="pvLockCard" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
+      <div class="pvLockTitle" id="lockTitle">🔒 Vault locked</div>
+      <div class="pvLockMsg" id="lockMsg">
+        First time? The passcode is <b>1234</b>.
+        <div class="pvLockMsgSmall">(Yes, it’s basic. That’s why you’re about to change it.)</div>
+      </div>
+
+      <div class="pvPinRow" id="pinDots" aria-label="Passcode entry">
+        <span class="pvDot"></span><span class="pvDot"></span><span class="pvDot"></span><span class="pvDot"></span>
+      </div>
+
+      <div class="pvKeypad" id="keypad" aria-label="Keypad">
+        <!-- buttons injected -->
+      </div>
+
+      <div class="pvLockErr" id="lockErr" role="status" aria-live="polite"></div>
+
+      <div class="pvLockFooter">
+        <button class="pvBtn pvBtnGhost" id="btnClearPin" type="button">Clear</button>
+        <button class="pvBtn pvBtnGhost" id="btnResetPass" type="button" title="Resets local passcode back to 1234">Reset to 1234</button>
+        <button class="pvBtn pvBtnGhost" id="btnUseKeyboard" type="button" title="Keyboard works too">Keyboard OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor modal -->
+  <div class="pvModal" id="modal" hidden>
+    <div class="pvModalCard" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="pvModalHead">
+        <div class="pvModalTitle" id="modalTitle">Edit prompt</div>
+        <button class="pvX" id="btnClose" type="button" aria-label="Close">✕</button>
+      </div>
+
+      <label class="pvField">
+        <span>Title</span>
+        <input id="fTitle" class="pvInput" type="text" maxlength="140" />
+      </label>
+
+      <label class="pvField">
+        <span>Tags (comma-separated)</span>
+        <input id="fTags" class="pvInput" type="text" placeholder="e.g. sales, medicare, rebuttal" />
+      </label>
+
+      <label class="pvField">
+        <span>Prompt</span>
+        <textarea id="fBody" class="pvTextarea" rows="10" placeholder="Paste your prompt here…"></textarea>
+      </label>
+
+      <div class="pvFormErr" id="formErr" role="status" aria-live="polite"></div>
+
+      <div class="pvModalActions">
+        <button class="pvBtn pvBtnGhost" id="btnDelete" type="button">Delete</button>
+        <div class="pvGrow"></div>
+        <button class="pvBtn" id="btnSave" type="button">Save</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/shared/appdata-client.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

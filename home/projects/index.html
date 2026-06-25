@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Nexus — Projects</title>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="/shared/nexus-cosmic.css" rel="stylesheet"/>
+<style>
+    .nxPageWrap { max-width: 1100px; margin: 0 auto; padding: 90px 18px 40px; }
+    .nxH1 { margin: 0 0 10px; font: 800 28px/1.15 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; letter-spacing: .2px; }
+    .nxLead { margin: 0 0 18px; opacity: .85; font: 500 14px/1.55 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    .nxGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 16px; }
+    .nxCard { display:block; padding: 14px 14px; border-radius: 14px; background: rgba(10,12,18,.55); border: 1px solid rgba(255,255,255,.10); box-shadow: 0 12px 35px rgba(0,0,0,.35); text-decoration:none; color: inherit; }
+    .nxCard:hover { transform: translateY(-1px); border-color: rgba(255,255,255,.18); }
+    .nxCardTitle { margin: 0 0 6px; font: 800 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; letter-spacing: .2px; }
+    .nxCardMeta { margin: 0; opacity: .8; font: 500 12.5px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+    .nxFooterNote { margin-top: 22px; opacity: .7; font: 500 12px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  </style>
+</head>
+<body class="page-nexus">
+  <nav class="nxTopNav"></nav>
+
+<main class="nxPageWrap">
+<h1 class="nxH1">Projects</h1>
+<p class="nxLead">All build artifacts live here: the apps, the case studies, and the constellation launch map.</p>
+<section aria-label="Links" class="nxGrid">
+<a class="nxCard" href="/"><h2 class="nxCardTitle">Constellation Map</h2><p class="nxCardMeta">Interactive launch map (the home screen)</p></a><a class="nxCard" href="/apps/coverage-compass/"><h2 class="nxCardTitle">Coverage Compass</h2><p class="nxCardMeta">Decision engine • compliance overlays</p></a><a class="nxCard" href="/apps/ubr/"><h2 class="nxCardTitle">UBR</h2><p class="nxCardMeta">Routing engine • multi-day optimization</p></a><a class="nxCard" href="/apps/alibi/"><h2 class="nxCardTitle">Alibi</h2><p class="nxCardMeta">Inventory intelligence • ops dashboards</p></a><a class="nxCard" href="/apps/agents/index.html"><h2 class="nxCardTitle">Agents</h2><p class="nxCardMeta">Tools &amp; agent prototypes</p></a><a class="nxCard" href="/case-studies/"><h2 class="nxCardTitle">Case Studies</h2><p class="nxCardMeta">Writeups • metrics • build notes</p></a>
+</section>
+<p class="nxFooterNote">Tip: if you’re on Netlify and a page 404s, make sure the link ends with a trailing slash (folder-style URLs like <code>/projects/</code>), not <code>index.html</code>.</p>
+</main>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

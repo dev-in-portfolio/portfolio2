@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Policy</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Permissions &amp; Policy Center</h1>
+<p>Glossary of scopes used by the runner and agent manifests.</p>
+<div class="sep"></div>
+<div class="grid">
+<div class="card"><h3>local.fs.read / write / list</h3><p>File IO (blocked unless inside allowlist).</p></div>
+<div class="card"><h3>local.exec</h3><p>Spawn child processes (still within allowlist constraints).</p></div>
+<div class="card"><h3>browser.automation</h3><p>Playwright automation (demo targets only).</p></div>
+<div class="card"><h3>approval.required / approval.high_risk.gate</h3><p>Agents must require explicit approval flags for sensitive actions.</p></div>
+<div class="card"><h3>secrets.*</h3><p>Secrets travel via time-limited handles; values never logged.</p></div>
+<div class="card"><h3>crypto.sign</h3><p>Local signing uses ed25519 keys stored under .agentx/keys/</p></div>
+</div>
+<div class="sep"></div>
+<p><b>Risk tiers</b>: low (read-only) • medium (write) • high (signing, auth gates).</p>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

@@ -1,0 +1,1157 @@
+/* Constellation Map — Nexus Home
+   Purpose: "epic, intentional" navigation without breaking the existing dark UI.
+*/
+
+.constellationSection .nxConstellation{
+  position: relative;
+  height: clamp(720px, 86vh, 1100px);
+  border-radius: 26px;
+  border: 1px solid rgba(255,255,255,0.10);
+  overflow: hidden;
+  background:
+    radial-gradient(900px 380px at 20% 20%, rgba(122, 92, 255, 0.18), transparent 60%),
+    radial-gradient(800px 360px at 80% 70%, rgba(72, 176, 255, 0.14), transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.00));
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.55),
+    0 0 0 1px rgba(255,255,255,0.06) inset;
+  --pan-x: 0px;
+  --pan-y: 0px;
+  --zoom: 1;
+  --par-x: 0px;
+  --par-y: 0px;
+}
+
+/* Gesture capture layer
+   - Ensures the pointer/touch target is the full map area
+   - Prevents mobile browsers from interpreting drags as page scroll
+   - We handle pinch ourselves in JS, so disabling native touch actions is desired here.
+*/
+.nxMap{
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: grab;
+}
+
+/* Pan/zoom wrapper: keeps nodes + lines perfectly in sync across browsers */
+.nxSpace{
+  position:absolute;
+  inset:0;
+  z-index: 2;
+  transform: translate3d(var(--pan-x), var(--pan-y), 0) scale(var(--zoom));
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+
+.nxMap.isPanning{ cursor: grabbing; }
+
+.nxStarfield{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.95;
+  transform: translate(var(--par-x), var(--par-y)) scale(1.12);
+  transform-origin: center;
+  will-change: transform;
+}
+
+.nxLines{
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.nxLine{
+  fill: none;
+  stroke: rgba(255,255,255,0.14);
+  filter: url(#glowSoft);
+  stroke-width: 0.85;
+}
+
+.nxLine--primary{
+  stroke: rgba(165, 196, 255, 0.65);
+  stroke-width: 0.9;
+}
+
+.nxLine--soft{
+  stroke: rgba(255,255,255,0.12);
+  stroke-width: 0.85;
+  stroke-dasharray: 1.4 1.6;
+  opacity: 0.9;
+}
+
+.nxNode{
+  cursor: pointer;
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 92px;
+  min-height: 92px;
+  padding: 12px 14px 14px;
+  border-radius: 18px;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  outline: none;
+  filter: drop-shadow(0 12px 26px rgba(0,0,0,0.55));
+  transition: transform .28s cubic-bezier(0.2,0.9,0.2,1), filter .22s ease, opacity .22s ease;
+}
+
+
+/* UX polish: make nodes feel "clickable" and deliberate */
+.nxNode:hover,
+.nxNode:focus-visible{
+  transform: translate(-50%, -50%) scale(1.03);
+  filter: drop-shadow(0 18px 40px rgba(0,0,0,0.62));
+}
+.nxDot{
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.92);
+  box-shadow:
+    0 0 0 6px rgba(120, 175, 255, 0.16),
+    0 0 24px rgba(120, 175, 255, 0.52);
+  position: relative;
+}
+
+.nxNode--primary .nxDot{
+  width: 24px;
+  height: 24px;
+  box-shadow:
+    0 0 0 7px rgba(120, 175, 255, 0.20),
+    0 0 30px rgba(120, 175, 255, 0.62);
+}
+
+.nxNode--start .nxDot{
+  width: 26px;
+  height: 26px;
+  background: rgba(255,255,255,0.98);
+  box-shadow:
+    0 0 0 8px rgba(168, 132, 255, 0.22),
+    0 0 34px rgba(168, 132, 255, 0.70);
+}
+
+.nxNode--sat .nxDot{
+  width: 12px;
+  height: 12px;
+  box-shadow:
+    0 0 0 6px rgba(255,255,255,0.11),
+    0 0 18px rgba(255,255,255,0.22);
+  opacity: 0.95;
+}
+
+.nxDot::after{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  border-radius:999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.nxLabel{
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.92);
+  text-transform: uppercase;
+  text-align: center;
+  padding: 3px 10px;
+  line-height: 1.1;
+  background: rgba(0,0,0,0.58);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
+  text-shadow:
+    0 14px 34px rgba(0,0,0,0.70),
+    0 0 10px rgba(255,255,255,0.18);
+}
+
+/* Only applied to specific long labels via JS */
+.nxLabel--wrap{
+  white-space: normal;
+  max-width: 210px;
+  padding: 8px 12px;
+}
+
+/* --- LEGACY STATIC LAYER: DISABLE (invisible + unclickable) ---
+   The legacy/static markup is NOT wired into the live constellation system.
+   We keep the markup in-place to avoid breaking older pages, but we make it
+   fully inert so it cannot overlap or steal clicks.
+*/
+#nxStaticNodeLayer,
+.nxStaticNodeLayer,
+.nxStaticNode,
+.nxStaticLabel,
+.nxLegacyNode,
+.nxLegacyLabel{
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Ensure LIVE nodes are not accidentally dimmed by older overrides */
+.nxNode{ opacity: 1 !important; }
+
+
+/* Mobile / small screens: reduce label collisions */
+@media (max-width: 900px){
+  .nxLabel{
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    padding: 8px 12px;
+    max-width: 210px;
+    white-space: normal;
+  }
+}
+@media (max-width: 600px){
+  .nxLabel{
+    font-size: 11px;
+    letter-spacing: 0.10em;
+    padding: 7px 10px;
+    max-width: 190px;
+  }
+}
+
+.nxNode:hover .nxDot::after,
+.nxNode:focus-visible .nxDot::after{
+  opacity: 1;
+  transform: scale(1.0);
+}
+
+.nxNode:hover .nxDot,
+.nxNode:focus-visible .nxDot{
+  filter: brightness(1.12);
+}
+
+.nxNode:focus-visible{
+  outline: none;
+}
+
+.nxHint{
+  position:absolute;
+  left: 18px;
+  bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(10, 12, 18, 0.62);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+  max-width: 360px;
+}
+
+.nxHintTitle{
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.90);
+  margin-bottom: 4px;
+}
+
+.nxHintText{
+  font-size: 13px;
+  color: rgba(255,255,255,0.74);
+}
+
+.nxPreview{
+  position:absolute;
+  width: 340px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(10, 12, 18, 0.66);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 28px 90px rgba(0,0,0,0.62);
+  overflow: hidden;
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(0, 10px) scale(0.985);
+  transition: opacity .34s ease, transform .56s cubic-bezier(0.18,0.98,0.16,1), visibility 0s linear .34s;
+  z-index: 10;
+}
+
+.nxPreview.on,
+.nxPreview.isVisible{
+  opacity: 1;
+  visibility: visible;
+  transform: translate(0, 0) scale(1);
+  transition: opacity .34s ease, transform .56s cubic-bezier(0.18,0.98,0.16,1), visibility 0s;
+}
+.nxPreviewMedia{
+  height: 150px;
+  background: rgba(255,255,255,0.03);
+  overflow: hidden;
+}
+
+.nxPreviewMedia img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+}
+
+.nxPreviewBody{
+  padding: 14px 16px 16px;
+}
+
+.nxPreviewTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nxPreviewTitle{
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.94);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.nxPreviewTag{
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 6px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.nxPreviewSub{
+  margin-top: 10px;
+  color: rgba(255,255,255,0.72);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.nxPreviewCta{
+  margin-top: 12px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: rgba(180, 210, 255, 0.86);
+}
+
+/* ------------------------------------------------------------
+   Map display rules (restored): labels ON, nodes fully visible.
+   Legacy/static layers are handled separately and should not
+   affect the live node/label system.
+------------------------------------------------------------- */
+
+/* Restore labels */
+.nxLabel{
+  display: inline-block !important;
+}
+
+/* Ensure live nodes are not dimmed */
+.nxNode,
+.nxNode--sat{
+  opacity: 1 !important;
+}
+
+@media (max-width: 980px){
+  .constellationSection .nxConstellation{ height: 520px; }
+  .nxPreview{ width: 320px; }
+}
+
+@media (max-width: 720px){
+  .constellationSection .nxConstellation{ height: 480px; }
+  .nxHint{ max-width: 320px; }
+  .nxLabel{ font-size: 11px; }
+}
+
+/* Tablet/Touch targets: larger, less miss-prone */
+@media (pointer: coarse){
+  .nxNode{ min-width: 112px; min-height: 112px; padding: 14px 14px 16px; gap: 10px; }
+  .nxLabel{ font-size: 13px; letter-spacing: 0.12em; }
+  .nxDot{ width: 22px; height: 22px; }
+  .nxNode--primary .nxDot{ width: 26px; height: 26px; }
+}
+
+@media (max-width: 520px){
+  .constellationSection .nxConstellation{ height: 440px; }
+  .nxPreview{ width: 290px; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .nxStarfield{ display:none; }
+  .nxDot{ box-shadow: 0 0 0 6px rgba(120, 175, 255, 0.16), 0 0 18px rgba(120, 175, 255, 0.30); }
+}
+
+
+/* ---- Map upgrades: scan line, pulses, warp, micro-UX ---- */
+.nxLine--scan{
+  stroke: rgba(255,255,255,0.92);
+  stroke-width: 1.25;
+  opacity: 0.85;
+  stroke-linecap: round;
+  stroke-dasharray: 10 140;
+  animation: nxScan 3.8s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(165,196,255,0.45));
+}
+
+@keyframes nxScan{
+  from{ stroke-dashoffset: 0; }
+  to{ stroke-dashoffset: -150; }
+}
+
+.nxDot{
+  position: relative;
+}
+
+.nxDot::before{
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 999px;
+  border: 1px solid rgba(165,196,255,0.0);
+  box-shadow: 0 0 0 0 rgba(165,196,255,0.0);
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.nxNode--primary .nxDot{
+  animation: nxPulse 3.2s ease-in-out infinite;
+}
+
+.nxNode--primary .nxDot::before{
+  animation: nxRing 3.2s ease-in-out infinite;
+}
+
+@keyframes nxPulse{
+  0%, 100%{ box-shadow: 0 0 0 0 rgba(165,196,255,0.18), 0 0 22px rgba(165,196,255,0.30); }
+  50%{ box-shadow: 0 0 0 0 rgba(165,196,255,0.26), 0 0 30px rgba(165,196,255,0.45); }
+}
+
+@keyframes nxRing{
+  0%{ opacity: 0; transform: scale(0.65); border-color: rgba(165,196,255,0.0); }
+  35%{ opacity: 0.75; border-color: rgba(165,196,255,0.40); }
+  100%{ opacity: 0; transform: scale(1.15); border-color: rgba(165,196,255,0.0); }
+}
+
+.nxConstellation.nxWarping::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(420px 260px at 50% 50%, rgba(255,255,255,0.20), rgba(165,196,255,0.08), rgba(0,0,0,0));
+  opacity: 0;
+  animation: nxWarp 320ms ease-out forwards;
+}
+
+@keyframes nxWarp{
+  0%{ opacity: 0; filter: blur(0px); transform: scale(0.98); }
+  35%{ opacity: 1; filter: blur(0.6px); transform: scale(1.01); }
+  100%{ opacity: 0; filter: blur(3px); transform: scale(1.06); }
+}
+
+
+
+/* =========================================================
+   NX HUD (map-corner UI)
+   ========================================================= */
+
+
+/* HUD layout: top-left meta + top-right start-here, bottom-left route */
+.nxHudTop{
+  display:flex;
+  justify-content: space-between;
+  align-items:flex-start;
+  gap: 14px;
+  width: 100%;
+}
+
+.nxHudMeta{
+  max-width: min(560px, 70%);
+}
+
+.nxHudMeta .nxHudTitle{
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.78);
+}
+
+.nxHudMeta .nxHudSub{
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.25;
+}
+
+.nxHudStart{
+  text-align: right;
+  align-items: flex-end;
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(520px, 60%);
+}
+
+.nxHudStart .nxHudStartLabel{
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.78);
+}
+
+
+.nxHudTitleRow{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap:10px;
+}
+
+.nxHud--start .nxHudPills{
+  justify-content: flex-end;
+}
+
+.pill.pill--toggle{
+  padding: 7px 10px;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.78);
+}
+
+.pill.pill--toggle[aria-pressed="true"]{
+  background: rgba(165,196,255,0.16);
+  border-color: rgba(165,196,255,0.28);
+  color: rgba(255,255,255,0.92);
+  box-shadow: 0 0 0 2px rgba(165,196,255,0.10) inset;
+}
+
+.nxHudPills{
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Map zones (constellations) */
+svg .nxZone{
+  opacity: 0;
+  transition: opacity .22s ease, stroke-opacity .22s ease;
+  pointer-events: none;
+}
+
+svg .nxZoneCore{
+  opacity: 1;
+}
+
+
+.nxHud{
+  position: absolute;
+  z-index: 6;
+  max-width: min(420px, calc(100% - 28px));
+  background: rgba(10, 13, 20, 0.62);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  padding: 12px 14px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+}
+
+.nxHudTitle{
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.88);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.nxHudMeta{
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.76);
+}
+
+.nxHudMeta--subtle{
+  margin-top: 6px;
+  color: rgba(255,255,255,0.58);
+  font-size: 12px;
+}
+
+.nxHud--tl{ top: 12px; left: 14px; }
+.nxHud--tr{ top: 14px; right: 14px; text-align: right; }
+.nxHud--bl{ bottom: calc(12px + env(safe-area-inset-bottom, 0px)); left: 14px; }
+.nxHud--br{ bottom: 14px; right: 14px; text-align: right; }
+
+
+.nxHudPills{
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.nxHudPills .pill{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.85);
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+
+.nxHudPills .pill:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.12); }
+.nxHudPills .pill.active{
+  background: rgba(165, 196, 255, 0.18);
+  border-color: rgba(165, 196, 255, 0.28);
+}
+
+
+/* =========================================================
+   Legend (bottom-right)
+   ========================================================= */
+.nxLegendRows{
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.nxLegendRow{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.2;
+  color: rgba(255,255,255,0.78);
+  white-space: nowrap;
+}
+
+.nxLegendRow.isDim{
+  opacity: 0.42;
+}
+.nxLegendRow.isActive{
+  opacity: 1;
+  color: rgba(255,255,255,0.92);
+  transform: translateX(0);
+  text-shadow: 0 0 18px rgba(255,255,255,0.28);
+}
+.nxLegendRow.isActive .nxLegendDot{
+  box-shadow: 0 0 0 7px rgba(255,255,255,0.10), 0 0 18px rgba(255,255,255,0.34);
+}
+
+.nxLegendDot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.06), 0 0 14px rgba(255,255,255,0.22);
+}
+
+
+/* =========================================================
+   Optional first-run helper (map intro)
+   ========================================================= */
+.nxIntroOverlay{
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,0.54);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Respect the HTML [hidden] attribute.
+   Our `.nxIntroOverlay { display: grid; }` would otherwise override the UA default,
+   making the "Enter Map" button feel broken because hiding never removes the overlay. */
+.nxIntroOverlay[hidden]{
+  display: none !important;
+}
+
+.nxIntroCard{
+  width: min(560px, calc(100% - 32px));
+  background: rgba(10, 13, 20, 0.72);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.55);
+  padding: 16px 16px 14px;
+}
+
+.nxIntroTitle{
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 12px;
+  color: rgba(255,255,255,0.90);
+}
+
+.nxIntroText{
+  margin-top: 10px;
+  color: rgba(255,255,255,0.78);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.nxIntroText p{ margin: 0 0 8px; }
+.nxIntroText p:last-child{ margin-bottom: 0; }
+
+.nxMono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  opacity: 0.95;
+}
+
+.nxIntroCats{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.nxIntroCats .nxTag{
+  padding: 6px 10px;
+}
+
+.nxIntroBtn{
+  margin-top: 14px;
+  width: 100%;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  font-size: 12px;
+  background: rgba(165,196,255,0.16);
+  border: 1px solid rgba(165,196,255,0.28);
+  color: rgba(255,255,255,0.92);
+  cursor: pointer;
+}
+.nxIntroBtn:hover{ background: rgba(165,196,255,0.22); }
+.nxIntroBtn:active{ transform: translateY(1px); }
+
+@media (max-width: 520px){
+  .nxHud--bl{ left: 10px; bottom: 10px; }
+  .nxHud--tl{ left: 10px; top: 10px; }
+  .nxIntroCard{ padding: 14px 14px 12px; }
+}
+
+/* =========================================================
+   Nodes host
+   ========================================================= */
+.nxNodes{
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* Dimmed nodes (role filtering) */
+.nxNode.isDim{
+  opacity: 0.28;
+  filter: saturate(0.6);
+}
+.nxNode.isDim:hover{ opacity: 0.95; filter: saturate(1); }
+
+
+/* Spotlight mode: when a node is active/previewed, dim everything else so the user instantly "gets it". */
+.nxNode.isSpotDim{
+  opacity: 0.14;
+  filter: saturate(0.45);
+}
+.nxNode.isSpotOn{
+  opacity: 1;
+  filter: drop-shadow(0 22px 52px rgba(0,0,0,0.70));
+}
+.nxLines .nxLine.isSpotDim{ opacity: 0.10; }
+.nxLines .nxLine.isSpotOn{ opacity: 0.92; }
+
+
+/* Tap burst: quick confirmation pulse when selecting a node (tablet-friendly). */
+.nxBurst{
+  animation: nxBurstFade 900ms ease-out forwards;
+
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: 0;
+  top: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.2);
+  opacity: 0;
+  border: 2px solid rgba(255,255,255,0.72);
+  box-shadow:
+    0 0 0 6px rgba(255,255,255,0.10),
+    0 0 26px rgba(255,255,255,0.22),
+    0 0 66px rgba(255,255,255,0.12);
+  transition: transform .78s cubic-bezier(0.18,0.98,0.16,1), opacity .22s ease;
+}
+.nxBurst.isOn{
+  transform: translate(-50%, -50%) scale(12);
+  opacity: 1;
+}
+
+
+
+/* =========================================================
+   Line variants (edge rendering)
+   ========================================================= */
+.nxLines .nxLine{
+  fill: none;
+  stroke: rgba(255,255,255,0.14);
+  filter: url(#glowSoft);
+  stroke-width: 0.85;
+  vector-effect: non-scaling-stroke;
+}
+
+.nxLines .nxLine--primary{
+  stroke-width: 0.9;
+  filter: url(#glow);
+}
+
+.nxLines .nxLine--dashed{ stroke-dasharray: 3.5 3.5; opacity: 0.75; }
+.nxLines .nxLine--dotted{ stroke-dasharray: 1.2 4.0; stroke-linecap: round; opacity: 0.75; }
+
+.nxLines .nxLine--core{ stroke: rgba(165, 196, 255, 0.70); }
+.nxLines .nxLine--docs{ stroke: rgba(205, 170, 255, 0.62); }
+.nxLines .nxLine--utilities{ stroke: rgba(146, 236, 220, 0.58); }
+.nxLines .nxLine--contact{ stroke: rgba(255, 214, 160, 0.62); }
+.nxLines .nxLine--fun{ stroke: rgba(255, 160, 160, 0.58); }
+
+.nxLines .nxLine.isDim{ opacity: 0.25; }
+
+/* =========================================================
+   Cluster labels (SVG text)
+   ========================================================= */
+.nxClusterLabel{
+  font-size: 3.2px;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  text-transform: uppercase;
+  fill: rgba(255,255,255,0.22);
+  paint-order: stroke;
+  stroke: rgba(0,0,0,0.35);
+  stroke-width: 0.6;
+}
+
+/* =========================================================
+   Preview card (matches current HTML)
+   ========================================================= */
+.nxPreview{
+  position: absolute;
+  z-index: 7;
+  right: 14px;
+  bottom: 14px;
+  width: min(360px, calc(100% - 28px));
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(10, 13, 20, 0.72);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 44px rgba(0,0,0,0.42);
+}
+
+.nxPreview.isVisible{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nxPreviewImg{
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.nxPreviewBody{ padding: 12px 14px 14px; }
+.nxPreviewTitle{
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.90);
+}
+.nxPreviewSub{
+  margin-top: 6px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.35;
+}
+.nxPreviewTags{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.nxTag{
+  font-size: 11px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.78);
+}
+
+/* Mobile: keep HUD readable + preview lower priority */
+@media (max-width: 720px){
+  .nxHud{ max-width: calc(100% - 28px); }
+  .nxHud--tr{ text-align: left; right: auto; left: 14px; top: 96px; }
+  .nxPreview{ display: none; }
+}
+
+
+
+/* =========================================================
+   Node kind accents (sub-constellations)
+   ========================================================= */
+
+/* Current category set (requested): Apps+Tools, Info, Contact, Fun */
+.nxNode--apps .nxDot{
+  background: rgba(57,255,20,0.92);
+  box-shadow: 0 0 0 6px rgba(57,255,20,0.12), 0 0 22px rgba(57,255,20,0.4);
+  border: 1px solid rgba(57,255,20,0.28);
+}
+
+
+/* AI / Knowledge */
+.nxNode--ai .nxDot{
+  background: rgba(0, 255, 179, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(0, 255, 179, 0.55),
+    0 0 18px rgba(0, 255, 179, 0.75),
+    0 0 44px rgba(0, 255, 179, 0.35);
+}
+
+/* Creative / Media */
+.nxNode--media .nxDot{
+  background: rgba(255, 179, 0, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(255, 179, 0, 0.55),
+    0 0 18px rgba(255, 179, 0, 0.70),
+    0 0 44px rgba(255, 179, 0, 0.32);
+}
+
+/* Ability clusters ("fun" prototypes demonstrating capabilities) */
+.nxNode--render .nxDot{
+  background: rgba(177,0,255,0.92);
+  box-shadow: 0 0 0 6px rgba(177,0,255,0.12), 0 0 22px rgba(177,0,255,0.4);
+  border: 1px solid rgba(177,0,255,0.28);
+}
+.nxNode--sim .nxDot{
+  background: rgba(255,106,0,0.92);
+  box-shadow: 0 0 0 6px rgba(255,106,0,0.12), 0 0 22px rgba(255,106,0,0.4);
+  border: 1px solid rgba(255,106,0,0.28);
+}
+.nxNode--data .nxDot{
+  background: rgba(255,247,0,0.92);
+  box-shadow: 0 0 0 6px rgba(255,247,0,0.12), 0 0 22px rgba(255,247,0,0.4);
+  border: 1px solid rgba(255,247,0,0.28);
+}
+.nxNode--info .nxDot{
+  background: rgba(0,245,255,0.92);
+  box-shadow: 0 0 0 6px rgba(0,245,255,0.12), 0 0 22px rgba(0,245,255,0.4);
+  border: 1px solid rgba(0,245,255,0.28);
+}
+
+/* Back-compat (older kinds) */
+.nxNode--docs .nxDot{
+  background: rgba(205, 170, 255, 0.92);
+  box-shadow: 0 0 0 10px rgba(205, 170, 255, 0.16), 0 0 18px rgba(205, 170, 255, 0.65);
+}
+.nxNode--utilities .nxDot{
+  background: rgba(146, 236, 220, 0.92);
+  box-shadow: 0 0 0 10px rgba(146, 236, 220, 0.14), 0 0 18px rgba(146, 236, 220, 0.60);
+}
+.nxNode--contact .nxDot{
+  background: rgba(255,0,60,0.92);
+  box-shadow: 0 0 0 6px rgba(255,0,60,0.12), 0 0 22px rgba(255,0,60,0.4);
+  border: 1px solid rgba(255,0,60,0.28);
+}
+.nxNode--fun .nxDot{
+  background: rgba(255,27,141,0.92);
+  box-shadow: 0 0 0 6px rgba(255,27,141,0.12), 0 0 22px rgba(255,27,141,0.4);
+  border: 1px solid rgba(255,27,141,0.28);
+}
+
+.nxNode--landing .nxDot{
+  background: rgba(0,245,255,0.92);
+  box-shadow: 0 0 0 6px rgba(0,245,255,0.12), 0 0 22px rgba(0,245,255,0.4);
+  border: 1px solid rgba(0,245,255,0.28);
+}
+
+
+/* Core stays default, but primary route stars get extra energy */
+.nxNode--primary .nxDot{
+  box-shadow: 0 0 0 12px rgba(165, 196, 255, 0.18), 0 0 26px rgba(165, 196, 255, 0.85);
+  transform: scale(1.05);
+}
+
+
+/* Safe-mode warning if config fails to load */
+.nxConfigMissing .nxMapWarn{
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 140, 120, 0.14);
+  border: 1px solid rgba(255, 140, 120, 0.22);
+  color: rgba(255,255,255,0.90);
+  font-weight: 750;
+  font-size: 13px;
+  z-index: 20;
+  max-width: min(560px, 92%);
+}
+
+
+.nxZone.isOn{ opacity: 1; }
+
+.nxClusterLabel{
+  opacity: 0;
+  transition: opacity .20s ease;
+  pointer-events: none;
+}
+
+.nxClusterLabel.isOn{ opacity: 1; }
+
+/* v29: Connector lines are removed entirely. */
+.nxLines{ display:none !important; }
+
+
+@keyframes nxBurstFade{ 0%{opacity:0.0;} 12%{opacity:1;} 100%{opacity:0;} }
+
+
+/* =====================================================================
+   v31A — Home = Single Screen (A: no scroll) + Background Parallax Alignment
+   - Removes page scrollbars (kills the pink/right + bottom bars)
+   - Makes constellation card fill the remaining viewport under TopNav
+   - Adds starfield overscan (scale) so parallax translate never reveals edges
+   - Ensures the legend never gets clipped
+   ===================================================================== */
+html, body{
+  height: 100%;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+/* Stack: TopNav + Constellation fills the rest */
+body.page-nexus{
+  height: 100dvh;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- v31B: Home-only padding override ---
+   Phase-F fixes add a big body padding-top for the old fixed header.
+   On the Nexus home (page-nexus) we use nxTopNav, so we must kill that extra cushion. */
+body.page-nexus{
+  padding-top: 0 !important;
+}
+
+
+body.page-nexus .nxTopNav{ flex: 0 0 auto; }
+
+body.page-nexus .constellationSection{
+  flex: 1 1 auto;
+  min-height: 0; /* critical: allow child to shrink inside flex */
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Override the clamp sizing so it never forces overflow */
+body.page-nexus .constellationSection .nxConstellation{
+  height: 100% !important;
+  max-height: none !important;
+  min-height: 0 !important;
+}
+
+/* If the legend grows (small screens), scroll INSIDE it instead of the page */
+body.page-nexus .nxHud--bl{
+  max-height: calc(100% - 28px);
+  overflow: auto;
+}
+body.page-nexus .nxHud--bl::-webkit-scrollbar{ display: none; }
+body.page-nexus .nxHud--bl{ scrollbar-width: none; }
+
+/* Hard stop: when a dropdown is open, the constellation map must not receive pointer/touch input */
+body.nxMenuOpen #nxConstellation,
+body.nxMenuOpen #nxMap{
+  pointer-events: none !important;
+}
+
+
+/* Ghost / not-wired nodes */
+.nxGhost{pointer-events:none;opacity:.18;filter:saturate(.4) blur(.2px)}
+.nxGhost .tile{background:transparent !important;border-color:rgba(255,255,255,.10) !important;box-shadow:none !important}
+
+/* Label wrap + collision mitigation */
+.tileLabel{
+  max-width: 140px;
+  white-space: normal;
+  line-height: 1.05;
+  text-align: center;
+}
+@media (max-width: 520px){
+  .tileLabel{max-width: 120px; font-size: 12px;}
+}
+
+/* Key compact (reduces coverage) */
+.categoriesKey{
+  max-width: 180px;
+  padding: 12px 12px;
+  opacity: .92;
+}
+@media (max-width: 520px){
+  .categoriesKey{max-width: 160px; padding: 10px 10px;}
+}
+
+
+/* Instructions HUD: collapsed by default (tap to expand) */
+.nxHud--tl{ max-width: 220px; cursor: pointer; }
+.nxHud--tl .nxHudMeta{ display:none; }
+.nxHud--tl.is-open .nxHudMeta{ display:block; }
+
+/* Tighten on very small screens */
+@media (max-width: 520px){
+  .nxHud--tl{ max-width: 180px; }
+}

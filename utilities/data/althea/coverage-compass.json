@@ -1,0 +1,31 @@
+{
+  "app": "Coverage Compass",
+  "key": "coverage-compass",
+  "updated": "2026-01-11",
+  "fallback_questions": [
+    {
+      "q": "What does Coverage Compass do?",
+      "a": "It\u2019s a Medicare Advantage vs Medigap decision-support tool that explains tradeoffs, estimates risk style, and highlights what would change the recommendation."
+    },
+    {
+      "q": "Does this app collect or send my data?",
+      "a": "No. It\u2019s designed for local-only use. Inputs stay on your device unless you manually share/export something."
+    },
+    {
+      "q": "What are the biggest drivers behind the recommendation?",
+      "a": "Typically: premium vs out-of-pocket risk tolerance, provider/network dependence, medication risk, and the ability to pass underwriting later (Medigap switching asymmetry)."
+    },
+    {
+      "q": "What is Medigap open enrollment?",
+      "a": "A 6-month window starting the first month you\u2019re 65+ and enrolled in Part B (generally the best time to buy Medigap without medical underwriting in many situations)."
+    },
+    {
+      "q": "What are AEP and MA-OEP?",
+      "a": "AEP is Oct 15\u2013Dec 7 (annual changes). MA-OEP is Jan 1\u2013Mar 31 (one switch for people already in MA)."
+    },
+    {
+      "q": "How should I use the uncertainty output?",
+      "a": "Treat it like a \u2018confidence + sensitivity\u2019 indicator: if uncertainty is high, focus on verifying the few top drivers and rerun scenarios (best/median/worst)."
+    }
+  ]
+}

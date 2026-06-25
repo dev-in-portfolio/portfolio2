@@ -1,0 +1,352 @@
+:root{
+  --bg:#0a0a0f;
+  --card: rgba(255,255,255,0.05);
+  --card2: rgba(255,255,255,0.08);
+  --line: rgba(255,255,255,0.12);
+  --text: #f7f7ff;
+  --muted: rgba(255,255,255,0.72);
+  --muted2: rgba(255,255,255,0.55);
+  --hot: #FF1B8D;
+  --lime:#39FF14;
+  --shadow: 0 12px 40px rgba(0,0,0,0.55);
+  --r: 18px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/*
+  IMPORTANT: This app uses the HTML `hidden` attribute to show/hide overlays.
+  The browser default is `[hidden]{display:none}`, but our overlay rules set
+  `display:flex` which can override that. Force hidden to win.
+*/
+[hidden]{ display:none !important; }
+.pvLock[hidden],
+.pvModal[hidden]{ display:none !important; }
+
+/* Page */
+body{
+  margin:0;
+  background: radial-gradient(1000px 600px at 15% 15%, rgba(255,27,141,0.14), transparent 55%),
+              radial-gradient(1000px 600px at 80% 20%, rgba(57,255,20,0.12), transparent 55%),
+              var(--bg);
+  color: var(--text);
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
+}
+
+/* Layout */
+.pv{
+  padding: 84px 16px 22px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.pvHeader{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap: 14px;
+  flex-wrap:wrap;
+}
+.pvTitleMain{ font-size: 28px; font-weight: 760; letter-spacing: 0.2px;}
+.pvTitleSub{ color: var(--muted2); font-size: 13px; margin-top: 4px;}
+.pvActions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+.pvBtn{
+  appearance:none;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor:pointer;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+}
+.pvBtn:hover{ border-color: rgba(255,255,255,0.24); }
+.pvBtn:active{ transform: translateY(1px); }
+.pvBtnGhost{
+  background: rgba(255,255,255,0.05);
+}
+.pvFileBtn input{ display:none; }
+
+.pvToolbar{
+  margin-top: 14px;
+  display:flex;
+  gap: 12px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.pvSearch{
+  flex: 1 1 420px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.20);
+  color: var(--text);
+  outline:none;
+}
+.pvSearch:focus{ border-color: rgba(57,255,20,0.55); box-shadow: 0 0 0 3px rgba(57,255,20,0.12); }
+.pvMeta{ color: var(--muted2); font-size: 13px; }
+
+.pvGrid{
+  margin-top: 16px;
+  display:grid;
+  grid-template-columns: 260px 1fr;
+  gap: 14px;
+}
+@media (max-width: 920px){
+  .pvGrid{ grid-template-columns: 1fr; }
+  .pvSidebar{ order: 2; }
+}
+.pvSidebar{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  border-radius: var(--r);
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+.pvSideTitle{ font-weight: 750; margin-bottom: 10px; }
+.pvSideHint{ margin-top: 12px; color: var(--muted2); font-size: 12px; line-height: 1.35; }
+.pvMono{ font-family: var(--mono); color: rgba(255,255,255,0.82); }
+
+.pvChips{ display:flex; flex-wrap:wrap; gap: 8px; }
+.pvChip{
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.20);
+  padding: 8px 10px;
+  border-radius: 999px;
+  cursor:pointer;
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+}
+.pvChipOn{
+  border-color: rgba(255,27,141,0.55);
+  box-shadow: 0 0 0 3px rgba(255,27,141,0.10);
+}
+
+.pvList{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--r);
+  padding: 12px;
+  box-shadow: var(--shadow);
+  min-height: 360px;
+}
+
+.pvItem{
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.22);
+  border-radius: 16px;
+  padding: 12px;
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+  margin-bottom: 10px;
+}
+.pvItem:last-child{ margin-bottom:0; }
+.pvItemTitle{ font-weight: 760; font-size: 16px; margin-bottom: 6px; }
+.pvItemBody{
+  color: rgba(255,255,255,0.78);
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  max-height: 120px;
+  overflow: hidden;
+  mask-image: linear-gradient(#000 60%, transparent);
+}
+.pvItemTags{ margin-top: 8px; display:flex; flex-wrap:wrap; gap: 6px; }
+.pvTag{
+  font-size: 11px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: rgba(255,255,255,0.78);
+}
+.pvItemMeta{
+  margin-top: 8px;
+  color: rgba(255,255,255,0.52);
+  font-size: 12px;
+}
+.pvItemActions{ display:flex; flex-direction:column; gap: 8px; }
+.pvIconBtn{
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  cursor:pointer;
+  color: var(--text);
+  font-weight: 800;
+}
+.pvIconBtn:hover{ border-color: rgba(57,255,20,0.55); }
+
+.pvEmpty{
+  padding: 16px;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.5;
+}
+
+/* Lock overlay */
+.pvLock{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.68);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  z-index: 9999;
+}
+.pvLockCard{
+  width: min(520px, 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(10,10,18,0.92);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+.pvLockTitle{ font-size: 22px; font-weight: 800; }
+.pvLockMsg{ margin-top: 8px; color: rgba(255,255,255,0.80); line-height: 1.45; }
+.pvLockMsgSmall{ margin-top: 6px; color: rgba(255,255,255,0.58); font-size: 12px; }
+
+.pvPinRow{
+  display:flex;
+  gap: 10px;
+  justify-content:center;
+  margin: 14px 0 10px;
+}
+.pvDot{
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+}
+.pvDotOn{
+  background: rgba(57,255,20,0.70);
+  border-color: rgba(57,255,20,0.75);
+}
+
+.pvKeypad{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+.pvKey{
+  height: 58px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  cursor:pointer;
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff; /* keypad numbers white */
+}
+.pvKey:hover{ border-color: rgba(255,255,255,0.24); }
+.pvKey:active{ transform: translateY(1px); }
+
+.pvLockErr{
+  min-height: 18px;
+  margin-top: 10px;
+  color: rgba(255,27,141,0.90);
+  font-weight: 650;
+  text-align:center;
+}
+
+.pvLockFooter{
+  display:flex;
+  justify-content:space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* Modal */
+.pvModal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.68);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  z-index: 9000;
+}
+.pvModalCard{
+  width: min(820px, 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(10,10,18,0.92);
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+.pvModalHead{ display:flex; align-items:center; justify-content:space-between; gap: 10px; }
+.pvModalTitle{ font-size: 18px; font-weight: 820; }
+.pvX{
+  width: 44px; height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  cursor:pointer;
+  color: var(--text);
+  font-size: 16px;
+}
+.pvField{ display:block; margin-top: 10px; }
+.pvField span{ display:block; font-size: 12px; color: rgba(255,255,255,0.70); margin-bottom: 6px; }
+.pvInput, .pvTextarea{
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.22);
+  color: var(--text);
+  padding: 10px 12px;
+  outline:none;
+}
+.pvTextarea{ resize: vertical; min-height: 180px; font-family: var(--mono); }
+.pvInput:focus, .pvTextarea:focus{ border-color: rgba(255,27,141,0.55); box-shadow: 0 0 0 3px rgba(255,27,141,0.10); }
+
+.pvModalActions{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  margin-top: 12px;
+}
+.pvGrow{ flex: 1; }
+.pvFormErr{
+  margin-top: 10px;
+  min-height: 18px;
+  font-size: 13px;
+  font-weight: 750;
+  color: rgba(255, 120, 120, .95);
+}
+.pvAiNote{ margin-top: 10px; color: rgba(255,255,255,0.72); font-size: 12px; line-height: 1.45; }
+
+
+/* ===== PromptVault: storage warning banner ===== */
+.pv-banner{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin: 12px auto;
+  max-width: 1100px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(20,20,28,.78);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 14px 45px rgba(0,0,0,.35);
+}
+.pv-banner__title{
+  font-weight: 800;
+  letter-spacing: .2px;
+  margin-bottom: 4px;
+}
+.pv-banner__body{
+  opacity: .9;
+  line-height: 1.35;
+}
+.pv-banner__actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+  flex-wrap: wrap;
+}

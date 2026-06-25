@@ -1,0 +1,589 @@
+:root{
+  --bg:#0b1020;--card:#111827;--card2:#0f172a;--line:#24304a;--text:#e5e7eb;--muted:#9ca3af;
+  --primary:#3b82f6;--danger:#ef4444;--warn:#f59e0b;--good:#22c55e;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0b1020,#050814);color:var(--text)}
+.app{min-height:100%;display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:rgba(15,23,42,.7);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+.left{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.35);font-weight:800;letter-spacing:.5px}
+.logoImg{width:32px;height:32px;display:block;object-fit:contain;image-rendering:auto;}
+.h1{font-weight:700}
+.sub{font-size:12px;color:var(--muted)}
+.right{display:flex;align-items:center;gap:10px}
+.pill{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(17,24,39,.7)}
+.sync{font-size:12px;color:var(--muted)}
+.main{width:100%;max-width:980px;margin:0 auto;padding:18px 16px 28px}
+.content.hidden{display:none}
+.card{background:rgba(17,24,39,.86);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.28)}
+.muted{color:var(--muted)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(15,23,42,.8);color:var(--text);cursor:pointer}
+.btn:hover{border-color:rgba(59,130,246,.5)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:rgba(59,130,246,.25);border-color:rgba(59,130,246,.55)}
+.btn.ghost{background:transparent}
+
+/* Button reliability on mobile/touch (prevents "dead" feeling) */
+button,.btn{-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;}
+button:active,.btn:active{transform:translateY(1px);}
+.callout{margin-top:14px;border:1px solid rgba(59,130,246,.35);background:rgba(59,130,246,.08);padding:12px;border-radius:14px}
+.calloutTitle{font-weight:700;margin-bottom:6px}
+.scrollbox{height:260px;overflow:auto;border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(15,23,42,.6)}
+.checkbox{display:flex;gap:10px;align-items:center;margin:12px 0;color:var(--muted)}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tag{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25)}
+.progress{display:flex;align-items:center;gap:10px;min-width:220px}
+.bar{flex:1;height:10px;border-radius:999px;background:rgba(148,163,184,.15);overflow:hidden;border:1px solid var(--line)}
+.fill{height:100%;width:0;background:rgba(59,130,246,.7)}
+.pct{font-size:12px;color:var(--muted);min-width:42px;text-align:right}
+.q{font-size: 14px;margin:14px 0 10px}
+.note{font-size:12px;color:var(--muted);margin:0 0 12px}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);background:rgba(15,23,42,.6);padding:10px;border-radius:14px;cursor:pointer}
+.opt:hover{border-color:rgba(59,130,246,.45)}
+.opt input{margin-top:3px}
+.opt .txt{color:var(--text)}
+.custom-select{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:rgba(15,23,42,.8);color:var(--text)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+.scoregrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media (max-width:860px){.scoregrid{grid-template-columns:1fr}}
+.scorecard{border:1px solid var(--line);background:rgba(15,23,42,.6);padding:12px;border-radius:14px}
+.scorecard h3{margin:0 0 6px;font-size:12px;color:var(--muted);letter-spacing:.4px}
+.scorecard .n{font-size:22px;font-weight:800}
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media (max-width:860px){.panels{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);background:rgba(15,23,42,.6);padding:12px;border-radius:14px}
+.panel h4{margin:0 0 8px;font-size:12px;color:var(--muted);letter-spacing:.4px}
+.warn{border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.08);padding:8px;border-radius:12px;margin-bottom:8px}
+.bad{border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.08);padding:8px;border-radius:12px;margin-bottom:8px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tab{font-size:12px;padding:8px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(15,23,42,.6);cursor:pointer;color:var(--muted)}
+.tab.active{color:var(--text);border-color:rgba(59,130,246,.55);background:rgba(59,130,246,.18)}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap;line-height:1.35;color:#cbd5e1}
+.comp-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.comp-table th,.comp-table td{border-bottom:1px solid var(--line);padding:10px;text-align:left}
+.val-good{color:var(--good)}
+.val-bad{color:var(--danger)}
+.footerRow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
+.small{font-size:12px;color:var(--muted)}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:18px;z-index:1000}
+.modalCard{width:min(720px,100%);background:rgba(17,24,39,.95);border:1px solid var(--line);border-radius:18px;padding:14px}
+textarea{width:100%;min-height:240px;border-radius:14px;border:1px solid var(--line);background:rgba(15,23,42,.85);color:var(--text);padding:12px}
+
+/* --- Completeness fixes / shared utility classes --- */
+.hidden{display:none}
+
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.stack{display:grid;gap:12px}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media (max-width:860px){.split{grid-template-columns:1fr}}
+
+.box{border:1px solid var(--line);background:rgba(15,23,42,.6);padding:12px;border-radius:14px;max-height:240px;overflow:auto}
+.warnbox{border:1px solid var(--line);background:rgba(15,23,42,.45);padding:12px;border-radius:14px;max-height:200px;overflow:auto}
+
+.trace{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(15,23,42,.6);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap;line-height:1.35;color:#cbd5e1}
+.audit{height:240px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;white-space:pre;line-height:1.35;color:#cbd5e1}
+
+.btn.tiny{padding:6px 8px;font-size:12px;border-radius:10px}
+
+.foot{margin-top:auto;border-top:1px solid var(--line);padding:12px 16px;background:rgba(15,23,42,.6)}
+.foot a{color:var(--text);text-decoration:none;opacity:.9}
+.foot a:hover{text-decoration:underline}
+
+
+
+/* --- Glossary UI --- */
+.glossaryTop{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.gField{flex:1;min-width:240px}
+.gField label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+.gField input,.gField select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(15,23,42,.6);color:var(--text)}
+.glossaryGrid{display:grid;grid-template-columns:1fr 1.35fr;gap:12px;align-items:stretch}
+@media (max-width:860px){.glossaryGrid{grid-template-columns:1fr}}
+.glossaryList{border:1px solid var(--line);background:rgba(15,23,42,.6);border-radius:14px;overflow:auto;max-height:55vh}
+.glossaryItem{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;justify-content:space-between;gap:10px}
+.glossaryItem:last-child{border-bottom:none}
+.glossaryItem:hover{background:rgba(255,255,255,.04)}
+.glossaryItem.active{background:rgba(255,255,255,.06);outline:2px solid rgba(255,255,255,.10)}
+.glossaryTerm{font-weight:700}
+.glossaryDef{font-size:12px;line-height:1.25;color:rgba(255,255,255,.75);margin-top:4px;max-width:38ch;}
+.glossaryCat{font-size:12px;color:var(--muted)}
+.glossaryDetail{border:1px solid var(--line);background:rgba(15,23,42,.6);border-radius:14px;padding:14px;overflow:auto;max-height:55vh}
+.glossaryDetail h4{margin:0 0 8px 0}
+.pillRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.kpill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;cursor:pointer;background:rgba(17,24,39,.25);color:var(--text)}
+.kpill:hover{background:rgba(255,255,255,.06)}
+.kpill .mini{font-size:11px;color:var(--muted)}
+.glossMeta{margin-top:12px}
+.glossMetaBody{margin-top:10px;display:grid;gap:12px}
+
+
+/* ===== Logo Splash: Centered Logo + Inverted Mask (NO frost/blur) ===== */
+#logoSplash{
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  pointer-events:auto; /* click/tap to skip */
+}
+
+/* The overlay that creates the "inverted mask" cut-out */
+#logoSplash .splash__glass{
+  position:absolute;
+  inset:0;
+
+  /* No frosty glass: no blur, no speckle */
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+
+  /* Minimal dim so the cut-out is visible (not frosty) */
+  background: rgba(0,0,0,0.45);
+
+  /* INVERTED MASK: full-rect minus hero didn’t always composite well cross-browser.
+     This combo works in modern Chromium + Safari; fallback is "dim overlay + centered logo". */
+  -webkit-mask-image:
+    linear-gradient(#000 0 0),
+    url("hero.png");
+  -webkit-mask-repeat: no-repeat, no-repeat;
+  -webkit-mask-position: center, center;
+  -webkit-mask-size: cover, min(92vw, 720px) auto;
+  -webkit-mask-mode: alpha, alpha;
+  -webkit-mask-composite: source-over, xor;
+
+  mask-image:
+    linear-gradient(#000 0 0),
+    url("hero.png");
+  mask-repeat: no-repeat, no-repeat;
+  mask-position: center, center;
+  mask-size: cover, min(92vw, 720px) auto;
+  mask-mode: alpha, alpha;
+  mask-composite: add, exclude;
+
+  opacity:1;
+  transition: opacity 320ms ease;
+}
+
+#logoSplash.splash--out .splash__glass{
+  opacity:0;
+}
+
+.splash__center{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 18px)
+    calc(env(safe-area-inset-right, 0px) + 18px)
+    calc(env(safe-area-inset-bottom, 0px) + 18px)
+    calc(env(safe-area-inset-left, 0px) + 18px);
+}
+
+/* The visible logo (guaranteed no crop) */
+#logoSplash .splash__logo{
+  width: min(92vw, 720px);
+  max-height: min(70vh, 520px);
+  height:auto;
+  object-fit:contain;
+  opacity:0;
+  transform:scale(.965);
+  filter: drop-shadow(0 12px 34px rgba(0,0,0,.45));
+  animation: splashLogoIn 520ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+@keyframes splashLogoIn{
+  to{opacity:1;transform:scale(1);}
+}
+
+#logoSplash.splash--out .splash__logo{
+  opacity:0;
+  transform:scale(.985);
+  transition: opacity 320ms ease, transform 320ms ease;
+}
+
+@media (prefers-reduced-motion: reduce){
+  #logoSplash .splash__logo{ animation:none; opacity:1; transform:none; }
+}
+
+
+/* Nexus topnav spacing (sticky nav stays in flow; no extra padding needed) */
+body{ padding-top: 0; }
+
+
+
+/* Nexus bar style is controlled globally by /shared/nexus-topnav.css
+   (Keep this app from overriding the shared navigation theme.) */
+
+
+
+/* === PHASE A VISIBILITY & LAYERING OVERRIDES === */
+html, body {
+  opacity: 1 !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  background-blend-mode: normal !important;
+}
+
+body::before,
+body::after,
+main::before,
+main::after {
+  content: none !important;
+  display: none !important;
+}
+
+[class*="overlay"],
+[class*="scrim"],
+[class*="backdrop"],
+[id*="overlay"],
+[id*="scrim"],
+[id*="backdrop"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+* {
+  text-shadow: none !important;
+}
+
+.nxs-pill,
+.start-pill,
+button,
+a.buttonlike {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Lock content to foreground plane */
+main, .content, .page, .container {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* === PHASE C: Z-INDEX & STACKING CONTEXT SANITY === */
+
+/* Avoid accidental stacking contexts WITHOUT nuking transforms/filters
+   (keeps buttons/animations working across devices) */
+* {
+  perspective: none !important;
+  isolation: auto !important;
+}
+
+/* Normalize z-index layers */
+:root {
+  --z-background: 0;
+  --z-content: 1;
+  --z-ui: 10;
+  --z-nav: 100;
+  --z-modal: 1000;
+  --z-debug: 10000;
+}
+
+/* Foreground locking */
+main, section, article, .content, .container {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* Navigation always above content */
+nav, .nexusbar, header {
+  position: relative;
+  z-index: var(--z-nav) !important;
+}
+
+/* --- Nexus TopNav override (portfolio global) ---
+   This app uses broad nav/header selectors above.
+   Ensure the portfolio Nexus bar remains fixed and clickable.
+*/
+nav.nxTopNav{
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+/* Debug UI always topmost */
+#eruda, .debug-ui, .debug-panel {
+  z-index: var(--z-debug) !important;
+}
+
+/* Remove backdrop-filter traps */
+[class*="blur"],
+[class*="glass"],
+[class*="frost"],
+[class*="backdrop"] {
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+/* Prevent future accidental stacking */
+[data-stack] {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* === END PHASE C === */
+
+
+/* === PHASE D: ACCESSIBILITY, CONTRAST & PERCEPTION === */
+
+/* Enforce readable contrast */
+:root {
+  --min-contrast-bg: #0f172a;
+  --min-contrast-text: #e5e7eb;
+}
+
+body {
+  color: var(--min-contrast-text) !important;
+  background-color: var(--min-contrast-bg) !important;
+}
+
+/* Focus visibility */
+*:focus,
+*:focus-visible {
+  outline: 3px solid #22d3ee !important;
+  outline-offset: 2px !important;
+}
+
+/* Remove fake-button links */
+a:not(.btn):not(.buttonlike) {
+  text-decoration: underline;
+}
+
+/* Button semantics */
+button, .btn, .buttonlike {
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+/* Ensure tap targets */
+a, button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Touch devices can sometimes trigger :hover on tap.
+   Never reset "all" styles (it can break buttons); just keep visuals steady. */
+@media (hover: none) {
+  .btn:hover,.opt:hover,.kpill:hover,.glossaryItem:hover{border-color:var(--line)}
+}
+
+/* Screen reader safety */
+[aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Ensure visible labels */
+input, select, textarea {
+  color: #0f172a !important;
+  background: #fff !important;
+}
+
+/* Prevent ultra-dense layouts */
+section, article, main {
+  line-height: 1.6;
+}
+
+/* === END PHASE D === */
+
+
+/* === Recommended Path Tile (compact) === */
+/* === More Tile === */
+
+
+/* === Hybrid Editorial Tile System (C) === */
+.inline-tile{
+  position: relative;
+  background: linear-gradient(180deg, rgba(18,22,35,0.92) 0%, rgba(12,16,28,0.88) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.inline-tile::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:4px;
+  background: linear-gradient(180deg, rgba(168,85,247,0.85) 0%, rgba(59,130,246,0.55) 100%);
+  
+}
+
+.inline-tile h3{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  
+}
+
+.inline-tile p{
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0;
+  
+  max-width: 70ch;
+}
+
+/* Slightly tighter cards for short statements */
+.inline-tile--tight{
+  padding: 16px 18px;
+}
+
+@media (max-width: 520px){
+  .inline-tile{
+    padding: 16px 16px;
+    border-radius: 14px;
+  }
+  .inline-tile p{
+    font-size: 14px;
+  }
+}
+
+
+
+/* === Inline Tiles Full-Width === */
+.inline-tile{
+  width: 100% !important;
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+}
+.inline-tile p{ max-width: none; }
+
+
+/* === Thumb De-Dimming === */
+.thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img{
+  filter: none !important;
+  opacity: 1 !important;
+}
+.thumb::after, .tile-thumb::after, .app-thumb::after, .nxs-thumb::after, .thumbs::after,
+.thumb::before, .tile-thumb::before, .app-thumb::before, .nxs-thumb::before, .thumbs::before{
+  display: none !important;
+  content: none !important;
+}
+
+
+/* === Force remove thumb dimming (override) === */
+img{ filter: none !important; opacity: 1 !important; }
+.tile img, .card img, .thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img,
+.tile picture img, picture img { filter:none !important; opacity:1 !important; mix-blend-mode: normal !important; }
+.tile::before, .tile::after,
+.card::before, .card::after,
+.thumb::before, .thumb::after,
+.tile-thumb::before, .tile-thumb::after,
+.app-thumb::before, .app-thumb::after,
+.nxs-thumb::before, .nxs-thumb::after,
+.thumbs::before, .thumbs::after,
+.tile img::before, .tile img::after { display:none !important; content:none !important; }
+
+
+/* === Full-width for Start Here + key tiles === */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* If they sit inside a grid, make them span the grid */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  grid-column: 1 / -1 !important;
+}
+
+
+
+
+
+/* === BC Combo Theme: Signal × Human === */
+:root{
+  --bg-main: radial-gradient(900px 500px at 20% -10%, rgba(255,200,160,.12), transparent 40%),
+             radial-gradient(700px 500px at 90% 10%, rgba(124,140,255,.14), transparent 35%),
+             linear-gradient(180deg, #0b0d12 0%, #10141f 40%, #0b0d12 100%);
+
+  --card-glass: linear-gradient(180deg, rgba(24,28,44,.85), rgba(18,22,36,.92));
+
+  --accent-a: #8f9cff;
+  --accent-b: #ffc89e;
+  --accent-c: #00ff9d;
+
+  --text-main: #f2f4ff;
+  --text-soft: #c6cbff;
+  --text-warm: #ffd9be;
+
+  --border-soft: rgba(143,156,255,.28);
+}
+
+body{
+  background: var(--bg-main), #0b0d12 !important;
+  color: var(--text-main);
+}
+
+.card, .panel, .tile{
+  background: var(--card-glass) !important;
+  backdrop-filter: blur(16px) saturate(115%);
+  border: 1px solid var(--border-soft);
+  box-shadow:
+    0 14px 40px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  border-radius: 18px;
+}
+
+.card:hover, .panel:hover, .tile:hover{
+  border-color: rgba(143,156,255,.45);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.6),
+    0 0 0 1px rgba(143,156,255,.18);
+}
+
+h1,h2,h3{
+  letter-spacing:.3px;
+  background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.subtitle, .hint, .meta{
+  color: var(--text-soft);
+}
+
+button,.btn,.pill{
+  background: linear-gradient(180deg, rgba(143,156,255,.18), rgba(143,156,255,.05));
+  border:1px solid rgba(143,156,255,.35);
+  color: var(--text-main);
+  box-shadow: 0 8px 20px rgba(0,0,0,.35);
+  border-radius: 999px;
+}
+
+button.primary,.btn.primary{
+  background: linear-gradient(90deg, var(--accent-a), var(--accent-b));
+  color:#0b0d12;
+}
+
+input,select,textarea{
+  background: rgba(12,16,28,.8);
+  border:1px solid rgba(143,156,255,.25);
+  color: var(--text-main);
+  border-radius: 12px;
+}
+
+.section-divider{
+  height:1px;
+  background: linear-gradient(90deg, transparent, rgba(143,156,255,.35), transparent);
+  margin:24px 0;
+}
+/* === End BC Combo === */

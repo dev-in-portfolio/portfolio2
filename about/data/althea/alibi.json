@@ -1,0 +1,26 @@
+{
+  "app": "alibi",
+  "updated": "2026-01-08",
+  "qa": [
+    {
+      "q": "What is ALIBI?",
+      "a": "ALIBI (Logged & Verified) is a kitchen inventory system built around accountability: every quantity change is logged, time-stamped, and reviewable \u2014 so \u2018we had it yesterday\u2019 becomes a measurable history."
+    },
+    {
+      "q": "What does \u201cLogged & Verified\u201d mean in practice?",
+      "a": "It means changes don\u2019t just mutate a number \u2014 they create an event (received/used/moved/count) that can be confirmed, audited, and rolled back mentally when reconciling inventory."
+    },
+    {
+      "q": "How do I get value fast?",
+      "a": "Start with your top 20 high\u2011variance items (meat, dairy, disposables). Log every receive/use/count for a week. The history will immediately show where drift happens."
+    },
+    {
+      "q": "Why did my inventory reset?",
+      "a": "Common causes: cleared browser storage, a new browser profile/device, or pointing to a different backend environment. Check localStorage/IndexedDB keys or API base URL."
+    },
+    {
+      "q": "What\u2019s the best next feature?",
+      "a": "A stock\u2011count workflow: \u201ccount mode\u201d that records a physical count event, explains the delta, and updates inventory while preserving the audit trail."
+    }
+  ]
+}

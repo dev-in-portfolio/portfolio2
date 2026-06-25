@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Interactive product builds in the Nexus suite." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="404 — Page Not Found" property="og:title"/>
+<meta content="Interactive product builds in the Nexus suite." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/404.html" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="404 — Page Not Found" name="twitter:title"/>
+<meta content="Interactive product builds in the Nexus suite." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>404 — Page Not Found</title>
+<link href="/shared/tokens.css" rel="stylesheet"/>
+<link href="lab-core.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<style>
+    .nx404Wrap{max-width:980px;margin:0 auto;padding:96px 18px}
+    .nx404Card{border:1px solid rgba(255,255,255,.12);border-radius:22px;background:rgba(255,255,255,.04);overflow:hidden}
+    .nx404Top{display:flex;gap:18px;align-items:stretch;padding:18px}
+    .nx404Hero{width:320px;max-width:42vw;border-radius:18px;object-fit:cover;aspect-ratio:16/10;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}
+    .nx404Body{flex:1;min-width:240px}
+    .nx404Kicker{opacity:.85;margin:0 0 6px}
+    .nx404H1{margin:0;font-size:28px;letter-spacing:.2px}
+    .nx404Msg{margin:10px 0 0;opacity:.92}
+    .nx404Msg .muted{opacity:.75}
+    .nx404Actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    .nxBtn{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);padding:10px 14px;border-radius:999px;text-decoration:none}
+    .nxBtn:hover{background:rgba(255,255,255,.10)}
+    .nx404Grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;padding:0 18px 18px}
+    .nx404Mini{border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px;background:rgba(255,255,255,.04)}
+    .nx404Mini .t{font-weight:700;margin:0}
+    .nx404Mini .p{opacity:.86;margin:6px 0 0}
+    .nx404Mini a{display:inline-block;margin-top:10px}
+    .muted{opacity:.75}
+
+
+/* ===== Phase 4: Accessibility, Contrast, & Perception ===== */
+/* Kill default shiny-blue links globally (unless explicitly styled) */
+a:link, a:visited{
+  color: rgba(255,255,255,0.92);
+  text-decoration-color: rgba(255,255,255,0.35);
+}
+a:hover{
+  color: rgba(255,255,255,0.98);
+  text-decoration-color: rgba(155,209,255,0.70);
+}
+a:active{
+  color: rgba(255,255,255,1);
+}
+
+/* If something is intended to look like a button, it should feel like one */
+a.btn, a.buttonlike, .nxs-btn, .nxs-pill, .pillBtn, button, [role="button"]{
+  text-decoration: none !important;
+}
+
+/* Keyboard: always visible focus, never the default outline that disappears on dark backgrounds */
+:focus-visible{
+  outline: 2px solid rgba(155,209,255,0.85);
+  outline-offset: 4px;
+}
+
+/* Increase tap target comfort on mobile */
+a, button{
+  -webkit-tap-highlight-color: rgba(155,209,255,0.25);
+}
+
+
+/* ===== Phase 5: Performance, SEO, & Production Paranoia ===== */
+/* Reduce layout shift from images */
+img{ height:auto; }
+
+</style>
+<link href="https://dev-in-portfolio.netlify.app/404.html" rel="canonical"/><link href="/icon-192.png" rel="icon"/><script src="/runtime-guard.js"></script>
+<link href="/shared/tile-polish.css" rel="stylesheet"/>
+<link href="/shared/phase-fixes.css?v=20260117" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+</head>
+<body data-app="global">
+  <nav class="nxTopNav"></nav>
+
+<div class="nx404Wrap">
+<div class="nx404Card">
+<div class="nx404Top">
+<img alt="404 hero" class="nx404Hero" decoding="async" id="hero" loading="lazy" onerror="this.style.display='none'" src="assets/404_images/global/hero.png"/>
+<div class="nx404Body">
+<p class="nx404Kicker">404 — Missing Route</p>
+<h1 class="nx404H1">That page isn’t wired.</h1>
+<p class="nx404Msg" id="msg"><span class="muted">Loading a better message…</span></p>
+<div class="nx404Actions">
+<a class="nxBtn" href="/">Back to Nexus</a>
+<a class="nxBtn" href="/about/">About</a>
+<a class="nxBtn" href="/case-studies/index.html">Case Studies</a>
+</div>
+</div>
+</div>
+<div class="nx404Grid">
+<div class="nx404Mini">
+<p class="t">Coverage Compass</p>
+<p class="p">Medicare decision support — constraint-first, explainable outputs.</p>
+<a class="nxBtn" href="/apps/coverage-compass/">Open</a>
+</div>
+<div class="nx404Mini">
+<p class="t">UBR</p>
+<p class="p">Broker routing + lead scanning — multi‑day planning, real-world ops.</p>
+<a class="nxBtn" href="/apps/ubr/index.html">Open</a>
+</div>
+<div class="nx404Mini">
+<p class="t">Alibi</p>
+<p class="p">Kitchen inventory — logged &amp; verified workflows for real environments.</p>
+<a class="nxBtn" href="/apps/alibi/index.html">Open</a>
+</div>
+</div>
+</div>
+</div>
+<script defer="defer" src="/shared/404-page.js"></script><script defer="" src="/shared/runtime-load-guard.js"></script>
+<script defer="" src="/shared/render-recovery-guard.js"></script>
+<script defer="" src="/shared/resize-dpr-guard.js"></script>
+<script defer="" src="/shared/error-boundary-guard.js"></script>
+<script defer="" src="/shared/state-init-guard.js"></script>
+<script defer="" src="/shared/scroll-focus-guard.js"></script>
+<script defer="" src="/shared/ui-physics-guard.js"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

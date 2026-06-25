@@ -1,0 +1,206 @@
+{
+  "categoryData": [
+    {
+      "name": "APPS - TOOLS",
+      "apps": [
+        { "name": "Agents (UI)", "href": "/apps/agents/", "tags": ["HTML/JS"] },
+        { "name": "Alibi", "href": "/apps/alibi/", "tags": ["HTML/JS"] },
+        { "name": "Prompt Vault", "href": "/apps/prompt-vault/", "tags": ["HTML/JS"] }
+      ]
+    },
+    {
+      "name": "DECISION SYSTEMS",
+      "apps": [
+        { "name": "Coverage Compass", "href": "/apps/coverage-compass/", "tags": ["HTML/JS"] },
+        { "name": "Ultimate Broker Route (UBR)", "href": "/apps/ubr/", "tags": ["HTML/JS"] },
+        { "name": "Contradict", "href": "https://dev-in-portfolio-contradict.netlify.app", "tags": ["Next.js"] }
+      ]
+    },
+    {
+      "name": "AI / KNOWLEDGE",
+      "apps": [
+        { "name": "FloraGuide AI", "href": "/apps/floraguide-ai/", "tags": ["HTML/JS"] },
+        { "name": "LingoLive AI", "href": "/apps/lingolive-ai/", "tags": ["HTML/JS"] },
+        { "name": "Oracle Pit", "href": "/apps/oracle-pit/", "tags": ["HTML/JS"] }
+      ]
+    },
+    {
+      "name": "Reasoning & Language Systems",
+      "apps": [
+        { "name": "Angle", "href": "https://dev-in-portfolio-angle.netlify.app", "tags": ["Node API", "Express", "EJS", "Neon"] },
+        { "name": "Interactive Terms Translator", "href": "https://dev-in-portfolio-interactive-terms-tr.netlify.app", "tags": ["Astro", "Static"] },
+        { "name": "Paradox Vault", "href": "https://dev-in-portfolio-paradox-vault.netlify.app", "tags": ["Web App", "Local-First"] },
+        { "name": "QueJudge", "href": "https://dev-in-portfolio-quejudge.netlify.app", "tags": ["Node API", "Neon"] },
+        { "name": "SolveSpace", "href": "https://dev-in-portfolio-solvespace.netlify.app", "tags": ["Next.js"] },
+        { "name": "Rule Furnace", "href": "https://dev-in-portfolio-rule-furnace.netlify.app", "tags": ["Fresh", "Deno", "Neon"] }
+      ]
+    },
+    {
+      "name": "Forms, Grids & Structured Input",
+      "apps": [
+        { "name": "Angular FormFoundry", "href": "https://dev-in-portfolio-angular-formfoundry.netlify.app", "tags": ["Angular", "Functions", "Neon"] },
+        { "name": "Angular GridSmith", "href": "https://dev-in-portfolio-angular-gridsmith.netlify.app", "tags": ["Angular", "Functions", "Neon"] },
+        { "name": "TapForge", "href": "https://dev-in-portfolio-tapforge.netlify.app", "tags": ["Flutter", "Node API", "Neon"] },
+        { "name": "Pocket Pass", "href": "https://dev-in-portfolio-pocket-pass.netlify.app", "tags": ["Next.js", "Firebase", "Neon"] }
+      ]
+    },
+    {
+      "name": "Timeline, Cadence & Session Flow",
+      "apps": [
+        { "name": "Angular Chronicle", "href": "https://dev-in-portfolio-angular-chronicle.netlify.app", "tags": ["Angular", "Functions", "Neon"] },
+        { "name": "TimeSlice", "href": "https://dev-in-portfolio-timeslice.netlify.app", "tags": ["Web App", "Neon"] },
+        { "name": "SessionMint", "href": "https://dev-in-portfolio-sessionmint.netlify.app", "tags": ["Next.js", "Supabase"] },
+        { "name": "Momentum", "href": "https://dev-in-portfolio-momentum.netlify.app", "tags": ["Astro", "Neon"] }
+      ]
+    },
+    {
+      "name": "Signal, Status & Monitoring Boards",
+      "apps": [
+        { "name": "Signal Board", "href": "https://dev-in-portfolio-signal-board.netlify.app", "tags": ["Vue", "Functions", "Neon"] },
+        { "name": "Signal Kitchen", "href": "https://dev-in-portfolio-signal-kitchen.netlify.app", "tags": ["Web App", "Neon"] },
+        { "name": "Nuxt SignalGrid", "href": "https://dev-in-portfolio-nuxt-signalgrid.netlify.app", "tags": ["Nuxt 3", "Neon"] },
+        { "name": "Qwik SignalTiill", "href": "https://dev-in-portfolio-qwik-signaltill.netlify.app", "tags": ["Qwik City", "Functions", "Neon"] },
+        { "name": "Dash FlowLens", "href": "https://dev-in-portfolio-dash-flowlens.netlify.app", "tags": ["Dash", "Python", "Neon"] },
+        { "name": "Dash DriftMeter", "href": "https://dev-in-portfolio-dash-driftmeter.netlify.app", "tags": ["Dash", "Python", "Neon"] },
+        { "name": "Dash ClaimScope", "href": "https://dev-in-portfolio-dash-claimscope.netlify.app", "tags": ["Dash", "Python", "Neon"] },
+        { "name": "QueueGauge", "href": "https://dev-in-portfolio-queuegauge.netlify.app", "tags": ["NestJS", "Neon"] },
+        { "name": "LineFlow", "href": "https://dev-in-portfolio-lineflow.netlify.app", "tags": ["Node API", "Functions", "Neon"] },
+        { "name": "RecalGrid", "href": "https://dev-in-portfolio-recalgrid.netlify.app", "tags": ["Gradio", "Python", "Neon"] }
+      ]
+    },
+    {
+      "name": "Ledger, Vault & Record Systems",
+      "apps": [
+        { "name": "CueDeck", "href": "https://dev-in-portfolio-cuedeck.netlify.app", "tags": ["Node API", "Functions", "Neon"] },
+        { "name": "Operator Ledger", "href": "https://dev-in-portfolio-operator-ledger.netlify.app", "tags": ["Desktop", "Download"] },
+        { "name": "PalmLedger", "href": "https://dev-in-portfolio-palmledger.netlify.app", "tags": ["Node API", "Functions", "Neon"] },
+        { "name": "SnapShot Vault", "href": "https://dev-in-portfolio-snapshot-vault.netlify.app", "tags": ["NestJS", "Functions", "Neon"] },
+        { "name": "Remix Vault Key", "href": "https://dev-in-portfolio-remix-vault-key.netlify.app", "tags": ["Remix", "Encrypted Notes"] },
+        { "name": "Receipt Vault", "href": "https://dev-in-portfolio-receipt-vault.netlify.app", "tags": ["Next.js", "Firebase", "Neon"] },
+        { "name": "Pocket Dossier", "href": "https://dev-in-portfolio-pocket-dossier.netlify.app", "tags": ["Flutter", "Node API", "Neon"] },
+        { "name": "Room Key", "href": "https://dev-in-portfolio-room-key.netlify.app", "tags": ["Next.js", "Firebase", "Neon"] },
+        { "name": "RelayRoom", "href": "https://dev-in-portfolio-relayroom.netlify.app", "tags": ["NestJS", "Neon"] }
+      ]
+    },
+    {
+      "name": "Media, Cards & Composition Studios",
+      "apps": [
+        { "name": "Clip Forge", "href": "https://dev-in-portfolio-clip-forge.netlify.app", "tags": ["Tauri", "Svelte", "Desktop"] },
+        { "name": "CardPress", "href": "https://dev-in-portfolio-cardpress.netlify.app", "tags": ["Vue", "Functions", "Neon"] },
+        { "name": "Nuxt CardPress", "href": "https://dev-in-portfolio-nuxt-cardpress.netlify.app", "tags": ["Nuxt 3", "Neon"] },
+        { "name": "SurfaceLab", "href": "https://dev-in-portfolio-surfacelab.netlify.app", "tags": ["Web App", "Neon"] },
+        { "name": "SleepyStory", "href": "/apps/sleepystory/", "tags": ["HTML/JS"] },
+        { "name": "ToonStudio", "href": "/apps/toonstudio/", "tags": ["HTML/JS"] },
+        { "name": "Electron MapStencil", "href": "https://dev-in-portfolio-electron-mapstencil.netlify.app", "tags": ["Electron", "Desktop"] },
+        { "name": "Electron ReceiptBox", "href": "https://dev-in-portfolio-electron-receiptbox.netlify.app", "tags": ["Electron", "Desktop"] },
+        { "name": "Electron Dockyard", "href": "https://dev-in-portfolio-electron-dockyard.netlify.app", "tags": ["Electron", "Desktop"] },
+        { "name": "Qwik CardForge", "href": "https://dev-in-portfolio-qwik-cardforge.netlify.app", "tags": ["Qwik City", "Functions", "Neon"] }
+      ]
+    },
+    {
+      "name": "Spatial, Museum & Navigation Systems",
+      "apps": [
+        { "name": "Digital Science Museum", "href": "https://dev-in-portfolio-digital-science.netlify.app", "tags": ["Astro", "Functions", "Neon"] },
+        { "name": "WayFinder", "href": "https://dev-in-portfolio-wayfinder.netlify.app", "tags": ["Astro", "Static"] },
+        { "name": "The Long Walk", "href": "/apps/the-long-walk/", "tags": ["React"] },
+        { "name": "Hallmap Studio", "href": "https://dev-in-portfolio-hallmap-studio.netlify.app", "tags": ["Streamlit", "Python", "Neon"] },
+        { "name": "RouteForge Console", "href": "https://dev-in-portfolio-routeforge-console.netlify.app", "tags": ["Streamlit", "Python", "Neon"] }
+      ]
+    },
+    {
+      "name": "Docs, Specs & Release Libraries",
+      "apps": [
+        { "name": "Eleventy Patch Book", "href": "https://dev-in-portfolio-eleventy-patch-book.netlify.app", "tags": ["Eleventy", "Static"] },
+        { "name": "Eleventy Spec Forge", "href": "https://dev-in-portfolio-eleventy-spec-forge.netlify.app", "tags": ["Eleventy", "Static"] },
+        { "name": "Eleventy Switchboard", "href": "https://dev-in-portfolio-eleventy-switchboard.netlify.app", "tags": ["Eleventy", "Static"] },
+        { "name": "Hugo AtlasShelf", "href": "https://dev-in-portfolio-hugo-atlasshelf.netlify.app", "tags": ["Hugo", "Static"] },
+        { "name": "Hugo FieldManual", "href": "https://dev-in-portfolio-hugo-fieldmanual.netlify.app", "tags": ["Hugo", "Static"] },
+        { "name": "Hugo Release Gallery", "href": "https://dev-in-portfolio-hugo-release-gallery.netlify.app", "tags": ["Hugo", "Static"] },
+        { "name": "PatchSmith", "href": "https://dev-in-portfolio-patchsmith.netlify.app", "tags": ["Gradio", "Python", "Neon"] },
+        { "name": "Repo Pilot", "href": "https://dev-in-portfolio-repo-pilot.netlify.app", "tags": ["Desktop", "Download"] },
+        { "name": "Draft Relay", "href": "https://dev-in-portfolio-draft-relay.netlify.app", "tags": ["Fresh", "Deno", "Neon"] },
+        { "name": "Switchboard", "href": "https://dev-in-portfolio-swittchboard.netlify.app", "tags": ["Vue", "Functions", "Neon"] }
+      ]
+    },
+    {
+      "name": "Schema, Diff & Rule Enforcement Engines",
+      "apps": [
+        { "name": "SchemaGate", "href": "https://dev-in-portfolio-schemagate.netlify.app", "tags": ["Node API", "Neon"] },
+        { "name": "SchemaPulse", "href": "https://dev-in-portfolio-schemapulse.netlify.app", "tags": ["Gradio", "Python", "Neon"] },
+        { "name": "DiffLens", "href": "https://dev-in-portfolio-difflens.netlify.app", "tags": ["Node API", "Neon"] },
+        { "name": "Remix DiffAtlas", "href": "https://dev-in-portfolio-remix-diffatlas.netlify.app", "tags": ["Remix", "Neon"] },
+        { "name": "Compression", "href": "https://dev-in-portfolio-compression.netlify.app", "tags": ["Node API", "Express", "Neon"] },
+        { "name": "Causality", "href": "https://dev-in-portfolio-causality.netlify.app", "tags": ["Node API", "Express", "Neon"] },
+        { "name": "Remix QueueSplice", "href": "https://dev-in-portfolio-remix-queuesplice.netlify.app", "tags": ["Remix", "Neon"] },
+        { "name": "Hono Intake", "href": "https://dev-in-portfolio-hono-intake.netlify.app", "tags": ["Hono", "Functions", "Neon"] },
+        { "name": "Hono Gatekeeper", "href": "https://dev-in-portfolio-hono-gatekeeper.netlify.app", "tags": ["Hono", "Functions", "Neon"] },
+        { "name": "Hono CapsuleCache", "href": "https://dev-in-portfolio-hono-capsulecache.netlify.app", "tags": ["Hono", "Functions", "Neon"] }
+      ]
+    },
+    {
+      "name": "App Platform Labs & View Infrastructure",
+      "apps": [
+        { "name": "Nuxt View Vault", "href": "https://dev-in-portfolio-nuxt-view-vault.netlify.app", "tags": ["Nuxt 3", "Neon"] },
+        { "name": "Qwik Atlas", "href": "https://dev-in-portfolio-qwik-atlas.netlify.app", "tags": ["Qwik City", "Functions", "Neon"] },
+        { "name": "Island Index", "href": "https://dev-in-portfolio-island-index.netlify.app", "tags": ["Fresh", "Deno", "Neon"] },
+        { "name": "StreamLit", "href": "https://dev-in-portfolio-streamlit.netlify.app", "tags": ["Streamlit", "Python"] },
+        { "name": "NeonScope", "href": "https://dev-in-portfolio-neonscope.netlify.app", "tags": ["Streamlit", "Python", "Neon"] },
+        { "name": "LatchList", "href": "https://dev-in-portfolio-latchlist.netlify.app", "tags": ["Next.js", "Supabase"] },
+        { "name": "Order of One", "href": "https://dev-in-portfolio-order-of-one.netlify.app", "tags": ["Next.js"] },
+        { "name": "Radar of One", "href": "https://dev-in-portfolio-radar-of-one.netlify.app", "tags": ["Next.js"] },
+        { "name": "TagTrellis", "href": "https://dev-in-portfolio-tagtrellis.netlify.app", "tags": ["Next.js", "Supabase"] }
+      ]
+    }
+  ],
+  "extraCategories": [
+    { "name": "KNOWLEDGE / REFERENCE", "apps": [ { "name": "Codex of Imaginary Physics", "href": "/apps/codex-of-imaginary-physics/", "tags": ["React"] }, { "name": "Codex of Hieroglyphs", "href": "https://dev-in-portfolio-codex-of-hieroglyphi.netlify.app", "tags": ["Astro", "Static"] } ] },
+    { "name": "KNOWLEDGE / FIELD GUIDE", "apps": [ { "name": "Myths & Facts Almanac", "href": "/apps/myths-facts-almanac/", "tags": ["React"] } ] },
+    { "name": "BUILDERS / GENERATORS", "apps": [ { "name": "Time-Locked Page Forge", "href": "/apps/time-locked-page-forge/", "tags": ["React"] } ] },
+    { "name": "UI LABS / MOTION", "apps": [ { "name": "Motion Workshop Bench", "href": "/apps/motion-workshop-bench/", "tags": ["React"] } ] },
+    { "name": "CREATIVE TOOLS / CANVAS", "apps": [ { "name": "Friction Painter", "href": "/apps/friction-painter/", "tags": ["React"] }, { "name": "Ink That Remembers", "href": "/apps/ink-that-remembers/", "tags": ["React"] } ] },
+    { "name": "GENERATIVE / VISUAL SYSTEMS", "apps": [ { "name": "Glow Garden", "href": "/apps/glow-garden/", "tags": ["React"] } ] },
+    { "name": "MEDIA TOOLS / EDITING", "apps": [ { "name": "Splice", "href": "/apps/splice/", "tags": ["HTML/JS"] } ] },
+    { "name": "REAL-TIME RENDER", "apps": [ { "name": "Helios", "href": "/apps/helios/", "tags": ["HTML/JS"] }, { "name": "Transit", "href": "/apps/transit/", "tags": ["HTML/JS"] }, { "name": "Vortex", "href": "/apps/vortex/", "tags": ["HTML/JS"] }, { "name": "Helix", "href": "/apps/helix/", "tags": ["HTML/JS"] }, { "name": "Tectonic", "href": "/apps/tectonic/", "tags": ["HTML/JS"] } ] },
+    { "name": "INTERACTIVE SIM", "apps": [ { "name": "Aeon", "href": "/apps/aeon/", "tags": ["HTML/JS"] }, { "name": "Magma", "href": "/apps/magma/", "tags": ["HTML/JS"] }, { "name": "String", "href": "/apps/string/", "tags": ["HTML/JS"] } ] },
+    { "name": "STORYWORLD / EXPLORER", "apps": [ { "name": "Field Notes: Alternate Earths", "href": "/apps/field-notes-alternate-earths/", "tags": ["React"] } ] },
+    { "name": "GAMES / PUZZLES / LOGIC", "apps": [ { "name": "Constraint Chess", "href": "/apps/constraint-chess/", "tags": ["React"] }, { "name": "Riddle Rooms", "href": "/apps/riddle-rooms/", "tags": ["React"] }, { "name": "Crossword Arena", "href": "/apps/crossword-arena/", "tags": ["HTML/JS"] }, { "name": "Evening Epic Sudoku", "href": "/apps/evening-epic-sudoku/", "tags": ["HTML/JS"] } ] },
+    { "name": "CHAOS", "apps": [ { "name": "Do Not Press", "href": "/do-not-press.html", "tags": ["HTML/JS"] } ] },
+    { "name": "TRAINING / REFLEX", "apps": [ { "name": "Reflex Trainer", "href": "/apps/reflex-trainer/", "tags": ["React"] } ] },
+    { "name": "INFO", "apps": [ { "name": "About", "href": "/about.html", "tags": ["HTML/JS"] } ] }
+  ],
+  "categoryOrder": [
+    "APPS - TOOLS",
+    "DECISION SYSTEMS",
+    "AI / KNOWLEDGE",
+    "MEDIA TOOLS / EDITING",
+    "REAL-TIME RENDER",
+    "INTERACTIVE SIM",
+    "Forms, Grids & Structured Input",
+    "KNOWLEDGE / REFERENCE",
+    "GAMES / PUZZLES / LOGIC",
+    "Signal, Status & Monitoring Boards",
+    "BUILDERS / GENERATORS",
+    "Timeline, Cadence & Session Flow",
+    "CREATIVE TOOLS / CANVAS",
+    "Schema, Diff & Rule Enforcement Engines",
+    "Ledger, Vault & Record Systems",
+    "STORYWORLD / EXPLORER",
+    "Docs, Specs & Release Libraries",
+    "App Platform Labs & View Infrastructure",
+    "UI LABS / MOTION",
+    "GENERATIVE / VISUAL SYSTEMS",
+    "Reasoning & Language Systems",
+    "Spatial, Museum & Navigation Systems",
+    "KNOWLEDGE / FIELD GUIDE",
+    "TRAINING / REFLEX",
+    "CHAOS",
+    "INFO"
+  ],
+  "categoryLabels": {
+    "Media, Cards & Composition Studios": "CREATIVE / MEDIA / STUDIO",
+    "Timeline, Cadence & Session Flow": "TIMELINE / CADENCE",
+    "Signal, Status & Monitoring Boards": "SIGNAL / MONITORING",
+    "Spatial, Museum & Navigation Systems": "MUSEUM / EXPERIENCE",
+    "Ledger, Vault & Record Systems": "LEDGER / VAULT"
+  }
+}

@@ -1,0 +1,2262 @@
+[
+  {
+    "id": "10.1.1.1",
+    "slug": "env-injector-agent",
+    "name": ".env Injector Agent",
+    "pack": "A",
+    "purpose": "Injects secrets/config into a local run (creates/updates .env or binds runtime env vars) without leaking values into logs.",
+    "permissions": [
+      "local.fs.write",
+      "secrets.read",
+      "secrets.redact",
+      "local.env.bind"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "local-only"
+  },
+  {
+    "id": "5.1.1.1",
+    "slug": "local-cli-runner",
+    "name": "Local CLI Runner",
+    "pack": "A",
+    "purpose": "Runs packaged agents locally via a minimal CLI agent runtime with logs + exit codes.",
+    "permissions": [
+      "local.exec",
+      "local.fs.read",
+      "local.fs.write",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "local-only"
+  },
+  {
+    "id": "5.1.4.1",
+    "slug": "local-filesystem-agent",
+    "name": "Local Filesystem Agent",
+    "pack": "A",
+    "purpose": "Reads/writes local files for tasks like indexing, renaming, templating, and report generation.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.write",
+      "local.fs.list",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "local-only"
+  },
+  {
+    "id": "10.1.4.1",
+    "slug": "secret-redaction-agent",
+    "name": "Secret Redaction Agent",
+    "pack": "A",
+    "purpose": "Scans outputs/logs and redacts secrets/PII using rules + patterns before saving receipts.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.write",
+      "local.logs.read",
+      "local.logs.write",
+      "policy.redaction.apply",
+      "secrets.redact"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "local-only"
+  },
+  {
+    "id": "3.5.4.1",
+    "slug": "form-autofill-agent",
+    "name": "Form Autofill Agent",
+    "pack": "B",
+    "purpose": "Autofills forms from a schema + user-provided data in a controlled, preview-first workflow.",
+    "permissions": [
+      "browser.dom.read",
+      "browser.dom.write",
+      "user.data.read",
+      "approval.required",
+      "browser.automation",
+      "receipts.screenshots.write",
+      "local.fs.write"
+    ],
+    "outputs": [
+      "screenshots/*.png",
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "3.5.1.1",
+    "slug": "playwright-browser-runner",
+    "name": "Playwright Browser Runner",
+    "pack": "B",
+    "purpose": "Executes scripted browser flows against demo targets and returns screenshots + step receipts.",
+    "permissions": [
+      "browser.automation",
+      "net.egress.demo_only",
+      "receipts.screenshots.write",
+      "local.fs.write"
+    ],
+    "outputs": [
+      "screenshots/*.png",
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "3.5.3.1",
+    "slug": "recorder-replay-agent",
+    "name": "Recorder Replay Agent",
+    "pack": "B",
+    "purpose": "Replays recorded UI steps (click/type/wait/assert) with deterministic timing + selectors.",
+    "permissions": [
+      "browser.automation",
+      "browser.storage.scoped",
+      "receipts.screenshots.write",
+      "local.fs.read",
+      "local.fs.write"
+    ],
+    "outputs": [
+      "screenshots/*.png",
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "3.5.5.1",
+    "slug": "ui-regression-test-agent",
+    "name": "UI Regression Test Agent",
+    "pack": "B",
+    "purpose": "Runs baseline UI checks (DOM assertions + screenshot diffs) to detect breakages and generate a report.",
+    "permissions": [
+      "browser.automation",
+      "receipts.screenshots.write",
+      "receipts.diff.write",
+      "local.fs.write",
+      "net.egress.demo_only"
+    ],
+    "outputs": [
+      "screenshots/*.png",
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "10.2.6.1",
+    "slug": "hardware-approval-agent",
+    "name": "Hardware-backed Approval Agent",
+    "pack": "C",
+    "purpose": "Gates high-risk actions behind a hardware-backed user approval and records proof.",
+    "permissions": [
+      "hardware.authn.request",
+      "approval.high_risk.gate",
+      "receipts.attestation.write",
+      "policy.enforce",
+      "approval.required"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "local-only"
+  },
+  {
+    "id": "9.1.1.1",
+    "slug": "local-password-vault-agent",
+    "name": "Local Password Vault Agent",
+    "pack": "C",
+    "purpose": "Stores/retrieves credentials locally using encryption; provides time-limited secret handles to agents.",
+    "permissions": [
+      "vault.create",
+      "vault.unlock",
+      "secrets.issue_handle",
+      "secrets.never_log",
+      "local.crypto",
+      "local.fs.read",
+      "local.fs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "local-only"
+  },
+  {
+    "id": "9.2.2.1",
+    "slug": "local-signing-agent",
+    "name": "Local Signing Agent",
+    "pack": "C",
+    "purpose": "Signs payloads (agent packages, receipts, approvals) with a locally held keypair.",
+    "permissions": [
+      "keys.use.private",
+      "crypto.sign",
+      "approval.required",
+      "receipts.signature.write",
+      "local.fs.read",
+      "local.fs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "local-only"
+  },
+  {
+    "id": "8.1.6.1",
+    "slug": "offline-receipts-agent",
+    "name": "Offline Receipts Agent",
+    "pack": "C",
+    "purpose": "Captures a complete what-happened run log offline (inputs, actions, artifacts) for later review/export.",
+    "permissions": [
+      "local.logs.write",
+      "local.fs.write",
+      "receipts.bundle.export",
+      "net.disabled"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "local-only"
+  },
+  {
+    "id": "6.1.13.1",
+    "slug": "app-launcher-agent",
+    "name": "App Launcher Agent",
+    "pack": "D",
+    "purpose": "Generates a launcher.html linking to discovered app index.html entry points.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.1.1",
+    "slug": "audit-agent",
+    "name": "Audit Agent",
+    "pack": "D",
+    "purpose": "General structural audit for a local web/app repo: counts, missing local asset refs, and a clean JSON report.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.7.1",
+    "slug": "code-tester-agent",
+    "name": "Code Tester Agent",
+    "pack": "D",
+    "purpose": "Runs lightweight JS checks (node --check) or grep-based sanity scans and produces a failure report.",
+    "permissions": [
+      "local.exec",
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.11.1",
+    "slug": "data-link-agent",
+    "name": "Data Link Agent",
+    "pack": "D",
+    "purpose": "Checks cross-link integrity in HTML (relative href/src) and reports broken local links.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.10.1",
+    "slug": "fixer-agent",
+    "name": "Fixer Agent",
+    "pack": "D",
+    "purpose": "Runs a controlled set of safe autofixes (meta cleanup, optional nexus bar injection, 404 stub creation).",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.5.1",
+    "slug": "meta-cleaner-agent",
+    "name": "Meta Cleaner Agent",
+    "pack": "D",
+    "purpose": "Scans HTML/Markdown for placeholder meta/text and can apply safe replacement rules.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.4.1",
+    "slug": "nexus-bar-agent",
+    "name": "Nexus Bar Agent",
+    "pack": "D",
+    "purpose": "Checks for a Nexus bar marker across HTML pages and can inject a minimal Back-to-Nexus bar when missing.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.14.1",
+    "slug": "page-builder-agent",
+    "name": "Page Builder Agent",
+    "pack": "D",
+    "purpose": "Creates missing stubs (404.html, README.md) per app root and logs what it generated.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.2.1.1",
+    "slug": "playwright-smoke-test-agent",
+    "name": "Playwright Smoke Test Agent",
+    "pack": "D",
+    "purpose": "Runs a basic Playwright smoke flow against controlled demo targets and saves screenshot receipts.",
+    "permissions": [
+      "browser.automation",
+      "net.egress.demo_only",
+      "receipts.screenshots.write",
+      "local.fs.write",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.6.1",
+    "slug": "portfolio-checker-agent",
+    "name": "Portfolio Checker Agent",
+    "pack": "D",
+    "purpose": "Validates app folders against required files (index.html, etc.) and reports missing components.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.12.1",
+    "slug": "route-optimizer-agent",
+    "name": "Route Optimizer Agent",
+    "pack": "D",
+    "purpose": "Builds a reachable-page graph from an entry HTML, flags missing targets and orphan pages.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.8.1",
+    "slug": "settings-sync-agent",
+    "name": "Settings Sync Agent",
+    "pack": "D",
+    "purpose": "Finds settings.json files and reports drift; can sync all copies to a chosen source.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.2.1",
+    "slug": "thumb-sync-agent",
+    "name": "Thumbnail Sync Agent",
+    "pack": "D",
+    "purpose": "Finds app roots and verifies required thumbnail/hero assets; can optionally copy a template thumb to fill gaps.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.list",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.3.1",
+    "slug": "tile-sorter-agent",
+    "name": "Tile Sorter Agent",
+    "pack": "D",
+    "purpose": "Sorts a tiles/modules JSON file by a chosen key and optionally applies the change in-place.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "6.1.9.1",
+    "slug": "zip-verifier-agent",
+    "name": "ZIP Verifier Agent",
+    "pack": "D",
+    "purpose": "Validates ZIP integrity and lists entries (bounded) into a receipts-friendly report.",
+    "permissions": [
+      "local.fs.read",
+      "local.fs.write",
+      "local.path.scope",
+      "local.logs.write"
+    ],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "demo"
+  },
+  {
+    "id": "DOC-005",
+    "slug": "api-load-tester-agent",
+    "name": "API Load Tester Agent",
+    "pack": "E",
+    "purpose": "Performs a stress test on a target URL by firing concurrent requests and measuring average latency and success rates.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-008",
+    "slug": "disk-cleanup-agent",
+    "name": "Disk Cleanup Agent",
+    "pack": "E",
+    "purpose": "Scans a target directory and deletes files older than a specified number of days. Essential for log rotation or temp file hygiene.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-006",
+    "slug": "docker-manager-agent",
+    "name": "Docker Manager Agent",
+    "pack": "E",
+    "purpose": "Interacts with the Docker daemon to list running containers or restart a specific container.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-012",
+    "slug": "fuzz-stress-agent-the-chaos-monkey",
+    "name": "Fuzz Stress Agent (The \"Chaos Monkey\")",
+    "pack": "E",
+    "purpose": "Generates random, potentially dangerous inputs to test the robustness of a CLI command or API. It loops until it triggers a crash or timeout.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-001",
+    "slug": "git-operations-agent",
+    "name": "Git Operations Agent",
+    "pack": "E",
+    "purpose": "Automate source control tasks. This agent can clone repositories, check status, or commit changes automatically (e.g., after a \"Secret Redaction\" run).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-022",
+    "slug": "port-killer-agent-devops-utility",
+    "name": "Port Killer Agent (DevOps Utility)",
+    "pack": "E",
+    "purpose": "Finds the process ID (PID) listening on a specific TCP port and terminates it. Extremely useful when a previous server instance hangs and blocks a port.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-045",
+    "slug": "process-monitor-agent-system-control",
+    "name": "Process Monitor Agent (System Control)",
+    "pack": "E",
+    "purpose": "Lists the top consuming processes by CPU or Memory usage. A lightweight \"top\" or \"Task Manager\" alternative.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-011",
+    "slug": "release-orchestrator-agent-the-manager",
+    "name": "Release Orchestrator Agent (The \"Manager\")",
+    "pack": "E",
+    "purpose": "This agent doesn't just \"do\" a task; it manages a sequence of other tasks. It simulates a CI/CD pipeline by running Git checks, Tests, and Archival in order.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-003",
+    "slug": "system-health-monitor",
+    "name": "System Health Monitor",
+    "pack": "E",
+    "purpose": "Captures a snapshot of the machine's vital signs (CPU, RAM, Uptime). Useful for creating a \"Baseline Run\" before executing heavy load tests.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-009",
+    "slug": "zip-archiver-agent",
+    "name": "Zip Archiver Agent",
+    "pack": "E",
+    "purpose": "Compresses a target directory into a .zip file. Useful for backups or preparing artifacts for deployment.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-028",
+    "slug": "code-formatter-agent-dev-utility",
+    "name": "Code Formatter Agent (Dev Utility)",
+    "pack": "F",
+    "purpose": "formats source code (.js, .json, .css, .md) using prettier. Ensures consistent style across your project files.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-103",
+    "slug": "contract-filler-legal-automation",
+    "name": "Contract Filler (Legal Automation)",
+    "pack": "F",
+    "purpose": "Takes a text template (e.g., NDA) with placeholders like {{NAME}} and fills them with provided data. Safe, local document generation.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-007",
+    "slug": "cron-scheduler-agent",
+    "name": "Cron Scheduler Agent",
+    "pack": "F",
+    "purpose": "Registers a task in a local JSON schedule registry. This avoids cross-platform issues with system crontab. A hypothetical \"Runner\" would read this file.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-013",
+    "slug": "csv-processor-agent-data-logic",
+    "name": "CSV Processor Agent (Data Logic)",
+    "pack": "F",
+    "purpose": "Reads a raw CSV file, parses it, filters rows based on criteria, and exports the result as JSON. Real data transformation logic.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-101",
+    "slug": "excel-cleaner-data-hygiene",
+    "name": "Excel Cleaner (Data Hygiene)",
+    "pack": "F",
+    "purpose": "Reads an Excel file, removes duplicate rows, trims whitespace from cells, and saves a \"Clean\" version.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-113",
+    "slug": "in-memory-sql-engine-database",
+    "name": "In-Memory SQL Engine (Database)",
+    "pack": "F",
+    "purpose": "A tiny SQL parser that runs queries like SELECT name FROM users WHERE age > 20 directly against a JSON array. Shows how database filtering logic works.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-096",
+    "slug": "invoice-generator-agent-finance",
+    "name": "Invoice Generator Agent (Finance)",
+    "pack": "F",
+    "purpose": "Generates a professional PDF invoice with line items, totals, and tax calculations using pdfkit.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-048",
+    "slug": "json-validator-agent-devtools",
+    "name": "JSON Validator Agent (DevTools)",
+    "pack": "F",
+    "purpose": "Validates a JSON file against basic syntax rules or a provided schema. Finds syntax errors (trailing commas, missing quotes) instantly.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-098",
+    "slug": "license-compliance-agent-legal",
+    "name": "License Compliance Agent (Legal)",
+    "pack": "F",
+    "purpose": "Scans a project's node_modules folder (or package.json) to list all software licenses used. Flags \"Copyleft\" licenses (GPL) that might be risky for proprietary code.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-015",
+    "slug": "log-analyzer-agent-analytics-logic",
+    "name": "Log Analyzer Agent (Analytics Logic)",
+    "pack": "F",
+    "purpose": "Parses raw server logs (Apache/Nginx style), aggregates traffic statistics, and identifies error spikes. Uses regex capture groups and statistical sorting.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-049",
+    "slug": "markdown-table-generator-productivity",
+    "name": "Markdown Table Generator (Productivity)",
+    "pack": "F",
+    "purpose": "Converts a JSON array or CSV-like string into a perfectly formatted Markdown table. Useful for generating reports or documentation.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-014",
+    "slug": "markdown-to-html-agent-content-logic",
+    "name": "Markdown to HTML Agent (Content Logic)",
+    "pack": "F",
+    "purpose": "Converts Markdown documentation into static HTML. Includes a simple regex-based parser (no heavy deps) to show logic implementation.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-025",
+    "slug": "pdf-extractor-agent-document-intelligence",
+    "name": "PDF Extractor Agent (Document Intelligence)",
+    "pack": "F",
+    "purpose": "Reads a PDF file and extracts raw text content. Essential for indexing documents, analyzing invoices, or scraping academic papers.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-100",
+    "slug": "slide-deck-builder-presentation",
+    "name": "Slide Deck Builder (Presentation)",
+    "pack": "F",
+    "purpose": "Generates a .pptx PowerPoint presentation from a simple JSON structure. Great for automating monthly status reports.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-004",
+    "slug": "sqlite-query-agent",
+    "name": "SQLite Query Agent",
+    "pack": "F",
+    "purpose": "Executes SQL queries against a local database file (.db). Great for data seeding, verification, or ad-hoc reporting.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-120",
+    "slug": "text-adventure-engine-interactive-fiction",
+    "name": "Text Adventure Engine (Interactive Fiction)",
+    "pack": "F",
+    "purpose": "Loads a JSON \"world\" definition (rooms, items, exits) and lets the user navigate it via command line. A mini-engine for Interactive Fiction.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-114",
+    "slug": "text-diff-engine-algorithms",
+    "name": "Text Diff Engine (Algorithms)",
+    "pack": "F",
+    "purpose": "Compares two text files and outputs the line-by-line differences (Git style) using the diff algorithm. Shows exactly what changed.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-029",
+    "slug": "tree-visualizer-agent-file-utility",
+    "name": "Tree Visualizer Agent (File Utility)",
+    "pack": "F",
+    "purpose": "Generates a text-based tree structure of a directory. Useful for documenting project structure or debugging file placement.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-041",
+    "slug": "ascii-art-agent-visual",
+    "name": "ASCII Art Agent (Visual)",
+    "pack": "G",
+    "purpose": "Converts standard text into large ASCII art banners using figlet. Great for CLI tool headers or adding flair to logs.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-030",
+    "slug": "audio-transcriber-agent-hearing",
+    "name": "Audio Transcriber Agent (Hearing)",
+    "pack": "G",
+    "purpose": "Converts audio files (mp3, wav) into text using the OpenAI Whisper API. Essential for processing voice notes or meeting recordings.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-089",
+    "slug": "barcode-generator-agent-utility",
+    "name": "Barcode Generator Agent (Utility)",
+    "pack": "G",
+    "purpose": "Generates retail-standard barcodes (Code 128, EAN, UPC) as PNG images. Useful for inventory tracking or printing labels.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-106",
+    "slug": "binaural-beat-generator-audio-synthesis",
+    "name": "Binaural Beat Generator (Audio Synthesis)",
+    "pack": "G",
+    "purpose": "Generates a .wav file with a specific frequency in the Left ear and a slightly different one in the Right ear. The brain perceives the difference (the \"beat\"). Used for focus (Gamma), relaxation (Alpha), or sleep (Delta).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-095",
+    "slug": "chart-generator-agent-data-viz",
+    "name": "Chart Generator Agent (Data Viz)",
+    "pack": "G",
+    "purpose": "Turns raw numbers (JSON) into a professional PNG bar or line chart using chart.js. Perfect for automated reporting.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-105",
+    "slug": "colorblindness-simulator-accessibility",
+    "name": "Colorblindness Simulator (Accessibility)",
+    "pack": "G",
+    "purpose": "Processes an image and simulates how it looks to someone with Protanopia (Red-Blind), Deuteranopia (Green-Blind), or Tritanopia (Blue-Blind). Essential for checking UI contrast.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-117",
+    "slug": "fractal-generator-chaos-theory",
+    "name": "Fractal Generator (Chaos Theory)",
+    "pack": "G",
+    "purpose": "Renders the Mandelbrot Set (or Julia Set) to a high-resolution PNG image. Demonstrates complex number iteration.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-024",
+    "slug": "image-processor-agent-media",
+    "name": "Image Processor Agent (Media)",
+    "pack": "G",
+    "purpose": "Resizes, converts, or grayscales images using jimp (JavaScript Image Manipulation Program). A lightweight alternative to sharp that doesn't require native compilation.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-131",
+    "slug": "matrix-rain-agent-visuals",
+    "name": "Matrix Rain Agent (Visuals)",
+    "pack": "G",
+    "purpose": "Turns your terminal into the \"Matrix\" digital rain code. Purely aesthetic, but a classic computing staple.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-086",
+    "slug": "meme-generator-agent-visuals",
+    "name": "Meme Generator Agent (Visuals)",
+    "pack": "G",
+    "purpose": "Takes an image and overlays \"Top Text\" and \"Bottom Text\" using the Impact font (classic meme style). Uses jimp for pure JS image editing.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-109",
+    "slug": "morse-code-audio-agent-tactical",
+    "name": "Morse Code Audio Agent (Tactical)",
+    "pack": "G",
+    "purpose": "Converts a text string into a standard WAV audio file of Morse Code beeps (dots and dashes).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-056",
+    "slug": "ocr-agent-computer-vision",
+    "name": "OCR Agent (Computer Vision)",
+    "pack": "G",
+    "purpose": "Reads text from an image (scanned doc, screenshot, sign) using Tesseract.js. It turns pixels into copy-pasteable strings.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-124",
+    "slug": "pixel-art-upscaler-graphics",
+    "name": "Pixel Art Upscaler (Graphics)",
+    "pack": "G",
+    "purpose": "Resizes small pixel art images (e.g., 16x16) to large sizes (e.g., 512x512) using \"Nearest Neighbor\" interpolation to preserve sharp edges (no blur).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-023",
+    "slug": "qr-code-generator-agent-media",
+    "name": "QR Code Generator Agent (Media)",
+    "pack": "G",
+    "purpose": "Generates a QR Code image (PNG) for any given text or URL. Useful for sharing links to mobile devices.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-058",
+    "slug": "site-mirror-agent-archivist",
+    "name": "Site Mirror Agent (Archivist)",
+    "pack": "G",
+    "purpose": "Downloads a complete static copy of a website (HTML, CSS, Images) to a local folder. Like wget but in JS. Great for backups or offline viewing.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-122",
+    "slug": "sprite-slicer-agent-game-dev",
+    "name": "Sprite Slicer Agent (Game Dev)",
+    "pack": "G",
+    "purpose": "Takes a single \"Sprite Sheet\" image (grid of characters) and slices it into individual image files based on a fixed grid size (e.g., 32x32).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-031",
+    "slug": "text-to-speech-agent-speaking",
+    "name": "Text-to-Speech Agent (Speaking)",
+    "pack": "G",
+    "purpose": "Converts text into a high-quality MP3 audio file using the OpenAI TTS API. Useful for creating announcements, podcast intros, or accessibility features.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-087",
+    "slug": "video-to-gif-agent-media",
+    "name": "Video-to-GIF Agent (Media)",
+    "pack": "G",
+    "purpose": "Converts a video file (MP4/MOV) into an animated GIF. It uses ffmpeg to optimize the palette for high quality.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-083",
+    "slug": "wallpaper-swapper-redecorator",
+    "name": "Wallpaper Swapper (Redecorator)",
+    "pack": "G",
+    "purpose": "Instantly changes the desktop background to a specified image. Can be used for branding, alerts, or pranks.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-094",
+    "slug": "watermark-agent-media",
+    "name": "Watermark Agent (Media)",
+    "pack": "G",
+    "purpose": "Applies a semi-transparent text watermark to an image. Perfect for copyright protection or branding social media content.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-035",
+    "slug": "youtube-downloader-agent-the-i-need-this-tool",
+    "name": "YouTube Downloader Agent (The \"I Need This\" Tool)",
+    "pack": "G",
+    "purpose": "Downloads videos or extracts audio from YouTube URLs using ytdl-core. No ads, no sketchy sites.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-104",
+    "slug": "calendar-invite-agent-scheduling",
+    "name": "Calendar Invite Agent (Scheduling)",
+    "pack": "H",
+    "purpose": "Generates a standard .ics file for calendar events. Compatible with Outlook, Google Calendar, and Apple Calendar.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-039",
+    "slug": "desktop-notifier-agent-os-integration",
+    "name": "Desktop Notifier Agent (OS Integration)",
+    "pack": "H",
+    "purpose": "Triggers a native system notification (Toast on Windows, Banner on Mac, Notification on Linux). Great for \"Job Complete\" alerts.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-088",
+    "slug": "discord-webhook-agent-social",
+    "name": "Discord Webhook Agent (Social)",
+    "pack": "H",
+    "purpose": "Sends a \"Rich Embed\" (fancy formatted message with colors, fields, and footers) to a Discord channel via Webhook URL. Great for system alerts or status reports.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-108",
+    "slug": "identicon-generator-procedural-art",
+    "name": "Identicon Generator (Procedural Art)",
+    "pack": "H",
+    "purpose": "Generates a unique, geometric avatar (Identicon) based on a text string (like an email or username). Consistent input always produces the same unique image.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-070",
+    "slug": "mouse-jiggler-agent-the-afk-cheat",
+    "name": "Mouse Jiggler Agent (The \"AFK Cheat\")",
+    "pack": "H",
+    "purpose": "programmatically moves your mouse cursor 1 pixel every minute. Keeps your computer awake and your Teams/Slack status \"Green\" (Active) while you nap.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-099",
+    "slug": "resume-parser-agent-hr-tech",
+    "name": "Resume Parser Agent (HR Tech)",
+    "pack": "H",
+    "purpose": "Reads a resume (PDF/Text) and attempts to extract structured contact info (Email, Phone) and Keywords (Skills).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-021",
+    "slug": "rss-monitor-agent-content-ingestion",
+    "name": "RSS Monitor Agent (Content Ingestion)",
+    "pack": "H",
+    "purpose": "Fetches an RSS feed URL, parses the XML, and extracts the latest headlines. Useful for tracking blogs, system status pages, or news.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-133",
+    "slug": "slack-bot-agent-communication",
+    "name": "Slack Bot Agent (Communication)",
+    "pack": "H",
+    "purpose": "Sends a formatted message to a Slack channel via Incoming Webhook (just like the Discord agent, but for Slack's specific JSON structure).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-026",
+    "slug": "smtp-sender-agent-communication",
+    "name": "SMTP Sender Agent (Communication)",
+    "pack": "H",
+    "purpose": "Sends an email using an SMTP server (e.g., Gmail, Outlook, or local Mailhog). Useful for alerting, reporting, or testing transactional emails.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-038",
+    "slug": "clipboard-manager-agent-productivity",
+    "name": "Clipboard Manager Agent (Productivity)",
+    "pack": "I",
+    "purpose": "Reads the current clipboard content or writes new content to it. Useful for chaining agents (e.g., \"Summarize text\" -> \"Copy to clipboard\").",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-057",
+    "slug": "crypto-wallet-agent-web3",
+    "name": "Crypto Wallet Agent (Web3)",
+    "pack": "I",
+    "purpose": "Generates a fresh, cryptographically secure Ethereum wallet (Public Address + Private Key) using ethers.js. Can be used for cold storage or dev testing.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-010",
+    "slug": "llm-client-agent-the-brain",
+    "name": "LLM Client Agent (The \"Brain\")",
+    "pack": "I",
+    "purpose": "Connects to a local AI server (like Ollama) or OpenAI to generate text. It attempts to be \"smart\" by detecting if the local AI is offline and failing gracefully.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-130",
+    "slug": "midi-composer-agent-music",
+    "name": "MIDI Composer Agent (Music)",
+    "pack": "I",
+    "purpose": "Generates a random, melodic musical sequence and saves it as a standard .mid file. You can drag this file into GarageBand or Ableton to hear it.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-032",
+    "slug": "sentiment-analyzer-agent-emotional-intelligence",
+    "name": "Sentiment Analyzer Agent (Emotional Intelligence)",
+    "pack": "I",
+    "purpose": "Uses a local dictionary-based approach (AFINN-165) to score the emotional tone of text. Runs entirely offline with zero latency.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-018",
+    "slug": "broken-link-crawler-qa-web",
+    "name": "Broken Link Crawler (QA / Web)",
+    "pack": "J",
+    "purpose": "Spiders a starting URL, extracts all hyperlinks (<a href=\"...\">), and sends HTTP HEAD/GET requests to verify they are accessible (Status 200). Detects dead links (\"link rot\").",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-027",
+    "slug": "html-scraper-agent-lightweight-web",
+    "name": "HTML Scraper Agent (Lightweight Web)",
+    "pack": "J",
+    "purpose": "Uses cheerio (jQuery for server-side) to scrape static HTML pages. Faster and more lightweight than Playwright for sites that don't need JavaScript execution.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-092",
+    "slug": "reddit-scraper-social",
+    "name": "Reddit Scraper (Social)",
+    "pack": "J",
+    "purpose": "Pulls the top posts from a specific subreddit (title, score, link) and saves them as a structured JSON report. Great for trend monitoring.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-126",
+    "slug": "audio-spectrogram-agent-signal-processing",
+    "name": "Audio Spectrogram Agent (Signal Processing)",
+    "pack": "K",
+    "purpose": "Analyzes an audio file and generates a visual heatmap (Spectrogram) of frequencies over time. Essential for audio engineering and forensics.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-111",
+    "slug": "blockchain-miner-agent-crypto",
+    "name": "Blockchain Miner Agent (Crypto)",
+    "pack": "K",
+    "purpose": "Demonstrates the core mechanism of Bitcoin (Proof-of-Work). It tries millions of random \"nonces\" until it finds a SHA256 hash that starts with a specific number of zeros (difficulty).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-020",
+    "slug": "dns-digger-agent-network-intel",
+    "name": "DNS Digger Agent (Network Intel)",
+    "pack": "K",
+    "purpose": "Performs a deep dive into a domain's DNS records, retrieving A, AAAA, MX, TXT, and NS records. Useful for debugging email issues or verification tokens.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-062",
+    "slug": "exif-metadata-spy-forensics",
+    "name": "Exif Metadata Spy (Forensics)",
+    "pack": "K",
+    "purpose": "Extracts hidden metadata from images (GPS coordinates, Camera Model, Shutter Speed, Date Taken). Useful for verifying the origin of an image.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-078",
+    "slug": "file-date-spoofer-forensics",
+    "name": "File Date Spoofer (Forensics)",
+    "pack": "K",
+    "purpose": "Modifies the \"Created\", \"Modified\", and \"Accessed\" timestamps of a file to any date in the past or future. Used to hide when a file was actually touched.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-046",
+    "slug": "file-encryptor-agent-security",
+    "name": "File Encryptor Agent (Security)",
+    "pack": "K",
+    "purpose": "Encrypts (and Decrypts) any file using AES-256-CTR. Protects sensitive documents before sharing or storage.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-017",
+    "slug": "file-integrity-monitor-compliance",
+    "name": "File Integrity Monitor (Compliance)",
+    "pack": "K",
+    "purpose": "Calculates SHA-256 hashes of all files in a directory and compares them to a \"known good\" baseline to detect unauthorized changes (e.g., malware or tampering).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-019",
+    "slug": "jwt-token-generator-auth-utility",
+    "name": "JWT Token Generator (Auth Utility)",
+    "pack": "K",
+    "purpose": "Creates valid, cryptographically signed JSON Web Tokens (JWTs) using HMAC SHA256. Useful for testing APIs that require authentication headers without needing a full login flow.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-002",
+    "slug": "network-port-scanner",
+    "name": "Network Port Scanner",
+    "pack": "K",
+    "purpose": "Security / Diagnostic tool. It scans a target host (localhost or IP) for open ports to ensure services are running (or to find unauthorized listeners).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-059",
+    "slug": "password-auditor-security",
+    "name": "Password Auditor (Security)",
+    "pack": "K",
+    "purpose": "Analyzes a password string for strength, calculates entropy, and estimates the time it would take to crack it via brute force.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-066",
+    "slug": "ransomware-canary-defense",
+    "name": "Ransomware Canary (Defense)",
+    "pack": "K",
+    "purpose": "Creates a hidden \"honey pot\" file and watches it. If any process modifies or deletes this file (typical ransomware behavior), it triggers an alert.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-061",
+    "slug": "secure-file-shredder-privacy",
+    "name": "Secure File Shredder (Privacy)",
+    "pack": "K",
+    "purpose": "Permanently destroys a file by overwriting it with 0s, 1s, and random bytes before deleting. Makes forensic recovery nearly impossible.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-097",
+    "slug": "seo-auditor-agent-marketing",
+    "name": "SEO Auditor Agent (Marketing)",
+    "pack": "K",
+    "purpose": "Crawls a URL and checks for critical SEO tags (Title, Description, H1, Alt Tags) and performance indicators. Generates a \"Scorecard.\"",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-016",
+    "slug": "ssl-certificate-checker-network-security",
+    "name": "SSL Certificate Checker (Network Security)",
+    "pack": "K",
+    "purpose": "Connects to a domain via TLS, retrieves the certificate chain, and calculates days until expiration. Essential for uptime monitoring.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-069",
+    "slug": "subdomain-enumerator-recon",
+    "name": "Subdomain Enumerator (Recon)",
+    "pack": "K",
+    "purpose": "Uses a dictionary attack to find active subdomains (e.g., admin.site.com, mail.site.com) by resolving them against DNS.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-034",
+    "slug": "token-counter-agent-cost-estimator",
+    "name": "Token Counter Agent (Cost Estimator)",
+    "pack": "K",
+    "purpose": "Calculates the number of tokens in a string using gpt-3-encoder. Essential for estimating LLM costs and ensuring prompts fit within context windows.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-064",
+    "slug": "totp-authenticator-security",
+    "name": "TOTP Authenticator (Security)",
+    "pack": "K",
+    "purpose": "Generates Time-based One-Time Passwords (like Google Authenticator) for a given 2FA secret. Useful for automating logins that require 2FA.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-043",
+    "slug": "whois-agent-network-intel",
+    "name": "Whois Agent (Network Intel)",
+    "pack": "K",
+    "purpose": "Queries WHOIS servers to find domain registration details (Registrar, Creation Date, Expiry). Useful for domain research.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-116",
+    "slug": "a-pathfinder-ai",
+    "name": "A Pathfinder (AI)**",
+    "pack": "L",
+    "purpose": "Finds the shortest path between two points in a grid with obstacles using the A* (A-Star) algorithm. Visualizes the path in ASCII.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-065",
+    "slug": "arp-network-scanner-recon",
+    "name": "ARP Network Scanner (Recon)",
+    "pack": "L",
+    "purpose": "Scans the local network cache to identify connected devices (IP and MAC addresses). Useful for finding \"who is on my WiFi.\"",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-128",
+    "slug": "astronomy-agent-space",
+    "name": "Astronomy Agent (Space)",
+    "pack": "L",
+    "purpose": "Calculates the current phase of the moon and the position of the sun. Can determine sunrise/sunset times for a given latitude/longitude.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-112",
+    "slug": "brainfuck-interpreter-esoteric",
+    "name": "Brainfuck Interpreter (Esoteric)",
+    "pack": "L",
+    "purpose": "Runs code written in Brainfuck, a famous minimalistic language that uses only 8 characters (> < + - . , [ ]). Requires manipulating a memory tape byte-by-byte.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-044",
+    "slug": "currency-converter-agent-finance",
+    "name": "Currency Converter Agent (Finance)",
+    "pack": "L",
+    "purpose": "Fetches real-time exchange rates (USD base) from a public API and performs conversions.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-051",
+    "slug": "dice-roller-agent-randomness",
+    "name": "Dice Roller Agent (Randomness)",
+    "pack": "L",
+    "purpose": "Simulates rolling dice (d6, d20, etc.) using cryptographic randomness. Useful for games or decision making.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-054",
+    "slug": "disk-space-analyzer-system",
+    "name": "Disk Space Analyzer (System)",
+    "pack": "L",
+    "purpose": "Scans a directory recursively to calculate total size and identify largest files. Helpful for cleaning up clutter.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-107",
+    "slug": "dna-translator-agent-bio-informatics",
+    "name": "DNA Translator Agent (Bio-informatics)",
+    "pack": "L",
+    "purpose": "Translates a raw DNA sequence (e.g., \"GATTACA\") into its complementary strand, RNA equivalent, and Protein (Amino Acid) sequence.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-080",
+    "slug": "fake-update-agent-prank",
+    "name": "Fake Update Agent (Prank)",
+    "pack": "L",
+    "purpose": "Instantly launches a full-screen browser window displaying a realistic \"Windows Update\" or \"macOS Update\" animation. Locks the user's attention (until they press F11/Esc).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-081",
+    "slug": "ghost-typer-agent-haunted",
+    "name": "Ghost Typer Agent (Haunted)",
+    "pack": "L",
+    "purpose": "Waits a few seconds, then takes control of the keyboard to type a message character by character. Looks exactly like someone has remote control of the PC.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-082",
+    "slug": "honeyport-agent-trap",
+    "name": "Honeyport Agent (Trap)",
+    "pack": "L",
+    "purpose": "Opens a fake server on a common port (e.g., 8080 or 21). If anyone tries to connect to it (like a network scanner or hacker), it logs their IP and disconnects them.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-090",
+    "slug": "hue-light-controller-iot",
+    "name": "Hue Light Controller (IoT)",
+    "pack": "L",
+    "purpose": "Controls Philips Hue smart lights (or compatible Zigbee bridges). Can toggle power, change brightness, and set RGB colors remotely.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-091",
+    "slug": "instagram-avatar-grabber-osint",
+    "name": "Instagram Avatar Grabber (OSINT)",
+    "pack": "L",
+    "purpose": "Fetches the high-resolution profile picture URL for a public Instagram user without needing an API key (using public scraping).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-084",
+    "slug": "invisible-folder-agent-magic-vanish",
+    "name": "Invisible Folder Agent (Magic Vanish)",
+    "pack": "L",
+    "purpose": "Toggles the \"Hidden\" attribute of a folder. On Windows, this makes it disappear from Explorer (unless \"Show Hidden\" is on). On Mac/Linux, it renames it with a . prefix.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-033",
+    "slug": "language-detector-agent-linguistic-id",
+    "name": "Language Detector Agent (Linguistic ID)",
+    "pack": "L",
+    "purpose": "Analyzes a text sample and determines the probability of it being English, Spanish, French, etc. Useful for routing support tickets or selecting translation models.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-132",
+    "slug": "linear-regression-agent-data-science",
+    "name": "Linear Regression Agent (Data Science)",
+    "pack": "L",
+    "purpose": "Takes a set of X,Y data points, calculates the \"Line of Best Fit\" (y = mx + b), and predicts future values. The foundation of Machine Learning.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-042",
+    "slug": "local-server-agent-instant-hosting",
+    "name": "Local Server Agent (Instant Hosting)",
+    "pack": "L",
+    "purpose": "Instantly spins up a static HTTP server for a specific directory. Useful for previewing HTML builds or sharing files on the LAN.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-123",
+    "slug": "loot-box-simulator-gacha-logic",
+    "name": "Loot Box Simulator (Gacha Logic)",
+    "pack": "L",
+    "purpose": "Simulates opening \"Loot Boxes\" based on a weighted probability table. Useful for game balancing or demonstrating RNG (Random Number Generation) mechanics.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-119",
+    "slug": "markov-chain-agent-text-gen",
+    "name": "Markov Chain Agent (Text Gen)",
+    "pack": "L",
+    "purpose": "Ingests a text source, builds a probabilistic model of word transitions (Markov Chain), and generates new \"nonsense\" text that mimics the style of the original.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-121",
+    "slug": "minecraft-server-pinger-gaming",
+    "name": "Minecraft Server Pinger (Gaming)",
+    "pack": "L",
+    "purpose": "Queries a Minecraft Server (Java Edition) for its status, MOTD (Message of the Day), version, and current player count.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-110",
+    "slug": "mini-compiler-agent-language-design",
+    "name": "Mini-Compiler Agent (Language Design)",
+    "pack": "L",
+    "purpose": "A tiny interpreter for a custom language called \"ToyScript.\" It supports variables, printing, and basic math. Shows how code is actually parsed and executed.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-093",
+    "slug": "mqtt-broker-agent-iot-hub",
+    "name": "MQTT Broker Agent (IoT Hub)",
+    "pack": "L",
+    "purpose": "Connects to an MQTT broker (like Mosquitto) to publish messages or subscribe to a topic for a few seconds. Essential for debugging IoT sensor networks.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-118",
+    "slug": "neural-net-trainer-machine-learning",
+    "name": "Neural Net Trainer (Machine Learning)",
+    "pack": "L",
+    "purpose": "Trains a simple Perceptron (Single-Layer Neural Network) from scratch to solve logic gates (like OR/AND) without using any ML libraries.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-125",
+    "slug": "physics-engine-agent-simulation",
+    "name": "Physics Engine Agent (Simulation)",
+    "pack": "L",
+    "purpose": "Simulates simple 2D physics (gravity, bouncing balls) and outputs the frame data. Useful for understanding kinematics or creating animations.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-053",
+    "slug": "prime-number-checker-math",
+    "name": "Prime Number Checker (Math)",
+    "pack": "L",
+    "purpose": "Determines if a number is prime and, if not, finds its factors. A classic computational task.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-050",
+    "slug": "quote-of-the-day-agent-inspiration",
+    "name": "Quote of the Day Agent (Inspiration)",
+    "pack": "L",
+    "purpose": "Fetches an inspiring quote from a public API. Simple, but great for dashboard \"motd\" (Message of the Day) widgets.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-127",
+    "slug": "rhyme-finder-agent-linguistics",
+    "name": "Rhyme Finder Agent (Linguistics)",
+    "pack": "L",
+    "purpose": "Finds perfect rhymes, near rhymes, and alliteration for a given word using the Datamuse API. Useful for poetry or songwriting.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-037",
+    "slug": "speedtest-agent-the-dashboard-tool",
+    "name": "Speedtest Agent (The \"Dashboard\" Tool)",
+    "pack": "L",
+    "purpose": "Connects to Ookla's Speedtest.net servers to measure Ping, Download, and Upload speeds.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-077",
+    "slug": "subliminal-message-flasher-psych-tech",
+    "name": "Subliminal Message Flasher (Psych Tech)",
+    "pack": "L",
+    "purpose": "Uses a transparent, always-on-top Electron window to flash a text message on the user's screen for 10ms every few seconds. Imperceptible but present.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-115",
+    "slug": "sudoku-solver-agent-logic",
+    "name": "Sudoku Solver Agent (Logic)",
+    "pack": "L",
+    "purpose": "Solves any Sudoku puzzle instantly using a recursive backtracking algorithm. Useful for demonstrating constraint satisfaction.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-040",
+    "slug": "system-spec-agent-hardware-info",
+    "name": "System Spec Agent (Hardware Info)",
+    "pack": "L",
+    "purpose": "Pulls detailed hardware specifications including CPU brand, Cores, RAM speed, Battery level, and OS build. Uses the powerful systeminformation library.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-060",
+    "slug": "torrent-downloader-agent-p2p",
+    "name": "Torrent Downloader Agent (P2P)",
+    "pack": "L",
+    "purpose": "Downloads files via the BitTorrent protocol using webtorrent. Supports magnet links.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-129",
+    "slug": "unit-converter-agent-utility",
+    "name": "Unit Converter Agent (Utility)",
+    "pack": "L",
+    "purpose": "A robust conversion engine for Length, Weight, Temperature, and Volume.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-052",
+    "slug": "url-shortener-agent-utility",
+    "name": "URL Shortener Agent (Utility)",
+    "pack": "L",
+    "purpose": "Uses a public API (TinyURL) to shorten a long URL.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-068",
+    "slug": "usb-watchdog-hardware",
+    "name": "USB Watchdog (Hardware)",
+    "pack": "L",
+    "purpose": "Monitors the system for new USB devices plugged in or removed. Uses OS polling to avoid native dependency compilation issues.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-102",
+    "slug": "vcard-generator-networking",
+    "name": "vCard Generator (Networking)",
+    "pack": "L",
+    "purpose": "Generates a standard .vcf file for importing contacts into Outlook, iOS, or Android.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-085",
+    "slug": "wake-on-lan-agent-iot-magic",
+    "name": "Wake-on-LAN Agent (IoT Magic)",
+    "pack": "L",
+    "purpose": "Sends a \"Magic Packet\" over the network to a specific MAC address. If the target PC has Wake-on-LAN enabled in BIOS, it will physically turn on.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-047",
+    "slug": "weather-agent-real-time-info",
+    "name": "Weather Agent (Real-time Info)",
+    "pack": "L",
+    "purpose": "Fetches current weather data for a city using the Open-Meteo API (Free, no key required).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-073",
+    "slug": "zip-bomb-generator-the-trap",
+    "name": "Zip Bomb Generator (The \"Trap\")",
+    "pack": "L",
+    "purpose": "Creates a \"Recursive Zip Bomb\" \u2014 a tiny file (kilobytes) that expands into massive size (Gigabytes/Petabytes) if extracted.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "spec"
+  },
+  {
+    "id": "DOC-072",
+    "slug": "bluetooth-radar-agent-surveillance",
+    "name": "Bluetooth Radar Agent (Surveillance)",
+    "pack": "Z",
+    "purpose": "Scans the physical area for Bluetooth Low Energy (BLE) devices (Phones, Fitbits, Headphones). Shows you what hardware is nearby.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-071",
+    "slug": "burn-after-reading-agent-spy-tech",
+    "name": "Burn-After-Reading Agent (Spy Tech)",
+    "pack": "Z",
+    "purpose": "Spins up a temporary web server that hosts a secret message. Once the message is viewed one time, the server immediately shuts down and deletes the evidence.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-079",
+    "slug": "clipboard-logger-surveillance",
+    "name": "Clipboard Logger (Surveillance)",
+    "pack": "Z",
+    "purpose": "Monitors the clipboard in the background. Whenever the content changes (user copies text), it logs the content to a file with a timestamp.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-063",
+    "slug": "ip-geolocation-tracker-surveillance",
+    "name": "IP Geolocation Tracker (Surveillance)",
+    "pack": "Z",
+    "purpose": "Traces an IP address to a physical location (City, Country, ISP, Lat/Long) using the ip-api.com service.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-075",
+    "slug": "keystroke-logger-agent-surveillance",
+    "name": "Keystroke Logger Agent (Surveillance)",
+    "pack": "Z",
+    "purpose": "Hooks into the OS input stream and records every key pressed to a local log file.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-134",
+    "slug": "polyglot-file-generator-hacker-tech",
+    "name": "Polyglot File Generator (Hacker Tech)",
+    "pack": "Z",
+    "purpose": "Creates a \"Polyglot\" file\u2014a single file that is a valid JPG image and a valid ZIP archive at the same time. You can view it as a picture, or unzip it to reveal hidden files.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-067",
+    "slug": "stealth-browser-agent-evasion",
+    "name": "Stealth Browser Agent (Evasion)",
+    "pack": "Z",
+    "purpose": "A Playwright script configured to evade basic bot detection. It modifies navigator properties and randomization to look like a real human user.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-055",
+    "slug": "steganography-agent-spy-tech",
+    "name": "Steganography Agent (Spy Tech)",
+    "pack": "Z",
+    "purpose": "Hides a secret text message inside the pixels of a PNG image. The image looks normal to the naked eye, but the message can be recovered by this agent later.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-074",
+    "slug": "webcam-spy-agent-hardware",
+    "name": "Webcam Spy Agent (Hardware)",
+    "pack": "Z",
+    "purpose": "Silently activates the connected webcam, takes a snapshot, and saves it. No preview window, no flash (usually).",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-076",
+    "slug": "wifi-jammer-simulator-network-attack",
+    "name": "WiFi Jammer Simulator (Network Attack)",
+    "pack": "Z",
+    "purpose": "Simulates a Deauthentication attack logic (sending termination packets) without actually transmitting radio signals (safe mode). Used to demonstrate how simple these scripts are.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  },
+  {
+    "id": "DOC-036",
+    "slug": "wifi-password-revealer-the-magic-trick",
+    "name": "WiFi Password Revealer (The \"Magic Trick\")",
+    "pack": "Z",
+    "purpose": "Uses OS commands (netsh on Windows, security on Mac) to retrieve the saved password for a known WiFi network.",
+    "permissions": [],
+    "outputs": [
+      "receipts.json",
+      "artifacts/"
+    ],
+    "demoStatus": "not-enabled"
+  }
+]

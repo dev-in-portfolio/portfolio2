@@ -1,0 +1,67 @@
+/* Nexus Home Fix Pack (surgical) — Feb 2026
+   Goal: stop the home page from looking like a stack of full-width banners.
+   Scope: layout + nav wrapping + hide production debug pill.
+*/
+
+/* --- FIX #1: Make the tiles actually tile.
+   HTML uses .grid, but some CSS versions in this repo style .tiles instead.
+   If .grid isn't styled, every .tile becomes a full-width block.
+*/
+.grid,
+.tiles{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+@media (max-width: 720px){
+  .grid,
+  .tiles{ grid-template-columns: 1fr; }
+}
+
+/* Keep the tile image as a background layer, but ensure text stays readable. */
+.tile{ position: relative; overflow: hidden; }
+.tileThumb{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Soft overlay so titles stay readable over bright images */
+.tile::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.15) 70%, rgba(0,0,0,.25));
+  pointer-events: none;
+}
+
+.tile .t,
+.tile .s{ position: relative; z-index: 1; }
+
+/* --- FIX #2: Stop the top nav from wrapping into weird orphan pills.
+   Keep it one row with horizontal scroll.
+*/
+.nxPills{
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.nxPills::-webkit-scrollbar{ display: none; }
+
+/* On wide screens the existing CSS turns wrapping back on. Re-disable it. */
+@media (min-width: 980px){
+  .nxPills{ flex-wrap: nowrap !important; overflow-x: auto !important; }
+  .nxSpacer{ display: inline-block !important; }
+}
+
+/* Reduce the huge dead-air above the “Start Here” strip */
+.startHereCard{ margin: 22px auto 12px !important; }
+
+/* --- FIX #3: Kill the visible debug pill unless explicitly enabled */
+#debugToggle{ display: none !important; }
+body.debug-enabled #debugToggle{ display: inline-flex !important; }

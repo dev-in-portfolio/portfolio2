@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle Pit: The Council of Chaos</title>
+    <!-- Nexus Top Nav -->
+    <link rel="stylesheet" href="../../shared/nexus-topnav-v2.css?v=op" />
+    <script src="../../shared/nexus-topnav-v2.js?v=op" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyan: #22d3ee;
+            --lime: #39FF14;
+            --pink: #FF1B8D;
+            --indigo: #6366f1;
+            --rose: #fb7185;
+            --emerald: #34d399;
+        }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #000;
+            color: #f3f4f6;
+            overflow-x: hidden;
+            margin: 0;
+        }
+        .font-sync { font-family: 'Syncopate', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .pit-bg {
+            position: fixed;
+            inset: 0;
+            background:
+              radial-gradient(circle at 20% 10%, rgba(57,255,20,0.26) 0%, transparent 42%),
+              radial-gradient(circle at 80% 20%, rgba(255,27,141,0.24) 0%, transparent 48%),
+              radial-gradient(circle at 50% 55%, rgba(34,211,238,0.18) 0%, transparent 58%),
+              radial-gradient(circle at 50% 50%, #07071a 0%, #000 72%);
+            z-index: -2;
+        }
+
+        .cyber-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(34, 211, 238, 0.16) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 27, 141, 0.14) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%);
+        }
+
+        /* Brighter neon glow (portfolio “wow” mode) */
+        .glow-cyan { text-shadow: 0 0 28px rgba(34, 211, 238, 0.95), 0 0 80px rgba(34, 211, 238, 0.35), 0 0 120px rgba(34, 211, 238, 0.18); }
+        .glow-box-cyan { box-shadow: 0 0 36px rgba(34, 211, 238, 0.45), 0 0 110px rgba(34, 211, 238, 0.16); }
+
+        /* Extra pop for headings and key UI */
+        .text-glow-lime { text-shadow: 0 0 22px rgba(57,255,20,0.95), 0 0 70px rgba(57,255,20,0.30), 0 0 110px rgba(57,255,20,0.15); }
+        .text-glow-pink { text-shadow: 0 0 22px rgba(255,27,141,0.95), 0 0 70px rgba(255,27,141,0.30), 0 0 110px rgba(255,27,141,0.15); }
+
+        /* Aurora sweep behind the header (lightweight + mobile-safe) */
+        @keyframes aurora-sweep {
+            0%   { transform: translateX(-30%) skewX(-12deg); opacity: 0.35; }
+            50%  { transform: translateX(30%) skewX(-12deg);  opacity: 0.55; }
+            100% { transform: translateX(90%) skewX(-12deg);  opacity: 0.35; }
+        }
+
+        @keyframes aurora-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .aurora-sweep {
+            position: absolute;
+            inset: -120px -240px;
+            pointer-events: none;
+            filter: blur(18px) saturate(1.35);
+            mix-blend-mode: screen;
+            background:
+                linear-gradient(90deg,
+                    rgba(57,255,20,0.00) 0%,
+                    rgba(57,255,20,0.20) 15%,
+                    rgba(34,211,238,0.22) 35%,
+                    rgba(255,27,141,0.24) 55%,
+                    rgba(34,211,238,0.18) 75%,
+                    rgba(57,255,20,0.00) 100%
+                );
+            animation: aurora-sweep 10s ease-in-out infinite;
+        }
+
+        .aurora-drift {
+            position: absolute;
+            inset: -80px;
+            pointer-events: none;
+            opacity: 0.35;
+            filter: blur(30px) saturate(1.35);
+            mix-blend-mode: screen;
+            background:
+                radial-gradient(circle at 25% 40%, rgba(57,255,20,0.22) 0%, transparent 55%),
+                radial-gradient(circle at 65% 25%, rgba(255,27,141,0.18) 0%, transparent 55%),
+                radial-gradient(circle at 70% 65%, rgba(34,211,238,0.18) 0%, transparent 55%);
+            animation: aurora-float 7s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1.05); }
+            50% { transform: scale(1.12); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes select-glow {
+            0% { box-shadow: 0 0 8px currentColor; transform: scale(1.05); }
+            50% { box-shadow: 0 0 18px currentColor; transform: scale(1.08); }
+            100% { box-shadow: 0 0 8px currentColor; transform: scale(1.05); }
+        }
+
+        @keyframes glitch {
+            0% { clip-path: inset(20% 0 30% 0); transform: translate(-5px, 2px); filter: hue-rotate(90deg); }
+            10% { clip-path: inset(60% 0 10% 0); transform: translate(5px, -2px); }
+            20% { clip-path: inset(40% 0 50% 0); transform: translate(-5px, 2px); filter: hue-rotate(180deg); }
+            30% { clip-path: inset(80% 0 5% 0); transform: translate(5px, -2px); }
+            40% { clip-path: inset(10% 0 70% 0); transform: translate(-5px, 2px); filter: hue-rotate(270deg); }
+            50% { clip-path: inset(0 0 0 0); transform: translate(0); filter: hue-rotate(0deg); }
+        }
+
+        @keyframes reveal-stagger {
+            0% { opacity: 0; transform: translateY(30px) scale(0.9); filter: blur(20px) brightness(2); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0) brightness(1); }
+        }
+
+        @keyframes noise {
+            0% { transform: translate(0,0) }
+            10% { transform: translate(-5%,-5%) }
+            20% { transform: translate(-10%,5%) }
+            30% { transform: translate(5%,-10%) }
+            40% { transform: translate(-5%,15%) }
+            50% { transform: translate(-10%,5%) }
+            60% { transform: translate(15%,0) }
+            70% { transform: translate(0,10%) }
+            80% { transform: translate(-15%,0) }
+            90% { transform: translate(10%,5%) }
+            100% { transform: translate(5%,0) }
+        }
+
+        .noise-overlay {
+            position: absolute;
+            inset: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.15;
+            pointer-events: none;
+            animation: noise 0.2s infinite;
+            z-index: 40;
+        }
+
+        .glitch-reveal {
+            animation: glitch 0.6s cubic-bezier(.25, .46, .45, .94) both;
+        }
+
+        .stagger-1 { animation: reveal-stagger 1s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.2s; }
+        .stagger-2 { animation: reveal-stagger 1s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.5s; }
+        .stagger-3 { animation: reveal-stagger 1s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.8s; }
+        .stagger-4 { animation: reveal-stagger 1s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 1.1s; }
+
+        .pulse-active::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            animation: pulse-ring 2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+            pointer-events: none;
+        }
+
+        .breathing {
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .vote-active {
+            animation: select-glow 2s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        .glass {
+            background: rgba(18, 18, 26, 0.72);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .verdict-glow {
+            animation: verdict-pulse 4s infinite alternate;
+        }
+
+        @keyframes verdict-pulse {
+            from { box-shadow: 0 0 20px rgba(99, 102, 241, 0.2); }
+            to { box-shadow: 0 0 50px rgba(99, 102, 241, 0.5); }
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 10;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(34,211,238,0.05) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0.1;
+            position: fixed;
+            bottom: 100%;
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { bottom: 100%; }
+            100% { bottom: -100px; }
+        }
+
+        .text-glow-indigo { text-shadow: 0 0 20px rgba(99, 102, 241, 0.8); }
+        .text-glow-rose { text-shadow: 0 0 20px rgba(244, 63, 94, 0.8); }
+
+        /* Aurora sweep (lightweight, recruiter-candy, mobile-safe) */
+        @keyframes auroraSweep {
+            0%   { transform: translateX(-20%) translateY(-10%) rotate(-12deg) scale(1.05); opacity: 0.35; }
+            50%  { transform: translateX(10%)  translateY(0%)   rotate(6deg)   scale(1.15); opacity: 0.55; }
+            100% { transform: translateX(30%)  translateY(10%)  rotate(14deg)  scale(1.08); opacity: 0.40; }
+        }
+
+        @keyframes auroraShimmer {
+            0% { filter: blur(18px) saturate(1.2) brightness(1.05); }
+            50% { filter: blur(22px) saturate(1.6) brightness(1.18); }
+            100% { filter: blur(18px) saturate(1.3) brightness(1.08); }
+        }
+
+        .aurora-sweep {
+            position: absolute;
+            inset: -70% -50%;
+            pointer-events: none;
+            background:
+              radial-gradient(closest-side at 25% 35%, rgba(57,255,20,0.22), transparent 60%),
+              radial-gradient(closest-side at 55% 40%, rgba(34,211,238,0.20), transparent 62%),
+              radial-gradient(closest-side at 80% 55%, rgba(255,27,141,0.22), transparent 58%),
+              linear-gradient(90deg, rgba(57,255,20,0.00), rgba(34,211,238,0.10), rgba(255,27,141,0.00));
+            mix-blend-mode: screen;
+            opacity: 0.45;
+            animation: auroraSweep 10s ease-in-out infinite alternate, auroraShimmer 6s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        /* Ensures header contents render above the aurora */
+        .aurora-layered > * { position: relative; z-index: 1; }
+    </style>
+</head>
+<body class="overflow-x-hidden nx-has-topnav">
+    <nav class="nxTopNav"></nav>
+    <div class="pit-bg"></div>
+    <div class="cyber-grid"></div>
+    <div class="scanline"></div>
+    <div id="root"></div>
+<script src="./oracle-pit.js?v=30" defer></script>
+</body>
+</html>

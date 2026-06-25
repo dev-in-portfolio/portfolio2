@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Overview</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Platform overview</h1>
+<p><b>Store → Package → Local Runner → Tools → Receipts</b></p>
+<div class="code">
+Store (this UI) lists agents and packs.
+Packs are .agentpack.zip files with a manifest + agent code.
+Local Runner installs packs into .agentx/ and runs agents with scoped permissions.
+Tools are the runtime capabilities (fs, exec, browser, secrets, approvals).
+Receipts capture: timeline, logs, artifacts, screenshots, signatures/attestations.
+  </div>
+<div class="sep"></div>
+<p><b>Demo vs Real</b>: This cloud UI is a demo. The actual execution happens locally via the runner. Browser agents are restricted to the demo targets shipped in this module.</p>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.3.0</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

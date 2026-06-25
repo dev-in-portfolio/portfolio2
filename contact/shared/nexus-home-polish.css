@@ -1,0 +1,105 @@
+/* Nexus Home Polish Pass — Feb 2026
+   Goal: better hierarchy + less vertical bloat + more “intentional” feel.
+   Scope: index.html only (loaded after nexus-home-fix.css).
+*/
+
+/* Anchor jumps should not hide under sticky nav */
+:where(a[id],[id]){ scroll-margin-top: 92px; }
+
+/* Tighten the top of page now that the standalone Start Here + callouts are removed */
+.nxsStage > .wrap{ padding-top: 18px; }
+
+/* ---- Intro card: make it feel like a single “hero” block */
+.introCard{
+  padding: 26px 26px 22px !important;
+}
+.introCard .h1{ margin-top: 6px; }
+.introCard .p p{ margin-bottom: 14px; }
+
+/* Keep the CTAs visible but not loud */
+.introCard .row{ gap: 10px; flex-wrap: wrap; }
+
+/* ---- Start Here: compact, single-row, scrollable */
+.startHere--compact{
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.startHere--compact::-webkit-scrollbar{ display:none; }
+.startHere--compact .label{ white-space: nowrap; }
+.startHere--compact .nxs-pill{ white-space: nowrap; }
+
+/* ---- Meta row: recommended path + scope as small chips (not full panels) */
+.metaRow{
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 820px){
+  .metaRow{ grid-template-columns: 1fr; }
+}
+.metaChip{
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.045);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.metaLabel{
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  opacity: .78;
+  font-weight: 800;
+}
+.metaValue{
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: .92;
+  line-height: 1.35;
+}
+
+/* ---- Section rhythm: reduce dead air between hero and tiles */
+.section{ padding-top: 22px !important; padding-bottom: 22px !important; }
+.section .h2{ margin-bottom: 10px; }
+
+/* ---- Tiles: make text sit at the bottom and read cleanly */
+.tile{
+  justify-content: flex-end;
+  padding: 16px !important;
+}
+.tile .t{
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+.tile .s{
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* Stronger bottom fade so text never fights the image */
+.tile::before{
+  background: linear-gradient(180deg,
+    rgba(0,0,0,.25) 0%,
+    rgba(0,0,0,.12) 45%,
+    rgba(0,0,0,.72) 100%
+  ) !important;
+}
+
+/* Designed tiles (logos / dashboards) should be CONTAIN, not COVER */
+.tileThumb[src*="/assets/tile_images/case-study-highlights"],
+.tileThumb[src*="/assets/tile_images/linkedin"],
+.tileThumb[src*="/assets/tile_images/health"],
+.tileThumb[src*="/assets/tile_images/recruiter-pack"]{
+  object-fit: contain !important;
+  padding: 14px;
+  background: rgba(0,0,0,0.35);
+}
+
+/* Optional: make the second grid (“More”) a little tighter */
+.section + .section .grid{ gap: 16px; }

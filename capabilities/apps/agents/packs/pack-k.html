@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Pack K — Security + Compliance</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="wrap">
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Pack K — Security + Compliance</h1>
+<p class="muted">A curated set of agents with a shared permission &amp; risk profile.</p>
+<div class="kv">
+<a class="btn primary" download="" href="/apps/agents/assets/packs/pack-k.agentpack.zip">Download pack-k.agentpack.zip</a>
+</div>
+<div class="sep"></div>
+<h3>Pack permissions</h3>
+<div class="kv"><span class="tag">No special permissions</span></div>
+<div class="sep"></div>
+<h3>Quickstart</h3>
+<ul class="muted" style="margin-top:8px">
+<li>Download the pack bundle.</li>
+<li>Unzip it locally and review <code>pack.json</code> + each agent stub.</li>
+<li>Use the Local Runner to install (demo) packs, then run agents against demo targets.</li>
+</ul>
+<div class="sep"></div>
+<h3>Agents in this pack</h3>
+<div class="grid">
+<a class="card" href="/apps/agents/store/audio-spectrogram-agent-signal-processing.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Audio Spectrogram Agent (Signal Processing)</h3>
+<p class="muted" style="margin:0 0 10px">Analyzes an audio file and generates a visual heatmap (Spectrogram) of frequencies over time. Essential for audio engineering and forensics.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/blockchain-miner-agent-crypto.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Blockchain Miner Agent (Crypto)</h3>
+<p class="muted" style="margin:0 0 10px">Demonstrates the core mechanism of Bitcoin (Proof-of-Work). It tries millions of random "nonces" until it finds a SHA256 hash that starts with a specific number of zeros (difficulty).</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/dns-digger-agent-network-intel.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">DNS Digger Agent (Network Intel)</h3>
+<p class="muted" style="margin:0 0 10px">Performs a deep dive into a domain's DNS records, retrieving A, AAAA, MX, TXT, and NS records. Useful for debugging email issues or verification tokens.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/exif-metadata-spy-forensics.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Exif Metadata Spy (Forensics)</h3>
+<p class="muted" style="margin:0 0 10px">Extracts hidden metadata from images (GPS coordinates, Camera Model, Shutter Speed, Date Taken). Useful for verifying the origin of an image.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/file-date-spoofer-forensics.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">File Date Spoofer (Forensics)</h3>
+<p class="muted" style="margin:0 0 10px">Modifies the "Created", "Modified", and "Accessed" timestamps of a file to any date in the past or future. Used to hide when a file was actually touched.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/file-encryptor-agent-security.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">File Encryptor Agent (Security)</h3>
+<p class="muted" style="margin:0 0 10px">Encrypts (and Decrypts) any file using AES-256-CTR. Protects sensitive documents before sharing or storage.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/file-integrity-monitor-compliance.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">File Integrity Monitor (Compliance)</h3>
+<p class="muted" style="margin:0 0 10px">Calculates SHA-256 hashes of all files in a directory and compares them to a "known good" baseline to detect unauthorized changes (e.g., malware or tampering).</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/jwt-token-generator-auth-utility.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">JWT Token Generator (Auth Utility)</h3>
+<p class="muted" style="margin:0 0 10px">Creates valid, cryptographically signed JSON Web Tokens (JWTs) using HMAC SHA256. Useful for testing APIs that require authentication headers without needing a full login flow.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/network-port-scanner.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Network Port Scanner</h3>
+<p class="muted" style="margin:0 0 10px">Security / Diagnostic tool. It scans a target host (localhost or IP) for open ports to ensure services are running (or to find unauthorized listeners).</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/password-auditor-security.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Password Auditor (Security)</h3>
+<p class="muted" style="margin:0 0 10px">Analyzes a password string for strength, calculates entropy, and estimates the time it would take to crack it via brute force.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/ransomware-canary-defense.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Ransomware Canary (Defense)</h3>
+<p class="muted" style="margin:0 0 10px">Creates a hidden "honey pot" file and watches it. If any process modifies or deletes this file (typical ransomware behavior), it triggers an alert.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/secure-file-shredder-privacy.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Secure File Shredder (Privacy)</h3>
+<p class="muted" style="margin:0 0 10px">Permanently destroys a file by overwriting it with 0s, 1s, and random bytes before deleting. Makes forensic recovery nearly impossible.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/seo-auditor-agent-marketing.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">SEO Auditor Agent (Marketing)</h3>
+<p class="muted" style="margin:0 0 10px">Crawls a URL and checks for critical SEO tags (Title, Description, H1, Alt Tags) and performance indicators. Generates a "Scorecard."</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/ssl-certificate-checker-network-security.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">SSL Certificate Checker (Network Security)</h3>
+<p class="muted" style="margin:0 0 10px">Connects to a domain via TLS, retrieves the certificate chain, and calculates days until expiration. Essential for uptime monitoring.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/subdomain-enumerator-recon.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Subdomain Enumerator (Recon)</h3>
+<p class="muted" style="margin:0 0 10px">Uses a dictionary attack to find active subdomains (e.g., admin.site.com, mail.site.com) by resolving them against DNS.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/token-counter-agent-cost-estimator.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Token Counter Agent (Cost Estimator)</h3>
+<p class="muted" style="margin:0 0 10px">Calculates the number of tokens in a string using gpt-3-encoder. Essential for estimating LLM costs and ensuring prompts fit within context windows.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/totp-authenticator-security.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">TOTP Authenticator (Security)</h3>
+<p class="muted" style="margin:0 0 10px">Generates Time-based One-Time Passwords (like Google Authenticator) for a given 2FA secret. Useful for automating logins that require 2FA.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/whois-agent-network-intel.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Whois Agent (Network Intel)</h3>
+<p class="muted" style="margin:0 0 10px">Queries WHOIS servers to find domain registration details (Registrar, Creation Date, Expiry). Useful for domain research.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+</div>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.4.1</div>
+</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

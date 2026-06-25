@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Helios</title>
+
+  <!-- Shared (portfolio-wide) --><link rel="stylesheet" href="/shared/lab-shell.css?v=20251230">
+  <link rel="stylesheet" href="/shared/wyla.css?v=20260101">
+
+  <!-- Helios -->
+  <link rel="stylesheet" href="helios.css" />
+  <script src="/shared/wyla.js" defer></script>
+  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css?v=65">
+  <script src="/shared/nexus-topnav-v2.js?v=65"></script>
+
+</head>
+
+<body data-app="helios">
+<div data-wyla></div>
+
+  <!-- Helios header (NOT the Nexus bar) -->
+  <header class="topbar" role="banner">
+    <div class="brand">HELIOS</div>
+    <div class="sub">WebGL2 • Cinematic coronal eruption • Live telemetry when available</div>
+  </header>
+
+  <main class="layout">
+    <section class="stage" aria-label="Helios stage">
+      <iframe
+        class="canvasFrame"
+        id="canvasFrame"
+        src="canvas.html"
+        title="Helios Canvas"
+        loading="eager"
+        referrerpolicy="no-referrer"
+      ></iframe>
+    </section>
+
+    <aside class="panel" aria-label="Helios controls">
+      <div class="panelTitle">Controls</div>
+
+      <label class="row">
+        <span>Intensity</span>
+        <input id="ctlIntensity" type="range" min="0.15" max="1" step="0.01" value="0.22" />
+        <span class="val" id="valIntensity">0.22</span>
+      </label>
+
+      <label class="row">
+        <span>Zoom</span>
+        <input id="ctlZoom" type="range" min="0" max="1" step="0.01" value="0.45" />
+        <span class="val" id="valZoom">0.45</span>
+      </label>
+
+      <label class="row">
+        <span>Speed</span>
+        <input id="ctlBoost" type="range" min="1" max="3" step="0.1" value="1.0" />
+        <span class="val" id="valBoost">1.0</span>
+      </label>
+
+      <div class="btnRow">
+        <button id="btnErupt" type="button">Erupt</button>
+        <button id="btnBoostToggle" type="button">Boost</button>
+      </div>
+
+      <div class="panelTitle" style="margin-top:14px;">Telemetry</div>
+      <div class="telemetry">
+        <div><span>Planetary Kp</span><b id="tKp">—</b></div>
+        <div><span>Solar Wind (km/s)</span><b id="tWind">—</b></div>
+        <div><span>Wind Density (p/cc)</span><b id="tDensity">—</b></div>
+        <div><span>IMF Bz (nT)</span><b id="tBz">—</b></div>
+        <div><span>X-ray Flux (W/m²)</span><b id="tXray">—</b></div>
+        <div><span>Estimated Storm Risk</span><b id="tRisk">—</b></div>
+      </div>
+
+      <div class="panelTitle" style="margin-top:14px;">API Status</div>
+      <div class="apiStatus">
+        <div><span>SWPC Kp</span><b id="apiKp">pending…</b></div>
+        <div><span>SWPC Wind</span><b id="apiWind">pending…</b></div>
+        <div><span>SWPC Mag</span><b id="apiMag">pending…</b></div>
+        <div><span>SWPC X-ray</span><b id="apiXray">pending…</b></div>
+      </div>
+
+      <div class="note">
+        Minimum readable font is enforced. If an API call is blocked (CORS/network), telemetry falls back to stable proxy values.
+      </div>
+    </aside>
+  </main>
+
+  <!-- Shared scripts (portfolio-wide) -->
+  <script src="/shared/global-polyfill.js?v=20251230"></script>
+  <script src="/shared/state-store.js?v=20251230"></script>
+  <script src="/shared/telemetry-hub.js?v=20251230"></script>
+  <script type="module" src="/shared/ai-router.js?v=20251230"></script>
+  <script src="/shared/force-catch-clear.js?v=20251230"></script>
+  <script type="module" src="/shared/lab-shell.js?v=20251230"></script>
+  
+  <!-- Nexus bar (the unified one) --><!-- Helios -->
+  <script src="helios.js"></script>
+  <script src="/shared/app-settings.js?v=20260101"></script>
+</body>
+</html>

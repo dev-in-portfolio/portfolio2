@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AEON</title>
+
+  <link rel="stylesheet" href="/shared/lab-shell.css?v=20260101" /><style>
+    :root{
+      --min-font: 12pt;
+      --panel-bg: rgba(255,255,255,.05);
+      --panel-bd: rgba(255,255,255,.10);
+    }
+    body{ font-size: var(--min-font); background:#000; }
+
+    .appGrid{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 14px;
+      align-items: start;
+    }
+    @media (max-width: 980px){
+      .appGrid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      border: 1px solid var(--panel-bd);
+      background: var(--panel-bg);
+      border-radius: 18px;
+      padding: 12px 12px;
+    }
+    .panel h2{
+      margin: 0 0 8px 0;
+      font-size: 14pt;
+      letter-spacing: .04em;
+    }
+    .hint{
+      color: rgba(255,255,255,.72);
+      line-height: 1.45;
+      margin: 0 0 10px 0;
+    }
+    .row{ display:flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+    .row label{ font-weight: 850; }
+    .row .v{ color: rgba(200,220,255,.98); font-weight: 900; }
+    input[type="range"]{ width: 100%; }
+
+    .canvasWrap{
+      border: 1px solid rgba(255,255,255,.10);
+      background: #000;
+      border-radius: 18px;
+      overflow: hidden;
+      min-height: 520px;
+    }
+    .canvasWrap, iframe{ transform: none !important; }
+    iframe{
+      display:block;
+      width: 100%;
+      height: 140vh; /* 2x window height minus 30% = 1.4x */
+      border: 0;
+      background: #000;
+    }
+
+    .ticker{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      color: rgba(255,255,255,.80);
+      font-size: 12pt;
+    }
+    .chip{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+      padding: 8px 10px;
+    }
+  </style>
+  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css?v=65">
+  <script src="/shared/nexus-topnav-v2.js?v=65"></script>
+
+</head>
+
+<body data-app="aeon">
+<div class="appGrid">
+<main class="canvasWrap panel" style="padding:0;">
+      <iframe id="canvasFrame" title="AEON Canvas" src="./canvas.html"></iframe>
+    </main>
+  </div>
+
+  <script src="/shared/app-settings.js?v=20260101"></script></body>
+</html>

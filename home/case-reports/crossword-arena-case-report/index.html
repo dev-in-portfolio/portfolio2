@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#070A12"/>
+  <title>Crossword Arena — Fast Grid UX Under Real-Time Constraints</title>
+  <link href="/shared/docs-panels.css?v=1" rel="stylesheet"/>
+  <link rel="stylesheet" href="/shared/tokens.css"/>
+  <link rel="stylesheet" href="/shared/tile-polish.css"/>
+  <link rel="stylesheet" href="/shared/tap-physics.css"/>
+  <link rel="stylesheet" href="/shared/ui-physics.css"/>
+  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css"/>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+  <main class="dpHero">
+    <div class="dpHeroBg" aria-hidden="true"></div>
+    <div class="dpHeroVignette" aria-hidden="true"></div>
+
+    <div class="dpWrap">
+      <section class="dpHeaderCard">
+        <p class="dpKicker">CASE REPORT</p>
+        <h1 class="dpTitle">String: A Deep-Dive Case Report</h1>
+        <p class="dpSub">Canonical technical report in third-person format.</p>
+      </section>
+
+      <section class="dpCard" id="content">
+<h1>Crossword Arena — Fast Grid UX Under Real-Time Constraints</h1>
+<p class="dpLead">A portfolio build focused on grid interaction design: focus management, navigation, feedback, and mobile ergonomics.</p>
+<h2>Problem the app solves</h2>
+<p>A lightweight crossword solving experience that prioritizes instant play, rapid input, and a clear demo loop.</p>
+<h2>Key experience goals</h2>
+<ul>
+<li>Instant play (no accounts, no downloads, no setup).</li>
+<li>Keyboard-first solving with mobile-safe touch targets.</li>
+<li>Clear progress feedback without clutter.</li>
+<li>Repeatable demo loop: start → solve → reset.</li>
+</ul>
+<h2>Architecture snapshot</h2>
+<ul>
+<li>Static client-side puzzle pack for reliability.</li>
+<li>State model: selected cell, direction, clue index, progress.</li>
+<li>UI decisions biased toward speed and legibility.</li>
+</ul>
+<h2>Reliability and edge cases</h2>
+<ul>
+<li>Focus loss: typing should never disappear into the void; tap-to-focus fallback is explicit.</li>
+<li>Small screens: grid scales without creating a two-handed scroll nightmare.</li>
+<li>Empty/failed puzzle load: app should fall back to a built-in puzzle.</li>
+</ul>
+<h2>Next build targets</h2>
+<ul>
+<li>Add optional daily puzzle feed (behind a feature flag).</li>
+<li>Add accessibility polish: ARIA labels, improved tab order.</li>
+<li>Add replay stats that stay local-first.</li>
+</ul>
+</section>
+    </div>
+  </main>
+
+  <script defer src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

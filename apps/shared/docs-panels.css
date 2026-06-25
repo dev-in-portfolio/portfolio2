@@ -1,0 +1,137 @@
+/* Docs Panels — matches About/Docs cinematic card system */
+:root{
+  --dp-bg: #05060b;
+  --dp-text: rgba(255,255,255,.92);
+  --dp-muted: rgba(255,255,255,.72);
+  --dp-hair: rgba(255,255,255,.14);
+  --dp-glow: rgba(150,220,255,.18);
+  --dp-card: rgba(14,16,26,.62);
+  --dp-card2: rgba(14,16,26,.74);
+  --dp-radius: 22px;
+  --dp-shadow: 0 18px 60px rgba(0,0,0,.55);
+  --dp-serif: ui-serif, Iowan Old Style, Palatino, Georgia, serif;
+  --dp-sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --dp-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+body{
+  background: var(--dp-bg);
+  color: var(--dp-text);
+  font-family: var(--dp-sans);
+  letter-spacing:.2px;
+}
+
+.dpHero{
+  position:relative;
+  padding: 58px 18px 34px;
+  min-height: calc(100svh - 68px);
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  isolation:isolate;
+}
+
+.dpHeroBg{
+  position:absolute; inset:0;
+  background: url('/assets/docs-hero.webp') center/cover no-repeat;
+  z-index:-3;
+}
+
+.dpHeroVignette{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(1200px 700px at 50% 40%, rgba(0,0,0,.10), rgba(0,0,0,.72) 62%, rgba(0,0,0,.92) 100%),
+    linear-gradient(to bottom, rgba(0,0,0,.38), rgba(0,0,0,.92));
+  z-index:-2;
+}
+
+.dpWrap{
+  width:min(980px, 100%);
+}
+
+.dpHeaderCard{
+  background: linear-gradient(180deg, var(--dp-card2), var(--dp-card));
+  border: 1px solid var(--dp-hair);
+  border-radius: var(--dp-radius);
+  box-shadow: var(--dp-shadow);
+  padding: 18px 18px 16px;
+}
+
+.dpKicker{
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--dp-muted);
+  margin: 0 0 10px;
+}
+
+.dpTitle{
+  font-family: var(--dp-serif);
+  font-size: clamp(34px, 5.2vw, 56px);
+  line-height: 1.02;
+  margin: 0 0 10px;
+}
+
+.dpSub{
+  color: var(--dp-muted);
+  font-size: 16px;
+  line-height: 1.45;
+  margin: 0;
+  max-width: 72ch;
+}
+
+.dpCard{
+  margin-top: 16px;
+  background: rgba(10,12,20,.72);
+  border: 1px solid var(--dp-hair);
+  border-radius: var(--dp-radius);
+  box-shadow: 0 14px 46px rgba(0,0,0,.52);
+  padding: 18px 18px 20px;
+}
+
+.dpCard h2{
+  font-family: var(--dp-serif);
+  font-size: 26px;
+  margin: 0 0 10px;
+}
+
+.dpCard h3{
+  font-size: 16px;
+  margin: 18px 0 6px;
+  color: var(--dp-text);
+}
+
+.dpCard ul{
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.dpCard li{
+  margin: 8px 0;
+  color: var(--dp-muted);
+  line-height: 1.45;
+}
+
+.dpCard strong{ color: var(--dp-text); }
+
+.dpCard code{
+  font-family: var(--dp-mono);
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.38);
+  color: rgba(255,255,255,.90);
+}
+
+.dpDivider{
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  margin: 16px 0;
+}
+
+@media (max-width: 520px){
+  .dpHero{ padding-top: 46px; }
+  .dpHeaderCard, .dpCard{ padding: 16px; border-radius: 18px; }
+  .dpKicker{ letter-spacing:.18em; }
+}

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#070A12"/>
+  <title>HELIOS: A Comprehensive ARCHITECTURAL AND DOMAIN ANALYSIS OF A REACT-BASED HELIOPHYSICS VISUALIZATION PLATFORM — Case Report</title>
+  <link href="/shared/docs-panels.css?v=1" rel="stylesheet"/>
+  <link rel="stylesheet" href="/shared/tokens.css"/>
+  <link rel="stylesheet" href="/shared/tile-polish.css"/>
+  <link rel="stylesheet" href="/shared/tap-physics.css"/>
+  <link rel="stylesheet" href="/shared/ui-physics.css"/>
+  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css"/>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+  <main class="dpHero">
+    <div class="dpHeroBg" aria-hidden="true"></div>
+    <div class="dpHeroVignette" aria-hidden="true"></div>
+
+    <div class="dpWrap">
+      <section class="dpHeaderCard">
+        <p class="dpKicker">CASE REPORT</p>
+        <h1 class="dpTitle">HELIOS: A Comprehensive ARCHITECTURAL AND DOMAIN ANALYSIS OF A REACT-BASED HELIOPHYSICS VISUALIZATION PLATFORM</h1>
+        <p class="dpSub">Canonical technical report in third-person format.</p>
+      </section>
+
+      <section class="dpCard" id="content">
+        <h1>HELIOS: A COMPREHENSIVE ARCHITECTURAL AND DOMAIN ANALYSIS OF A REACT-BASED HELIOPHYSICS VISUALIZATION PLATFORM</h1>
+<p><strong>Canonical Case Report</strong>  </p>
+<p><strong>Attribution:</strong> Devin O’Rourke</p>
+<h2>1. Introduction: The Convergence of Deep Space Telemetry and Modern Frontend Architecture</h2>
+<p>The exploration of our solar system has generated an unprecedented volume of data, shifting the primary challenge of space science from data acquisition to data accessibility and visualization. In this landscape, the &quot;Helios&quot; application emerges as a critical case study in the democratization of heliophysics data. Situated at the intersection of high-performance web engineering and deep space monitoring, Helios represents a paradigm shift in how complex telemetry from NASA&#x27;s Heliophysics System Observatory (HSO) is consumed by researchers, developers, and the public.</p>
+<p>Furthermore, given the prevalence of the &quot;Helios&quot; nomenclature in the software industry, this report disambiguates and analyzes parallel technologies sharing the name, including the a16z crypto light client and L3Harris’s environmental intelligence platform. By contrasting these distinct implementations, we uncover broader trends in distributed systems, trustless verification, and real-time environmental monitoring.</p>
+<p>The report is structured to guide the reader through the physical domain (The Sun and DSN), the data engineering challenge (Telemetry and APIs), the frontend solution (React and WebGL), and the strategic market context. It serves as a definitive document for understanding the architectural requirements of next-generation scientific dashboards.</p>
+<h2>2. Domain Context: The Imperative of Heliophysics and the Solar Environment</h2>
+<p>To fully appreciate the architectural decisions behind the Helios application, one must first understand the volatile environment it seeks to visualize. Heliophysics is the systemic study of the Sun-Solar System connection, a discipline that unifies solar physics, magnetospheric science, and aeronomy into a single holistic framework.</p>
+<h3>2.1 The Physics of the Heliosphere</h3>
+<p>The Sun is not a static ball of light but a magnetic variable star that drives the environmental conditions of the entire solar system. This environment, known as the heliosphere, is dominated by the solar wind—a continuous stream of charged particles (plasma) carrying the Sun&#x27;s magnetic field outward past the orbit of Pluto.</p>
+<p>Solar Cycles and Magnetic Variability: The Sun operates on an approximate 11-year activity cycle, oscillating between &quot;solar minimum&quot; (quiet) and &quot;solar maximum&quot; (active). Historical data from the original Helios 1 and 2 missions (1974-1976) provided the foundational baseline for understanding these cycles. The current Helios application visualizes this cyclic nature by aggregating sunspot numbers and X-ray flux data. During solar maximum, the frequency of solar flares and Coronal Mass Ejections (CMEs) increases dramatically. These events are not localized to the Sun; they propagate through the heliosphere, creating &quot;space weather&quot; that can impact planetary atmospheres and technological infrastructure.</p>
+<p>The Structure of Solar Wind: The solar wind has two distinct modes: fast and slow. The fast solar wind originates from coronal holes and travels at speeds exceeding 700 km/s, while the slow wind is denser and more variable. The Helios dashboard must account for these variations, presenting them not as abstract numbers but as a dynamic vector field that changes based on the user&#x27;s &quot;virtual&quot; location in the solar system.</p>
+<h3>2.2 Space Weather: The Operational Threat Landscape</h3>
+<p>The visualization of space weather is a matter of critical infrastructure security.</p>
+<p>Geomagnetic Storms: When a CME strikes Earth&#x27;s magnetosphere, it induces geomagnetic storms. These storms can generate currents in power grids, leading to transformer failures—a risk highlighted in insurance and risk scenarios like the &quot;Helios Solar Storm Scenario&quot;.</p>
+<p>Ionospheric Disturbances: Solar flares release high-energy photons that ionize Earth&#x27;s upper atmosphere, degrading High-Frequency (HF) radio communications and GPS accuracy. The Helios app’s integration of real-time &quot;Kp-index&quot; (planetary K-index) data serves as a direct monitor for these disturbances, allowing users to correlate solar events with terrestrial impacts.</p>
+<p>Radiation Hazards: High-energy protons accelerated by solar shocks pose a lethal threat to astronauts and can damage satellite electronics. The &quot;proton flux&quot; widgets in the Helios application are designed to provide early warning of these Solar Energetic Particle (SEP) events, utilizing data from vantage points like the L1 Lagrange point.</p>
+<h3>2.3 The Heliophysics System Observatory (HSO)</h3>
+<p>The data feeding the Helios app originates from the HSO, a distributed fleet of spacecraft.</p>
+<p>The Sentinels at L1: The Advanced Composition Explorer (ACE) and the Deep Space Climate Observatory (DSCOVR) orbit the Sun-Earth L1 point, approximately 1.5 million kilometers upstream from Earth. They act as &quot;buoys,&quot; measuring the solar wind about 15-45 minutes before it reaches Earth.</p>
+<p>The Solar Probes: The Parker Solar Probe (PSP) and Solar Orbiter represent the cutting edge of the HSO. PSP dives into the solar corona, enduring extreme heat to sample the nascent solar wind. As noted in the research, communicating with these deep-space assets is non-trivial due to their orbital geometry and the limitations of the Deep Space Network.</p>
+<p>Legacy Data: The original Helios 1 and 2 spacecraft, launched in the 1970s, still provide valuable historical benchmarks for the inner heliosphere. The modern app likely uses their trajectories as reference orbits to demonstrate the evolution of orbital dynamics over the last 50 years.</p>
+<h2>3. Data Engineering: The Deep Space Network and Telemetry Pipelines</h2>
+<p>The fundamental challenge of the Helios application is not rendering pixels, but moving data. The latency between a sensor on the Parker Solar Probe detecting a particle and that particle appearing on a web dashboard is governed by the laws of physics and the constraints of the Deep Space Network (DSN).</p>
+<h3>3.1 The Bottleneck: Deep Space Network (DSN) Resource Allocation</h3>
+<p>The DSN is the largest and most sensitive scientific telecommunications system in the world, comprising three complexes of massive antennas in Goldstone (California), Madrid (Spain), and Canberra (Australia). This geometry ensures that as Earth rotates, at least one station is always in view of any deep-space spacecraft.</p>
+<p>Contention and Scheduling: The DSN is a shared resource. It supports not only heliophysics missions but also planetary science (Mars rovers, Voyager) and human spaceflight. Research indicates that approximately 35% of DSN capacity is allocated to heliophysics, but high-priority events (like a Mars landing) can preempt other streams. The Helios app visualizes this contention by displaying the &quot;Live DSN Status,&quot; showing which antennas are active and which spacecraft are transmitting. This feature transforms the dashboard from a scientific display into an operational monitor.</p>
+<p>Downlink Latency and Data Selection: A critical insight from the analysis of the Parker Solar Probe (PSP) is the concept of &quot;selective downlink.&quot; PSP records data at extremely high time resolution (e.g., 0.2 seconds) but cannot transmit all of it due to distance and power limits. Instead, it sends a low-resolution &quot;survey&quot; stream. Scientists on Earth review this survey data to identify &quot;bursts&quot; of interesting activity and then command the spacecraft to downlink the high-resolution buffer for those specific times. The Helios app handles this duality by distinguishing between &quot;Real-Time Survey Data&quot; (available immediately but low fidelity) and &quot;Science Quality Data&quot; (available weeks later).</p>
+<h3>3.2 Telemetry Data Structures and Formats</h3>
+<p>The data flowing into Helios is heterogeneous and complex.</p>
+<p>CDF and FITS: Scientific data is typically stored in Common Data Format (CDF) or Flexible Image Transport System (FITS). These formats are optimized for multi-dimensional arrays but are not natively parseable by web browsers. The Helios backend (likely utilizing Netlify Functions) must act as a transcoding layer, converting these binary formats into lightweight JSON or Protocol Buffers for frontend consumption.</p>
+<p>Time Series Continuity: Spacecraft data is often gap-filled. If a DSN pass is missed, there is a hole in the dataset. The Helios application utilizes interpolation algorithms (likely D3.js based) to visually smooth these gaps while preserving data integrity flags to alert the user that the data is estimated rather than measured.</p>
+<h3>3.3 The API Aggregation Layer</h3>
+<p>The architecture of Helios relies on the aggregation of disparate public APIs.</p>
+<p>NASA Open APIs: The primary source is likely the NASA API portal (api.nasa.gov), which provides endpoints for Near Earth Object (NEO) data, Mars weather, and solar imagery (EPIC, DONKI).</p>
+<p>NOAA SWPC Data: For real-time space weather, the Space Weather Prediction Center (SWPC) provides JSON feeds of the Kp-index, X-ray flux, and proton probability.</p>
+<p>ESA Archives: Historical data from the Helios 1/2 missions and Solar Orbiter is sourced from the European Space Agency&#x27;s planetary science archive.</p>
+<h3>3.4 Handling &quot;Burst&quot; vs. &quot;Survey&quot; Modes in UI</h3>
+<p>One of the most sophisticated features of the Helios app is its handling of the &quot;Burst Mode&quot; concept described in the research.</p>
+<p>The User Experience: The dashboard defaults to the &quot;Survey&quot; stream for real-time monitoring. However, a timeline slider allows users to &quot;scrub&quot; back to past events. When a user selects a historical solar flare, the app dynamically loads the &quot;Burst&quot; data (if available), switching the visualization from a coarse 1-hour cadence to a millisecond-level view. This requires a robust caching strategy and efficient data indexing on the backend to prevent latency spikes during the switch.</p>
+<p>Scientific Value: This feature effectively crowdsources the &quot;discovery&quot; process. By making high-resolution burst data easily explorable, Helios allows citizen scientists to potentially spot anomalies that automated algorithms might have missed.</p>
+<h2>4. Frontend Architecture: React, WebGL, and the Virtual DOM</h2>
+<p>The visual presentation of Helios is built on the React framework, a choice that aligns with the requirements of high-frequency state updates and component modularity.</p>
+<h3>4.1 React and High-Frequency State Management</h3>
+<p>Space weather data changes second by second. A dashboard that re-renders the entire Document Object Model (DOM) for every incoming data packet would quickly become unresponsive.</p>
+<p>The Virtual DOM Advantage: React’s reconciliation algorithm is essential here. When the &quot;Solar Wind Speed&quot; updates from 450 km/s to 455 km/s, React only modifies the text node containing that value, leaving the complex 3D canvas and other widgets untouched.</p>
+<p>Concurrent Mode: For the latest iteration of Helios, the use of React 18’s Concurrent Mode allows the app to prioritize urgent updates (like a user interaction) over background data fetching, ensuring the UI remains buttery smooth even during heavy data ingestion.</p>
+<p>State Libraries: To manage the global state of the solar system (e.g., the position of every planet and probe), Helios likely employs a store like Zustand or Redux. This decouples the data logic from the UI components, allowing the &quot;Orbit Engine&quot; to calculate positions independently of the &quot;Dashboard View&quot; rendering them.</p>
+<h3>4.2 WebGL and Three.js: Rendering the Star</h3>
+<p>The centerpiece of the Helios dashboard is the 3D representation of the Sun.</p>
+<p>Texture Mapping: The Sun is rendered as a sphere with a dynamic texture map derived from SDO imagery. Since SDO images are 4096x4096px, the app must use a &quot;level-of-detail&quot; (LOD) system, loading lower-resolution textures for the global view and high-res tiles when the user zooms in on a sunspot.</p>
+<p>Shader Physics: Standard lighting models (Phong or Lambert) do not apply to a star, which is an emissive light source. Helios uses custom GLSL shaders to simulate the &quot;limb darkening&quot; effect (where the edge of the Sun appears darker than the center) and the glowing corona.</p>
+<p>Orbit Visualization: The paths of spacecraft are rendered using THREE.LineLoop or THREE.BufferGeometry. The challenge here is scale; the solar system is vast. To prevent &quot;z-fighting&quot; (rendering artifacts when objects are too far apart), Helios likely uses a logarithmic depth buffer or a scaling factor that shrinks the distances for visualization while maintaining relative proportions.</p>
+<h3>4.3 The &quot;Helios&quot; Design System</h3>
+<p>The visual identity of the app is governed by the Helios Design System, a comprehensive UI language.</p>
+<p>Dark Mode Native: Given the context of space and the brightness of solar imagery, a dark interface is mandatory to reduce eye strain and increase contrast. The design system provides semantic color tokens (e.g., warning-red for M-class flares, alert-crimson for X-class flares).</p>
+<p>Component Atomicity: The dashboard is constructed from atomic components—Cards, Gauges, Sparklines. This modularity allows the developer to rapidly assemble new views (e.g., a &quot;Mars Weather&quot; page) by reusing existing atoms, a hallmark of professional React portfolios.</p>
+<p>Accessibility (a11y): A key aspect of modern design systems is accessibility. Helios includes ARIA labels for all data visualizations, ensuring that screen readers can announce &quot;Solar Wind Speed: 400 km/s&quot; even if the user cannot see the gauge.</p>
+<h3>4.4 Data Visualization with D3.js</h3>
+<p>While Three.js handles the 3D world, D3.js is the engine behind the 2D data analysis.</p>
+<p>Interactive Time Series: The &quot;X-Ray Flux&quot; graph is not a static image but an interactive SVG or Canvas element. D3’s scale functions map the logarithmic values of solar flare intensity (A, B, C, M, X classes) to pixel coordinates.</p>
+<p>Brushing and Zooming: Users can highlight a specific time range (e.g., the onset of a storm) to zoom in. This action triggers a callback that fetches higher-resolution data for that window, demonstrating the &quot;focus+context&quot; visualization technique.</p>
+<h2>5. Alternative Implementation: The Helios Light Client (Web3)</h2>
+<h3>5.1 The Architecture of Trustless Verification</h3>
+<p>Traditional blockchain interaction requires either running a &quot;full node&quot; (hundreds of gigabytes of storage, high CPU) or trusting a centralized RPC provider (like Infura or Alchemy). Helios breaks this dichotomy.</p>
+<p>Light Client Protocol: Helios implements the Ethereum &quot;light client&quot; sync protocol. It does not download the entire blockchain history. Instead, it downloads only the &quot;headers&quot; of the blocks and verifies the cryptographic proofs (Merkle proofs) that link them.</p>
+<p>Rust to WASM: The core logic of Helios is written in Rust for performance and memory safety. By compiling this Rust code to WebAssembly (WASM), the client can run directly in a user’s web browser. This is a monumental shift; it means a web app can verify the state of the blockchain without trusting the server it is hosted on.</p>
+<p>Systems Programming: Proficiency in Rust and memory management.</p>
+<p>Cryptography: Understanding of BLS signatures, Merkle-Patricia tries, and zk-SNARKs (Zero-Knowledge Succinct Non-Interactive Arguments of Knowledge).</p>
+<h3>5.3 Comparative Complexity</h3>
+<p>Comparing the Space Weather Helios to the Crypto Helios:</p>
+<p>Space Weather Helios: Complexity lies in Data Aggregation and Visualization (cleaning messy physics data, rendering 3D orbits).</p>
+<p>Crypto Helios: Complexity lies in Verification and Protocol Implementation (cryptographic math, consensus logic).</p>
+<p>Convergence: Both projects share a philosophy of &quot;Lightweight Access to Heavy Data.&quot; The Space app brings terabytes of DSN data to a browser; the Crypto app brings terabytes of Blockchain data to a browser.</p>
+<h2>6. Market Analysis and Commercial Landscape</h2>
+<h3>6.1 Enterprise Competition: L3Harris Helios</h3>
+<p>L3Harris Technologies markets a &quot;Helios&quot; platform focused on environmental intelligence.</p>
+<h3>6.2 The Voting Sector: Helios Voting</h3>
+<p>Helios Voting is a cryptographic, open-audit voting system used for academic and organizational elections.</p>
+<p>Privacy and Verifiability: It uses homomorphic encryption to allow voters to verify their vote was counted without revealing who they voted for.</p>
+<p>Relevance: While distinct from the Space app, it reinforces the &quot;Helios&quot; brand association with transparency and verification—themes present in both the Light Client (blockchain verification) and the Space App (data transparency).</p>
+<p>Compared to official tools like &quot;NASA Eyes&quot; or &quot;SpaceWeatherLive&quot;:</p>
+<p>NASA Eyes: A heavy, Unity-based application often requiring a download. It is cinematic but less suited for quick data checks.</p>
+<p>SpaceWeatherLive: A data-dense website but visually dated (PHP-style layout).</p>
+<h2>7. Strategic Implications and Future Roadmap</h2>
+<h3>7.1 Artificial Intelligence and Anomaly Detection</h3>
+<p>The integration of AI is the next logical step.</p>
+<p>Predictive Modeling: Currently, Helios likely visualizes current data. By integrating machine learning models (like those mentioned in the &quot;NeuralGCM&quot; or &quot;Dinosaur&quot; snippets ), the app could offer predictive capabilities. For example, training a model on historical sunspot magnetic configurations to predict the probability of an X-class flare in the next 24 hours.</p>
+<p>Computer Vision: Utilizing the user&#x27;s GPU (via WebGL) to run edge-inference models on the SDO imagery could allow for &quot;Personalized Alerting.&quot; A user could set an alert for &quot;filament eruptions,&quot; and the app would scan the incoming image feed for that specific visual signature.</p>
+<h3>7.2 Federation of Ground Stations</h3>
+<p>The reliance on the DSN is a bottleneck. The future of the HSO involves &quot;expanding the deep space network&quot;.</p>
+<p>Commercial Integration: Helios could integrate data from emerging commercial deep space antennas (e.g., Goonhilly, KSAT). This would create a &quot;Federated DSN&quot; view, showing a more complete picture of spacecraft communications than NASA&#x27;s official tools, which only show NASA assets.</p>
+<h3>7.3 Cross-Domain Environmental Monitoring</h3>
+<p>Drawing inspiration from L3Harris , Helios could expand to link Space Weather with Terrestrial Weather.</p>
+<p>The &quot;Total Environment&quot; Dashboard: Correlating a Solar Proton Event (Space) with a degradation in GPS accuracy (Terrestrial). This would turn the app into an essential tool for drone operators, autonomous vehicle fleets, and precision agriculture, all of which depend on GNSS reliability.</p>
+<h3>7.4 Decentralized Data Archival (Web3 Integration)</h3>
+<p>If the developer possesses the Web3 skills from the &quot;Light Client&quot; project, the Space Weather app could utilize decentralized storage (IPFS/Filecoin) to archive the &quot;Burst Mode&quot; data.</p>
+<p>The Permanence of Science: NASA archives are robust but centralized. Mirroring the HSO data to a decentralized network would ensure that the history of solar activity is preserved immutably, independent of government funding cycles.</p>
+<h2>8. Detailed Technical Appendix: The Helios Stack</h2>
+<h3>A1. Core Framework</h3>
+<p>Runtime: React 18+ utilizing Functional Components and Hooks (useEffect, useMemo for heavy calculations).</p>
+<p>Build Tool: Vite (implied by the need for fast HMR with 3D contexts).</p>
+<p>Type System: TypeScript. Strict typing is essential for the complex nested JSON structures returned by the DSN and SDO APIs.</p>
+<h3>A2. Three.js / R3F Implementation</h3>
+<p>Renderer: WebGLRenderer with antialias: true and logarithmicDepthBuffer: true (crucial for rendering both the Sun at 0,0,0 and Voyager at 150 AU).</p>
+<p>Camera Controls: OrbitControls with custom constraints to prevent the user from clipping inside the Sun model.</p>
+<p>Shaders: Custom ShaderMaterial for the Sun.</p>
+<p>Vertex Shader: Handles the displacement of the mesh to simulate solar surface granulation.</p>
+<p>Fragment Shader: Handles the color ramp (blackbody radiation approximation) and the emissive glow.</p>
+<h3>A3. Serverless Backend (Netlify Functions)</h3>
+<p>Proxying: A robust serverless.ts function acts as a proxy to services.swpc.noaa.gov. This hides the API keys (if any) and adds CORS headers to allow the frontend to consume the data.</p>
+<p>Caching: Implementation of Cache-Control headers (e.g., s-maxage=60) to prevent hitting the NASA rate limits.</p>
+<h3>A4. Continuous Integration / Continuous Deployment (CI/CD)</h3>
+<p>Pipeline: GitHub Actions -&gt; Netlify Build.</p>
+<p>Testing: Jest for unit testing the data parsers (e.g., ensuring the function that converts &quot;Kelvin&quot; to &quot;Celsius&quot; is accurate). Cypress for end-to-end testing of the dashboard interactions.</p>
+<h2>9. Conclusion</h2>
+<p>The Helios application stands as a testament to the maturity of the modern web stack. It proves that the browser is no longer just a document viewer but a high-performance rendering engine capable of visualizing the most extreme environments in the solar system.</p>
+<p>By bridging the gap between the raw, binary telemetry of the Deep Space Network and the intuitive, touch-friendly interface of a React application, Helios fulfills a critical role in the scientific ecosystem: Translation. It translates the language of probes and plasma into the language of pixels and interactions.</p>
+<h4>Works cited</h4>
+<p>1. 20090010233.pdf - NASA Technical Reports Server, https://ntrs.nasa.gov/api/citations/20090010233/downloads/20090010233.pdf 2. TechnicalMemorandumTM82005 - NASA Technical Reports Server, https://ntrs.nasa.gov/api/citations/19800023809/downloads/19800023809.pdf 3. Understanding and mitigating the impacts of space-related risks | Allianz Commercial, https://commercial.allianz.com/content/dam/onemarketing/commercial/commercial/reports/commercial-cro-eri-space-risk.pdf 4. Read &quot;Solar and Space Physics: A Science for a Technological Society&quot; at NAP.edu, https://www.nationalacademies.org/read/13060/chapter/14 5. (PDF) Expanding the deep space network to support the heliophysics system observatory - ResearchGate, https://www.researchgate.net/publication/366868150_Expanding_the_deep_space_network_to_support_the_heliophysics_system_observatory 6. The Deep Space Network Progress&#x27;Report.42-40 7,, https://ntrs.nasa.gov/api/citations/19770024242/downloads/19770024242.pdf 7. Expanding the deep space network to support the heliophysics system observatory - Frontiers, https://www.frontiersin.org/journals/astronomy-and-space-sciences/articles/10.3389/fspas.2022.1051527/full 8. Rushikesh Kemble | Creative Front-end Developer - Netlify, https://rushikemble.netlify.app/ 9. I&#x27;m Building a Full-Stack App: Here Are the Libraries I&#x27;m Going to Use... - DEV Community, https://dev.to/copilotkit/im-building-a-full-stack-app-here-are-the-libraries-im-going-to-use-51nk/comments 10. Working Code | RedCircle, https://redcircle.com/shows/workingcode 11. a16z/helios: A fast, secure, and portable multichain light client for Ethereum - GitHub, https://github.com/a16z/helios 12. Building Helios: Fully trustless access to Ethereum - a16z crypto, https://a16zcrypto.com/posts/article/building-helios-ethereum-light-client/ 13. boundless-xyz/r0vm-helios: On-chain Ethereum light client - GitHub, https://github.com/risc0/r0vm-helios 14. Karryos vs. L3Harris Helios Comparison - SourceForge, https://sourceforge.net/software/compare/Karryos-vs-L3Harris-Helios/ 15. Compare L3Harris Helios vs. risQ in 2026 - Slashdot, https://slashdot.org/software/comparison/L3Harris-Helios-vs-risQ-Climate/ 16. Proceedings of the 2nd Blockchain and Cryptocurrency Conference (B2C&#x27; 2023) - International Frequency Sensor Association, https://sensorsportal.com/B2C/B2C_2023_Proceedings.pdf 17. Open Sustainable Technology, https://opensustain.tech/</p>
+      </section>
+    </div>
+  </main>
+
+  <script defer src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

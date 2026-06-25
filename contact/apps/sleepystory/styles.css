@@ -1,0 +1,43 @@
+
+:root {
+  --bg: #0e1116;
+  --panel: #12161d;
+  --text: #e8e6e3;
+  --muted: #a8a8a8;
+  --accent: #9fb4d8;
+}
+
+html, body {
+  background: linear-gradient(180deg, #0e1116, #0b0e13);
+  color: var(--text);
+}
+
+button, .btn {
+  font-size: 1.05rem;
+  padding: 16px 22px;
+  border-radius: 14px;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.hide-ui .ui {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+}
+
+.fade-dim {
+  animation: dim 40s linear forwards;
+}
+
+@keyframes dim {
+  from { filter: brightness(1); }
+  to { filter: brightness(0.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-dim { animation: none !important; }
+  .hide-ui .ui { transition: none !important; }
+}

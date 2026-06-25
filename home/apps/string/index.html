@@ -1,0 +1,3053 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>STRING // THEORY – 4D Manifold Lab</title>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
+<!-- Favicons / Touch Icons (drop real assets into these paths) -->
+<link href="/assets/icon/string/string-lab-icon.svg" rel="icon" type="image/svg+xml"/>
+<link href="/assets/icon/string/string-lab-icon-32.png" rel="alternate icon" sizes="32x32" type="image/png"/>
+<link href="/icon-512.png" rel="apple-touch-icon">
+<!-- Color scheme + tiny robots.txt hint for reviewers -->
+<meta content="dark only" name="color-scheme"/>
+<!-- robots.txt (mirrored for convenience):
+ User-agent: *
+ Allow: /
+ -->
+<!-- Three.js CDN -->
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<!-- Postprocessing (for T168 SSAO + T159 Bloom) -->
+<script src="https://unpkg.com/three@0.160.0/examples/js/postprocessing/Pass.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/postprocessing/MaskPass.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/postprocessing/SSAOPass.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<style>
+
+ /* --- Rendering Technique UI helpers --- */
+.chk { display:flex; align-items:flex-start; gap:10px; font-size:0.82rem; line-height:1.2; user-select:none; cursor:pointer; }
+.chk input { margin-top:2px; }
+.hint { margin:6px 0 0 28px; font-size:0.68rem; color: rgba(255,255,255,0.68); }
+
+ /* --- VISUAL THEME --- */
+ :root {
+ --bg: #020617;
+ --panel: rgba(15, 23, 42, 0.96);
+ --border: rgba(148, 163, 184, 0.3);
+ --accent: #38bdf8;
+ --text: #e5e7eb;
+ --muted: #9ca3af;
+ --radius-xl: 24px;
+ --font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+ }
+
+ * { box-sizing: border-box; }
+
+ html, body {
+ margin: 0; padding: 0;
+ width: 100%;
+ height: 100%;
+ min-height: 100%;
+ background: radial-gradient(circle at top, #020617 0%, #000 100%);
+ color: var(--text); font-family: var(--font-ui);
+ overflow-x: hidden;
+ overflow-y: hidden;
+ }
+
+ /* Scroll fix for mobile */
+ @media (max-width: 900px) {
+ body { overflow-y: auto; }
+ }
+
+ body { display: flex; }
+
+.app { 
+ display: flex; flex-direction: column; width: 100%;
+ /* Use JS-driven --svh to prevent mobile address-bar bugs, and subtract shell height when available */
+ min-height: calc(var(--svh, 100vh) - var(--shellH, 0px));
+ height: calc(var(--svh, 100vh) - var(--shellH, 0px));
+ padding: 10px; gap: 10px;
+ }
+
+ /* HEADER */
+ header {
+ display: flex; justify-content: space-between; align-items: center;
+ padding: 8px 16px; border-radius: 99px; background: rgba(15,23,42,0.85);
+ border: 1px solid var(--border); backdrop-filter: blur(12px);
+ flex-shrink: 0; z-index: 20;
+ }
+.title { font-weight: 800; letter-spacing: 0.15em; color: #fff; }
+.tag { font-size: 0.7rem; color: var(--accent); margin-left: 10px; letter-spacing: 0.05em; border: 1px solid var(--accent); padding: 2px 6px; border-radius: 4px; }
+.status-pill { font-size: 0.75rem; color: var(--muted); font-family: monospace; }
+
+ /* LAYOUT */
+.workspace { 
+ flex: 1; min-height: 0;
+ display: flex; gap: 10px; overflow: hidden;
+ }
+ 
+ /* 3D VIEWPORT */
+.view-shell {
+ flex: 1; min-height: 0;
+ border-radius: var(--radius-xl); border: 1px solid var(--border);
+ background: #000; position: relative; overflow: hidden;
+ }
+ #glCanvas { 
+ width: 100%; height: 100%; display: block; 
+ /* IMPROVED GESTURE: Prevent page scroll on canvas touch */
+ touch-action: none; 
+ cursor: grab;
+ }
+ #glCanvas:active { cursor: grabbing; }
+
+.overlay {
+ position: absolute; inset: 0; pointer-events: none; padding: 20px;
+ display: flex; flex-direction: column; justify-content: space-between;
+ }
+.badge {
+ background: rgba(0,0,0,0.7); border: 1px solid var(--border);
+ padding: 6px 12px; border-radius: 99px; font-size: 0.75rem; 
+ backdrop-filter: blur(4px); display: inline-block; color: #fff;
+ }
+
+ /* SIDEBAR */
+.sidebar {
+ width: 320px; min-width: 300px; background: var(--panel);
+ border-radius: var(--radius-xl); border: 1px solid var(--border);
+ display: flex; flex-direction: column; padding: 14px; gap: 14px;
+ backdrop-filter: blur(24px); overflow-y: auto;
+ }
+.section {
+ background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px;
+ border: 1px solid var(--border);
+ }
+.section-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; letter-spacing: 0.05em; }
+ 
+ /* CONTROLS */
+.control-row { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 6px; color: var(--muted); }
+ input[type=range] { width: 100%; accent-color: var(--accent); margin-bottom: 12px; cursor: pointer; }
+ select {
+ width: 100%; background: #0f172a; color: #fff; border: 1px solid var(--border);
+ padding: 8px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 12px; outline: none;
+ }
+.btn {
+ background: rgba(56, 189, 248, 0.1); border: 1px solid var(--border); color: var(--accent);
+ padding: 8px 12px; border-radius: 99px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: 700;
+ flex: 1; text-align: center; transition: 0.2s;
+ }
+.btn:hover { background: rgba(56, 189, 248, 0.25); border-color: var(--accent); }
+.btn-row { display: flex; gap: 8px; margin-top: 4px; }
+
+ /* CHAT CARDS */
+.chat-card {
+ background: rgba(0,0,0,0.25); border-radius: 10px; padding: 12px; 
+ margin-bottom: 10px; border: 1px solid var(--border);
+ }
+.chat-role { font-size: 0.7rem; font-weight: 800; color: #fff; margin-bottom: 6px; text-transform: uppercase; display: flex; justify-content: space-between; }
+.chat-status { color: var(--muted); font-weight: 400; font-size: 0.65rem; }
+.chat-input {
+ width: 100%; background: #020617; border: 1px solid var(--border); color: #fff;
+ border-radius: 8px; padding: 8px; font-size: 0.75rem; resize: vertical; margin-bottom: 8px;
+ font-family: inherit;
+ }
+.chat-response {
+ background: #0f172a; padding: 10px; border-radius: 8px; margin-top: 8px;
+ font-size: 0.75rem; color: #cbd5f5; line-height: 1.5; border: 1px solid var(--border);
+ display: none;
+ }
+.chat-response.visible { display: block; animation: fadeIn 0.3s ease; }
+ @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+ @media (max-width: 900px) {
+.workspace { flex-direction: column; overflow-y: visible; }
+.view-shell { min-height: 450px; flex: none; }
+.sidebar { width: 100%; flex: none; height: auto; }
+ }
+ 
+ /* HEADER LAYOUT TWEAKS + :has() demo */
+.header-left {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ }
+.header-right {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ }
+.title-button {
+ background: none;
+ border: none;
+ padding: 0;
+ color: var(--text);
+ font: inherit;
+ cursor: pointer;
+ }
+.title-button:focus-visible {
+ outline: 2px solid var(--accent-soft);
+ outline-offset: 4px;
+ }
+ header:has(.title-button:focus-visible) {
+ box-shadow: 0 0 0 1px rgba(148,163,184,0.35);
+ background: radial-gradient(circle at top left,
+ rgba(56,189,248,0.22),
+ rgba(15,23,42,0.96)
+ );
+ }
+
+.pill-btn {
+ border-radius: 999px;
+ border: 1px solid rgba(148,163,184,0.5);
+ background: radial-gradient(circle at top,
+ rgba(15,23,42,0.96),
+ rgba(15,23,42,0.85)
+ );
+ color: var(--muted);
+ font-size: 0.7rem;
+ padding: 4px 10px;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ cursor: pointer;
+ transition:
+ border-color 0.18s ease-out,
+ box-shadow 0.18s ease-out,
+ transform 0.18s ease-out,
+ color 0.18s ease-out;
+ }
+.pill-btn:hover,
+.pill-btn:focus-visible {
+ color: var(--accent);
+ border-color: rgba(56,189,248,0.8);
+ box-shadow:
+ 0 0 0 1px rgba(56,189,248,0.5),
+ 0 0 30px rgba(8,47,73,0.9);
+ transform: translateY(-1px);
+ }
+
+ /* PREMIUM CURSOR ORB */
+.cursor-orb {
+ position: fixed;
+ width: 18px;
+ height: 18px;
+ border-radius: 999px;
+ border: 1px solid rgba(148, 163, 184, 0.7);
+ box-shadow:
+ 0 0 12px rgba(56, 189, 248, 0.5),
+ 0 0 28px rgba(8, 47, 73, 0.9);
+ pointer-events: none;
+ mix-blend-mode: screen;
+ opacity: 0;
+ transform: translate(-50%, -50%) scale(0.7);
+ transition:
+ opacity 0.22s ease-out,
+ transform 0.16s ease-out;
+ z-index: 99;
+ }
+.cursor-orb.is-active {
+ opacity: 1;
+ transform: translate(-50%, -50%) scale(1.0);
+ }
+.cursor-orb.is-pressed {
+ transform: translate(-50%, -50%) scale(0.82);
+ box-shadow:
+ 0 0 20px rgba(56, 189, 248, 0.8),
+ 0 0 40px rgba(8, 47, 73, 1);
+ }
+ body.cursor-coarse.cursor-orb {
+ display: none;
+ }
+
+ /* Subtle hover polish */
+.view-shell:hover {
+ box-shadow:
+ 0 0 0 1px rgba(56,189,248,0.35),
+ 0 18px 40px rgba(0,0,0,0.85);
+ }
+.btn:hover,
+.btn:focus-visible {
+ transform: translateY(-1px);
+ box-shadow:
+ 0 0 0 1px rgba(56,189,248,0.4),
+ 0 14px 32px rgba(15,23,42,0.9);
+ }
+.chat-card:hover {
+ box-shadow:
+ 0 0 0 1px rgba(30,64,175,0.7),
+ 0 18px 40px rgba(15,23,42,0.9);
+ }
+
+ /* META OVERLAYS */
+.meta-overlay {
+ position: fixed;
+ inset: 0;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ background:
+ radial-gradient(circle at top,
+ rgba(15,23,42,0.96),
+ rgba(15,23,42,0.96)
+ ),
+ radial-gradient(circle at top,
+ rgba(56,189,248,0.08),
+ transparent 60%
+ );
+ backdrop-filter: blur(18px);
+ opacity: 0;
+ visibility: hidden;
+ pointer-events: none;
+ transition:
+ opacity 0.2s ease-out,
+ visibility 0.2s ease-out;
+ z-index: 80;
+ }
+.meta-overlay.is-open {
+ opacity: 1;
+ visibility: visible;
+ pointer-events: auto;
+ }
+.meta-overlay-fun.meta-title {
+ color: var(--accent);
+ }
+.meta-panel {
+ width: min(520px, 100% - 32px);
+ max-height: min(80vh, 540px);
+ padding: 16px 18px 14px;
+ border-radius: 16px;
+ background:
+ radial-gradient(circle at top left,
+ rgba(56,189,248,0.16),
+ transparent 55%
+ ),
+ radial-gradient(circle at bottom right,
+ rgba(30,64,175,0.4),
+ rgba(15,23,42,0.96)
+ );
+ border: 1px solid rgba(148, 163, 184, 0.45);
+ box-shadow:
+ 0 26px 70px rgba(0, 0, 0, 0.86),
+ 0 0 0 1px rgba(15,23,42,0.9);
+ display: flex;
+ flex-direction: column;
+ gap: 10px;
+ color: var(--text);
+ overflow: hidden;
+ }
+.meta-panel-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 10px;
+ margin-bottom: 6px;
+ }
+.meta-title {
+ font-size: 0.95rem;
+ letter-spacing: 0.08em;
+ text-transform: uppercase;
+ color: var(--muted);
+ }
+.meta-body {
+ font-size: 0.78rem;
+ line-height: 1.6;
+ color: var(--muted);
+ overflow: auto;
+ padding-right: 4px;
+ }
+.meta-list {
+ margin: 8px 0 0;
+ padding-left: 18px;
+ }
+.meta-list li {
+ margin-bottom: 4px;
+ }
+.meta-footnote {
+ margin-top: 10px;
+ font-size: 0.7rem;
+ opacity: 0.8;
+ }
+.meta-close {
+ border-radius: 999px;
+ border: 1px solid rgba(148,163,184,0.6);
+ background: rgba(15,23,42,0.9);
+ color: var(--muted);
+ font-size: 0.72rem;
+ padding: 2px 8px;
+ cursor: pointer;
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ min-width: 26px;
+ min-height: 26px;
+ transition:
+ background 0.16s ease-out,
+ border-color 0.16s ease-out,
+ transform 0.16s ease-out;
+ }
+.meta-close:hover,
+.meta-close:focus-visible {
+ background: rgba(15,23,42,1);
+ border-color: rgba(56,189,248,0.9);
+ transform: translateY(-1px);
+ }
+
+ /* DEV PANEL (secret, Konami-triggered) */
+.dev-panel {
+ position: fixed;
+ right: 10px;
+ bottom: 10px;
+ width: min(320px, 100% - 20px);
+ padding: 10px 12px;
+ border-radius: 12px;
+ background: rgba(15,23,42,0.97);
+ border: 1px solid rgba(148,163,184,0.5);
+ box-shadow: 0 20px 50px rgba(0,0,0,0.85);
+ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+ font-size: 0.7rem;
+ color: var(--muted);
+ z-index: 120;
+ display: none;
+ }
+.dev-panel.is-open {
+ display: block;
+ }
+.dev-panel-header {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ margin-bottom: 6px;
+ }
+.dev-panel-title {
+ font-size: 0.72rem;
+ text-transform: uppercase;
+ letter-spacing: 0.09em;
+ color: var(--accent);
+ }
+.dev-panel-badge {
+ padding: 2px 6px;
+ border-radius: 999px;
+ border: 1px solid rgba(148,163,184,0.4);
+ font-size: 0.65rem;
+ }
+.dev-panel-body {
+ max-height: 180px;
+ overflow: auto;
+ line-height: 1.4;
+ }
+.dev-panel-footer {
+ margin-top: 6px;
+ font-size: 0.65rem;
+ opacity: 0.9;
+ }
+
+ /* CONTAINER QUERIES + SCROLL SNAP */
+.workspace {
+ container-type: inline-size;
+ }
+ @container (max-width: 900px) {
+.workspace {
+ flex-direction: column;
+ }
+.view-shell {
+ height: min(60vh, 460px);
+ }
+.sidebar {
+ max-height: unset;
+ overflow-y: auto;
+ scroll-snap-type: y proximity;
+ }
+.section {
+ scroll-snap-align: start;
+ }
+ }
+
+ /* STRING // ds-splash overlay */
+.ds-splash-root {
+ position: fixed;
+ inset: 0;
+ z-index: 999;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ background: radial-gradient(circle at top, #020617 0%, #000 80%);
+ color: #e5e7eb;
+ pointer-events: auto;
+ transition: opacity 0.35s ease-out, visibility 0.35s ease-out;
+ }
+.ds-splash-root.ds-splash-hidden {
+ opacity: 0;
+ visibility: hidden;
+ pointer-events: none;
+ }
+.ds-splash-shell {
+ width: min(960px, 100% - 32px);
+ max-height: min(640px, 100% - 32px);
+ border-radius: 24px;
+ border: 1px solid rgba(148,163,184,0.6);
+ background: radial-gradient(circle at top left, rgba(30,64,175,0.35), transparent 60%),
+ radial-gradient(circle at bottom right, rgba(148,27,109,0.4), #020617 70%);
+ box-shadow: 0 28px 80px rgba(15,23,42,0.9);
+ display: flex;
+ flex-direction: column;
+ padding: 20px 24px 18px;
+ gap: 16px;
+ }
+.ds-splash-header {
+ display: flex;
+ justify-content: space-between;
+ gap: 20px;
+ align-items: flex-start;
+ border-bottom: 1px solid rgba(148,163,184,0.4);
+ padding-bottom: 10px;
+ }
+.ds-splash-titleblock {
+ flex: 1 1 auto;
+ min-width: 0;
+ }
+.ds-splash-kicker {
+ font-size: 0.9rem;
+ letter-spacing: 0.18em;
+ text-transform: uppercase;
+ color: #9ca3af;
+ }
+.ds-splash-title {
+ font-size: 2.1rem;
+ letter-spacing: 0.06em;
+ text-transform: uppercase;
+ margin: 4px 0 6px;
+ }
+.ds-splash-tagline {
+ font-size: 1rem;
+ line-height: 1.6;
+ color: #cbd5f5;
+ max-width: 40rem;
+ }
+.ds-splash-meta {
+ flex: 0 0 auto;
+ font-size: 0.9rem;
+ color: #9ca3af;
+ display: flex;
+ flex-direction: column;
+ gap: 2px;
+ text-align: right;
+ }
+.ds-splash-steps {
+ display: flex;
+ flex: 1 1 auto;
+ min-height: 0;
+ margin-top: 6px;
+ }
+.ds-splash-step {
+ flex: 1 1 auto;
+ display: none;
+ flex-direction: column;
+ gap: 8px;
+ }
+.ds-splash-step.active {
+ display: flex;
+ }
+.ds-splash-subtitle {
+ font-size: 0.95rem;
+ letter-spacing: 0.16em;
+ text-transform: uppercase;
+ color: #9ca3af;
+ margin-bottom: 6px;
+ }
+.ds-splash-scroll {
+ flex: 1 1 auto;
+ min-height: 0;
+ overflow-y: auto;
+ padding-right: 6px;
+ }
+.ds-splash-body {
+ font-size: 1rem;
+ line-height: 1.7;
+ color: #e5e7eb;
+ margin-bottom: 8px;
+ }
+.ds-splash-footer {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ gap: 12px;
+ margin-top: 6px;
+ }
+.ds-splash-dots {
+ display: inline-flex;
+ gap: 6px;
+ align-items: center;
+ }
+.ds-splash-dot {
+ width: 8px;
+ height: 8px;
+ border-radius: 999px;
+ background: rgba(148,163,184,0.4);
+ transition: background-color 0.2s ease-out, width 0.2s ease-out;
+ }
+.ds-splash-dot.active {
+ width: 18px;
+ background: rgba(56,189,248,0.9);
+ }
+.ds-splash-cta-row {
+ display: inline-flex;
+ gap: 8px;
+ }
+.ds-splash-ghost,
+.ds-splash-cta {
+ border-radius: 999px;
+ border: 1px solid rgba(148,163,184,0.7);
+ padding: 6px 14px;
+ font-size: 0.95rem;
+ cursor: pointer;
+ background: transparent;
+ color: #e5e7eb;
+ display: inline-flex;
+ align-items: center;
+ gap: 6px;
+ transition: background-color 0.2s ease-out, border-color 0.2s ease-out, transform 0.15s ease-out;
+ }
+.ds-splash-ghost:hover {
+ background: rgba(15,23,42,0.9);
+ transform: translateY(-0.5px);
+ }
+.ds-splash-cta {
+ border-color: rgba(56,189,248,0.9);
+ background: radial-gradient(circle at top, rgba(56,189,248,0.2), rgba(8,47,73,1));
+ }
+.ds-splash-cta:hover {
+ background: radial-gradient(circle at top, rgba(59,130,246,0.4), rgba(8,47,73,1));
+ transform: translateY(-0.5px);
+ }
+ @media (max-width: 768px) {
+.ds-splash-shell {
+ padding: 16px 14px 14px;
+ width: 100%;
+ max-height: 100%;
+ border-radius: 0;
+ }
+.ds-splash-header {
+ flex-direction: column;
+ align-items: flex-start;
+ }
+.ds-splash-meta {
+ text-align: left;
+ }
+ }
+
+/* P10 Fullscreen: hide sidebar when the view is fullscreen */
+body.is-fullscreen.sidebar { display: none !important; }
+
+/* P11 Layout: enforce full-viewport workspace + stable initial sizing */
+html, body { height: 100%; }
+body {
+ display: flex;
+ flex-direction: column;
+ height: 100vh;
+ overflow: hidden;
+}
+.workspace { flex: 1; min-height: 0; }
+.view-shell { min-width: 0; min-height: 0; }
+
+/* Mobile/tablet: keep the viewport proportional so the sidebar isn't crushed */
+@media (max-width: 900px) {
+ body { overflow: hidden; }
+.workspace { flex-direction: column; }
+.view-shell { flex: none; height: min(52vh, 420px); }
+.sidebar { width: auto; min-width: 0; }
+}
+
+
+
+
+/* P18 SHELL_CLEANUP */
+/* Shell owns title/subtitle + docs */
+#appTitle,.tag{ display:none !important; }
+#readmeButton, #readmeOverlay{ display:none !important; }
+
+ /* Nexus Back Bar */
+.nexus-backbar{
+ position: sticky;
+ top: 0;
+ z-index: 9999;
+ background: rgba(0,0,0,0.65);
+ backdrop-filter: blur(10px);
+ -webkit-backdrop-filter: blur(10px);
+ border-bottom: 1px solid rgba(255,255,255,0.12);
+ padding: 10px 14px;
+ }
+.nexus-backlink{
+ display: inline-flex;
+ align-items: center;
+ gap: 8px;
+ color: #fff;
+ text-decoration: none;
+ font-weight: 700;
+ letter-spacing: 0.2px;
+ }
+.nexus-backlink:hover{ text-decoration: underline; }
+ </style>
+<script>window.APP_ID="string-theory-4d-manifold-lab";</script>
+<style>
+/* A20 scroll baseline */
+html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+</style>
+<link href="../../shared/wyla.css" rel="stylesheet"/>
+<script defer="" src="../../shared/wyla.js"></script>
+</link></head>
+<body data-app="string">
+ <nav class="nxTopNav"></nav>
+
+<div data-wyla=""></div>
+<!-- Nexus Boot Overlay (P08) -->
+<div aria-label="Loading String" aria-live="polite" id="nexusBootOverlay" role="status">
+<div class="nexusBootCard">
+<div class="nexusBootTitle">Loading <span class="nexusBootApp">String</span></div>
+<div class="nexusBootStage" id="nexusBootStage">Starting…</div>
+<div aria-hidden="true" class="nexusBootBar"><div></div></div>
+<div class="nexusBootTip">If this is a heavy lab on mobile, give it a moment — it's not frozen.</div>
+</div>
+</div>
+<style>
+ body.nexus-booting { overflow: hidden; }
+ #nexusBootOverlay {
+ position: fixed; inset: 0; z-index: 999999;
+ display: flex; align-items: center; justify-content: center;
+ background: rgba(2, 6, 23, 0.92);
+ color: #e5e7eb;
+ font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+ -webkit-font-smoothing: antialiased;
+ backdrop-filter: blur(10px);
+ transition: opacity 220ms ease;
+ }
+ #nexusBootOverlay.nexusBootCard {
+ width: min(560px, calc(100vw - 32px));
+ border-radius: 18px;
+ border: 1px solid rgba(148, 163, 184, 0.28);
+ background: rgba(15, 23, 42, 0.72);
+ box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+ padding: 18px 18px 14px;
+ }
+ #nexusBootOverlay.nexusBootTitle {
+ font-size: 18px; font-weight: 750; letter-spacing: 0.2px;
+ display: flex; gap: 8px; align-items: baseline;
+ }
+ #nexusBootOverlay.nexusBootApp { color: #38bdf8; }
+ #nexusBootOverlay.nexusBootStage {
+ margin-top: 6px;
+ font-size: 13px;
+ opacity: 0.9;
+ min-height: 18px;
+ }
+ #nexusBootOverlay.nexusBootBar {
+ margin-top: 12px;
+ height: 7px;
+ border-radius: 999px;
+ overflow: hidden;
+ background: rgba(148, 163, 184, 0.18);
+ }
+ #nexusBootOverlay.nexusBootBar > div {
+ height: 100%;
+ width: 38%;
+ background: rgba(56, 189, 248, 0.95);
+ transform: translateX(-120%);
+ animation: nexusBootBar 1.15s infinite ease-in-out;
+ }
+ #nexusBootOverlay.nexusBootTip {
+ margin-top: 10px;
+ font-size: 12px;
+ opacity: 0.7;
+ line-height: 1.35;
+ }
+ @keyframes nexusBootBar {
+ 0% { transform: translateX(-120%); }
+ 50% { transform: translateX(110%); }
+ 100% { transform: translateX(260%); }
+ }
+ @media (prefers-reduced-motion: reduce) {
+ #nexusBootOverlay.nexusBootBar > div { animation: none; transform: translateX(0); width: 100%; opacity: 0.25; }
+ }
+</style>
+<script>
+(function() {
+ const overlay = document.getElementById('nexusBootOverlay');
+ const stageEl = document.getElementById('nexusBootStage');
+ if (!overlay) return;
+
+ document.body.classList.add('nexus-booting');
+
+ const stages = [
+ "Warming up the GPU…",
+ "Loading shaders…",
+ "Preparing simulation…",
+ "Building controls…",
+ "Calibrating chaos…",
+ "Finalizing scene…"
+ ];
+ let i = 0;
+ const tick = () => {
+ if (!stageEl) return;
+ stageEl.textContent = stages[i % stages.length];
+ i++;
+ };
+ tick();
+ const iv = setInterval(tick, 900);
+
+ const done = () => {
+ if (!document.getElementById('nexusBootOverlay')) return;
+ clearInterval(iv);
+ overlay.style.opacity = '0';
+ overlay.style.pointerEvents = 'none';
+ setTimeout(() => {
+ overlay.remove();
+ document.body.classList.remove('nexus-booting');
+ }, 260);
+ };
+
+ // Optional: labs may call this when fully ready.
+ window.__NEXUS_LAB_READY__ = done;
+
+ // Fallback heuristic: once a canvas exists and is sized, we allow a short grace window, then hide.
+ const start = Date.now();
+ const maxWait = 15000; // safety valve
+ const poll = () => {
+ if (Date.now() - start > maxWait) return done();
+ const canv = document.querySelector('canvas');
+ if (canv && canv.clientWidth > 0 && canv.clientHeight > 0) {
+ requestAnimationFrame(() => setTimeout(done, 220));
+ return;
+ }
+ requestAnimationFrame(poll);
+ };
+ requestAnimationFrame(poll);
+
+ // If the lab finishes fast, don't force a long overlay.
+ window.addEventListener('load', () => setTimeout(() => {
+ // If the canvas never appears, still remove after a while so the user can see any error UI.
+ if (Date.now() - start > 2500) done();
+ }, 50), { once: true });
+})();
+</script>
+<div aria-labelledby="dsSplashTitle" aria-modal="true" class="ds-splash-root" id="dsSplash" role="dialog">
+<div class="ds-splash-shell">
+<div class="ds-splash-header">
+<div class="ds-splash-titleblock">
+<div class="ds-splash-kicker">Devin O’Rourke • AI Lab Portfolio</div>
+<h1 class="ds-splash-title" id="dsSplashTitle">STRING</h1>
+<p class="ds-splash-tagline">
+ An interactive string lab that turns vibrating lines, standing waves, and harmonic modes into a
+ visual playground — built as a single-file portfolio piece with controls and embedded AI advisors.
+ </p>
+</div>
+<div class="ds-splash-meta">
+<div>Owner: Devin O’Rourke</div>
+<div>Mode: Tablet / Kiosk</div>
+<div>Controls: Touch + Mouse + Auto-Camera</div>
+</div>
+</div>
+<div class="ds-splash-steps">
+<!-- STEP 1: Snapshot -->
+<section class="ds-splash-step active" data-step="1">
+<h2 class="ds-splash-subtitle">STEP 1 — SNAPSHOT</h2>
+<div class="ds-splash-scroll">
+<p class="ds-splash-body">
+ STRING is the “vibrating universe” lab in the portfolio set. It focuses on waves, resonance, and
+ modes on one or more strings, giving you a clean, high-contrast way to see how frequency, tension,
+ and harmonics change the motion.
+ </p>
+</div>
+</section>
+<!-- STEP 2: String theory + description & instructions -->
+<section class="ds-splash-step" data-step="2">
+<h2 class="ds-splash-subtitle">STEP 2 — STRING THEORY &amp; HOW TO USE THIS LAB</h2>
+<div class="ds-splash-scroll">
+<!-- Paragraph 1: what string theory is -->
+<p class="ds-splash-body">
+<strong>Very short version of string theory:</strong> instead of treating particles as tiny points,
+ string theory imagines them as incredibly small vibrating strings. The way a string vibrates
+ (its frequency, mode, and pattern) determines what kind of particle it “looks like” to the universe —
+ similar to how different notes on a guitar are just different vibration patterns of the same string.
+ </p>
+<!-- Rest: description + instructions -->
+<p class="ds-splash-body">
+ This lab doesn’t simulate full-blown string theory physics; instead, it gives you a
+ <strong>hands-on wave and resonance playground</strong> inspired by that idea. You can see how changing
+ frequency, tension, damping, and mode index reshapes the motion and the pattern of nodes and antinodes
+ along the string.
+ </p>
+<p class="ds-splash-body">
+<strong>What you can explore:</strong> drag or orbit the camera , switch between different
+ string setups, and use the control panel to adjust driving frequency, amplitude, damping, and harmonics.
+ The visualization responds in real time so you can watch the standing waves lock in or break apart as you
+ tune the parameters.
+ </p>
+<p class="ds-splash-body">
+<strong>How to demo it live:</strong> start with a simple fundamental mode, then slowly increase the
+ frequency until a higher harmonic “snaps” into place. Point out the fixed nodes (where the string barely
+ moves) and the large antinodes (where motion is biggest). From there, you can show damping, phase changes,
+ or switching between different preset patterns.
+ </p>
+<p class="ds-splash-body">
+<strong>Portfolio intent:</strong> this file is designed to show that I can combine
+ <em>real-time visuals, intuitive controls, wave/physics intuition,</em> and light AI hooks into a
+ single, kiosk-friendly artifact that runs locally in a browser with no build step.
+ </p>
+<p class="ds-splash-body">
+ When you hit <strong>Enter Lab</strong>, the splash closes and the STRING simulation takes over the screen,
+ ready for tablet demo, screen-share, or live walkthrough.
+ </p>
+</div>
+</section>
+</div>
+<div class="ds-splash-footer">
+<div class="ds-splash-dots">
+<span class="ds-splash-dot active" data-dot="1"></span>
+<span class="ds-splash-dot" data-dot="2"></span>
+</div>
+<div class="ds-splash-cta-row">
+<button class="ds-splash-ghost" data-splash-next="" type="button">Next</button>
+<button class="ds-splash-cta" data-splash-start="" type="button">Enter Lab</button>
+</div>
+</div>
+</div>
+</div>
+<div class="app">
+<header>
+<div class="header-left">
+<button class="title title-button" id="appTitle" type="button">
+ STRING // THEORY
+ </button>
+<span class="tag">FULL AI LAB</span>
+</div>
+<div class="header-right">
+<button aria-label="Open lab manual" class="pill-btn" data-open-overlay="readmeOverlay" id="readmeButton" type="button">
+ Lab Manual
+ </button>
+<button aria-label="Toggle fullscreen" class="pill-btn" id="fullscreenButton" type="button">
+ Fullscreen
+ </button>
+<div class="status-pill">
+<span id="statusFPS">60</span> FPS · <span id="statusPoints">0</span> PTS
+ </div>
+</div>
+</header>
+<div class="workspace">
+<!-- 3D VIEWPORT -->
+<div class="view-shell" id="viewContainer">
+<canvas id="glCanvas"></canvas>
+<div class="overlay">
+<div style="display:flex; gap:8px; align-items:flex-start;">
+<div class="badge">Family: <span id="overlayFamily" style="color:var(--accent)">Galaxy</span></div>
+<div class="badge">n = <span id="overlayN">5</span></div>
+</div>
+<div style="align-self: flex-end">
+<div class="badge">String Mode <span id="overlayMode" style="color:var(--accent)">3</span></div>
+</div>
+</div>
+</div>
+<!-- SIDEBAR CONTROLS -->
+<aside class="sidebar">
+<div class="section">
+<div class="section-title">Manifold Configuration</div>
+<div class="control-row"><span>Shape Family</span></div>
+<select id="shapeFamilySelect">
+<optgroup label="Fundamental">
+<option value="cloud">Cloud (Baseline)</option>
+<option value="knot">Knot</option>
+<option value="brane">Brane Sheet</option>
+<option value="filament">Filament Swarm</option>
+<option value="shells">Nested Shells</option>
+<option value="lattice">Crystal Lattice</option>
+<option value="bloom">Vortex Bloom</option>
+</optgroup>
+<optgroup label="Complex">
+<option value="storm">Singularity Storm</option>
+<option value="orbital">Orbital Rings</option>
+<option value="fractal">Fractal Web</option>
+<option value="starburst">Starburst</option>
+<option value="binary">Binary Cores</option>
+<option value="terrace">Terraces</option>
+<option value="ribbon">Ribbon Helix</option>
+<option value="spine">Spine &amp; Ribs</option>
+</optgroup>
+<optgroup label="Exotic">
+<option value="city">City Blocks</option>
+<option value="shard">Shard Field</option>
+<option value="tree">Fractal Tree Grove</option>
+<option selected="" value="galaxy">Spiral Galaxy Disc</option>
+<option value="tesseract">Tesseract Sections</option>
+<option value="braid">Braided Strings</option>
+<option value="origami">Origami Fan</option>
+<option value="cage">Icosahedral Cage</option>
+<option value="mobius">Möbius Ribbon</option>
+<option value="faults">Fault Lines Plane</option>
+</optgroup>
+<optgroup label="Exotic — 1. T-Fold Patchwork (Non-Geometric)">
+<option value="c1_atlas_shatter_nonclosing">1 — Atlas Shatter (Non-Closing)</option>
+<option value="c1_flip_lock_closure">1 — Flip-Lock Closure Snap</option>
+<option value="c1_seam_foam_critical">1 — Seam Foam (Critical)</option>
+<option value="c1_retile_cascade">1 — Retile Cascade (Teleporting Domains)</option>
+<option value="c1_duality_braided_swaps">1 — Duality Braided Swaps</option>
+<option value="c1_hyperwarp_patchwork">1 — Hyperwarp Patchwork (Metric Riot)</option>
+</optgroup>
+<optgroup label="Fundamental — 2. Orientifold Mirror Plane">
+<option value="c2_hard_orientifold_cut">2 — Hard Orientifold Cut</option>
+<option value="c2_soft_bleed_ghost">2 — Soft Bleed Ghost Plane</option>
+<option value="c2_kaleidoscope_multiplane">2 — Multi-Plane Kaleidoscope (Extreme)</option>
+<option value="c2_twisted_phase_ramp">2 — Twisted Orientifold (Phase Ramp)</option>
+</optgroup>
+<optgroup label="Complex — 3. Conifold Throat / Resolved Cone">
+<option value="c3_epsilon_pinch_singularity">3 — Epsilon Pinch (Near-Singularity)</option>
+<option value="c3_resolved_cap_glow">3 — Resolved Cap (Hot Smoothing)</option>
+<option value="c3_long_throat_deepwell">3 — Long Throat (Deep-Well)</option>
+<option value="c3_branching_throat_network">3 — Branching Multi-Throat Network</option>
+<option value="c3_looped_throat_ring">3 — Looped Throat Ring (Self-Connected)</option>
+<option value="c3_mode_mixing_axis">3 — Mode-Mixing Along Axis</option>
+<option value="c3_throat_flux_spiral">3 — Flux-Spiraled Throat</option>
+</optgroup>
+<optgroup label="Complex — 4. Brane Intersection Lattice">
+<option value="c4_brane_crystal">4 — Brane Crystal (Dense Lattice)</option>
+<option value="c4_percolation_skeleton">4 — Percolation Skeleton (Giant Component)</option>
+<option value="c4_tangled_warped_sheets">4 — Tangled Warped Sheets</option>
+<option value="c4_moire_stacks">4 — Moiré Stack Interference</option>
+<option value="c4_collision_event">4 — Brane Collision Event</option>
+<option value="c4_open_string_dominant">4 — Open-String Dominant (Intersections First)</option>
+<option value="c4_brane_foam">4 — Brane Foam (Sheet-to-Volume Blur)</option>
+</optgroup>
+<optgroup label="Exotic — 5. (p,q)-String Web (Junction Graph)">
+<option value="c5_dense_loopy_web">5 — Dense Loopy Web (Max Cycles)</option>
+<option value="c5_tension_contrast">5 — Tension Contrast (Thick/Thin Extremes)</option>
+<option value="c5_frustrated_jitter">5 — Frustrated Jitter Web (Non-Convergent)</option>
+<option value="c5_hub_monument">5 — Hub Monument (Junction-Dominant)</option>
+<option value="c5_filament_spider">5 — Filament Spider (String-Dominant)</option>
+<option value="c5_cascading_growth">5 — Cascading Growth (Avalanche)</option>
+<option value="c5_orientifold_web_flip">5 — Web on Orientifold (Flip Symmetry)</option>
+</optgroup>
+<optgroup label="Fundamental — 6. Holographic Boundary + Bulk">
+<option value="c6_boundary_locked_skin">6 — Boundary-Locked Skin (Max)</option>
+<option value="c6_decode_interior_lattice">6 — Boundary Decode → Interior Lattice</option>
+<option value="c6_standing_wave_shells">6 — Standing-Wave Shells (Resonant)</option>
+<option value="c6_boundary_glyph_drive">6 — Boundary Glyph Drive (High-Frequency)</option>
+<option value="c6_bulk_dominant_turbulence">6 — Bulk-Dominant Turbulence</option>
+<option value="c6_phase_flip_boundary">6 — Phase-Flip Boundary (Binary Worlds)</option>
+<option value="c6_multi_shell_boundaries">6 — Multi-Shell Hologram (Nested)</option>
+<option value="c6_wormhole_boundary_bridge">6 — Wormhole Boundary Bridge</option>
+<option value="c6_anisotropic_decode">6 — Anisotropic Decode (Directional)</option>
+<option value="c6_boundary_to_bulk_braid">6 — Boundary→Bulk Braid Injection</option>
+<option value="c6_sparse_dense_toggle">6 — Sparse/Dense Toggle (Holo Switch)</option>
+<option value="c6_spectral_hologram">6 — Spectral Hologram (Fourier Bulk)</option>
+<option value="c6_boundary_fracture_faults">6 — Boundary Fracture Faults</option>
+</optgroup>
+<optgroup label="Complex — 7. Flux Threads on Cycles">
+<option value="c7_high_n_superbraid">7 — High-N Superbraid (Saturation)</option>
+<option value="c7_writhe_snarl">7 — Writhe Snarl (Controlled Chaos)</option>
+<option value="c7_resonant_beatlock">7 — Resonant Beat-Lock (Hypnotic)</option>
+<option value="c7_quantized_snap_ladder">7 — Quantized Snap Ladder</option>
+<option value="c7_linked_ring_chain">7 — Linked Ring Chain (Hopf-Like)</option>
+<option value="c7_hopf_fibration_field">7 — Hopf-Fibration Field (Packed Fibers)</option>
+<option value="c7_trefoil_max">7 — Trefoil Max (Knot Core)</option>
+<option value="c7_figure8_knot">7 — Figure-Eight Knot Braid</option>
+<option value="c7_multicycle_bouquet">7 — Multi-Cycle Bouquet (Many Loops)</option>
+<option value="c7_vortex_tube_flux">7 — Vortex Tube Flux (Swirl Core)</option>
+<option value="c7_fractal_braid_word">7 — Fractal Braid Word (Recursive)</option>
+<option value="c7_chirality_flip_stack">7 — Chirality Flip Stack</option>
+<option value="c7_braid_collapse">7 — Braid Collapse (Near-Intersection)</option>
+<option value="c7_braid_shockwave">7 — Braid Shockwave (Pulse)</option>
+<option value="c7_topological_pump">7 — Topological Pump (State Transport)</option>
+<option value="c7_boundary_coupled_flux">7 — Boundary-Coupled Flux (Holo-Linked)</option>
+</optgroup>
+<optgroup label="Exotic — 8. Calabi–Yau Slice / Amoeba (Stylized)">
+<option value="c8_high_genus_labyrinth">8 — High-Genus Labyrinth (Max Tunnels)</option>
+<option value="c8_near_singular_creasing">8 — Near-Singular Creasing (Knife Ridges)</option>
+<option value="c8_foam_labyrinth">8 — Foam Labyrinth (Percolated Caverns)</option>
+<option value="c8_self_avoid_polished">8 — Self-Avoid Polished (Perfect Sheets)</option>
+<option value="c8_genus_transition_cascade">8 — Genus Transition Cascade</option>
+<option value="c8_component_merge_split">8 — Component Merge/Split Bifurcations</option>
+<option value="c8_trig_triply_periodic">8 — Triply-Periodic Trig Slice (Wild)</option>
+<option value="c8_polynomial_amoeba_slice">8 — Polynomial Amoeba Slice (Singularities Tamed)</option>
+<option value="c8_handles_on_handles">8 — Handles-on-Handles (Recursive Tunnels)</option>
+<option value="c8_cusp_forest">8 — Cusp Forest (Spike Valleys)</option>
+<option value="c8_sheet_stack_weave">8 — Sheet Stack Weave (Layered)</option>
+<option value="c8_slice_phase_morph">8 — Slice Phase Morph (Sliding Cut)</option>
+<option value="c8_bifurcation_blossom">8 — Bifurcation Blossom (Sudden Lobes)</option>
+<option value="c8_percolated_tunnels">8 — Percolated Tunnels (Giant Passage)</option>
+<option value="c8_swiss_cheese_max">8 — Swiss-Cheese Max (Void Packed)</option>
+<option value="c8_spiky_starfold">8 — Spiky Starfold (Extreme Fold)</option>
+<option value="c8_mirrored_amoeba">8 — Mirrored Amoeba (Parity Twin)</option>
+<option value="c8_conifold_embedded">8 — Conifold-Embedded Amoeba</option>
+<option value="c8_brane_pierced">8 — Brane-Pierced Slice (Intersections)</option>
+<option value="c8_holographic_encoded_slice">8 — Holographically Encoded Slice</option>
+</optgroup>
+</select>
+<div class="control-row"><span>Topology (n)</span><span id="nReadout">5</span></div>
+<input id="nSlider" max="9" min="2" step="1" type="range" value="5"/>
+<div class="control-row"><span>String Mode (W-Distortion)</span><span id="modeReadout">3</span></div>
+<input id="modeSlider" max="7" min="1" step="1" type="range" value="3"/>
+<div class="control-row"><span>4D Mix Strength</span><span id="mixReadout">0.70</span></div>
+<input id="mixSlider" max="1" min="0" step="0.01" type="range" value="0.7"/>
+<div class="control-row"><span>Point Density</span><span id="densityReadout">1.0x</span></div>
+<input id="densitySlider" max="1.4" min="0.4" step="0.1" type="range" value="1.0"/>
+<div class="btn-row">
+<button class="btn" id="btnRandom">🎲 Randomize</button>
+<button class="btn" id="btnReset">⟲ Reset View</button>
+</div>
+</div>
+<!-- RENDERING TECHNIQUES -->
+<div class="section">
+<div class="section-title">Rendering Techniques</div>
+<label class="chk">
+<input checked="" id="t155Toggle" type="checkbox"/>
+<span><strong>T155</strong> — Resolution Scaling on Interaction</span>
+</label>
+<div class="hint">Low-res while dragging/zooming; auto-cranks to crisp when idle. Pairs with screenshot capture.</div>
+<label class="chk" style="margin-top:10px;">
+<input id="t168Toggle" type="checkbox"/>
+<span><strong>T168</strong> — SSAO (Contact Shadows)</span>
+</label>
+<div class="hint">Adds depth/contact shadowing in creases. Best for idle/screenshot “beauty mode”.</div>
+<label class="chk" style="margin-top:10px;">
+<input id="t159Toggle" type="checkbox"/>
+<span><strong>T159</strong> — “Makeup” Bloom</span>
+</label>
+<div class="hint">Subtle cinematic glow on highlights. Slightly boosted for screenshots.</div>
+<div class="btn-row" style="margin-top:12px;">
+<button class="btn" id="btnScreenshot">📸 Screenshot (Beauty Stack)</button>
+</div>
+</div>
+</aside></div>
+</div>
+<!-- META OVERLAYS: ABOUT / README / FUN 404 -->
+<div aria-hidden="true" aria-modal="true" class="meta-overlay" id="aboutOverlay" role="dialog">
+<div class="meta-panel" tabindex="-1">
+<div class="meta-panel-header">
+<h2 class="meta-title">About This Lab</h2>
+<button aria-label="Close about panel" class="meta-close" data-modal-focus="" data-overlay-close="" type="button">✕</button>
+</div>
+<p class="meta-body">
+ Placeholder for <strong>Devin O'Rourke</strong> – creator, builder, and resident
+ geometry nerd. Drop a headshot or avatar here when you wire this up for real.
+ </p>
+<p class="meta-body">
+ STRING // THEORY is a <em>4D manifold playground</em>. The viewport shows a 3D projection of
+ higher-dimensional structures; the sidebar lets you tweak shape families, harmonic modes,
+ and 4D mix. Drag the view to orbit the manifold, then use the Ask Althea button in the Nexus bar to narrate what you're seeing.
+ </p>
+<p class="meta-body meta-footnote">
+ Hint: double-click the title in the header to open this panel again.
+ </p>
+</div>
+</div>
+<div aria-hidden="true" aria-modal="true" class="meta-overlay" id="readmeOverlay" role="dialog">
+<div class="meta-panel" tabindex="-1">
+<div class="meta-panel-header">
+<h2 class="meta-title">Lab Manual / README</h2>
+<button aria-label="Close lab manual" class="meta-close" data-modal-focus="" data-overlay-close="" type="button">✕</button>
+</div>
+<div class="meta-body">
+<p><strong>What this is:</strong> a single-file 4D manifold lab built as a portfolio piece. Three.js drives
+ the projection; custom geometry generators create point clouds; and the shared Ask Althea assistant can narrate the math.</p>
+<ul class="meta-list">
+<li><strong>Viewport:</strong> drag / swipe on the main canvas to orbit. The view auto-orbits if you stop touching it.</li>
+<li><strong>Shape controls:</strong> choose a family, adjust N, String Mode, density, and 4D mix. Overlays at the top of the view
+ mirror the current configuration.</li>
+<li><strong>Meta overlays:</strong> this README, the About panel, and a playful 404 screen are all routed through a tiny
+ overlay controller with Escape-to-close and focus management.</li>
+</ul>
+<p class="meta-footnote">
+ Dev note: this page keeps <em>all</em> the interesting wiring in a single HTML file on purpose. It's built
+ to be read, forked, and questioned by reviewers.
+ </p>
+</div>
+</div>
+</div>
+<div aria-hidden="true" aria-modal="true" class="meta-overlay meta-overlay-fun" id="notFoundOverlay" role="dialog">
+<div class="meta-panel" tabindex="-1">
+<div class="meta-panel-header">
+<h2 class="meta-title">404 – Lost in the Manifold</h2>
+<button aria-label="Close 404 screen" class="meta-close" data-modal-focus="" data-overlay-close="" type="button">✕</button>
+</div>
+<div class="meta-body">
+<p>
+ You slipped into a coordinate patch that doesn't exist. Either you mistyped a route
+ or the manifold folded in on itself again.
+ </p>
+<p>
+ From the URL bar, try appending <code>#home</code> to snap back to the main chart, or
+ <code>#404</code> any time you want to see this screen on purpose.
+ </p>
+<p class="meta-footnote">
+ (No experiments were harmed in the making of this error page.)
+ </p>
+</div>
+</div>
+</div>
+<!-- PREMIUM CURSOR ORB -->
+<div aria-hidden="true" class="cursor-orb" id="cursorOrb"></div>
+<!-- SECRET DEV PANEL (Konami) -->
+<div aria-hidden="true" class="dev-panel" id="devPanel">
+<div class="dev-panel-header">
+<div class="dev-panel-title">Dev Panel // String Lab</div>
+<div class="dev-panel-badge" id="devPanelBadge">Idle</div>
+</div>
+<div class="dev-panel-body" id="devPanelBody">
+<div>THREE: <span id="devThreeStatus">checking…</span></div>
+<div>TelemetryHub: <span id="devTelemStatus">checking…</span></div>
+<div>AIAdvisorRouter: <span id="devAIRouterStatus">checking…</span></div>
+<div>appAI: <span id="devAppAIStatus">checking…</span></div>
+<hr/>
+<div>Konami hits: <span id="devKonamiCount">0</span></div>
+</div>
+<div class="dev-panel-footer">
+ Triggered via Konami code (↑ ↑ ↓ ↓ ← → ← → B A). Press Esc to hide.
+ </div>
+</div>
+<!-- ================================================================= -->
+<!-- INLINED PORTFOLIO2 LIBRARIES (Dependencies) -->
+<!-- ================================================================= -->
+<script>
+/* --- STATE STORE --- */
+(function(g){const K="APP_STATE_";function s(){try{const k="__t__";g.localStorage.setItem(k,"1");g.localStorage.removeItem(k);return true}catch(e){return false}}const H=s();function k(a){return K+(a||"default")}function lA(a){if(!H)return{};try{const r=g.localStorage.getItem(k(a));return r?JSON.parse(r):{}}catch(e){return{}}}function sA(a,o){if(H)try{g.localStorage.setItem(k(a),JSON.stringify(o||{}))}catch(e){}}function sv(a,sk,v){const s=lA(a);s[sk]=v;sA(a,s)}function ld(a,sk,d){const s=lA(a);return Object.prototype.hasOwnProperty.call(s,sk)?s[sk]:d}g.StateStore={save:sv,load:ld}})(window);
+
+/* --- TELEMETRY HUB --- */
+(function(g){const K="TELEMETRY_HUB_LOG",M=300;function lL(){try{const r=g.localStorage&&g.localStorage.getItem(K);return r?JSON.parse(r):[]}catch(e){return[]}}function sL(e){try{g.localStorage&&g.localStorage.setItem(K,JSON.stringify(e))}catch(e){}}function log(a,c,m,x){const n={ts:new Date().toISOString(),appId:a||"?",category:c||"INFO",message:m||"",extra:x||null};if(console&&console.log)console.log(`[Tele][${a}][${c}]`,m);const l=lL();l.push(n);while(l.length>M)l.shift();sL(l)}g.TelemetryHub={log:log}})(window);
+
+
+</script>
+<!-- ================================================================= -->
+<!-- MAIN APPLICATION LOGIC -->
+<!-- ================================================================= -->
+<script>
+(function() {
+ // --- STATE ---
+ const state = {
+ shapeFamily: "galaxy",
+ n: 5,
+ mode: 3,
+ mix4D: 0.7,
+ densityScale: 1.0,
+ orbitSpeed: 1.0,
+ wSpeed: 1.0,
+ brightness: 1.0,
+ palette: "spectral",
+ autoOrbit: true,
+ animate4D: true,
+
+ // --- Techniques (T155/T168/T159) ---
+ t155Enabled: true,
+ t168Enabled: false,
+ t159Enabled: false
+ };
+
+ const PRESET_DEFAULTS = {
+ "c1_atlas_shatter_nonclosing": { n: 7, mode: 6, mix4D: 0.85, densityScale: 1.15 },
+ "c1_duality_braided_swaps": { n: 8, mode: 3, mix4D: 0.95, densityScale: 1.05 },
+ "c1_flip_lock_closure": { n: 8, mode: 5, mix4D: 1.00, densityScale: 1.10 },
+ "c1_hyperwarp_patchwork": { n: 7, mode: 2, mix4D: 0.90, densityScale: 1.40 },
+ "c1_retile_cascade": { n: 9, mode: 7, mix4D: 0.88, densityScale: 1.35 },
+ "c1_seam_foam_critical": { n: 6, mode: 4, mix4D: 0.92, densityScale: 1.25 },
+ "c2_hard_orientifold_cut": { n: 6, mode: 5, mix4D: 1.00, densityScale: 1.00 },
+ "c2_kaleidoscope_multiplane": { n: 9, mode: 7, mix4D: 0.85, densityScale: 1.25 },
+ "c2_soft_bleed_ghost": { n: 7, mode: 4, mix4D: 0.90, densityScale: 1.10 },
+ "c2_twisted_phase_ramp": { n: 8, mode: 6, mix4D: 0.95, densityScale: 1.05 },
+ "c3_branching_throat_network": { n: 9, mode: 7, mix4D: 0.90, densityScale: 1.35 },
+ "c3_epsilon_pinch_singularity": { n: 9, mode: 6, mix4D: 0.90, densityScale: 1.30 },
+ "c3_long_throat_deepwell": { n: 8, mode: 5, mix4D: 0.85, densityScale: 1.20 },
+ "c3_looped_throat_ring": { n: 8, mode: 6, mix4D: 0.92, densityScale: 1.10 },
+ "c3_mode_mixing_axis": { n: 7, mode: 3, mix4D: 0.95, densityScale: 1.05 },
+ "c3_resolved_cap_glow": { n: 7, mode: 4, mix4D: 1.00, densityScale: 1.15 },
+ "c3_throat_flux_spiral": { n: 9, mode: 5, mix4D: 0.88, densityScale: 1.25 },
+ "c4_brane_crystal": { n: 9, mode: 6, mix4D: 0.85, densityScale: 1.25 },
+ "c4_brane_foam": { n: 9, mode: 7, mix4D: 0.88, densityScale: 1.40 },
+ "c4_collision_event": { n: 8, mode: 6, mix4D: 0.80, densityScale: 1.20 },
+ "c4_moire_stacks": { n: 7, mode: 4, mix4D: 0.90, densityScale: 1.15 },
+ "c4_open_string_dominant": { n: 9, mode: 3, mix4D: 1.00, densityScale: 1.05 },
+ "c4_percolation_skeleton": { n: 9, mode: 7, mix4D: 0.90, densityScale: 1.35 },
+ "c4_tangled_warped_sheets": { n: 8, mode: 5, mix4D: 0.95, densityScale: 1.30 },
+ "c5_cascading_growth": { n: 9, mode: 7, mix4D: 0.88, densityScale: 1.40 },
+ "c5_dense_loopy_web": { n: 9, mode: 7, mix4D: 0.90, densityScale: 1.30 },
+ "c5_filament_spider": { n: 8, mode: 3, mix4D: 1.00, densityScale: 1.20 },
+ "c5_frustrated_jitter": { n: 9, mode: 6, mix4D: 0.95, densityScale: 1.25 },
+ "c5_hub_monument": { n: 7, mode: 4, mix4D: 0.90, densityScale: 1.05 },
+ "c5_orientifold_web_flip": { n: 8, mode: 6, mix4D: 0.95, densityScale: 1.10 },
+ "c5_tension_contrast": { n: 8, mode: 5, mix4D: 0.85, densityScale: 1.15 },
+ "c6_anisotropic_decode": { n: 7, mode: 5, mix4D: 0.85, densityScale: 1.10 },
+ "c6_boundary_fracture_faults": { n: 9, mode: 7, mix4D: 0.88, densityScale: 1.30 },
+ "c6_boundary_glyph_drive": { n: 9, mode: 7, mix4D: 1.00, densityScale: 1.40 },
+ "c6_boundary_locked_skin": { n: 8, mode: 5, mix4D: 0.90, densityScale: 1.25 },
+ "c6_boundary_to_bulk_braid": { n: 8, mode: 6, mix4D: 0.92, densityScale: 1.25 },
+ "c6_bulk_dominant_turbulence": { n: 8, mode: 5, mix4D: 0.80, densityScale: 1.35 },
+ "c6_decode_interior_lattice": { n: 9, mode: 7, mix4D: 0.85, densityScale: 1.35 },
+ "c6_multi_shell_boundaries": { n: 8, mode: 6, mix4D: 0.88, densityScale: 1.15 },
+ "c6_phase_flip_boundary": { n: 7, mode: 4, mix4D: 1.00, densityScale: 1.20 },
+ "c6_sparse_dense_toggle": { n: 7, mode: 3, mix4D: 1.00, densityScale: 1.35 },
+ "c6_spectral_hologram": { n: 8, mode: 5, mix4D: 0.90, densityScale: 1.20 },
+ "c6_standing_wave_shells": { n: 8, mode: 6, mix4D: 0.90, densityScale: 1.10 },
+ "c6_wormhole_boundary_bridge": { n: 9, mode: 7, mix4D: 0.90, densityScale: 1.30 },
+ "c7_boundary_coupled_flux": { n: 8, mode: 6, mix4D: 0.95, densityScale: 1.30 },
+ "c7_braid_collapse": { n: 9, mode: 6, mix4D: 0.90, densityScale: 1.35 },
+ "c7_braid_shockwave": { n: 8, mode: 5, mix4D: 0.88, densityScale: 1.25 },
+ "c7_chirality_flip_stack": { n: 7, mode: 4, mix4D: 1.00, densityScale: 1.10 },
+ "c7_figure8_knot": { n: 8, mode: 6, mix4D: 0.88, densityScale: 1.30 },
+ "c7_fractal_braid_word": { n: 9, mode: 6, mix4D: 0.95, densityScale: 1.40 },
+ "c7_high_n_superbraid": { n: 9, mode: 7, mix4D: 0.90, densityScale: 1.20 },
+ "c7_hopf_fibration_field": { n: 9, mode: 7, mix4D: 0.85, densityScale: 1.35 },
+ "c7_linked_ring_chain": { n: 7, mode: 6, mix4D: 0.90, densityScale: 1.20 },
+ "c7_multicycle_bouquet": { n: 9, mode: 7, mix4D: 0.90, densityScale: 1.20 },
+ "c7_quantized_snap_ladder": { n: 8, mode: 4, mix4D: 1.00, densityScale: 1.15 },
+ "c7_resonant_beatlock": { n: 8, mode: 5, mix4D: 0.90, densityScale: 1.05 },
+ "c7_topological_pump": { n: 7, mode: 7, mix4D: 1.00, densityScale: 1.15 },
+ "c7_trefoil_max": { n: 8, mode: 5, mix4D: 0.92, densityScale: 1.25 },
+ "c7_vortex_tube_flux": { n: 8, mode: 5, mix4D: 0.85, densityScale: 1.35 },
+ "c7_writhe_snarl": { n: 9, mode: 6, mix4D: 0.85, densityScale: 1.35 },
+ "c8_bifurcation_blossom": { n: 8, mode: 6, mix4D: 0.95, densityScale: 1.30 },
+ "c8_brane_pierced": { n: 9, mode: 7, mix4D: 0.88, densityScale: 1.35 },
+ "c8_component_merge_split": { n: 7, mode: 4, mix4D: 0.92, densityScale: 1.25 },
+ "c8_conifold_embedded": { n: 8, mode: 7, mix4D: 0.90, densityScale: 1.30 },
+ "c8_cusp_forest": { n: 8, mode: 6, mix4D: 0.90, densityScale: 1.25 },
+ "c8_foam_labyrinth": { n: 9, mode: 7, mix4D: 0.88, densityScale: 1.40 },
+ "c8_genus_transition_cascade": { n: 8, mode: 6, mix4D: 1.00, densityScale: 1.20 },
+ "c8_handles_on_handles": { n: 9, mode: 7, mix4D: 0.95, densityScale: 1.40 },
+ "c8_high_genus_labyrinth": { n: 9, mode: 7, mix4D: 0.90, densityScale: 1.30 },
+ "c8_holographic_encoded_slice": { n: 9, mode: 6, mix4D: 1.00, densityScale: 1.40 },
+ "c8_mirrored_amoeba": { n: 7, mode: 6, mix4D: 1.00, densityScale: 1.15 },
+ "c8_near_singular_creasing": { n: 8, mode: 6, mix4D: 0.95, densityScale: 1.25 },
+ "c8_percolated_tunnels": { n: 9, mode: 7, mix4D: 0.90, densityScale: 1.35 },
+ "c8_polynomial_amoeba_slice": { n: 8, mode: 6, mix4D: 0.90, densityScale: 1.30 },
+ "c8_self_avoid_polished": { n: 7, mode: 5, mix4D: 0.90, densityScale: 1.10 },
+ "c8_sheet_stack_weave": { n: 7, mode: 5, mix4D: 0.88, densityScale: 1.20 },
+ "c8_slice_phase_morph": { n: 7, mode: 4, mix4D: 1.00, densityScale: 1.10 },
+ "c8_spiky_starfold": { n: 8, mode: 5, mix4D: 0.90, densityScale: 1.25 },
+ "c8_swiss_cheese_max": { n: 9, mode: 6, mix4D: 0.85, densityScale: 1.40 },
+ "c8_trig_triply_periodic": { n: 9, mode: 7, mix4D: 0.85, densityScale: 1.35 },
+ };
+
+
+ // --- THREE.JS VARS ---
+ let renderer, scene, camera, points, geometry, material;
+ let composer, renderPass, ssaoPass, bloomPass;
+
+ let basePoints = [];
+ let positions, colors;
+ const canvas = document.getElementById("glCanvas");
+ const viewContainer = document.getElementById("viewContainer");
+
+ // --- VIEWPORT FIT (P14) ---
+ // Mobile browsers (and webviews) can report funky 100vh sizes due to address bars.
+ // We pin a JS-driven --svh and subtract the lab-shell height so the canvas is correct on first paint.
+ function _getShellHeight(){
+ const sel = ['#labShell', '#labShellBar', '.lab-shell', '.lab-shell-bar', '.labshell', '.nexusShell'];
+ for (const s of sel){
+ const el = document.querySelector(s);
+ if (el){
+ const r = el.getBoundingClientRect();
+ if (r && r.height) return r.height;
+ }
+ }
+ return 0;
+ }
+
+ function setViewportVars(){
+ document.documentElement.style.setProperty('--svh', `${window.innerHeight}px`);
+ document.documentElement.style.setProperty('--shellH', `${_getShellHeight()}px`);
+ }
+
+ let _resizeRAF = 0;
+ function scheduleResize(){
+ if (_resizeRAF) return;
+ _resizeRAF = requestAnimationFrame(()=>{
+ _resizeRAF = 0;
+ setViewportVars();
+ try { resize(); } catch(_e){}
+ });
+ }
+
+ // Keep vars fresh even if the shell injects after our main script
+ const _mo = new MutationObserver(()=> scheduleResize());
+ try { _mo.observe(document.body, { childList: true, subtree: true }); } catch(_e){}
+ setViewportVars();
+ // First paint + post-layout corrections (fonts, shell injection, mobile UI settle)
+ requestAnimationFrame(()=> scheduleResize());
+ setTimeout(()=> scheduleResize(), 180);
+ setTimeout(()=> scheduleResize(), 420);
+ window.addEventListener('orientationchange', ()=> setTimeout(scheduleResize, 250), { passive: true });
+
+ // --- ANIMATION VARS ---
+ let angleXW=0, angleYW=0, angleZW=0;
+ let rotX=0.2, rotY=0.6, targetRotX=0.2, targetRotY=0.6;
+ let camDist=8.0, targetCamDist=8.0;
+ let lastTime = performance.now();
+ let lastInteractionTime = 0;
+ let isDragging = false, lastPointerX=0, lastPointerY=0;
+
+ // --- DOM ELEMENTS ---
+ const ui = {
+ shapeSelect: document.getElementById("shapeFamilySelect"),
+ nSlider: document.getElementById("nSlider"),
+ modeSlider: document.getElementById("modeSlider"),
+ mixSlider: document.getElementById("mixSlider"),
+ densitySlider: document.getElementById("densitySlider"),
+
+ // Techniques
+ t155Toggle: document.getElementById("t155Toggle"),
+ t168Toggle: document.getElementById("t168Toggle"),
+ t159Toggle: document.getElementById("t159Toggle"),
+ screenshotBtn: document.getElementById("btnScreenshot"),
+ 
+ readouts: {
+ n: document.getElementById("nReadout"),
+ mode: document.getElementById("modeReadout"),
+ mix: document.getElementById("mixReadout"),
+ density: document.getElementById("densityReadout")
+ },
+ overlays: {
+ family: document.getElementById("overlayFamily"),
+ n: document.getElementById("overlayN"),
+ mode: document.getElementById("overlayMode")
+ },
+ stats: {
+ points: document.getElementById("statusPoints"),
+ fps: document.getElementById("statusFPS")
+ }
+ };
+
+ // --- MATH HELPERS ---
+ function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+ function lerp(a, b, t) { return a + (b - a) * t; }
+
+ // --- TECHNIQUES ---------------------------------------------------------
+ // T155 — Resolution Scaling on Interaction
+ const T155_PR = {
+ low: 0.9,
+ high: Math.min(2.0, (window.devicePixelRatio || 1)),
+ idleDelayMs: 200,
+ rampFrames: 8
+ };
+ let t155Interacting = false;
+ let t155LastInputAt = performance.now();
+ let t155TargetPR = T155_PR.high;
+ let t155CurrentPR = T155_PR.high;
+
+ // Screenshot / beauty stack coordination
+ let screenshotInProgress = false;
+ let beautyMode = false;
+
+ function markInputT155() {
+ if (!state.t155Enabled || screenshotInProgress || !renderer) return;
+ t155Interacting = true;
+ t155LastInputAt = performance.now();
+ t155TargetPR = T155_PR.low;
+ }
+
+ function updatePixelRatioT155() {
+ if (!state.t155Enabled || screenshotInProgress || !renderer) return;
+ const now = performance.now();
+ if (t155Interacting && (now - t155LastInputAt) > T155_PR.idleDelayMs) {
+ t155Interacting = false;
+ t155TargetPR = T155_PR.high;
+ }
+ // Smooth ramp (optional)
+ const alpha = 1 / T155_PR.rampFrames;
+ t155CurrentPR = lerp(t155CurrentPR, t155TargetPR, alpha);
+ renderer.setPixelRatio(t155CurrentPR);
+ }
+
+ // T168 — SSAO (Contact Shadows) + T159 — Bloom “Makeup”
+ function refreshPostFXEnabled() {
+ if (!composer) return;
+ if (ssaoPass) ssaoPass.enabled = !!state.t168Enabled;
+ if (bloomPass) bloomPass.enabled = !!state.t159Enabled;
+ }
+
+ function setAOQuality(mode) {
+ if (!ssaoPass) return;
+ if (mode === "screenshot") {
+ ssaoPass.kernelRadius = 24;
+ ssaoPass.minDistance = 0.002;
+ ssaoPass.maxDistance = 0.18;
+ } else {
+ ssaoPass.kernelRadius = 16;
+ ssaoPass.minDistance = 0.005;
+ ssaoPass.maxDistance = 0.12;
+ }
+ }
+
+ function setBloom(mode) {
+ if (!bloomPass) return;
+ if (mode === "screenshot") {
+ bloomPass.strength = 0.45;
+ bloomPass.radius = 0.50;
+ bloomPass.threshold = 0.90;
+ } else {
+ bloomPass.strength = 0.25;
+ bloomPass.radius = 0.35;
+ bloomPass.threshold = 0.90;
+ }
+ }
+
+ function setBeautyMode(on) {
+ beautyMode = !!on;
+ const mode = beautyMode ? "screenshot" : "live";
+ setAOQuality(mode);
+ setBloom(mode);
+ }
+
+ function renderFrameOnce() {
+ if (!renderer || !scene || !camera) return;
+ // Use composer only if any postFX is active+enabled; otherwise, direct render is faster.
+ const useComposer = composer && (
+ (ssaoPass && ssaoPass.enabled) || (bloomPass && bloomPass.enabled)
+ );
+ if (useComposer) composer.render();
+ else renderer.render(scene, camera);
+ }
+
+ async function captureScreenshotBeauty(frames = 3) {
+ if (!renderer) return;
+ screenshotInProgress = true;
+
+ const prevPR = renderer.getPixelRatio();
+ const prevT155 = state.t155Enabled;
+ const prevBeauty = beautyMode;
+
+ // Force max PR for capture
+ state.t155Enabled = false; // keep T155 from fighting the forced PR
+ renderer.setPixelRatio(T155_PR.high);
+
+ // Push “beauty mode” tuning (AO/Bloom) only if enabled
+ setBeautyMode(true);
+
+ // Render a few frames so passes settle
+ for (let i = 0; i < frames; i++) {
+ await new Promise(res => requestAnimationFrame(res));
+ renderFrameOnce();
+ }
+
+ const blob = await new Promise(res => canvas.toBlob(res, "image/png"));
+ if (blob) {
+ const url = URL.createObjectURL(blob);
+ const a = document.createElement("a");
+ a.href = url;
+ a.download = "string-theory-lab.png";
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ setTimeout(() => URL.revokeObjectURL(url), 2500);
+ }
+
+ // Restore live settings
+ setBeautyMode(prevBeauty);
+ renderer.setPixelRatio(prevPR);
+ state.t155Enabled = prevT155;
+
+ screenshotInProgress = false;
+ }
+
+ function hslToRgb(h, s, l) {
+ let r, g, b;
+ if (s === 0) { r = g = b = l; } else {
+ const hue2rgb = (p, q, t) => {
+ if (t < 0) t += 1; if (t > 1) t -= 1;
+ if (t < 1/6) return p + (q - p) * 6 * t;
+ if (t < 1/2) return q;
+ if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+ return p;
+ };
+ const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+ const p = 2 * l - q;
+ r = hue2rgb(p, q, h + 1/3);
+ g = hue2rgb(p, q, h);
+ b = hue2rgb(p, q, h - 1/3);
+ }
+ return [r, g, b];
+ }
+ function paletteColor(t, w) {
+ const mix = (0.3 * t + 0.7 * ((w+1)/2));
+ let h = 0.65 + 0.35 * mix; 
+ if(h>1) h-=1;
+ const [r,g,b] = hslToRgb(h, 0.8, 0.5);
+ return [r,g,b];
+ }
+
+ // --- SHAPE GENERATORS (FULL 25 ALGORITHMS) ---
+
+ function genCloud(n, v) { const c=5000+1000*n; const a=[]; for(let i=0; i<c; i++) { let r=1.5*Math.pow(Math.random(),0.45); let t=Math.random()*Math.PI*2; let p=Math.acos(2*Math.random()-1); a.push({x:r*Math.sin(p)*Math.cos(t), y:r*Math.sin(p)*Math.sin(t), z:r*Math.cos(p), w:Math.sin((n+1)*r)*Math.cos(t*(v+1)), u:r, v:t}); } return a; }
+ function genKnot(n, v) { const c=4000+500*n; const a=[]; const p=2+(n%3), q=3+((n+1)%4); for(let i=0; i<c; i++) { const t=(i/c)*Math.PI*2*(p*q); const r=1.0+0.4*Math.cos(q*t); a.push({x:r*Math.cos(p*t), y:r*Math.sin(p*t), z:0.5*Math.sin(q*t), w:Math.sin((n+1)*t)+Math.cos(v*t), u:i/c, v:0}); } return a; }
+ function genBrane(n, v) { const steps=80+10*n; const a=[]; for(let i=0; i<steps; i++) { for(let j=0; j<steps; j++) { const u=i/steps; const V=j/steps; a.push({x:3*(u-0.5), z:3*(V-0.5), y:0.5*Math.sin((n+1)*u*4)*Math.cos((v+1)*V*4), w:Math.sin(n*(u+V)*3), u:u, v:V}); } } return a; }
+ function genFilament(n, v) { const s=10+n; const steps=200+50*n; const a=[]; for(let k=0; k<s; k++) { const ang=k/s*Math.PI*2; for(let i=0; i<steps; i++) { const t=i/steps; const r=1.2+0.3*Math.sin((n+1)*t*6); a.push({x:r*Math.cos(ang+t*4), z:r*Math.sin(ang+t*4), y:(t-0.5)*4, w:Math.sin(n*t*5+v*ang), u:t, v:k/s}); } } return a; }
+ function genShells(n, v) { const shells=2+(n%4); const a=[]; for(let s=0; s<shells; s++) { const r=0.5+s*0.6; const c=1500+300*n; for(let i=0; i<c; i++) { let t=Math.random()*6.28; let p=Math.acos(2*Math.random()-1); a.push({x:r*Math.sin(p)*Math.cos(t), y:r*Math.sin(p)*Math.sin(t), z:r*Math.cos(p), w:Math.sin(n*r*2+v*t), u:s/shells, v:t}); } } return a; }
+ function genLattice(n, v) { const dim=8+n; const a=[]; const sp=3.0/dim; for(let x=0; x<dim; x++) for(let y=0; y<dim; y++) for(let z=0; z<dim; z++) { if((x+y+z)%2!==0) continue; a.push({x:(x-dim/2)*sp, y:(y-dim/2)*sp, z:(z-dim/2)*sp, w:Math.sin(n*(x+y+z)*0.5)*Math.cos(v*x), u:x/dim, v:y/dim}); } return a; }
+ function genBloom(n, v) { const petals=4+(n%5); const c=4000+600*n; const a=[]; for(let i=0; i<c; i++) { const t=i/c; const r=0.2+2.5*t; const th=t*6.28*petals + 0.5*Math.sin(v*t*5); a.push({x:r*Math.cos(th), z:r*Math.sin(th), y:0.5*Math.sin(n*t*8), w:Math.sin((n+1)*t*4), u:t, v:0}); } return a; }
+ function genStorm(n, v) { const arms=3+(n%4); const c=5000+600*n; const a=[]; for(let i=0; i<c; i++) { const t=i/c; const r=0.1+3*t; const th=t*10 + (Math.PI*2/arms)*Math.floor(Math.random()*arms); a.push({x:r*Math.cos(th), z:r*Math.sin(th), y:(Math.random()-0.5)*t, w:Math.sin(n*t*5)*Math.cos(v*th), u:t, v:0}); } return a; }
+ function genOrbital(n, v) { const rings=3+(n%3); const a=[]; for(let r=0; r<rings; r++) { const rad=1+r*0.6; const c=1500+300*n; const ax=(Math.random()-0.5), az=(Math.random()-0.5); for(let i=0; i<c; i++) { const t=i/c*6.28; let x=rad*Math.cos(t), z=rad*Math.sin(t), y=0; let ty=y*Math.cos(ax)-z*Math.sin(ax); z=y*Math.sin(ax)+z*Math.cos(ax); y=ty; a.push({x,y,z, w:Math.sin(n*t+v*r), u:t, v:r}); } } return a; }
+ function genFractal(n, v) { const nodes=150+30*n; const a=[]; for(let i=0; i<nodes; i++) { let rx=(Math.random()-0.5)*3, ry=(Math.random()-0.5)*3, rz=(Math.random()-0.5)*3; for(let j=0; j<3; j++) { let tx=rx+(Math.random()-0.5), ty=ry+(Math.random()-0.5), tz=rz+(Math.random()-0.5); for(let k=0; k<20; k++) { let t=k/20; a.push({x:lerp(rx,tx,t), y:lerp(ry,ty,t), z:lerp(rz,tz,t), w:Math.sin(n*t*4)*Math.cos(v*i), u:t, v:i/nodes}); } } } return a; }
+ function genStarburst(n, v) { const rays=40+10*n; const a=[]; for(let i=0; i<rays; i++) { const phi=Math.acos(2*Math.random()-1), th=Math.random()*6.28; const dx=Math.sin(phi)*Math.cos(th), dy=Math.sin(phi)*Math.sin(th), dz=Math.cos(phi); for(let j=0; j<40; j++) { const t=j/40; const r=3*t; a.push({x:dx*r, y:dy*r, z:dz*r, w:Math.sin((n+2)*t*4+v*i), u:t, v:i/rays}); } } return a; }
+ function genBinary(n, v) { const a=[]; [ -1.2, 1.2 ].forEach(ox=>{ const c=2000+400*n; for(let i=0; i<c; i++) { const r=0.1+1.2*Math.random(); const th=Math.random()*6.28, ph=Math.acos(2*Math.random()-1); a.push({x:ox+r*Math.sin(ph)*Math.cos(th), y:r*Math.sin(ph)*Math.sin(th), z:r*Math.cos(ph), w:Math.sin(n*r*3+v), u:r, v:0}); } }); return a; }
+ function genTerrace(n, v) { const layers=5+Math.floor(n/2); const a=[]; for(let l=0; l<layers; l++) { const y=(l-layers/2)*0.5; const r=0.5+l*0.3; const c=800+200*n; for(let i=0; i<c; i++) { const t=i/c*6.28; a.push({x:r*Math.cos(t), y:y+(Math.random()-0.5)*0.1, z:r*Math.sin(t), w:Math.sin(n*t+v*l), u:t, v:l}); } } return a; }
+ function genRibbon(n, v) { const len=200+50*n; const width=15; const a=[]; for(let i=0; i<len; i++) { const t=i/len; const x=1.5*Math.cos(t*6.28*3), z=1.5*Math.sin(t*6.28*3), y=(t-0.5)*4; for(let j=0; j<width; j++) { const wt=(j-width/2)*0.05; a.push({x:x, y:y+wt, z:z, w:Math.sin(n*t*10+v*j), u:t, v:j/width}); } } return a; }
+ function genSpine(n, v) { const len=100+20*n; const a=[]; for(let i=0; i<len; i++) { const t=i/len; const y=(t-0.5)*4; for(let j=0; j<10; j++) { const ang=j/10*6.28; const r=0.5+0.3*Math.sin(t*20); a.push({x:r*Math.cos(ang), y:y, z:r*Math.sin(ang), w:Math.sin(n*t*5+v*ang), u:t, v:j/10}); } } return a; }
+ function genCity(n, v) { const grid=5+Math.floor(n/2); const a=[]; const sp=3.0/grid; for(let x=0; x<grid; x++) for(let z=0; z<grid; z++) { const h=0.5+Math.random()*1.5; const c=50+10*n; for(let i=0; i<c; i++) { const y=(i/c)*h; a.push({x:(x-grid/2)*sp, y:y-0.5, z:(z-grid/2)*sp, w:Math.sin(n*y*4+v*x), u:y, v:0}); } } return a; }
+ function genShard(n, v) { const shards=10+n*2; const a=[]; for(let s=0; s<shards; s++) { const cx=(Math.random()-0.5)*3, cy=(Math.random()-0.5)*3, cz=(Math.random()-0.5)*3; for(let i=0; i<100; i++) { const t=i/100; a.push({x:cx+t*0.5, y:cy+t*0.8, z:cz, w:Math.sin(n*t*5+v*s), u:t, v:0}); } } return a; }
+ 
+ // Complex Generators (Restored)
+ function genGalaxy(n, v) {
+ const arms = 2 + (n % 3);
+ const __qp = (window.NexusPrefs && window.NexusPrefs.qualityProfile) ? window.NexusPrefs.qualityProfile() : { particleScale: 1 };
+ const count = Math.max(2000, Math.round((6000 + 500 * n) * (Number(__qp.particleScale) || 1)));
+
+ const arr = [];
+ for(let i=0; i<count; i++) {
+ const t = Math.random();
+ const armOffset = Math.floor(Math.random()*arms)/arms * Math.PI*2;
+ const r = 0.2 + t * 3.0;
+ const theta = armOffset + 3.0 * Math.log(1 + r) + (Math.random()-0.5)*0.5;
+ arr.push({
+ x: r * Math.cos(theta), y: (Math.random()-0.5)*0.2 * (1-t), z: r * Math.sin(theta),
+ w: Math.sin((n+2)*t*Math.PI) * Math.cos(v*theta), u: t, v: theta
+ });
+ }
+ return arr;
+ }
+
+ function genTesseract(n, v) {
+ const layers = 3 + (n%4);
+ const arr = [];
+ const size = 1.5;
+ for(let l=0; l<layers; l++) {
+ const s = size * (0.5 + 0.5*(l/layers));
+ const steps = 200 + 50*n;
+ const edges = [
+ [-s,-s,-s, s,-s,-s], [-s,-s,-s, -s,s,-s], [-s,-s,-s, -s,-s,s], [s,s,s, -s,s,s], [s,s,s, s,-s,s], [s,s,s, s,s,-s],
+ [-s,s,-s, s,s,-s], [s,-s,-s, s,s,-s], [-s,-s,s, s,-s,s], [-s,-s,s, -s,s,s], [-s,s,-s, -s,s,s], [s,-s,-s, s,-s,s]
+ ];
+ edges.forEach(e => {
+ for(let i=0; i<steps; i++) {
+ const t = i/steps;
+ const x = lerp(e[0], e[3], t), y = lerp(e[1], e[4], t), z = lerp(e[2], e[5], t);
+ arr.push({ x, y, z, w: Math.sin((n+1)*t*Math.PI*2 + l) * Math.cos(v*x), u: t, v: l/layers });
+ }
+ });
+ }
+ return arr;
+ }
+
+ function genTree(n, v) { 
+ const arr=[]; 
+ function b(x,y,z,l,ax,az,d){
+ if(d<=0)return; const st=8+2*n;
+ for(let i=0;i<st;i++){const t=i/st; arr.push({x:x+Math.sin(ax)*Math.cos(az)*l*t,y:y+Math.cos(ax)*l*t,z:z+Math.sin(ax)*Math.sin(az)*l*t,w:Math.sin(d+n*t+v),u:t,v:d});}
+ const nx=x+Math.sin(ax)*Math.cos(az)*l, ny=y+Math.cos(ax)*l, nz=z+Math.sin(ax)*Math.sin(az)*l;
+ b(nx,ny,nz,l*0.7,ax+0.6,az+1,d-1); b(nx,ny,nz,l*0.7,ax-0.6,az-1,d-1);
+ }
+ b(0,-1.5,0,1.2,0,0,3+(n%4)); return arr; 
+ }
+ 
+ function genBraid(n, v) { const strands=3+(v%2), turns=3+Math.max(0,n-3), steps=600+120*Math.max(0,n-3), radius=0.9+0.1*v, arr=[]; for(let i=0;i<steps;i++){ const t=i/(steps-1), y=(t-0.5)*3.0, sx=0.2*Math.sin((n*0.7+v)*t*6.28), sz=0.2*Math.cos((n*0.5+v)*t*6.28); arr.push({x:sx,y:y,z:sz,w:0.6*Math.sin((n+1.1)*t*4),u:t,v:0}); for(let s=0;s<strands;s++){ const ph=s/strands*6.28, th=t*6.28*turns+ph; arr.push({x:sx+radius*Math.cos(th),y:y+0.05*Math.sin(th*2+s),z:sz+radius*Math.sin(th),w:0.9*Math.sin((n+s+1.7)*t*4),u:t,v:(s+1)/strands});}} return arr; }
+ function genOrigami(n, v) { const sheets=4+(n%3)+v, folds=10+4*Math.max(0,n-3), arr=[]; for(let s=0;s<sheets;s++){ const ang=-0.8+(1.6*s)/Math.max(1,sheets-1), tilt=0.15*(s-(sheets-1)/2); for(let i=0;i<=folds;i++){ const u=i/folds, phase=u*Math.PI*(folds/2), off=(Math.sin(phase)>0?1:-1)*0.15; for(let j=0;j<=20;j++){ const val=j/20, xl=(val-0.5)*1.8, zl=(u-0.5)*3.0, yl=off*(1-Math.abs(val-0.5)*1.6); arr.push({x:xl*Math.cos(ang)-zl*Math.sin(ang),z:xl*Math.sin(ang)+zl*Math.cos(ang),y:yl+tilt,w:0.7*Math.sin((n+2.3)*u*4+s),u:u,v:s});}}} return arr; }
+ function genCage(n, v) { const t=(1+Math.sqrt(5))/2, verts=[[-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]].map(p=>{const m=Math.sqrt(p[0]**2+p[1]**2+p[2]**2);return[p[0]/m,p[1]/m,p[2]/m]}), edges=[[0,1],[0,5],[0,7],[0,10],[0,11],[1,5],[1,7],[1,8],[1,9],[2,3],[2,4],[2,6],[2,10],[2,11],[3,4],[3,6],[3,8],[3,9],[4,5],[4,9],[4,11],[5,9],[5,11],[6,7],[6,8],[6,10],[7,8],[7,10],[8,9],[10,11]], arr=[]; for(let l=0;l<3+Math.max(0,n-3);l++){ const sc=0.7+(l/(2+n-3))*(1.1), wp=l*6.28; edges.forEach(e=>{ const v1=verts[e[0]], v2=verts[e[1]]; for(let i=0;i<=20;i++){ const t=i/20; arr.push({x:(v1[0]+(v2[0]-v1[0])*t)*sc,y:(v1[1]+(v2[1]-v1[1])*t)*sc,z:(v1[2]+(v2[2]-v1[2])*t)*sc,w:Math.sin(n*t*4+wp),u:t,v:sc});}});} return arr; }
+ function genMobius(n, v) { const seg=260+40*Math.max(0,n-3), wid=0.5+0.1*v, arr=[]; for(let i=0;i<=seg;i++){ const u=i/seg, th=u*6.28, tw=th/2; for(let j=0;j<=24;j++){ const val=(j/24)*2-1, wl=(val*wid)/2; arr.push({x:(1.6+wl*Math.cos(tw))*Math.cos(th),z:(1.6+wl*Math.cos(tw))*Math.sin(th),y:wl*Math.sin(tw),w:0.9*Math.sin((n+2.7)*u*4+val*3),u:u,v:(val+1)/2});}} return arr; }
+ function genFaults(n, v) { const g=15+4*Math.max(0,n-3), arr=[]; for(let x=0;x<g;x++) for(let z=0;z<g;z++){ const p=((x*7385^z*19349)>>>0)%10, dy=(Math.random()-0.5)*0.6; for(let j=0;j<4;j++){ const u=x/(g-1), v=z/(g-1); arr.push({x:u*3-1.5,z:v*3-1.5,y:dy,w:Math.sin((n+1.8)*(u+v)*4),u:u,v:v});}} return arr; }
+
+ // --- ROUTER ---
+ 
+ // --- EXTREME STRUCTURE GENERATORS (Categories 1–8) ---
+ // Each returns [{x,y,z,w,u,v},...] where:
+ // w = intensity/phase, u = cellId/strandId, v = aux
+ function _hash32(str){
+ // FNV-1a 32-bit
+ let h = 2166136261 >>> 0;
+ for (let i=0;i<str.length;i++){
+ h ^= str.charCodeAt(i);
+ h = Math.imul(h, 16777619);
+ }
+ return h >>> 0;
+ }
+ function _rng32(seed){
+ // Mulberry32
+ let a = seed >>> 0;
+ return function(){
+ a |= 0; a = (a + 0x6D2B79F5) | 0;
+ let t = Math.imul(a ^ (a >>> 15), 1 | a);
+ t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+ return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+ };
+ }
+ function _clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+ function _lerp(a,b,t){ return a + (b-a)*t; }
+ function _smoothstep(a,b,x){
+ const t = _clamp((x-a)/(b-a), 0, 1);
+ return t*t*(3-2*t);
+ }
+ function _rot2(x,y,ang){
+ const c=Math.cos(ang), s=Math.sin(ang);
+ return [c*x - s*y, s*x + c*y];
+ }
+ function _noise3(x,y,z,seed){
+ // cheap deterministic pseudo-noise in [0,1]
+ const s = Math.sin(x*12.9898 + y*78.233 + z*37.719 + seed*0.001) * 43758.5453;
+ return s - Math.floor(s);
+ }
+ function _gauss(rng){
+ // Box–Muller
+ let u=0,v=0; while(u===0) u=rng(); while(v===0) v=rng();
+ return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+ }
+
+ function _genExtremeCore(kind, preset, n, v, mix4D, densityScale){
+ const seed = _hash32(kind + "::" + preset) ^ (n*1315423911) ^ (v*2654435761);
+ const rng = _rng32(seed >>> 0);
+
+ const count = Math.floor((5200 + 1300*n) * _clamp(densityScale || 1, 0.2, 3.0));
+ const pts = new Array(count);
+
+ // preset “flavor” knobs (deterministic, but feels different per preset)
+ const h = _hash32(preset);
+ const flavorA = ((h >>> 8) & 255) / 255; // 0..1
+ const flavorB = ((h >>> 16) & 255) / 255;
+ const flavorC = ((h >>> 24) & 255) / 255;
+
+ // shared scale/warp
+ const warp = 0.25 + 0.85*mix4D;
+ const sBase = 1.0 + 0.25*(n-5);
+
+ // Helpers for implicit-ish sampling
+ function accept(prob){ return rng() < prob; }
+
+ // Precompute light structures for some kinds
+ let webNodes=null, webEdges=null;
+ if (kind === "pqweb"){
+ const nodeCount = 8 + Math.floor(n*1.5);
+ webNodes = [];
+ for (let i=0;i<nodeCount;i++){
+ webNodes.push({x:_gauss(rng)*0.9, y:_gauss(rng)*0.9, z:_gauss(rng)*0.9, q:(rng()*2-1), p:(rng()*2-1)});
+ }
+ // Build edges: prefer loops for "loopy", prefer hubs for "hub"
+ webEdges = [];
+ const hubIdx = Math.floor(rng()*nodeCount);
+ const edgesTarget = Math.floor(nodeCount*1.4 + n*2);
+ for (let e=0;e<edgesTarget;e++){
+ let a,b;
+ if (preset.includes("hub")){ a=hubIdx; b=Math.floor(rng()*nodeCount); }
+ else if (preset.includes("filament")){ a=Math.floor(rng()*nodeCount); b=(a+1+Math.floor(rng()*3))%nodeCount; }
+ else { a=Math.floor(rng()*nodeCount); b=Math.floor(rng()*nodeCount); }
+ if (a===b) b=(b+1)%nodeCount;
+ webEdges.push([a,b]);
+ }
+ }
+
+ // Flux: precompute cycle layout
+ function torusKnot(t, p, q){
+ const R=1.35, r=0.55;
+ const a = 2*Math.PI*t;
+ const x = (R + r*Math.cos(q*a))*Math.cos(p*a);
+ const y = (R + r*Math.cos(q*a))*Math.sin(p*a);
+ const z = r*Math.sin(q*a);
+ return [x,y,z];
+ }
+
+ // Amoeba implicit fields
+ function fTPMS(x,y,z,k){
+ return Math.sin(k*x)*Math.cos(k*y) + Math.sin(k*y)*Math.cos(k*z) + Math.sin(k*z)*Math.cos(k*x);
+ }
+ function fPoly(x,y,z,k){
+ // trig-polynomial-ish “amoeba” (stable & fast)
+ const a = Math.sin(k*x) + Math.sin(k*y) + Math.sin(k*z);
+ const b = Math.sin(k*(x+y)) + Math.sin(k*(y+z)) + Math.sin(k*(z+x));
+ return 0.6*a + 0.4*b;
+ }
+
+ for (let i=0;i<count;i++){
+ let x=0,y=0,z=0,w=0,u=0,aux=0;
+
+ if (kind === "tfold"){
+ // Sample “tiles” with discontinuous coordinate glue
+ const k = 2 + (n|0);
+ // base sample
+ x = (rng()*2-1);
+ y = (rng()*2-1);
+ z = (rng()*2-1);
+
+ const method = (v|0) % 3; // 0 grid, 1 pseudo-voronoi, 2 noise basins
+ let cellId=0, seam=0;
+
+ if (method === 0){
+ const gx = Math.floor((x+1)*0.5*k);
+ const gy = Math.floor((y+1)*0.5*k);
+ const gz = Math.floor((z+1)*0.5*k);
+ cellId = gx + k*(gy + k*gz);
+ const fx = ((x+1)*0.5*k) - gx;
+ const fy = ((y+1)*0.5*k) - gy;
+ const fz = ((z+1)*0.5*k) - gz;
+ seam = Math.min(fx,1-fx, fy,1-fy, fz,1-fz);
+ } else if (method === 1){
+ // small set of centers
+ const cN = 6 + (n%5);
+ let best = 1e9, bestId = 0;
+ for (let j=0;j<cN;j++){
+ const cx = (Math.sin((j+1)*12.1 + seed*0.001)*0.5);
+ const cy = (Math.sin((j+1)*27.7 + seed*0.002)*0.5);
+ const cz = (Math.sin((j+1)*41.3 + seed*0.003)*0.5);
+ const dx=x-cx, dy=y-cy, dz=z-cz;
+ const d=dx*dx+dy*dy+dz*dz;
+ if (d<best){ best=d; bestId=j; }
+ }
+ cellId = bestId;
+ seam = _clamp(Math.sqrt(best), 0, 1);
+ } else {
+ const nv = _noise3(x*3,y*3,z*3, seed);
+ cellId = Math.floor(nv*(6+n));
+ seam = Math.abs(nv - 0.5);
+ }
+
+ // Discontinuous glue: permute/flip based on cellId and preset flavor
+ const flip = ((cellId + (v|0)) & 1) ? -1 : 1;
+ const perm = (cellId + (v|0)) % 3;
+ let X=x, Y=y, Z=z;
+ if (perm === 1){ X=y; Y=z; Z=x; }
+ else if (perm === 2){ X=z; Y=x; Z=y; }
+
+ const sharp = preset.includes("shatter") ? 1.35 : (preset.includes("hyperwarp") ? 1.15 : 1.0);
+ const seamBoost = preset.includes("seam_foam") ? 1.6 : (preset.includes("duality") ? 1.2 : 1.0);
+
+ // apply warp & “snap” behavior
+ const ang = (flavorA*2-1) * Math.PI * 0.25 * warp;
+ const rxy = _rot2(X, Y, ang);
+ X = rxy[0]; Y = rxy[1];
+ Z = Z + (flip * (flavorB-0.5) * 0.45 * warp);
+
+ // teleporting retile: jump map
+ if (preset.includes("retile")){
+ const j = _noise3(X*4,Y*4,Z*4, seed+cellId*17);
+ if (j > 0.72) { X = -X; Y = Y*flip; Z = -Z; }
+ }
+
+ // flip-lock closure: “snap” coordinates after threshold
+ if (preset.includes("flip_lock")){
+ const t = _smoothstep(0.25, 0.75, Math.abs(Z));
+ X = _lerp(X, Math.sign(X)*Math.abs(X), t);
+ Y = _lerp(Y, Math.sign(Y)*Math.abs(Y), t);
+ }
+
+ x = X * (1.0 + 0.15*(n-5));
+ y = Y * (1.0 + 0.15*(n-5));
+ z = Z * (1.0 + 0.15*(n-5));
+
+ // intensity peaks near seams (or foam pockets)
+ const seamIntensity = Math.pow(1 - _clamp(seam,0,1), 1.2*sharp) * seamBoost;
+ w = flip * (0.6*seamIntensity + 0.4*Math.sin((v+1)*3*(X+Y+Z)));
+ u = cellId;
+ aux = seam;
+
+ // accept more near seams to show patchwork
+ if (!accept(_clamp(0.25 + 0.75*seamIntensity, 0, 1))){
+ // resample quickly (cheap): just jitter
+ x += (rng()-0.5)*0.15; y += (rng()-0.5)*0.15; z += (rng()-0.5)*0.15;
+ }
+ }
+
+ else if (kind === "orientifold"){
+ // Mirror planes with sign/phase inversion
+ x = _gauss(rng)*0.9; y=_gauss(rng)*0.9; z=_gauss(rng)*0.9;
+ const planeCount = preset.includes("kaleido") ? (3 + Math.floor(n/2)) : 1;
+ let px=x, py=y, pz=z;
+ for (let pI=0;pI<planeCount;pI++){
+ const ang = (pI + 1 + v*0.2) * (0.6 + 0.5*flavorA);
+ const nx = Math.cos(ang)*Math.cos(ang*0.7);
+ const ny = Math.sin(ang)*Math.cos(ang*0.7);
+ const nz = Math.sin(ang*0.7);
+ const off = 0.15*(flavorB-0.5);
+ const d = (px*nx + py*ny + pz*nz) - off;
+
+ const hard = preset.includes("hard");
+ const band = preset.includes("soft") ? (0.25 + 0.2*flavorC) : 0.05;
+
+ if (hard){
+ if (d > 0){
+ px = px - 2*d*nx;
+ py = py - 2*d*ny;
+ pz = pz - 2*d*nz;
+ w *= -1;
+ }
+ } else {
+ // soft bleed: blend original and reflected across band
+ const t = _smoothstep(0, band, Math.abs(d));
+ const rx = px - 2*d*nx, ry = py - 2*d*ny, rz = pz - 2*d*nz;
+ const blend = 1 - t;
+ px = _lerp(px, rx, blend);
+ py = _lerp(py, ry, blend);
+ pz = _lerp(pz, rz, blend);
+ }
+
+ // alternating phase flip in kaleidoscope mode
+ if (preset.includes("kaleido") && (pI % 2 === 0)) w *= -1;
+ }
+
+ // twisted phase ramp
+ if (preset.includes("twisted")){
+ const ramp = (Math.atan2(py, px) / (2*Math.PI) + 0.5);
+ const twist = 2*Math.PI*(0.5 + 0.25*n) * ramp;
+ const r = _rot2(px, py, twist);
+ px=r[0]; py=r[1];
+ w = Math.sin(twist) * (0.6 + 0.4*mix4D);
+ } else {
+ w = Math.tanh(px*py - pz*0.5) * (0.8 + 0.2*mix4D);
+ }
+
+ x=px*sBase*0.85; y=py*sBase*0.85; z=pz*sBase*0.85;
+ u = planeCount;
+ aux = 0;
+ }
+
+ else if (kind === "conifold"){
+ // Throat-like funnel(s)
+ const t = rng()*2-1; // axis coordinate
+ const ang = rng()*Math.PI*2;
+ const basePinch = preset.includes("epsilon") ? 0.045 : 0.09;
+ let pinch = basePinch * (1.0 / (1 + 0.12*n)) * (0.7 + 0.6*flavorA);
+
+ // Multi-throat/branching centers
+ let cx=0, cy=0;
+ const branches = preset.includes("branch") ? (2 + Math.floor(n/3)) : 1;
+ const b = Math.floor(rng()*branches);
+ const bAng = (b/branches)*Math.PI*2;
+ const bRad = preset.includes("branch") ? (0.35 + 0.25*flavorB) : 0;
+ cx = Math.cos(bAng)*bRad;
+ cy = Math.sin(bAng)*bRad;
+
+ // looped embedding
+ let zAxis = t;
+ let loop = 0;
+ if (preset.includes("loop")){
+ const loopR = 0.7 + 0.25*flavorC;
+ const a = (t*0.5+0.5)*Math.PI*2;
+ cx += Math.cos(a)*loopR;
+ cy += Math.sin(a)*loopR;
+ zAxis = Math.sin(a)*0.25;
+ loop = 1;
+ }
+
+ // radius profile
+ let prof;
+ if (preset.includes("long")) prof = 0.12 + 0.55*Math.pow(Math.abs(t), 0.7);
+ else if (preset.includes("resolved")) prof = 0.18 + 0.45*Math.pow(Math.abs(t), 0.85);
+ else prof = 0.10 + 0.50*Math.pow(Math.abs(t), 0.6);
+
+ // pinch at center
+ const r0 = Math.max(pinch, prof);
+ const r = r0 + (rng()-0.5)*0.08;
+ x = cx + Math.cos(ang)*r;
+ y = cy + Math.sin(ang)*r;
+ z = zAxis*(1.6 + 0.2*n) + (rng()-0.5)*0.08;
+
+ // mode-mixing along axis
+ if (preset.includes("mode_mixing")){
+ const band = Math.sin((v+1)*3*(t+1)) * 0.5 + 0.5;
+ const rr = _rot2(x, y, band*Math.PI*0.6);
+ x=rr[0]; y=rr[1];
+ w = (band*2-1) * (0.8 + 0.2*mix4D);
+ } else {
+ w = (1.0/(0.15 + r0)) * 0.25 * (0.8 + 0.4*mix4D);
+ }
+
+ // flux spiral decoration
+ if (preset.includes("flux")){
+ const sp = (0.8 + 0.2*n) * (0.6 + 0.6*flavorB);
+ x += 0.12*Math.cos(sp*z + ang);
+ y += 0.12*Math.sin(sp*z + ang);
+ w *= 1.15;
+ }
+
+ u = branches + loop;
+ aux = r0;
+ }
+
+ else if (kind === "branes"){
+ // Many warped sheets; highlight intersections
+ const sheets = 3 + Math.floor(n/2) + (preset.includes("foam") ? 3 : 0);
+ x = (rng()*2-1)*1.2;
+ y = (rng()*2-1)*1.2;
+ z = (rng()*2-1)*1.2;
+
+ let score = 0;
+ for (let s=0;s<sheets;s++){
+ const ang = (s+1)*1.7 + 0.4*v;
+ const nx = Math.cos(ang);
+ const ny = Math.sin(ang*0.9);
+ const nz = Math.sin(ang)*0.8;
+ const off = (rng()-0.5)*0.4;
+
+ // warped plane field
+ const warpN = (preset.includes("tangled") || preset.includes("foam")) ? 0.25 : 0.12;
+ const field = (x*nx + y*ny + z*nz) - off
+ + warpN*Math.sin((x+y+z)*(1.6+0.2*n) + s*2.1 + v);
+
+ score += Math.abs(field);
+ }
+
+ // accept near intersections
+ const thresh = preset.includes("open_string") ? 0.55 : (preset.includes("percolation") ? 0.85 : 0.70);
+ const prob = _clamp(1.0 - (score/(thresh*sheets)), 0, 1);
+
+ // collision event “shock”
+ if (preset.includes("collision")){
+ const t = Math.sin((v+1)*0.8 + z*2.0);
+ x += 0.25*t;
+ w = t * (0.9 + 0.3*mix4D);
+ } else {
+ w = (prob*2-1) * (0.8 + 0.2*mix4D);
+ }
+
+ if (!accept(0.15 + 0.85*prob)){
+ // bias to keep density acceptable
+ x *= 0.85; y *= 0.85; z *= 0.85;
+ }
+
+ // moire stacks: compress z + amplify interference
+ if (preset.includes("moire")){
+ z *= 0.55;
+ w *= 1.2;
+ }
+
+ u = sheets;
+ aux = score;
+ }
+
+ else if (kind === "pqweb"){
+ // sample edges in a junction graph
+ const eId = Math.floor(rng()*webEdges.length);
+ const a = webEdges[eId][0], b = webEdges[eId][1];
+ const A = webNodes[a], B = webNodes[b];
+
+ const t = rng();
+ // cubic-ish arc
+ const mx = (A.x+B.x)*0.5 + (rng()-0.5)*0.35;
+ const my = (A.y+B.y)*0.5 + (rng()-0.5)*0.35;
+ const mz = (A.z+B.z)*0.5 + (rng()-0.5)*0.35;
+
+ // Quadratic Bezier
+ x = (1-t)*(1-t)*A.x + 2*(1-t)*t*mx + t*t*B.x;
+ y = (1-t)*(1-t)*A.y + 2*(1-t)*t*my + t*t*B.y;
+ z = (1-t)*(1-t)*A.z + 2*(1-t)*t*mz + t*t*B.z;
+
+ // tension law variants
+ const tension = preset.includes("tension") ? Math.sqrt(A.p*A.p + A.q*A.q) : (0.3 + 0.9*Math.abs(A.p-B.p));
+ const jitter = preset.includes("frustrated") ? (rng()-0.5)*0.12 : (rng()-0.5)*0.04;
+
+ // string-dominant: thin filaments, less node weight
+ if (preset.includes("filament")){
+ x += jitter; y += jitter; z += jitter;
+ w = (tension*2-1) * (0.6 + 0.4*mix4D);
+ } else {
+ w = (Math.sin((v+1)*6*t + tension*3) + jitter) * (0.7 + 0.3*mix4D);
+ }
+
+ u = eId; // strand/edge id
+ aux = tension;
+
+ // orientifold web: mirror half-space subtly
+ if (preset.includes("orientifold")){
+ if (x > 0){ x = -x; w *= -1; }
+ }
+ }
+
+ else if (kind === "holo"){
+ // boundary-driven bulk
+ const boundary = (v|0)%3; // 0 sphere, 1 box, 2 warped shell
+ let bx=0,by=0,bz=0;
+ if (boundary === 0){
+ // random point on sphere
+ const th = rng()*Math.PI*2;
+ const ph = Math.acos(2*rng()-1);
+ bx = Math.cos(th)*Math.sin(ph);
+ by = Math.sin(th)*Math.sin(ph);
+ bz = Math.cos(ph);
+ } else if (boundary === 1){
+ // random point on cube-ish shell
+ bx = (rng()*2-1); by = (rng()*2-1); bz=(rng()*2-1);
+ const m = Math.max(Math.abs(bx),Math.abs(by),Math.abs(bz));
+ bx/=m; by/=m; bz/=m;
+ } else {
+ const th = rng()*Math.PI*2;
+ const ph = Math.acos(2*rng()-1);
+ const rr = 1 + 0.25*Math.sin((v+1)*3*th + n);
+ bx = rr*Math.cos(th)*Math.sin(ph);
+ by = rr*Math.sin(th)*Math.sin(ph);
+ bz = rr*Math.cos(ph);
+ }
+
+ // boundary “signal”
+ const sig = _noise3(bx*6,by*6,bz*6, seed) * 2 - 1;
+
+ // decode into interior
+ let depth = rng();
+ if (preset.includes("skin")) depth = depth*depth*0.15;
+ if (preset.includes("decode")) depth = Math.pow(depth, 0.35);
+ if (preset.includes("glyph")) depth = Math.pow(depth, 0.25);
+ if (preset.includes("turb")) depth = Math.pow(depth, 0.55);
+
+ // standing wave shells
+ if (preset.includes("standing_wave")){
+ const shells = 4 + Math.floor(n/2);
+ const s = Math.round(depth*shells)/shells;
+ depth = s;
+ }
+
+ // wormhole bridge: pick two boundary points and connect
+ if (preset.includes("bridge")){
+ const th2 = rng()*Math.PI*2;
+ const ph2 = Math.acos(2*rng()-1);
+ const bx2 = Math.cos(th2)*Math.sin(ph2);
+ const by2 = Math.sin(th2)*Math.sin(ph2);
+ const bz2 = Math.cos(ph2);
+ const t = rng();
+ bx = _lerp(bx, bx2, t);
+ by = _lerp(by, by2, t);
+ bz = _lerp(bz, bz2, t);
+ depth = _smoothstep(0,1,depth);
+ }
+
+ x = bx*(1-depth)*1.65;
+ y = by*(1-depth)*1.65;
+ z = bz*(1-depth)*1.65;
+
+ // anisotropic decode: stretch along one axis
+ if (preset.includes("anisotropic")){
+ const ax = (v|0)%3;
+ if (ax===0) x *= 1.8;
+ if (ax===1) y *= 1.8;
+ if (ax===2) z *= 1.8;
+ }
+
+ // phase flip boundary: two bulks
+ if (preset.includes("phase_flip")){
+ const s = sig > 0 ? 1 : -1;
+ x *= 1 + 0.25*s;
+ y *= 1 - 0.15*s;
+ w = s * (0.9 + 0.3*mix4D);
+ } else {
+ w = sig * (0.9 + 0.3*mix4D);
+ }
+
+ u = boundary;
+ aux = depth;
+ }
+
+ else if (kind === "flux"){
+ // braids around cycles / knots
+ const strands = 6 + Math.floor(n*2);
+ const sId = Math.floor(rng()*strands);
+ const t = rng();
+
+ let cx=0,cy=0,cz=0;
+
+ if (preset.includes("hopf")){
+ // Hopf-like: many linked circles (approx)
+ const phi = (sId/strands)*Math.PI*2;
+ const ang = 2*Math.PI*t;
+ const R = 1.05, r = 0.55;
+ cx = R*Math.cos(phi) + r*Math.cos(ang)*Math.cos(phi + Math.PI/2);
+ cy = R*Math.sin(phi) + r*Math.cos(ang)*Math.sin(phi + Math.PI/2);
+ cz = r*Math.sin(ang);
+ } else if (preset.includes("trefoil")){
+ const k = torusKnot(t, 2, 3); cx=k[0]; cy=k[1]; cz=k[2];
+ } else if (preset.includes("figure8")){
+ const k = torusKnot(t, 3, 4); cx=k[0]; cy=k[1]; cz=k[2];
+ } else {
+ // default: circle / superbraid
+ const ang = 2*Math.PI*t;
+ const R = 1.55;
+ cx = R*Math.cos(ang); cy = R*Math.sin(ang); cz = 0;
+ }
+
+ // braid offsets
+ let braidTurns = 2 + Math.floor(n/2);
+ if (preset.includes("superbraid")) braidTurns += 3;
+ if (preset.includes("fractal")) braidTurns += 4;
+ const theta = 2*Math.PI*(braidTurns*t + sId/strands);
+
+ const rad = 0.12 + 0.14*(preset.includes("superbraid") ? 1 : 0) + 0.08*flavorA;
+ let ox = Math.cos(theta)*rad;
+ let oy = Math.sin(theta)*rad;
+ let oz = (Math.sin(theta*0.5) * 0.06);
+
+ // chirality flips
+ if (preset.includes("chirality")){
+ const flip = (((Math.floor(t*8) + sId) & 1) ? -1 : 1);
+ ox *= flip; oy *= -flip;
+ w = flip * (0.9 + 0.3*mix4D);
+ }
+
+ // writhe/snarl
+ if (preset.includes("snarl") || preset.includes("collapse")){
+ const j = (rng()-0.5) * (preset.includes("collapse") ? 0.28 : 0.18);
+ oz += j;
+ }
+
+ // shockwave pulse
+ if (preset.includes("shockwave")){
+ const pulse = Math.sin((v+1)*2.0 + t*2*Math.PI*(2+n/3));
+ ox *= 1 + 0.45*_clamp(pulse, -1, 1);
+ w = pulse * (0.9 + 0.3*mix4D);
+ }
+
+ // topological pump: move phase around loop
+ if (preset.includes("pump")){
+ const pump = Math.sin((v+1)*1.3 + t*2*Math.PI);
+ oz += pump*0.18;
+ w = pump * (0.9 + 0.3*mix4D);
+ }
+
+ // boundary-coupled: couple to pseudo boundary signal
+ if (preset.includes("boundary_coupled")){
+ const sig = _noise3(cx*2,cy*2,cz*2, seed+999);
+ const s = (sig>0.5)?1:-1;
+ ox *= 1 + 0.35*s;
+ oy *= 1 - 0.15*s;
+ w = s*(0.9 + 0.3*mix4D);
+ }
+
+ x = (cx + ox) * 1.05;
+ y = (cy + oy) * 1.05;
+ z = (cz + oz) * 1.05;
+
+ if (!preset.includes("shockwave") && !preset.includes("pump") && !preset.includes("chirality")){
+ w = Math.sin(theta + (v+1)*0.7) * (0.75 + 0.35*mix4D);
+ }
+
+ u = sId;
+ aux = t;
+ }
+
+ else if (kind === "amoeba"){
+ // isosurface-like implicit sampling
+ x = (rng()*2-1)*1.2;
+ y = (rng()*2-1)*1.2;
+ z = (rng()*2-1)*1.2;
+
+ const k = (2.5 + 0.35*n) * (preset.includes("triply") ? 1.25 : 1.0);
+ const iso = preset.includes("swiss") ? 0.15 : 0.0;
+ const eps = preset.includes("near_singular") ? 0.06 : 0.09;
+
+ let f=0;
+ if (preset.includes("triply")){
+ f = fTPMS(x,y,z,k);
+ } else if (preset.includes("polynomial")){
+ f = fPoly(x,y,z,k);
+ } else {
+ // hybrid amoeba field
+ f = 0.7*fTPMS(x,y,z, k*0.85) + 0.3*fPoly(x,y,z, k*1.05);
+ }
+
+ // high genus labyrinth: crank frequency & accept thinner band
+ const gBoost = preset.includes("high_genus") || preset.includes("handles") ? 1.2 : 1.0;
+ const band = eps / gBoost;
+
+ const dist = Math.abs(f - iso);
+ const prob = _clamp(1.0 - dist/band, 0, 1);
+
+ if (!accept(0.15 + 0.85*prob)){
+ // bias toward surface band
+ x *= 0.75; y *= 0.75; z *= 0.75;
+ }
+
+ // cusp/crease & spikes
+ if (preset.includes("cusp") || preset.includes("crease") || preset.includes("spiky")){
+ const sp = (1.0 - prob);
+ x += Math.sign(x)*sp*0.22;
+ y += Math.sign(y)*sp*0.22;
+ z += Math.sign(z)*sp*0.22;
+ }
+
+ // foam / percolated: add cellular noise
+ if (preset.includes("foam") || preset.includes("percolated")){
+ const nv = _noise3(x*4,y*4,z*4, seed+1234);
+ x += (nv-0.5)*0.18;
+ y += (nv-0.5)*0.18;
+ }
+
+ // mirrored parity twin
+ if (preset.includes("mirrored")){
+ if (x > 0){ x = -x; w *= -1; }
+ }
+
+ // embedded conifold / brane pierced / holographic encoded: decorate
+ if (preset.includes("conifold")){
+ const r = Math.sqrt(x*x+y*y);
+ const pinch = 0.10 + 0.04*Math.abs(z);
+ x *= (pinch/(0.2+r));
+ y *= (pinch/(0.2+r));
+ }
+ if (preset.includes("brane_pierced")){
+ const cut = Math.sin((v+1)*1.1 + x*3) * Math.cos((v+1)*0.9 + y*3);
+ z += cut*0.22;
+ }
+ if (preset.includes("holographic")){
+ const enc = Math.sin(x*k*0.6)*Math.sin(y*k*0.6);
+ w = enc * (0.9 + 0.3*mix4D);
+ } else {
+ w = (prob*2-1) * (0.85 + 0.35*mix4D);
+ }
+
+ u = 0;
+ aux = f;
+ }
+
+ pts[i] = {x:x, y:y, z:z, w:w, u:u, v:aux};
+ }
+
+ return pts;
+ }
+
+ // Category wrappers (shared interface)
+ function genTFoldExtreme(preset, n, v, mix4D, densityScale){ return _genExtremeCore("tfold", preset, n, v, mix4D, densityScale); }
+ function genOrientifoldExtreme(preset, n, v, mix4D, densityScale){ return _genExtremeCore("orientifold", preset, n, v, mix4D, densityScale); }
+ function genConifoldExtreme(preset, n, v, mix4D, densityScale){ return _genExtremeCore("conifold", preset, n, v, mix4D, densityScale); }
+ function genBranesExtreme(preset, n, v, mix4D, densityScale){ return _genExtremeCore("branes", preset, n, v, mix4D, densityScale); }
+ function genPQWebExtreme(preset, n, v, mix4D, densityScale){ return _genExtremeCore("pqweb", preset, n, v, mix4D, densityScale); }
+ function genHoloExtreme(preset, n, v, mix4D, densityScale){ return _genExtremeCore("holo", preset, n, v, mix4D, densityScale); }
+ function genFluxExtreme(preset, n, v, mix4D, densityScale){ return _genExtremeCore("flux", preset, n, v, mix4D, densityScale); }
+ function genAmoebaExtreme(preset, n, v, mix4D, densityScale){ return _genExtremeCore("amoeba", preset, n, v, mix4D, densityScale); }
+
+
+function generatePoints(shape, n, v) {
+ const generators = {
+ cloud: genCloud, knot: genKnot, brane: genBrane, filament: genFilament, shells: genShells, lattice: genLattice, bloom: genBloom, storm: genStorm, orbital: genOrbital, fractal: genFractal, starburst: genStarburst, binary: genBinary, terrace: genTerrace, ribbon: genRibbon, spine: genSpine, city: genCity, shard: genShard, tree: genTree, galaxy: genGalaxy, tesseract: genTesseract, braid: genBraid, origami: genOrigami, cage: genCage, mobius: genMobius, faults: genFaults
+ };
+ {
+ const m = /^c([1-8])_(.+)$/.exec(shape);
+ if (m){
+ const c = +m[1];
+ const preset = m[2];
+ const mix = state.mix4D;
+ const dens = state.densityScale;
+ if (c===1) return genTFoldExtreme(preset, n, v, mix, dens);
+ if (c===2) return genOrientifoldExtreme(preset, n, v, mix, dens);
+ if (c===3) return genConifoldExtreme(preset, n, v, mix, dens);
+ if (c===4) return genBranesExtreme(preset, n, v, mix, dens);
+ if (c===5) return genPQWebExtreme(preset, n, v, mix, dens);
+ if (c===6) return genHoloExtreme(preset, n, v, mix, dens);
+ if (c===7) return genFluxExtreme(preset, n, v, mix, dens);
+ if (c===8) return genAmoebaExtreme(preset, n, v, mix, dens);
+ }
+ return (generators[shape] || genCloud)(n, v);
+ }
+ }
+
+ // --- INIT THREE ---
+ function initThree() {
+ if (typeof THREE === "undefined") return;
+ renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+ scene = new THREE.Scene();
+ camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+ camera.position.set(0, 0, camDist);
+
+ // --- PostFX stack (T168 SSAO + T159 Bloom) ---
+ // Uses Three.js examples postprocessing. If scripts fail to load, app still works without postFX.
+ if (typeof THREE.EffectComposer !== "undefined") {
+ composer = new THREE.EffectComposer(renderer);
+ renderPass = new THREE.RenderPass(scene, camera);
+ composer.addPass(renderPass);
+
+ if (typeof THREE.SSAOPass !== "undefined") {
+ ssaoPass = new THREE.SSAOPass(scene, camera, 1, 1);
+ ssaoPass.enabled = false;
+ setAOQuality("live");
+ composer.addPass(ssaoPass);
+ }
+
+ if (typeof THREE.UnrealBloomPass !== "undefined") {
+ bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(1, 1), 0.25, 0.35, 0.90);
+ bloomPass.enabled = false;
+ setBloom("live");
+ composer.addPass(bloomPass);
+ }
+
+ refreshPostFXEnabled();
+ }
+ geometry = new THREE.BufferGeometry();
+ material = new THREE.PointsMaterial({ size: 0.045, vertexColors: true, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending });
+ points = new THREE.Points(geometry, material);
+ scene.add(points);
+ resize();
+ updateGeo();
+ }
+
+ function resize() {
+ const rect = viewContainer.getBoundingClientRect();
+ renderer.setSize(rect.width, rect.height, false);
+ camera.aspect = rect.width / rect.height;
+ camera.updateProjectionMatrix();
+
+ if (composer && typeof composer.setSize === "function") {
+ composer.setSize(rect.width, rect.height);
+ }
+ if (ssaoPass && typeof ssaoPass.setSize === "function") {
+ ssaoPass.setSize(rect.width, rect.height);
+ }
+ if (bloomPass && typeof bloomPass.setSize === "function") {
+ bloomPass.setSize(rect.width, rect.height);
+ }
+ }
+ window.addEventListener("resize", scheduleResize, { passive: true });
+
+ // If layout changes without a window resize (shell collapse, sidebar scrollbars, etc.), keep the renderer sized correctly.
+ try {
+ const _ro = new ResizeObserver(()=> scheduleResize());
+ _ro.observe(viewContainer);
+ } catch(_e) {}
+
+ function updateGeo() {
+ const variant = state.mode - 1;
+ basePoints = generatePoints(state.shapeFamily, state.n, variant);
+ 
+ // Point Density Limiter
+ const limit = Math.floor(basePoints.length * state.densityScale);
+ const renderPoints = basePoints.slice(0, limit);
+
+ positions = new Float32Array(renderPoints.length * 3);
+ colors = new Float32Array(renderPoints.length * 3);
+ geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+ geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+ 
+ // Update UI stats
+ ui.stats.points.textContent = renderPoints.length;
+ ui.overlays.family.textContent = state.shapeFamily;
+ ui.overlays.n.textContent = state.n;
+ ui.overlays.mode.textContent = state.mode;
+ 
+ updateProjection(0);
+ }
+
+ function updateProjection(dt) {
+ if(state.animate4D) {
+ angleXW += dt * 0.5 * state.wSpeed;
+ angleYW += dt * 0.3 * state.wSpeed;
+ }
+
+ const cx = Math.cos(angleXW), sx = Math.sin(angleXW);
+ const cy = Math.cos(angleYW), sy = Math.sin(angleYW);
+ const mix = state.mix4D;
+ 
+ const count = geometry.attributes.position.count;
+ 
+ let pi=0, ci=0;
+ for(let i=0; i<count; i++) {
+ const p = basePoints[i];
+ let {x,y,z,w} = p;
+ 
+ let tx = x*cx - w*sx;
+ let tw = x*sx + w*cx;
+ x=tx; w=tw;
+ 
+ let ty = y*cy - w*sy;
+ tw = y*sy + w*cy;
+ y=ty; w=tw;
+ 
+ const scale = 1.0 + (w * 0.5 * mix);
+ positions[pi++] = x * scale;
+ positions[pi++] = y * scale;
+ positions[pi++] = z * scale;
+
+ const [r,g,b] = paletteColor(p.u, w);
+ colors[ci++] = r * state.brightness;
+ colors[ci++] = g * state.brightness;
+ colors[ci++] = b * state.brightness;
+ }
+ 
+ geometry.attributes.position.needsUpdate = true;
+ geometry.attributes.color.needsUpdate = true;
+ }
+
+ // --- CONTROLS ---
+ function initUI() {
+ // Techniques UI
+ if (ui.t155Toggle) ui.t155Toggle.checked = !!state.t155Enabled;
+ if (ui.t168Toggle) ui.t168Toggle.checked = !!state.t168Enabled;
+ if (ui.t159Toggle) ui.t159Toggle.checked = !!state.t159Enabled;
+
+ ui.t155Toggle && ui.t155Toggle.addEventListener("change", (e) => {
+ state.t155Enabled = !!e.target.checked;
+ // Snap PR immediately to the appropriate target
+ t155TargetPR = state.t155Enabled ? T155_PR.high : Math.min(2.0, (window.devicePixelRatio || 1));
+ t155CurrentPR = t155TargetPR;
+ renderer && renderer.setPixelRatio(t155CurrentPR);
+ });
+
+ ui.t168Toggle && ui.t168Toggle.addEventListener("change", (e) => {
+ state.t168Enabled = !!e.target.checked;
+ refreshPostFXEnabled();
+ });
+
+ ui.t159Toggle && ui.t159Toggle.addEventListener("change", (e) => {
+ state.t159Enabled = !!e.target.checked;
+ refreshPostFXEnabled();
+ });
+
+ ui.screenshotBtn && ui.screenshotBtn.addEventListener("click", () => captureScreenshotBeauty(3));
+
+ ui.shapeSelect.addEventListener("change", e => {
+ state.shapeFamily = e.target.value;
+
+ // Apply per-preset defaults (only for the c1_..c8_ extreme structures)
+ const d = PRESET_DEFAULTS[state.shapeFamily];
+ if (d) {
+ state.n = d.n;
+ state.mode = d.mode;
+ state.mix4D = d.mix4D;
+ state.densityScale = d.densityScale;
+
+ ui.nSlider.value = state.n; ui.readouts.n.textContent = state.n;
+ ui.modeSlider.value = state.mode; ui.readouts.mode.textContent = state.mode;
+ ui.mixSlider.value = state.mix4D; ui.readouts.mix.textContent = state.mix4D;
+ ui.densitySlider.value = state.densityScale; ui.readouts.density.textContent = state.densityScale + "x";
+ }
+
+ updateGeo();
+ });
+ ui.nSlider.addEventListener("input", e => { state.n = parseInt(e.target.value); ui.readouts.n.textContent = state.n; updateGeo(); });
+ ui.modeSlider.addEventListener("input", e => { state.mode = parseInt(e.target.value); ui.readouts.mode.textContent = state.mode; updateGeo(); });
+ ui.mixSlider.addEventListener("input", e => { state.mix4D = parseFloat(e.target.value); ui.readouts.mix.textContent = state.mix4D; });
+ ui.densitySlider.addEventListener("input", e => { state.densityScale = parseFloat(e.target.value); ui.readouts.density.textContent = state.densityScale+"x"; updateGeo(); });
+
+ document.getElementById("btnRandom").addEventListener("click", () => {
+ const opts = ui.shapeSelect.options;
+ state.shapeFamily = opts[Math.floor(Math.random()*opts.length)].value;
+ ui.shapeSelect.value = state.shapeFamily;
+ state.n = 2 + Math.floor(Math.random()*8);
+ ui.nSlider.value = state.n; ui.readouts.n.textContent = state.n;
+ state.mix4D = Math.random();
+ ui.mixSlider.value = state.mix4D; ui.readouts.mix.textContent = state.mix4D.toFixed(2);
+ updateGeo();
+ });
+ document.getElementById("btnReset").addEventListener("click", () => { 
+ targetRotX=0.2; targetRotY=0.6; targetCamDist=8; 
+ // Reset momentum
+ state.autoOrbit = true;
+ });
+
+ // --- ROBUST GESTURE CONTROLS ---
+ let activePointers = new Map();
+ let prevPinchDist = 0;
+
+ canvas.addEventListener("wheel", (e) => {
+ e.preventDefault();
+ // Smooth zoom target
+ const zoomSpeed = 0.002 * targetCamDist; // scale zoom by distance
+ targetCamDist = clamp(targetCamDist + e.deltaY * zoomSpeed, 2.0, 50.0);
+ lastInteractionTime = performance.now();
+ markInputT155(); // Pause auto-rotate
+ }, { passive: false });
+
+ canvas.addEventListener("pointerdown", (e) => {
+ activePointers.set(e.pointerId, e);
+ canvas.setPointerCapture(e.pointerId);
+ isDragging = true;
+ lastInteractionTime = performance.now();
+ markInputT155();
+ 
+ // Update logic based on finger count to prevent jumps
+ if (activePointers.size === 1) {
+ lastPointerX = e.clientX; 
+ lastPointerY = e.clientY; 
+ } else if (activePointers.size === 2) {
+ const p = Array.from(activePointers.values());
+ prevPinchDist = Math.hypot(p[0].clientX - p[1].clientX, p[0].clientY - p[1].clientY);
+ }
+ });
+
+ canvas.addEventListener("pointermove", (e) => {
+ activePointers.set(e.pointerId, e);
+ if (!isDragging) return;
+ lastInteractionTime = performance.now();
+ markInputT155();
+
+ if (activePointers.size === 1) {
+ // Single finger rotate
+ const dx = e.clientX - lastPointerX; 
+ const dy = e.clientY - lastPointerY;
+ lastPointerX = e.clientX; 
+ lastPointerY = e.clientY;
+ 
+ targetRotY += dx * 0.005; 
+ targetRotX += dy * 0.005;
+ 
+ } else if (activePointers.size === 2) {
+ // Two finger pinch
+ const p = Array.from(activePointers.values());
+ const dist = Math.hypot(p[0].clientX - p[1].clientX, p[0].clientY - p[1].clientY);
+ 
+ const delta = prevPinchDist - dist;
+ // Sensitivity based on distance
+ targetCamDist += delta * 0.015 * (targetCamDist/10);
+ targetCamDist = clamp(targetCamDist, 2.0, 50.0);
+ 
+ prevPinchDist = dist;
+ // Update "last" position to prevent jump when lifting one finger
+ lastPointerX = e.clientX;
+ lastPointerY = e.clientY;
+ }
+ });
+
+ const onPointerUp = (e) => {
+ activePointers.delete(e.pointerId);
+ canvas.releasePointerCapture(e.pointerId);
+ 
+ // If we dropped from 2 fingers to 1, re-sync the drag start
+ // so the rotation doesn't jump
+ if (activePointers.size === 1) {
+ const p = activePointers.values().next().value;
+ lastPointerX = p.clientX;
+ lastPointerY = p.clientY;
+ prevPinchDist = 0;
+ } else if (activePointers.size === 0) {
+ isDragging = false;
+ // Momentum will naturally carry on in animate() due to lerping
+ }
+ lastInteractionTime = performance.now();
+ };
+ canvas.addEventListener("pointerup", onPointerUp);
+ canvas.addEventListener("pointercancel", onPointerUp);
+ canvas.addEventListener("pointerout", onPointerUp);
+
+ }
+
+ // --- LOOP ---
+ function animate() {
+ const now = performance.now();
+ const dt = Math.min((now - lastTime)/1000, 0.1);
+ lastTime = now;
+
+ // Auto Orbit Resume Logic
+ // If not dragging and user hasn't touched for 2s, slowly resume auto-spin
+ if (state.autoOrbit && !isDragging) {
+ if (now - lastInteractionTime > 2000) {
+ // Ramp up
+ const factor = Math.min((now - lastInteractionTime - 2000)/2000, 1.0);
+ targetRotY += 0.1 * dt * factor; 
+ }
+ }
+
+ // Soft clamp vertical rotation (prevent flipping upside down)
+ // 1.57 is roughly PI/2
+ const maxVert = 1.5; 
+ if (targetRotX > maxVert) targetRotX = maxVert;
+ if (targetRotX < -maxVert) targetRotX = -maxVert;
+
+ // Smooth Interpolation (Damped physics feel)
+ const damp = 5.0 * dt; // Adjust damping speed
+ rotX += (targetRotX - rotX) * damp;
+ rotY += (targetRotY - rotY) * damp;
+ camDist += (targetCamDist - camDist) * damp;
+
+ if (camera) {
+ camera.position.set(
+ camDist * Math.sin(rotY) * Math.cos(rotX),
+ camDist * Math.sin(rotX),
+ camDist * Math.cos(rotY) * Math.cos(rotX)
+ );
+ camera.lookAt(0,0,0);
+ }
+
+ updateProjection(dt);
+ updatePixelRatioT155();
+ renderFrameOnce();
+ ui.stats.fps.textContent = Math.round(1/dt);
+ requestAnimationFrame(animate);
+ }
+
+ // --- BOOT ---
+ initThree();
+ initUI();
+ // P11: force a couple of post-layout resizes (some mobile browsers report 0px on first paint)
+ requestAnimationFrame(()=>{ try { resize(); } catch(_e){} });
+ setTimeout(()=>{ try { resize(); } catch(_e){} }, 120);
+ setTimeout(()=>{ try { resize(); } catch(_e){} }, 300);
+
+ // P11: track container changes (sidebar collapse, fullscreen, orientation, etc.)
+ try{
+ if ('ResizeObserver' in window) {
+ const __ro = new ResizeObserver(()=>{ try { resize(); } catch(_e){} });
+ __ro.observe(viewContainer);
+ }
+ window.addEventListener('orientationchange', ()=>setTimeout(()=>{ try { resize(); } catch(_e){} }, 200));
+ }catch(_e){}
+ animate();
+
+})();
+</script>
+<script type="module">
+ // Optional WebLLM + Forge driver (safe to ignore if unsupported)
+ try {
+ const webllmPromise = import("https://esm.run/@mlc-ai/web-llm@0.2.46");
+ webllmPromise.then(async (webllm) => {
+ window.Forge = window.Forge || {
+ drivers: {},
+ registerLLM(name, driver) { this.drivers[name] = driver; },
+ async chat(opts) {
+ for (const name of (opts.modelList || [])) {
+ const drv = this.drivers[name];
+ if (drv && await drv.ready()) {
+ return drv.generate(opts);
+ }
+ }
+ throw new Error("No AI driver available");
+ }
+ };
+ window.Forge.registerLLM("gemma-webllm", {
+ engine: null,
+ async ready() { return typeof navigator !== "undefined" && !!navigator.gpu; },
+ async generate(opts) {
+ if (!this.engine) {
+ this.engine = await webllm.CreateMLCEngine("Phi-3-mini-4k-instruct-q4f16_1-MLC");
+ }
+ const reply = await this.engine.chat.completions.create({
+ messages: [
+ { role: "system", content: opts.system },
+ { role: "user", content: opts.prompt }
+ ]
+ });
+ return { text: reply.choices[0].message.content };
+ }
+ });
+ const diag = document.getElementById("ai-diag-status");
+ if (diag) diag.textContent = "AI Ready (WebLLM registered)";
+ }).catch((e) => {
+ console.warn("WebLLM import failed (okay on low-end devices):", e);
+ });
+ } catch (e) {
+ console.warn("Dynamic import not supported, skipping WebLLM:", e);
+ }
+</script>
+<script>
+(function(global) {
+ // --- PREMIUM CURSOR ORB WIRING ---
+ const orb = document.getElementById("cursorOrb");
+ const isCoarse = global.matchMedia && global.matchMedia("(pointer: coarse)").matches;
+ if (isCoarse) {
+ document.body.classList.add("cursor-coarse");
+ } else if (orb) {
+ let rafId = null;
+ let targetX = global.innerWidth / 2;
+ let targetY = global.innerHeight / 2;
+
+ function moveOrb(x, y) {
+ targetX = x;
+ targetY = y;
+ if (!rafId) {
+ rafId = global.requestAnimationFrame(() => {
+ orb.style.left = targetX + "px";
+ orb.style.top = targetY + "px";
+ orb.classList.add("is-active");
+ rafId = null;
+ });
+ }
+ }
+
+ document.addEventListener("pointermove", (e) => {
+ if (e.pointerType === "mouse" || e.pointerType === "pen") {
+ moveOrb(e.clientX, e.clientY);
+ }
+ }, { passive: true });
+
+ document.addEventListener("pointerdown", (e) => {
+ if (e.pointerType === "mouse" || e.pointerType === "pen") {
+ orb.classList.add("is-pressed");
+ }
+ }, { passive: true });
+
+ document.addEventListener("pointerup", () => {
+ orb.classList.remove("is-pressed");
+ }, { passive: true });
+
+ document.addEventListener("mouseleave", () => {
+ orb.classList.remove("is-active");
+ });
+ }
+
+ // --- META OVERLAY CONTROLLER (About / README / 404) ---
+ let activeOverlay = null;
+
+ function openOverlay(id) {
+ const el = document.getElementById(id);
+ if (!el) return;
+ if (activeOverlay && activeOverlay !== el) {
+ activeOverlay.classList.remove("is-open");
+ activeOverlay.setAttribute("aria-hidden", "true");
+ }
+ activeOverlay = el;
+ el.classList.add("is-open");
+ el.setAttribute("aria-hidden", "false");
+ const focusTarget =
+ el.querySelector("[data-modal-focus]") ||
+ el.querySelector("button, [href], textarea, input, select");
+ if (focusTarget && typeof focusTarget.focus === "function") {
+ focusTarget.focus();
+ }
+ }
+
+ function closeOverlay() {
+ if (!activeOverlay) return;
+ activeOverlay.classList.remove("is-open");
+ activeOverlay.setAttribute("aria-hidden", "true");
+ activeOverlay = null;
+ }
+
+ document.querySelectorAll("[data-open-overlay]").forEach((el) => {
+ el.addEventListener("click", () => {
+ const id = el.getAttribute("data-open-overlay");
+ if (id) openOverlay(id);
+ });
+ });
+
+ document.querySelectorAll("[data-overlay-close]").forEach((el) => {
+ el.addEventListener("click", () => closeOverlay());
+ });
+
+ document.addEventListener("keydown", (e) => {
+ if (e.key === "Escape") {
+ closeOverlay();
+ const devPanel = document.getElementById("devPanel");
+ if (devPanel) {
+ devPanel.classList.remove("is-open");
+ devPanel.setAttribute("aria-hidden", "true");
+ }
+ }
+ });
+
+ const title = document.getElementById("appTitle");
+ if (title) {
+ title.addEventListener("dblclick", () => openOverlay("aboutOverlay"));
+ }
+
+ if (global.location && global.location.hash === "#404") {
+ openOverlay("notFoundOverlay");
+ }
+ if (global.location && global.location.hash === "#home") {
+ if (activeOverlay) closeOverlay();
+ }
+
+ // STRING dsSplash controller
+(function(){
+ const root = document.getElementById("dsSplash");
+ if (!root) return;
+
+ const steps = Array.from(root.querySelectorAll(".ds-splash-step"));
+ const dots = Array.from(root.querySelectorAll(".ds-splash-dot"));
+ const btnNext = root.querySelector("[data-splash-next]");
+ const btnStart = root.querySelector("[data-splash-start]");
+ let currentStep = 1;
+
+ function setStep(step) {
+ currentStep = step;
+ steps.forEach((el, idx) => {
+ el.classList.toggle("active", idx === step - 1);
+ });
+ dots.forEach((dot, idx) => {
+ dot.classList.toggle("active", idx === step - 1);
+ });
+ }
+
+ if (btnNext) {
+ btnNext.addEventListener("click", () => {
+ const next = currentStep === 1 ? 2 : 1;
+ setStep(next);
+ });
+ }
+
+ if (btnStart) {
+ btnStart.addEventListener("click", () => {
+ root.classList.add("ds-splash-hidden");
+ // Allow any transition to play, then fully remove
+ setTimeout(() => {
+ root.remove();
+ }, 400);
+ });
+ }
+
+ // Optional: start on step 1 by default
+ setStep(1);
+})();
+
+})(window);
+</script>
+<!-- Shared helpers (kept alongside apps for single-folder deployment) -->
+<script src="/shared/global-polyfill.js?v=20251230"></script>
+<script src="/shared/ui-helpers.js?v=20251219"></script>
+<script src="/shared/ai-personas.js?v=20251219"></script>
+<script src="/shared/ai-diagnostics.js?v=20251219"></script>
+<script src="/shared/ai-engines.js?v=20251219" type="module"></script>
+<script src="/shared/forge-sdk.llm.js?v=20251219"></script>
+<script src="/shared/forge-llm-drivers.js?v=20251219" type="module"></script>
+<!-- removed legacy overlay wiring -->
+<script id="phase4-cleanup">
+/* PHASE4_CLEANUP: remove legacy splash/boot overlays + in-app advisor panels (Ask Althea stays) */
+(function(){
+ function isKeep(el){
+ const id=(el.id||"").toLowerCase();
+ const cls=(el.className||"").toString().toLowerCase();
+ // Keep Ask Althea / nexus shell bits
+ if (id.includes("althea") || id.includes("ask") || id.includes("nexus")) return true;
+ if (cls.includes("nexus") || cls.includes("althea")) return true;
+ return false;
+ }
+
+ function nukeSplash(){
+ const ids = [
+ "nexusBootOverlay","nexusBootTip","dsSplash","dsSplashOverlay","splashOverlay",
+ "splash","splashScreen","splashModal"
+ ];
+ ids.forEach(id=>{
+ const el=document.getElementById(id);
+ if(el) el.remove();
+ });
+ // common class patterns
+ document.querySelectorAll(
+ ".ds-splash,.ds-splash-overlay,.splash,.splash-overlay,.splash-screen, [data-splash]"
+ ).forEach(el=>{
+ // Don't remove normal stepper components that are not splash: guard by ancestor splash-ish
+ const looksSplash = (el.className||"").toString().toLowerCase().includes("splash") ||
+ (el.id||"").toLowerCase().includes("splash") ||
+ el.hasAttribute("data-splash");
+ if(looksSplash && !isKeep(el)) el.remove();
+ });
+
+ document.body.classList.remove("nexus-booting","booting","no-scroll","locked","modal-open");
+ document.documentElement.classList.remove("nexus-booting","booting","no-scroll","locked","modal-open");
+ document.body.style.overflow="";
+ document.documentElement.style.overflow="";
+ }
+
+ function nukeAdvisors(){
+ // remove/hide any AI advisor docks or panels, but keep Ask Althea
+ const sel = [
+ ".ai-advisors",".ai-advisor",".ai-panel",".ai-panels",".ai-tabs",".ai-tab",".ai-tabbar",
+ ".advisor",".advisors",".advisor-panel",".advisor-tabs",".advisor-dock",".advisorDock",
+ "[data-advisor]","[data-role='coach']","[data-role='critic']","[data-role='architect']",
+ "[data-advisor-panel]","[data-advisor-role]"
+ ].join(",");
+ document.querySelectorAll(sel).forEach(el=>{
+ if (isKeep(el)) return;
+ // If it contains Ask Althea controls, keep
+ const text=(el.textContent||"").toLowerCase();
+ if (text.includes("ask althea")) return;
+ el.remove();
+ });
+ }
+
+ function run(){
+ try{ nukeSplash(); }catch(e){}
+ try{ nukeAdvisors(); }catch(e){}
+ }
+
+ // run multiple times to catch late-inserted UI
+ window.addEventListener("DOMContentLoaded", run);
+ window.addEventListener("load", function(){
+ run();
+ setTimeout(run, 250);
+ setTimeout(run, 800);
+ setTimeout(run, 1500);
+ });
+})();
+</script>
+<!-- PHASE8_UI_CLEANUP (hard-disable all splash screens + hide any remaining advisor UI) -->
+<style id="phase8-ui-cleanup">
+ /* Hide any splash/intro overlays that can steal focus or slide the layout */
+ [id*="splash" i], [class*="splash" i], [data-splash], [data-stepper="splash"],
+.ds-splash-root,.ds-splash-overlay,.ds-splash-shell,.ds-splash-panel,
+.helix-splash,.helix-splash-root,.helix-splash-shell {
+ display:none !important;
+ visibility:hidden !important;
+ pointer-events:none !important;
+ }
+
+ /* Hide any legacy in-app advisors. Ask Althea remains as its own button/modal. */
+.ai-advisors,.ai-advisor,.ai-panel,.ai-panels,.ai-tabs,.ai-tab,.ai-tabbar,
+.advisor,.advisors,.advisor-panel,.advisor-tabs,.advisor-dock,.advisorDock,
+.advisor-tab, #aiAdvisorPanel, #aiAdvisorDock, #aiAdvisorModal, #aiAdvisor, #advisorPanel,
+ #advisorHeader, #advisorTabs, #advisorContent, #advisorLogs, #advisorInputRow,
+ [data-advisor], [data-advisor-panel], [data-advisor-role], [data-role="coach"], [data-role="critic"], [data-role="architect"] {
+ display:none !important;
+ visibility:hidden !important;
+ pointer-events:none !important;
+ }
+</style>
+<script>
+(() => {
+ const safeRemove = (el) => {
+ if (!el) return;
+ const id = (el.id || '').toLowerCase();
+ const cls = (el.className || '').toString().toLowerCase();
+ // Keep Ask Althea
+ if (id.includes('askalthea') || cls.includes('askalthea')) return;
+ if (el.closest && el.closest('#askAltheaModal')) return;
+ try { el.remove(); } catch(e) { try { el.parentNode && el.parentNode.removeChild(el); } catch(_) {} }
+ };
+
+ const removeSelectors = [
+ // Splash overlays
+ '[id*="splash" i]','[class*="splash" i]','[data-splash]','[data-stepper="splash"]',
+ '.ds-splash-root','.ds-splash-overlay','.ds-splash-shell','.ds-splash-panel',
+ '.helix-splash','.helix-splash-root','.helix-splash-shell',
+ '#splashOverlay','#ds-splash-overlay','#splash1','#splash2',
+ // Legacy advisor UI
+ '[id*="advisor" i]','[class*="advisor" i]','[data-advisor]','[data-advisor-panel]','[data-advisor-role]',
+ '.ai-advisors','.ai-advisor','.ai-panel','.ai-panels','.ai-tabs','.ai-tab','.ai-tabbar'
+ ];
+
+ try { removeSelectors.forEach(sel => document.querySelectorAll(sel).forEach(safeRemove)); } catch(e) {}
+
+ // Always unlock scroll even if earlier code tried to freeze the page.
+ try {
+ document.documentElement.classList.remove('no-scroll','modal-open','ds-splash-open','splash-open');
+ document.body.classList.remove('no-scroll','modal-open','ds-splash-open','splash-open');
+ document.documentElement.style.overflow = '';
+ document.body.style.overflow = '';
+ } catch(e) {}
+
+ // Neutralize common open/toggle globals if they exist.
+ const no = () => {};
+ [
+ 'toggleSplashOverlay','openSplash','showSplash','openSplashFlow','openSplashModal','openSplashScreen','showIntro',
+ 'openAdvisor','toggleAdvisor','showAdvisor','openAdvisors','toggleAdvisors','AIAdvisorsOpen'
+ ].forEach(k => { try { if (typeof window[k] === 'function') window[k] = no; } catch(e) {} });
+
+ // Mark known splash flags as seen so other code paths short-circuit.
+ try {
+ const keys = [
+ 'aeon_splashes_seen','anvil_splash_seen_v1','event_splash_seen_v1','helix_splash_seen_v1',
+ 'string_splash_seen_v1','tectonic_splash_seen_v1','transit_splash_seen_v1','vortex_splash_seen_v1','magma_splash_seen_v1'
+ ];
+ keys.forEach(k => { try { localStorage.setItem(k,'1'); } catch(_) {} });
+ } catch(e) {}
+})();
+</script>
+<script src="/shared/state-store.js?v=20251230"></script>
+<script src="/shared/telemetry-hub.js?v=20251230"></script>
+<script src="/shared/ai-router.js?v=20251230" type="module"></script>
+<script src="/shared/force-catch-clear.js?v=20251230"></script><script>
+/* Per-app Nexus routing: guarantees Readme/Help/404/Althea aren’t dead ends. */
+(() => {
+ const app = document.body.getAttribute("data-app") || window.APP_ID || "";
+ if(!app) return;
+ const map = {
+ home: "/index.html",
+ readme: `/readme/${app}/`,
+ help: `/help/${app}/`,
+ nf: `/404/${app}/`,
+ althea: `/althea/?app=${app}`
+ };
+ document.querySelectorAll('[data-nexus]').forEach(a => {
+ const k = a.getAttribute('data-nexus');
+ if(map[k]) a.setAttribute('href', map[k]);
+ });
+})();
+</script>
+<script src="/shared/app-settings.js?v=20260101"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>

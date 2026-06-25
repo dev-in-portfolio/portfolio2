@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Helios Canvas</title>
+  <style>
+    :root{ --border: rgba(255,255,255,.14); --glass: rgba(0,0,0,.44); --ui2: rgba(255,255,255,.58); }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; padding:0; background:#000; overflow:hidden; }
+
+    .stage{ position:relative; width:100%; height:100%; overflow:hidden; background:#000; }
+    canvas{ width:100%; height:100%; display:block; touch-action:none; transform: translateZ(0); will-change: transform; }
+
+    .hud{
+      position:absolute; left:14px; top:12px;
+      display:flex; gap:10px; align-items:baseline;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 3;
+      user-select:none;
+      pointer-events:none;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+    .hud .mode{ color: var(--ui2); font-size: 12px; }
+    .hud .pill{
+      margin-left: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      font-weight: 900;
+    }
+  </style></head>
+<body>
+<nav class="nxTopNav"></nav>
+>
+  <div class="stage" id="stage">
+    <div class="hud" aria-hidden="true">
+      <div class="mode" id="modeText">Charged calm</div>
+      <div class="pill" id="intensityText">Intensity 0.22</div>
+      <div class="pill" id="hotText">Hot A</div>
+    </div>
+    <canvas id="gl"></canvas>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById("gl");
+  const stage  = document.getElementById("stage");
+  const modeText = document.getElementById("modeText");
+  const intensityText = document.getElementById("intensityText");
+  const hotText = document.getElementById("hotText");
+
+  const gl = canvas.getContext("webgl2", {
+    alpha: false,
+    antialias: true,
+    depth: false,
+    stencil: false,
+    premultipliedAlpha: false,
+    preserveDrawingBuffer: false,
+    powerPreference: "high-performance",
+    desynchronized: true
+  });
+  if(!gl){
+    document.body.innerHTML = "<div style='color:#fff;font-family:system-ui;padding:16px'>WebGL2 not available on this device/browser.</div>";
+    return;
+  }
+
+  // ---- sizing / DPR ----
+  let dpr = 1, W = 0, H = 0;
+  function resize(){
+    const r = stage.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.max(320, Math.floor(r.width));
+    H = Math.max(320, Math.floor(r.height));
+
+    const bw = Math.floor(W * dpr);
+    const bh = Math.floor(H * dpr);
+
+    if(canvas.width !== bw || canvas.height !== bh){
+      canvas.width  = bw;
+      canvas.height = bh;
+      gl.viewport(0, 0, bw, bh);
+      gl.disable(gl.SCISSOR_TEST);
+      gl.clearColor(0,0,0,1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+  }
+  resize();
+  try { new ResizeObserver(resize).observe(stage); }
+  catch { window.addEventListener("resize", resize); }
+
+  // ---- shaders ----
+  const vs = `#version 300 es
+  precision highp float;
+  out vec2 vUV;
+  void main(){
+    vec2 p = vec2((gl_VertexID==1)?3.0:-1.0, (gl_VertexID==2)?3.0:-1.0);
+    vUV = 0.5*(p+1.0);
+    gl_Position = vec4(p, 0.0, 1.0);
+  }`;
+
+  const fs = `#version 300 es
+  precision highp float;
+
+  out vec4 fragColor;
+  in vec2 vUV;
+
+  uniform vec2  uRes;
+  uniform float uTime;
+  uniform float uIntensity;
+  uniform vec3  uCamPos;
+  uniform mat3  uCamRot;
+  uniform vec2  uPan;
+  uniform float uZoom;
+  uniform float uErupt;
+  uniform float uBoost;
+
+  uniform vec3  uHotA;
+  uniform vec3  uHotB;
+  uniform vec3  uHotC;
+  uniform float uHotSel;
+  uniform float uUfoT0;
+  uniform float uUfoY;
+  uniform float uUfoDir;
+
+  uint hash_u32(uint x){
+    x ^= x >> 16;
+    x *= 0x7feb352du;
+    x ^= x >> 15;
+    x *= 0x846ca68bu;
+    x ^= x >> 16;
+    return x;
+  }
+  float hash(vec3 p){
+    uvec3 q = uvec3(floatBitsToUint(p.x), floatBitsToUint(p.y), floatBitsToUint(p.z));
+    uint h = hash_u32(q.x ^ hash_u32(q.y + 0x9e3779b9u) ^ hash_u32(q.z + 0x7f4a7c15u));
+    return float(h) / 4294967295.0;
+  }
+  float noise3(vec3 p){
+    vec3 i = floor(p);
+    vec3 f = fract(p);
+    f = f*f*(3.0-2.0*f);
+
+    float n000 = hash(i+vec3(0,0,0));
+    float n100 = hash(i+vec3(1,0,0));
+    float n010 = hash(i+vec3(0,1,0));
+    float n110 = hash(i+vec3(1,1,0));
+    float n001 = hash(i+vec3(0,0,1));
+    float n101 = hash(i+vec3(1,0,1));
+    float n011 = hash(i+vec3(0,1,1));
+    float n111 = hash(i+vec3(1,1,1));
+
+    float nx00 = mix(n000,n100,f.x);
+    float nx10 = mix(n010,n110,f.x);
+    float nx01 = mix(n001,n101,f.x);
+    float nx11 = mix(n011,n111,f.x);
+
+    float nxy0 = mix(nx00,nx10,f.y);
+    float nxy1 = mix(nx01,nx11,f.y);
+
+    return mix(nxy0,nxy1,f.z);
+  }
+  float fbm(vec3 p){
+    float a = 0.55;
+    float s = 0.0;
+    float f = 1.0;
+    for(int i=0;i<6;i++){
+      s += a * (noise3(p*f)*2.0-1.0);
+      f *= 2.0;
+      a *= 0.5;
+      p += vec3(11.7, 7.2, 3.9);
+    }
+    return s;
+  }
+
+  float sat(float x){ return clamp(x, 0.0, 1.0); }
+  float sdSphere(vec3 p, float r){ return length(p)-r; }
+
+  bool raySphere(vec3 ro, vec3 rd, float r, out float tHit){
+    float b = dot(ro, rd);
+    float c = dot(ro, ro) - r*r;
+    float h = b*b - c;
+    if(h < 0.0) return false;
+    h = sqrt(h);
+    float t0 = -b - h;
+    float t1 = -b + h;
+    tHit = (t0 > 0.0) ? t0 : t1;
+    return tHit > 0.0;
+  }
+
+  vec3 sunColor(float heat){
+    vec3 deep = vec3(0.55, 0.05, 0.08);
+    vec3 red  = vec3(0.95, 0.16, 0.08);
+    vec3 org  = vec3(1.05, 0.38, 0.10);
+    vec3 hot  = vec3(1.12, 0.78, 0.42);
+    vec3 c = mix(deep, red, smoothstep(0.05, 0.45, heat));
+    c = mix(c, org,  smoothstep(0.35, 0.72, heat));
+    c = mix(c, hot,  smoothstep(0.62, 1.00, heat));
+    return c;
+  }
+
+  float angMask(vec3 a, vec3 b, float sharp){
+    float d = dot(a, b);
+    return pow(sat((d - 0.6) / 0.4), sharp);
+  }
+
+  float hotspotField(vec3 n, float t, out vec3 hotDir){
+    float a = angMask(n, uHotA, 6.0) * (0.65 + 0.35*sin(t*0.7 + 1.1));
+    float b = angMask(n, uHotB, 7.0) * (0.65 + 0.35*sin(t*0.6 + 2.7));
+    float c = angMask(n, uHotC, 5.5) * (0.65 + 0.35*sin(t*0.8 + 0.2));
+
+    if(a > b && a > c) hotDir = uHotA;
+    else if(b > c)     hotDir = uHotB;
+    else               hotDir = uHotC;
+
+    return sat(a + b + c);
+  }
+
+  vec3 selectedHotDir(){
+    float a = 1.0 - step(0.5, abs(uHotSel - 0.0));
+    float b = 1.0 - step(0.5, abs(uHotSel - 1.0));
+    float c = 1.0 - step(0.5, abs(uHotSel - 2.0));
+    vec3 dir = normalize(uHotA*a + uHotB*b + uHotC*c);
+    return dir;
+  }
+
+  float magneticBands(vec3 n, float t, float hot, float limb){
+    float a = atan(n.z, n.x);
+    float y = n.y;
+
+    float w = 0.35*sin(a*3.0 + t*0.9) + 0.22*sin(y*2.2 - t*0.7);
+    float b1 = sin(a*10.0 + w*2.6 + t*1.6);
+    float b2 = sin(a*18.0 - w*1.4 - t*1.1);
+    float band = 0.5 + 0.5*(0.65*b1 + 0.35*b2);
+
+    band = smoothstep(0.55, 0.92, band);
+    float gain = (0.25 + 0.85*limb) * (0.35 + 1.25*hot);
+    return band * gain;
+  }
+
+  float eruptionJets(vec3 p, vec3 dir, float t, float pulse){
+    vec3 origin = dir * 1.00;
+
+    vec3 up = vec3(0.0, 1.0, 0.0);
+    vec3 bend = normalize(cross(dir, up) + 0.0001);
+    vec3 jetDir = normalize(dir + bend*(0.35*pulse));
+
+    vec3 v = p - origin;
+    float along = dot(v, jetDir);
+    vec3  perp  = v - jetDir*along;
+
+    float curl = 0.25 * pulse * smoothstep(0.0, 1.2, along);
+    perp += bend * curl * along;
+
+    float width = mix(0.06, 0.22, pulse);
+    float core = exp(-dot(perp,perp)/(width*width));
+    float fall = smoothstep(-0.1, 1.6, along) * (1.0 - smoothstep(0.5, 2.6, along));
+
+    float n = fbm(p*2.7 + vec3(0.0, t*0.7, t*0.4));
+    float rag = smoothstep(-0.25, 0.55, n);
+
+    return core * fall * rag;
+  }
+
+  float ribbonSheets(vec3 p, float t){
+    float a = atan(p.z, p.x);
+    float y = p.y;
+    float r = length(p.xz);
+
+    float n = fbm(vec3(a*3.0, y*2.0, t*0.15));
+    float sheet = sin(a*14.0 + t*1.2 + n*2.2);
+    sheet = smoothstep(0.70, 1.00, sheet);
+    float shell = exp(-abs(r-1.22)*7.0) + 0.55*exp(-abs(r-1.32)*8.0);
+    return sheet * shell;
+  }
+
+  float debrisField(vec2 uv, float t){
+    float s1 = noise3(vec3(uv*vec2(140.0, 90.0), t*0.25));
+    float s2 = noise3(vec3(uv*vec2(90.0,  120.0) + vec2(1.7,3.1), t*0.18));
+    float p = smoothstep(0.985, 1.0, s1) * 0.9 + smoothstep(0.988, 1.0, s2) * 0.7;
+    return p;
+  }
+
+  float starField(vec2 uv, float t, float asp){
+    vec2 u = uv*vec2(asp,1.0);
+    float n1 = noise3(vec3(u*18.0, t*0.01));
+    float n2 = noise3(vec3(u*32.0 + vec2(3.2,1.1), t*0.013));
+    float s = smoothstep(0.955, 1.0, n1)*0.55 + smoothstep(0.972, 1.0, n2)*0.45;
+    return s;
+  }
+
+  vec3 ufo(vec2 uv, float t, float asp){
+    float dt = t - uUfoT0;
+    float life = 2.8;
+    float a = sat(1.0 - abs(dt - life*0.5)/(life*0.5));
+    if(a <= 0.0) return vec3(0.0);
+
+    float x = mix(-0.15, 1.15, sat(dt/life));
+    if(uUfoDir < 0.0) x = 1.0 - x;
+    float y = 0.50 + 0.18*uUfoY;
+
+    vec2 p = vec2((uv.x - x)*asp, (uv.y - y));
+
+    float body = exp(-(p.x*p.x*90.0 + p.y*p.y*900.0));
+    float dome = exp(-(p.x*p.x*180.0 + (p.y+0.015)*(p.y+0.015)*2200.0));
+    float glow = exp(-(p.x*p.x*50.0 + (p.y-0.01)*(p.y-0.01)*1400.0));
+
+    vec3 c = vec3(0.0);
+    c += vec3(0.20,0.95,1.20) * glow * 0.65 * a;
+    c += vec3(1.20,1.05,0.60) * body * 0.35 * a;
+    c += vec3(0.45,0.95,1.25) * dome * 0.55 * a;
+
+    float trail = exp(-((p.x+0.06)*(p.x+0.06)*40.0 + p.y*p.y*1600.0));
+    c += vec3(0.22,0.75,1.10) * trail * 0.45 * a;
+
+    return c;
+  }
+
+  vec3 tonemapFilmic(vec3 c){
+    c = max(c, 0.0);
+    c = (c*(2.51*c + 0.03)) / (c*(2.43*c + 0.59) + 0.14);
+    return c;
+  }
+
+  void main(){
+    vec2 uv = (gl_FragCoord.xy + 0.5) / uRes;
+    uv = clamp(uv, 0.0, 1.0);
+
+    vec2 px = uv * uRes;
+    float asp = uRes.x / uRes.y;
+
+    vec2 ndc = uv*2.0 - 1.0;
+    ndc.x *= asp;
+
+    vec2 p = ndc + uPan;
+    float fov = mix(1.10, 0.74, clamp(uZoom, 0.0, 1.0));
+
+    vec3 rd = normalize(uCamRot * vec3(p, -fov));
+    vec3 ro = uCamPos;
+
+    vec3 starCenter = vec3(0.35, -0.25, 0.0);
+    vec3 ro2 = ro - starCenter;
+
+    float tt = uTime;
+    float pulse = uErupt;
+
+    float stars = starField(uv + vec2(sin(tt*0.03)*0.002, cos(tt*0.025)*0.002), tt, asp);
+    float neb = fbm(vec3((uv*vec2(asp,1.0))*2.2, tt*0.03));
+    vec3 bg = vec3(0.006,0.010,0.020) + vec3(0.02,0.04,0.10)*max(0.0, neb)*0.22;
+    bg += vec3(0.70,0.85,1.00)*stars*0.55;
+
+    float emb = debrisField(uv + vec2(tt*0.01, -tt*0.008), tt) * (0.10 + 0.22*uIntensity);
+    bg += vec3(1.15,0.52,0.14) * emb * 0.65;
+
+    vec3 col = bg;
+
+    vec3 probe = normalize(ro2 + rd*1.6);
+    float limbProxy = pow(1.0 - sat(dot(probe, -rd)), 1.3);
+
+    vec3 hotDirProbe = uHotA;
+    float hotProbe = hotspotField(probe, tt, hotDirProbe);
+
+    float d = sdSphere(ro2 + rd*1.8, 1.0);
+    float corona = exp(-abs(d)*1.9) * (0.20 + 0.60*uIntensity);
+
+    float bandProbe = magneticBands(probe, tt, hotProbe, limbProxy);
+
+    col += vec3(0.08, 0.42, 0.95) * bandProbe * corona * (0.65 + 0.55*uIntensity);
+    col += vec3(1.05, 0.36, 0.10) * corona * (0.30 + 0.55*uIntensity);
+    col += vec3(1.15, 0.58, 0.18) * hotProbe * corona * (0.35 + 0.75*uIntensity);
+
+    float sheet = ribbonSheets(probe, tt) * (0.35 + 0.85*uIntensity);
+    col += vec3(0.10,0.55,1.10) * sheet * 0.38;
+    col += vec3(1.15,0.45,0.12) * sheet * 0.22;
+
+    float jets = eruptionJets(probe, hotDirProbe, tt, pulse) * (0.30 + 0.90*uIntensity);
+    col += vec3(1.25, 0.55, 0.14) * jets * (1.15 + 1.15*pulse);
+    col += vec3(0.12, 0.65, 1.15) * jets * (0.35 + 0.65*pulse);
+
+    float tHit;
+    if(raySphere(ro2, rd, 1.00, tHit)){
+      vec3 ph = ro2 + rd*tHit;
+      vec3 n  = normalize(ph);
+
+      float conv = fbm(n*5.0 + vec3(0.0, tt*0.14*uBoost, tt*0.09));
+      float gran = fbm(n*18.0 + vec3(17.0, 9.0, tt*0.50));
+      float heat = 0.54 + 0.28*conv + 0.18*gran;
+      heat = clamp(heat, 0.0, 1.0);
+
+      vec3 L = normalize(vec3(-0.35, 0.55, -0.75));
+      float ndl = clamp(dot(n, L), 0.0, 1.0);
+
+      float view = clamp(dot(n, -rd), 0.0, 1.0);
+      float rim  = pow(1.0 - view, 2.1);
+      float limb = pow(view, 0.58);
+
+      vec3 surf = sunColor(heat);
+      vec3 lit = surf * (0.12 + 1.05*ndl);
+      lit *= mix(0.60, 1.10, limb);
+
+      lit += vec3(1.10,0.30,0.08) * rim * (0.32 + 0.55*uIntensity);
+
+      vec3 hotDir = uHotA;
+      float hot = hotspotField(n, tt, hotDir);
+
+      float bandsSurf = magneticBands(n, tt, hot, (1.0 - limb));
+      lit += vec3(0.12, 0.70, 1.15) * bandsSurf * (0.18 + 0.45*uIntensity);
+      lit += vec3(1.10, 0.42, 0.12) * bandsSurf * (0.10 + 0.28*uIntensity);
+
+      lit += vec3(1.25, 0.62, 0.22) * hot * (0.22 + 0.55*uIntensity);
+      lit += vec3(0.18, 0.75, 1.20) * hot * (0.08 + 0.22*uIntensity);
+
+      vec3 jetDir = selectedHotDir();
+      float eSurf = eruptionJets(n, jetDir, tt, pulse);
+      lit += vec3(1.30, 0.62, 0.20) * eSurf * (0.35 + 0.85*uIntensity) * (0.65 + 0.85*pulse);
+      lit += vec3(0.12, 0.65, 1.25) * eSurf * (0.10 + 0.35*uIntensity) * (0.45 + 0.65*pulse);
+
+      col = lit + col*0.05;
+    }
+
+    col += ufo(uv, tt, asp);
+
+    float vv = smoothstep(1.15, 0.22, length((uv-0.5)*vec2(asp,1.0)));
+    col *= (0.80 + 0.35*vv);
+
+    float g = noise3(vec3(px*0.55, tt*11.0));
+    col *= (0.988 + 0.028*(g-0.5));
+
+    col = tonemapFilmic(col);
+    col = pow(col, vec3(0.90));
+
+    fragColor = vec4(col, 1.0);
+  }`;
+
+  function compile(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+      console.error(gl.getShaderInfoLog(s));
+      throw new Error("Shader compile failed");
+    }
+    return s;
+  }
+  function program(vsSrc, fsSrc){
+    const p = gl.createProgram();
+    gl.attachShader(p, compile(gl.VERTEX_SHADER, vsSrc));
+    gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fsSrc));
+    gl.linkProgram(p);
+    if(!gl.getProgramParameter(p, gl.LINK_STATUS)){
+      console.error(gl.getProgramInfoLog(p));
+      throw new Error("Program link failed");
+    }
+    return p;
+  }
+
+  const prog = program(vs, fs);
+  gl.useProgram(prog);
+
+  const uRes = gl.getUniformLocation(prog, "uRes");
+  const uTime = gl.getUniformLocation(prog, "uTime");
+  const uIntensity = gl.getUniformLocation(prog, "uIntensity");
+  const uCamPos = gl.getUniformLocation(prog, "uCamPos");
+  const uCamRot = gl.getUniformLocation(prog, "uCamRot");
+  const uPan = gl.getUniformLocation(prog, "uPan");
+  const uZoom = gl.getUniformLocation(prog, "uZoom");
+  const uErupt = gl.getUniformLocation(prog, "uErupt");
+  const uBoost = gl.getUniformLocation(prog, "uBoost");
+
+  const uHotA = gl.getUniformLocation(prog, "uHotA");
+  const uHotB = gl.getUniformLocation(prog, "uHotB");
+  const uHotC = gl.getUniformLocation(prog, "uHotC");
+  const uHotSel = gl.getUniformLocation(prog, "uHotSel");
+
+  const uUfoT0 = gl.getUniformLocation(prog, "uUfoT0");
+  const uUfoY  = gl.getUniformLocation(prog, "uUfoY");
+  const uUfoDir= gl.getUniformLocation(prog, "uUfoDir");
+
+  function norm3(v){
+    const l = Math.hypot(v[0],v[1],v[2]) || 1;
+    return [v[0]/l, v[1]/l, v[2]/l];
+  }
+  const hotA = norm3([-0.62,  0.32, -0.18]);
+  const hotB = norm3([-0.40,  0.10,  0.38]);
+  const hotC = norm3([-0.70, -0.08,  0.10]);
+
+  gl.uniform3f(uHotA, hotA[0], hotA[1], hotA[2]);
+  gl.uniform3f(uHotB, hotB[0], hotB[1], hotB[2]);
+  gl.uniform3f(uHotC, hotC[0], hotC[1], hotC[2]);
+
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const lerp  = (a,b,t)=>a+(b-a)*t;
+
+  function normalize(v){
+    const l = Math.hypot(v[0],v[1],v[2]) || 1;
+    return [v[0]/l,v[1]/l,v[2]/l];
+  }
+  function cross(a,b){
+    return [
+      a[1]*b[2]-a[2]*b[1],
+      a[2]*b[0]-a[0]*b[2],
+      a[0]*b[1]-a[1]*b[0]
+    ];
+  }
+  function rotFromYawPitch(y,p){
+    const cy = Math.cos(y), sy = Math.sin(y);
+    const cp = Math.cos(p), sp = Math.sin(p);
+    const forward = normalize([ sy*cp, sp, cy*cp ]);
+    const right   = normalize([ cy, 0, -sy ]);
+    const up      = cross(right, forward);
+    return [
+      right[0], up[0], forward[0],
+      right[1], up[1], forward[1],
+      right[2], up[2], forward[2],
+    ];
+  }
+
+  let yaw = -0.35, pitch = 0.22;
+  let targetYaw = yaw, targetPitch = pitch;
+
+  let zoom = 0.45, targetZoom = zoom;
+  let panX = 0.0, panY = 0.0;
+  let targetPanX = 0.0, targetPanY = 0.0;
+
+  let vyaw = 0, vpitch = 0, vzoom = 0, vpanx = 0, vpany = 0;
+
+  const pts = new Map();
+  let pinchStartDist = 0;
+  let pinchStartZoom = targetZoom;
+  let twoStartMid = null;
+  let twoStartPan = null;
+
+  function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+  function mid(a,b){ return { x:(a.x+b.x)/2, y:(a.y+b.y)/2 }; }
+
+  canvas.addEventListener("pointerdown", (e) => {
+    canvas.setPointerCapture(e.pointerId);
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+    if(pts.size === 2){
+      const arr = [...pts.values()];
+      pinchStartDist = dist(arr[0], arr[1]);
+      pinchStartZoom = targetZoom;
+      twoStartMid = mid(arr[0], arr[1]);
+      twoStartPan = { x: targetPanX, y: targetPanY };
+    }
+  }, {passive:true});
+
+  canvas.addEventListener("pointermove", (e) => {
+    if(!pts.has(e.pointerId)) return;
+
+    const prev = pts.get(e.pointerId);
+    const cur = {x:e.clientX, y:e.clientY};
+    pts.set(e.pointerId, cur);
+
+    if(pts.size === 1){
+      const dx = cur.x - prev.x;
+      const dy = cur.y - prev.y;
+      const s = 0.006;
+      targetYaw   += dx * s;
+      targetPitch += dy * s;
+      targetPitch = clamp(targetPitch, -0.85, 0.85);
+      vyaw = dx*s*12;
+      vpitch = dy*s*12;
+      return;
+    }
+
+    if(pts.size === 2){
+      const arr = [...pts.values()];
+      const d = dist(arr[0], arr[1]);
+      const m = mid(arr[0], arr[1]);
+
+      if(pinchStartDist > 0){
+        const scale = pinchStartDist / Math.max(1.0, d);
+        targetZoom = clamp(pinchStartZoom + (scale-1.0)*0.85, 0.0, 1.0);
+        vzoom = (targetZoom - zoom) * 10.0;
+      }
+
+      if(twoStartMid && twoStartPan){
+        const mdx = (m.x - twoStartMid.x) / 900.0;
+        const mdy = (m.y - twoStartMid.y) / 900.0;
+        targetPanX = clamp(twoStartPan.x + mdx, -0.25, 0.25);
+        targetPanY = clamp(twoStartPan.y - mdy, -0.25, 0.25);
+        vpanx = mdx*18;
+        vpany = (-mdy)*18;
+      }
+    }
+  }, {passive:true});
+
+  function endPointer(e){
+    pts.delete(e.pointerId);
+    if(pts.size < 2){
+      pinchStartDist = 0;
+      twoStartMid = null;
+      twoStartPan = null;
+    }
+  }
+  canvas.addEventListener("pointerup", endPointer, {passive:true});
+  canvas.addEventListener("pointercancel", endPointer, {passive:true});
+
+  canvas.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const dz = Math.sign(e.deltaY) * 0.06;
+    targetZoom = clamp(targetZoom + dz, 0.0, 1.0);
+    vzoom = dz * 10;
+  }, {passive:false});
+
+  let phase = "calm";
+  let phaseT = 0;
+  let intensity = 0.22;
+  let boost = 1.0;
+  let eruptPulse = 0.0;
+  let nextEventIn = 4.8 + Math.random()*3.0;
+
+  let hotSel = 0;
+
+  let ufoT0 = -9999;
+  let ufoY = 0.0;
+  let ufoDir = 1.0;
+  let nextUfoIn = 6.5 + Math.random()*8.0;
+
+  function setPhase(p){ phase = p; phaseT = 0; }
+
+  function rotateHot(){
+    hotSel = (hotSel + 1) % 3;
+    hotText.textContent = hotSel===0 ? "Hot A" : hotSel===1 ? "Hot B" : "Hot C";
+  }
+
+  function updatePhase(dt){
+    phaseT += dt;
+
+    if(phase === "calm"){
+      intensity = lerp(intensity, 0.22, 0.04);
+      nextEventIn -= dt;
+      if(nextEventIn <= 0){
+        setPhase("ramp");
+        nextEventIn = 5.2 + Math.random()*3.3;
+        eruptPulse = 1.0;
+        rotateHot();
+      }
+      modeText.textContent = "Charged calm";
+    } else if(phase === "ramp"){
+      intensity = lerp(intensity, 0.58, 0.10);
+      if(phaseT > (0.9 + Math.random()*0.6)) setPhase("erupt");
+      modeText.textContent = "Magnetic ramp";
+    } else if(phase === "erupt"){
+      intensity = lerp(intensity, 0.96, 0.18);
+      if(phaseT > (1.2 + Math.random()*1.0)) setPhase("cool");
+      modeText.textContent = "Cinematic eruption";
+    } else if(phase === "cool"){
+      intensity = lerp(intensity, 0.30, 0.08);
+      if(phaseT > (1.6 + Math.random()*1.0)) setPhase("calm");
+      modeText.textContent = "Afterglow";
+    }
+
+    intensity = clamp(intensity, 0.15, 1.0);
+    intensityText.textContent = "Intensity " + intensity.toFixed(2);
+
+    eruptPulse = Math.max(0.0, eruptPulse - dt*(phase==="erupt" ? 0.30 : 0.75));
+  }
+
+  let t = 0;
+  let lastT = performance.now();
+
+  function tick(now){
+    resize();
+
+    const rawDt = (now - lastT) / 1000;
+    lastT = now;
+    const dt = clamp(rawDt, 0.0, 0.05);
+
+    t += dt * boost;
+
+    nextUfoIn -= dt;
+    if(nextUfoIn <= 0){
+      ufoT0 = t;
+      ufoY = (Math.random()*2 - 1);
+      ufoDir = (Math.random() < 0.5) ? -1.0 : 1.0;
+      nextUfoIn = 6.5 + Math.random()*10.5;
+    }
+
+    const damp = 1.0 - Math.pow(0.001, dt);
+
+    targetYaw   += vyaw*dt;
+    targetPitch += vpitch*dt;
+    targetZoom  = clamp(targetZoom + vzoom*dt, 0.0, 1.0);
+    targetPanX  = clamp(targetPanX + vpanx*dt, -0.25, 0.25);
+    targetPanY  = clamp(targetPanY + vpany*dt, -0.25, 0.25);
+
+    vyaw   *= (1.0 - 6.0*dt);
+    vpitch *= (1.0 - 6.0*dt);
+    vzoom  *= (1.0 - 8.0*dt);
+    vpanx  *= (1.0 - 8.0*dt);
+    vpany  *= (1.0 - 8.0*dt);
+
+    yaw   = lerp(yaw, targetYaw, damp*0.35);
+    pitch = lerp(pitch, targetPitch, damp*0.35);
+    zoom  = lerp(zoom, targetZoom, damp*0.35);
+    panX  = lerp(panX, targetPanX, damp*0.35);
+    panY  = lerp(panY, targetPanY, damp*0.35);
+
+    updatePhase(dt);
+
+    const distCam = lerp(2.6, 1.55, zoom);
+    const cy = Math.cos(yaw), sy = Math.sin(yaw);
+    const cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const cam = [ sy*cp*distCam, sp*distCam, cy*cp*distCam ];
+
+    const rot = rotFromYawPitch(yaw, pitch);
+
+    gl.useProgram(prog);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTime, t);
+    gl.uniform1f(uIntensity, intensity);
+    gl.uniform3f(uCamPos, cam[0], cam[1], cam[2]);
+    gl.uniformMatrix3fv(uCamRot, false, rot);
+    gl.uniform2f(uPan, panX, panY);
+    gl.uniform1f(uZoom, zoom);
+    gl.uniform1f(uErupt, eruptPulse);
+    gl.uniform1f(uBoost, boost);
+
+    gl.uniform1f(uHotSel, hotSel);
+    gl.uniform1f(uUfoT0, ufoT0);
+    gl.uniform1f(uUfoY,  ufoY);
+    gl.uniform1f(uUfoDir,ufoDir);
+
+    gl.disable(gl.SCISSOR_TEST);
+    gl.clearColor(0,0,0,1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.disable(gl.BLEND);
+    gl.disable(gl.DEPTH_TEST);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+
+  // ---- external hooks (shell controls) ----
+  window.__helios_setIntensity = (v) => { try { intensity = Math.max(0.15, Math.min(1.0, v)); } catch(e){} };
+  window.__helios_setZoom      = (v) => { try { targetZoom = Math.max(0.0, Math.min(1.0, v)); } catch(e){} };
+  window.__helios_setBoost     = (v) => { try { boost = Math.max(1.0, Math.min(3.0, v)); } catch(e){} };
+  window.__helios_eruptNow     = ()  => { try { setPhase("ramp"); nextEventIn = 5.5 + Math.random()*3.0; eruptPulse = 1.0; rotateHot(); } catch(e){} };
+
+})();
+</script>
+
+<script>
+window.addEventListener("message", (ev) => {
+  const d = ev.data || {};
+  if(d.type !== "helios-control") return;
+  if(typeof window.__helios_setIntensity === "function" && typeof d.intensity === "number") window.__helios_setIntensity(d.intensity);
+  if(typeof window.__helios_setZoom === "function"      && typeof d.zoom === "number")      window.__helios_setZoom(d.zoom);
+  if(typeof window.__helios_setBoost === "function"     && typeof d.boost === "number")     window.__helios_setBoost(d.boost);
+  if(d.eruptNow && typeof window.__helios_eruptNow === "function") window.__helios_eruptNow();
+});
+</script>
+</body>
+</html>

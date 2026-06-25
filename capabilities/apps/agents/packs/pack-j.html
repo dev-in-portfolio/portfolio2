@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Pack J — Web QA + Growth</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="wrap">
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Pack J — Web QA + Growth</h1>
+<p class="muted">A curated set of agents with a shared permission &amp; risk profile.</p>
+<div class="kv">
+<a class="btn primary" download="" href="/apps/agents/assets/packs/pack-j.agentpack.zip">Download pack-j.agentpack.zip</a>
+</div>
+<div class="sep"></div>
+<h3>Pack permissions</h3>
+<div class="kv"><span class="tag">No special permissions</span></div>
+<div class="sep"></div>
+<h3>Quickstart</h3>
+<ul class="muted" style="margin-top:8px">
+<li>Download the pack bundle.</li>
+<li>Unzip it locally and review <code>pack.json</code> + each agent stub.</li>
+<li>Use the Local Runner to install (demo) packs, then run agents against demo targets.</li>
+</ul>
+<div class="sep"></div>
+<h3>Agents in this pack</h3>
+<div class="grid">
+<a class="card" href="/apps/agents/store/broken-link-crawler-qa-web.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Broken Link Crawler (QA / Web)</h3>
+<p class="muted" style="margin:0 0 10px">Spiders a starting URL, extracts all hyperlinks (&lt;a href="..."&gt;), and sends HTTP HEAD/GET requests to verify they are accessible (Status 200). Detects dead links ("link rot").</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/html-scraper-agent-lightweight-web.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">HTML Scraper Agent (Lightweight Web)</h3>
+<p class="muted" style="margin:0 0 10px">Uses cheerio (jQuery for server-side) to scrape static HTML pages. Faster and more lightweight than Playwright for sites that don't need JavaScript execution.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+<a class="card" href="/apps/agents/store/reddit-scraper-social.html" style="text-decoration:none; color:inherit">
+<h3 style="margin:0 0 6px">Reddit Scraper (Social)</h3>
+<p class="muted" style="margin:0 0 10px">Pulls the top posts from a specific subreddit (title, score, link) and saves them as a structured JSON report. Great for trend monitoring.</p>
+<div class="kv">
+<span class="tag">spec</span>
+<span class="tag">No permissions</span>
+</div>
+</a>
+</div>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.4.1</div>
+</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

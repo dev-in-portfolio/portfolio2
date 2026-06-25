@@ -1,0 +1,1585 @@
+{
+ "version": "fallback-phase2-2025-12-21",
+ "apps": {
+ "Aeon": {
+ "title": "Aeon",
+ "summary": "Orbital/space sandbox for exploring gravity-driven motion and camera modes.",
+ "faqs": [
+ {
+ "q": "What is Aeon and what is it demonstrating?",
+ "a": "Aeon is an interactive orbital sandbox. It\u2019s meant to show how simple gravity + initial conditions (position, velocity, mass, time step) produce stable or unstable motion. The goal is intuition: small changes in speed or distance can flip an orbit into a crash or escape.",
+ "tags": [
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What should I do first in Aeon?",
+ "a": "Start from a default/preset state, then make one change at a time. Increase velocity a little to see a stable orbit, then decrease it to see decay. If there\u2019s a reset button/preset selector, use that often\u2014Aeon is designed for quick iteration.",
+ "tags": [
+ "readme",
+ "reset"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "How do I get a stable orbit instead of a crash or ejection?",
+ "a": "Use a modest starting distance and adjust velocity gradually. If you keep crashing: increase speed slightly or start farther out. If you keep escaping: reduce speed slightly or start closer in. Stability usually comes from small incremental changes, not big jumps.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "The orbit turns chaotic\u2014bug or feature?",
+ "a": "Mostly feature. When multiple influences or aggressive settings are used (higher speeds, close passes, larger masses, big time steps), the simulation can become sensitive and look chaotic. If it\u2019s too wild to learn from, lower the time step/quality and return to a baseline preset.",
+ "tags": [
+ "performance",
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "How do I use the camera controls effectively?",
+ "a": "Pick a single target/focus mode first (follow/center). Then orbit the camera gently and avoid rapid zoom changes while the sim is running. If there\u2019s a \u201chero\u201d or \u201cfollow\u201d camera, use it to keep the subject centered while you tweak parameters.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "Why does Aeon sometimes not fill the screen?",
+ "a": "Aeon relies on full-viewport layout rules. If the browser UI changes height (mobile address bar) or a parent container isn\u2019t flexed, the workspace can appear \u2018boxed.\u2019 A refresh after orientation change typically re-measures the viewport.",
+ "tags": [
+ "ai",
+ "layout",
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I reset to a known-good baseline?",
+ "a": "Use the app\u2019s reset/preset controls. If not, reload the page. Aeon is intended to be reset frequently so you can compare one change against a consistent baseline.",
+ "tags": [
+ "ai",
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "What is the quickest way to show portfolio 'wow' in Aeon?",
+ "a": "Demonstrate a stable orbit, then intentionally push it into an interesting but understandable failure (spiral-in or escape) while explaining the cause. The \u2018wow\u2019 is that you can predict what will happen based on the parameter change.",
+ "tags": [
+ "ai",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "Is Aeon usable on mobile?",
+ "a": "Yes, but it depends on device power. Use simpler camera motion, avoid extreme settings, and keep quality/performance options conservative. If a \u2018MOBILE\u2019 badge is shown, it means the interaction model is touch-friendly\u2014not that it\u2019s lightweight.",
+ "tags": [
+ "gesture",
+ "mobile",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What do HEAVY / MOBILE / FAST badges mean here?",
+ "a": "MOBILE means touch-friendly and usable on phones/tablets. FAST means it loads quickly and stays responsive on typical devices. HEAVY means it may tax GPU/CPU and benefits from lower quality settings or desktop hardware.",
+ "tags": [
+ "gesture",
+ "layout",
+ "mobile",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "The sim feels jittery\u2014what should I change?",
+ "a": "Lower visual quality, reduce effects, and if there\u2019s a time-step/simulation speed control, reduce it. Jitter often comes from asking the device to render too much while also simulating at a high rate.",
+ "tags": [
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I interpret what I\u2019m seeing?",
+ "a": "Look for three patterns: stable repeating paths (stable orbit), tightening spiral (energy loss / unstable configuration), and widening trajectory (escape). Your changes to speed, distance, and mass primarily shift the balance between those.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "Can I pause or step the simulation?",
+ "a": "If Aeon includes pause/step controls, use pause to set up a clean initial condition and step to observe tight interactions. If it doesn\u2019t, the safest approach is slowing the sim rate and making one change at a time.",
+ "tags": [
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for Aeon?",
+ "a": "Ask: \u201cGiven a circular orbit goal, should I increase or decrease speed from this starting distance?\u201d and include your current distance/speed values. You\u2019ll get better answers if you paste the exact slider values.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I export/share a cool moment?",
+ "a": "Use the app\u2019s snapshot/screenshot feature when available. If not, take a browser screenshot after pausing at a clean frame, and include the settings you used so the moment is reproducible.",
+ "tags": [
+ "export",
+ "layout",
+ "readme"
+ ]
+ }
+ ]
+ },
+ "Anvil": {
+ "title": "Anvil",
+ "summary": "A parameter-driven builder/sandbox meant for experimentation, iteration, and snapshots.",
+ "faqs": [
+ {
+ "q": "What is Anvil and what is it for?",
+ "a": "Anvil is a tuning sandbox. It\u2019s designed to let you adjust a handful of parameters, see results immediately, and capture a configuration that \u2018works\u2019 (a snapshot). It\u2019s more about exploration and iteration than a single correct answer.",
+ "tags": [
+ "export",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What should I do first in Anvil?",
+ "a": "Start from the default state, then adjust one control at a time. Your goal is to learn which controls have the biggest impact, then refine. If there\u2019s a preset selector, test 2\u20133 presets before you start custom tuning.",
+ "tags": [
+ "readme",
+ "reset"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "How do I get more consistent results?",
+ "a": "Use smaller changes and avoid adjusting multiple knobs at once. If there\u2019s any randomness, reduce it or keep it fixed while you tune. Save snapshots when you hit a good state so you can return to it quickly.",
+ "tags": [
+ "export",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I get more variety or 'creative' output?",
+ "a": "Increase variability-related controls and explore extremes in a controlled way: push one parameter to a high value while keeping others stable, then rotate which parameter you push.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What does the Snapshot step mean?",
+ "a": "Snapshot captures your current configuration so you can reuse it, compare it later, or share it. Think of it as a \u2018bookmark\u2019 for settings rather than an export of the whole app.",
+ "tags": [
+ "export",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I read the output panel?",
+ "a": "Treat the output panel as feedback, not a verdict. Compare what changes when you move one slider, and look for stable patterns instead of trying to interpret every number/label immediately.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "Is there a recommended workflow (like a recipe)?",
+ "a": "Yes: baseline \u2192 single-parameter exploration \u2192 lock in a direction \u2192 fine-tune \u2192 snapshot. Repeat. This keeps your changes interpretable and prevents getting lost.",
+ "tags": [
+ "export",
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "How do I reset to defaults?",
+ "a": "Use the reset control when available; otherwise reload the page. The intent is fast experimentation, so reset is a normal part of the loop.",
+ "tags": [
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "What\u2019s the portfolio story Anvil tells?",
+ "a": "It demonstrates interactive UI state, real-time feedback, and a clean experimentation workflow (controls \u2192 output \u2192 snapshot). Recruiters care that it\u2019s usable, not that it\u2019s \u2018solving\u2019 one specific problem.",
+ "tags": [
+ "export",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I use Anvil on mobile?",
+ "a": "Use bigger motions (swipes) and slower tuning. If the app feels cramped, rotate to landscape. Mobile means touch-friendly; it may still require performance-friendly settings.",
+ "tags": [
+ "gesture",
+ "mobile",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What does the ? / Help explain?",
+ "a": "Help explains the app\u2019s intent, core controls, and how to interpret the output. It should answer \u201cwhat do I do first?\u201d and \u201cwhat does each control affect?\u201d",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "What if the output is empty or looks broken?",
+ "a": "First return to baseline (reset/preset). If it remains blank, the app is likely waiting on a setting that enables rendering/output. The intended experience is that defaults show something meaningful.",
+ "tags": [
+ "ai",
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "How do I share a good configuration?",
+ "a": "Use snapshots if available, or share a screenshot plus the key parameter values. A configuration is only useful if it\u2019s reproducible.",
+ "tags": [
+ "ai",
+ "export",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for Anvil?",
+ "a": "Ask: \u201cGiven these settings, how can I achieve [goal] with the fewest changes?\u201d Include your current slider values so the advice is specific.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I avoid random thrash while tuning?",
+ "a": "Change one parameter at a time, keep a written note of values you liked, and snapshot often. Thrash usually comes from multituning without a baseline.",
+ "tags": [
+ "export",
+ "readme",
+ "reset"
+ ]
+ }
+ ]
+ },
+ "Event": {
+ "title": "Event",
+ "summary": "A visual, interactive scene meant to be explored (touch gestures encouraged).",
+ "faqs": [
+ {
+ "q": "What is Event and what should I notice?",
+ "a": "Event is a visual lab meant to be explored interactively. The main point is the feeling of \u2018space/structure\u2019 responding as you move the camera and change settings\u2014less a textbook simulation and more an intuitive demo.",
+ "tags": [
+ "ai",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What should I do first in Event?",
+ "a": "Use touch/drag or mouse orbit to explore the scene. Then adjust one major control at a time to see how the look changes. If there\u2019s a reset, return to baseline between experiments.",
+ "tags": [
+ "gesture",
+ "mobile",
+ "readme",
+ "reset"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "How do gesture controls work on mobile?",
+ "a": "One finger drag orbits the view, two-finger pinch zooms, and two-finger drag pans (depending on the control mode). The idea is that the canvas should feel like a 3D object you can \u2018handle.\u2019",
+ "tags": [
+ "gesture",
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "The canvas doesn\u2019t respond to touch\u2014what now?",
+ "a": "Event is meant to be interactive. If gestures don\u2019t respond, try a slower, deliberate drag (some browsers require a small delay), and avoid dragging on UI controls. The primary interaction should be on the canvas area.",
+ "tags": [
+ "gesture",
+ "mobile",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What is the Snapshot step for?",
+ "a": "Snapshot captures a visually interesting state. It\u2019s useful for sharing, comparing settings, and demonstrating repeatable results rather than \u2018one lucky frame.\u2019",
+ "tags": [
+ "export",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "How do I get a more dramatic look?",
+ "a": "Increase contrast-like controls and push a single aesthetic control at a time. The best demos come from keeping the scene readable while still exaggerating one effect.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I make it smoother on slower devices?",
+ "a": "Reduce visual quality, disable expensive effects if available, and avoid rapid continuous dragging. A stable frame rate makes the scene easier to understand.",
+ "tags": [
+ "ai",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I reset the scene if I get lost?",
+ "a": "Use the reset/preset function when available. If not, reload the page. Resetting is part of the intended workflow.",
+ "tags": [
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "What should I say if someone asks 'what\u2019s the point'?",
+ "a": "It\u2019s an interactive visual lab: it demonstrates real-time rendering, responsive controls, and a cohesive UX. The portfolio value is the polish and interactivity, not a claim of scientific precision.",
+ "tags": [
+ "ai",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What does the Online indicator mean?",
+ "a": "Online indicates whether optional services (like AI advisor) are available. The core visual should still work offline.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "Can I take a screenshot/export?",
+ "a": "Use the browser screenshot or any in-app snapshot button. The best exports include the settings used so the result can be recreated.",
+ "tags": [
+ "export",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What are good safe settings to demo fast?",
+ "a": "Start at default, then adjust one major control 10\u201320% at a time. Avoid stacking multiple extreme settings simultaneously until you\u2019ve shown what each does.",
+ "tags": [
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for Event?",
+ "a": "Ask: \u201cI want this to look more cinematic but still readable\u2014what should I tweak first?\u201d Include which controls you\u2019ve already changed.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I avoid it looking muddy/unreadable?",
+ "a": "Keep contrast and brightness balanced: too many layers of effect at once reduces clarity. Change one effect at a time and stop when the silhouette and depth cues remain obvious.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "Is this meant to be accurate physics?",
+ "a": "No. It\u2019s a visual/interactivity demo. It may be inspired by real concepts, but it\u2019s primarily designed for an intuitive, compelling experience.",
+ "tags": [
+ "readme"
+ ]
+ }
+ ]
+ },
+ "Helios": {
+ "title": "Helios",
+ "summary": "A solar/space visualization with controls; intended to be responsive and readable.",
+ "faqs": [
+ {
+ "q": "What is Helios and what does it demonstrate?",
+ "a": "Helios is a space/solar visualization lab. It demonstrates real-time rendering, data presentation panels, and a UI that balances a visual canvas with readable controls/insights.",
+ "tags": [
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What should I do first in Helios?",
+ "a": "Start by exploring the canvas briefly, then read the right-hand panel for what the view represents. Adjust one setting at a time so you learn the control-to-visual mapping.",
+ "tags": [
+ "readme"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "The canvas is too big or panels feel cramped\u2014what\u2019s intended?",
+ "a": "The intended layout keeps the canvas impressive but not dominant. The panels should remain readable without constant scrolling, and the canvas should scale down on smaller screens so the UI stays usable.",
+ "tags": [
+ "ai",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I use Helios on mobile?",
+ "a": "Expect stacking: canvas on top, panels below. Use touch gestures carefully and keep performance settings conservative. The goal is readability first, visuals second.",
+ "tags": [
+ "gesture",
+ "layout",
+ "mobile",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I interpret what I\u2019m seeing?",
+ "a": "Use the panel text/labels as your guide. Focus on the relationship between a single control change and a single visual change; don\u2019t try to interpret everything at once.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good wow demo in Helios?",
+ "a": "Make one visible change that clearly affects scale or motion, then explain it in one sentence. The wow is clarity: viewers should immediately see cause and effect.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "If it feels slow, what should I change first?",
+ "a": "Reduce visual quality/effects, then reduce any update rate. Slow devices benefit most from turning off expensive rendering options before changing simulation complexity.",
+ "tags": [
+ "performance",
+ "readme"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "What does the Help/README emphasize?",
+ "a": "Helios help should emphasize: what the canvas shows, what the key controls do, and a recommended \u2018first-run\u2019 path for new users.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I reset to a clean baseline?",
+ "a": "Use reset/preset when available. Otherwise reload. Baseline-first is the intended workflow.",
+ "tags": [
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "How do I present Helios as a portfolio item?",
+ "a": "Frame it as \u2018interactive visualization with responsive UX.\u2019 Mention the performance controls and mobile layout decisions\u2014those are the engineering wins.",
+ "tags": [
+ "layout",
+ "mobile",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "Why does it stack on some screens?",
+ "a": "Responsive behavior intentionally stacks on smaller screens so the panel remains readable. A good layout prioritizes comprehension over a huge canvas.",
+ "tags": [
+ "ai",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "Can I export or capture results?",
+ "a": "Use snapshot/screenshot. If a snapshot tool exists, capture both image and settings.",
+ "tags": [
+ "export",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for Helios?",
+ "a": "Ask: \u201cGiven my device feels slow, what settings should I lower first without making the visualization unreadable?\u201d Include what device you\u2019re on.",
+ "tags": [
+ "ai",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What if controls feel overwhelming?",
+ "a": "Use defaults and only touch 1\u20132 primary controls. The app is designed to be explored gradually; you don\u2019t need to understand every control to get value.",
+ "tags": [
+ "gesture",
+ "mobile",
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "Is Helios scientifically accurate?",
+ "a": "It\u2019s visualization-first. It may be inspired by real systems, but its primary goal is an intuitive and polished interactive demo.",
+ "tags": [
+ "readme"
+ ]
+ }
+ ]
+ },
+ "Helix": {
+ "title": "Helix",
+ "summary": "Protein structure viewer; should load a default structure and offer a curated library.",
+ "faqs": [
+ {
+ "q": "What is Helix and what\u2019s the point?",
+ "a": "Helix is a protein structure viewer. It demonstrates 3D rendering, dataset browsing, and interactive inspection. The portfolio value is making complex 3D content feel approachable.",
+ "tags": [
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What should I do first in Helix?",
+ "a": "Rotate the structure, zoom, then switch render styles (cartoon/sticks/surface) to see how representation changes what you notice. Then load a different protein and compare.",
+ "tags": [
+ "readme"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "Why is opening blank a bug here?",
+ "a": "Because a viewer should demonstrate value immediately. A default structure proves the pipeline works (rendering + loading) and prevents the user from thinking the app is broken.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I load a different protein structure?",
+ "a": "Use the structure selector (dropdown/list). Choose an entry and load it; once loaded, rotate/zoom to inspect the shape and features.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What do different render styles mean?",
+ "a": "They emphasize different aspects: cartoon highlights secondary structure, sticks shows bonding detail, surface gives shape/volume. Switching styles is the core learning loop.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I use Helix on mobile?",
+ "a": "Mobile works best with simpler render styles and fewer effects. Touch rotation/zoom should feel smooth; if it doesn\u2019t, choose a lighter style.",
+ "tags": [
+ "gesture",
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "The protein looks jagged or slow\u2014how do I improve performance?",
+ "a": "Use a lighter representation, reduce quality/effects, and avoid extremely large structures on weak devices. Performance is mostly about geometry complexity and shading cost.",
+ "tags": [
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good wow demo in Helix?",
+ "a": "Load a recognizable fold, switch from cartoon to surface, then highlight how the same structure tells a different story depending on representation.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What does the README emphasize?",
+ "a": "Helix README should explain what a structure ID represents, what the viewer controls do, and a first-run demo path (rotate \u2192 style switch \u2192 load new protein).",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I troubleshoot a structure that won\u2019t load?",
+ "a": "Try a different structure from the local curated set. Helix is designed to have built-in options so it remains usable even if an online fetch fails.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for Helix?",
+ "a": "Ask: \u201cExplain what I should look for in this fold and which render mode is best to see it.\u201d Include the structure name/ID you loaded.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "Can I search proteins by name/ID?",
+ "a": "If search is present, use it to filter the library. Otherwise use categories or alphabetical sections. The goal is quick discovery, not memorizing IDs.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "Why add ~30 more structures?",
+ "a": "Variety makes it feel real. Different sizes/folds let the user see that the viewer isn\u2019t a one-off demo\u2014it handles a broad set of cases.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I share a specific view?",
+ "a": "Use screenshot/snapshot. For best sharing, include the structure name and render style in your caption.",
+ "tags": [
+ "export",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s the portfolio tagline for Helix?",
+ "a": "\u2018Interactive 3D protein viewer with curated library, mobile-friendly controls, and multiple render modes.\u2019",
+ "tags": [
+ "mobile",
+ "readme"
+ ]
+ }
+ ]
+ },
+ "Magma": {
+ "title": "Magma",
+ "summary": "Heavy 3D lab with performance controls (drag quality, FPS cap, effects).",
+ "faqs": [
+ {
+ "q": "What is Magma and why is it labeled HEAVY?",
+ "a": "Magma is a high-cost 3D lab. It\u2019s labeled HEAVY because it can stress GPU/CPU, especially on phones. The design intentionally includes performance controls so you can trade fidelity for responsiveness.",
+ "tags": [
+ "layout",
+ "mobile",
+ "performance",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What should I do first in Magma?",
+ "a": "Start at default, rotate slowly to feel performance, then open settings and test Drag Quality and FPS Cap. The best first demo is showing that performance is controllable.",
+ "tags": [
+ "performance",
+ "readme"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "Why does dragging feel delayed?",
+ "a": "Drag delay usually comes from rendering cost (resolution, effects, shading) exceeding what the device can sustain. The fix is to reduce quality during interaction and restore after.",
+ "tags": [
+ "ai",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What is Drag Quality and when should I use it?",
+ "a": "Drag Quality temporarily lowers render resolution while you drag/rotate. Use it when interaction feels sticky; it should make control feel immediate even if full-quality rendering is expensive.",
+ "tags": [
+ "performance",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What is FPS Cap and why would I limit it?",
+ "a": "FPS cap limits how often the scene is rendered. Lower caps reduce load and heat, which can improve stability on phones and prevent browser throttling.",
+ "tags": [
+ "mobile",
+ "performance",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What settings should I use on a phone?",
+ "a": "Use lower quality, enable Drag Quality, lower FPS cap, and disable extra effects. The goal is smooth interaction first, fidelity second.",
+ "tags": [
+ "mobile",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "Menus covering the scene is annoying\u2014what\u2019s intended?",
+ "a": "Menus should start closed and be opened only when you need them. A heavy lab benefits from minimal UI clutter so interaction stays responsive and the scene stays visible.",
+ "tags": [
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I get best-looking demo without lag?",
+ "a": "Use high quality for idle viewing, but keep Drag Quality enabled so interaction stays smooth. That gives \u2018best of both worlds\u2019: smooth controls + high-fidelity still moments.",
+ "tags": [
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good wow sequence in Magma?",
+ "a": "Rotate smoothly (with Drag Quality), then pause and let full quality render settle. The wow is that it feels responsive but still looks premium.",
+ "tags": [
+ "layout",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What does the README emphasize for Magma?",
+ "a": "Performance-first mindset: how to keep it smooth, what toggles cost the most, and a recommended setup for mobile vs desktop.",
+ "tags": [
+ "mobile",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What if it\u2019s still laggy even on lowest settings?",
+ "a": "Then the bottleneck is likely device limits. Keep FPS cap low and effects off, and avoid extreme scene complexity. Magma is a stress-test lab by design.",
+ "tags": [
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for Magma?",
+ "a": "Ask: \u201cGiven my device is struggling, what combination of quality, FPS, and effects gives the best responsiveness?\u201d Include your current values.",
+ "tags": [
+ "ai",
+ "layout",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "Does Magma work offline?",
+ "a": "Yes for the core scene. Optional services (AI) may be offline, but the lab should still render locally.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I reset to sanity after experimenting?",
+ "a": "Use reset/default preset if available; otherwise reload. Heavy labs are meant to be reset often.",
+ "tags": [
+ "ai",
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "What\u2019s the portfolio tagline for Magma?",
+ "a": "\u2018High-performance 3D lab with real-time interaction controls and performance tuning for desktop and mobile.\u2019",
+ "tags": [
+ "mobile",
+ "performance",
+ "readme"
+ ]
+ }
+ ]
+ },
+ "String": {
+ "title": "String",
+ "summary": "Interactive canvas-driven visualization with fullscreen mode and proportional sizing.",
+ "faqs": [
+ {
+ "q": "What is String and what is it demonstrating?",
+ "a": "String is a canvas-driven visualization lab. It demonstrates responsive rendering, interactive controls, and composition\u2014how visuals can be both mathematical and aesthetic.",
+ "tags": [
+ "layout",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What should I do first in String?",
+ "a": "Start at default, then change one control to see how the visual responds. Use fullscreen to showcase the canvas, then toggle back to adjust controls.",
+ "tags": [
+ "fullscreen",
+ "layout",
+ "readme"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "Why does proportional canvas matter?",
+ "a": "Because the visual should feel intentional on any screen. Proportional sizing prevents distortion and keeps the composition readable across phones, tablets, and desktop.",
+ "tags": [
+ "layout",
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "How does fullscreen mode work?",
+ "a": "Fullscreen expands the canvas container to fill the display. Use it for presentation and screenshots, then exit to adjust parameters comfortably.",
+ "tags": [
+ "ai",
+ "export",
+ "fullscreen",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I use String on mobile?",
+ "a": "Rotate to landscape for more canvas space, use fullscreen for demo moments, and keep settings moderate so interaction stays smooth.",
+ "tags": [
+ "fullscreen",
+ "layout",
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "The canvas looks too big/small on load\u2014what should happen?",
+ "a": "The intended behavior is that the canvas fills the available workspace without overflowing or crushing the UI. It should adapt immediately after load and after orientation changes.",
+ "tags": [
+ "ai",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good wow demo in String?",
+ "a": "Make one control change that visibly alters pattern density or motion, then go fullscreen for 5\u201310 seconds. The wow is in clean composition.",
+ "tags": [
+ "fullscreen",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I reset to the default look?",
+ "a": "Use reset/default when available; otherwise reload. Resetting is normal for exploration.",
+ "tags": [
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "What does the Snapshot step do here?",
+ "a": "Snapshot captures a frame or configuration so you can share a reproducible result rather than a one-off.",
+ "tags": [
+ "export",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I avoid the visual becoming noisy?",
+ "a": "Avoid pushing multiple complexity controls high at once. Increase one dimension (density, speed, complexity) while keeping others moderate.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for String?",
+ "a": "Ask: \u201cI want a cleaner, more readable pattern\u2014what should I lower first?\u201d Include the current settings values.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "Can I export the image?",
+ "a": "Use snapshot if available, or take a screenshot in fullscreen. For best export quality, pause motion (if possible) before capture.",
+ "tags": [
+ "ai",
+ "export",
+ "fullscreen",
+ "layout",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "Why does String feel like design as well as math?",
+ "a": "Because the app is about controlled visuals: you\u2019re exploring parameter space, but the output is intended to look good and feel intentional.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What should never happen in String?",
+ "a": "The canvas should never cover controls permanently, and resizing should never leave the canvas in a broken aspect ratio. If it does, the sizing logic needs adjustment.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s the portfolio tagline for String?",
+ "a": "\u2018Responsive canvas visualization with fullscreen presentation mode and parameter-driven composition.\u2019",
+ "tags": [
+ "fullscreen",
+ "layout",
+ "readme"
+ ]
+ }
+ ]
+ },
+ "Tectonic": {
+ "title": "Tectonic",
+ "summary": "Earth/terrain-style visualization; focuses on clear cause/effect and readable UI.",
+ "faqs": [
+ {
+ "q": "What is Tectonic and what does it demonstrate?",
+ "a": "Tectonic is an earth/terrain-style visualization lab. It demonstrates interactive parameter control, responsive rendering, and a UI designed to make cause/effect obvious.",
+ "tags": [
+ "ai",
+ "layout",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What should I do first in Tectonic?",
+ "a": "Start from default, then adjust one control that clearly changes the terrain/field. After you see the effect, return to default and try the next control.",
+ "tags": [
+ "ai",
+ "readme"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "What are phase changes in this lab?",
+ "a": "Phase changes represent qualitative shifts: a parameter crosses a threshold and the visual behavior changes noticeably. The goal is intuitive learning rather than strict geophysical accuracy.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I use Tectonic on mobile?",
+ "a": "Expect stacking layout. Use simpler settings and avoid extreme complexity. The goal is readable visuals and responsive touch interaction.",
+ "tags": [
+ "gesture",
+ "layout",
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "What should I watch for on the canvas?",
+ "a": "Watch for boundaries, gradients, and transitions after you change one control. Those are the \u2018signals\u2019 that show what the parameter is doing.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I reset to baseline?",
+ "a": "Use reset/default when available; otherwise reload. Baseline-first keeps the demo understandable.",
+ "tags": [
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "If it feels slow, what should I do?",
+ "a": "Lower visual complexity/effects and avoid rapid continuous dragging. Stability and clarity matter more than maximum detail.",
+ "tags": [
+ "ai",
+ "performance",
+ "readme"
+ ]
+ },
+ {
+ "q": "What does the README emphasize?",
+ "a": "What each control changes, what a \u2018good\u2019 demo path is, and how to interpret the major visual features.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good wow demo in Tectonic?",
+ "a": "Show a clear threshold: change one control until the visual switches modes, then explain that crossing thresholds produces different outcomes.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for Tectonic?",
+ "a": "Ask: \u201cWhich single control should I change to make the difference most obvious to a new viewer?\u201d",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "Is Tectonic scientifically exact?",
+ "a": "Visualization-first. It may be inspired by real ideas, but the goal is an interactive demo that\u2019s understandable and visually compelling.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I avoid \u2018I changed stuff and nothing happened\u2019?",
+ "a": "Change one parameter further and give it a moment to update. Some visuals respond only after a threshold is crossed.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "Can I export a result?",
+ "a": "Use snapshot/screenshot. Include the setting values so the result is reproducible.",
+ "tags": [
+ "export",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s the portfolio tagline for Tectonic?",
+ "a": "\u2018Interactive terrain/field visualization with clear cause/effect controls and responsive design.\u2019",
+ "tags": [
+ "ai",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What should I not do when demoing?",
+ "a": "Don\u2019t change five things at once. Demo is strongest when one change produces one visible, explainable effect.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ }
+ ]
+ },
+ "Transit": {
+ "title": "Transit",
+ "summary": "An interactive transit/trajectory visualization; should be responsive and touch-friendly.",
+ "faqs": [
+ {
+ "q": "What is Transit and what does it demonstrate?",
+ "a": "Transit is an interactive visualization focused on motion/paths and interpretation. It demonstrates responsive layout, interactive canvas controls, and a clean data/visual balance.",
+ "tags": [
+ "layout",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What should I do first in Transit?",
+ "a": "Interact with the canvas (drag/gesture), then adjust one setting to see how the path/visual changes. Return to baseline between changes.",
+ "tags": [
+ "gesture",
+ "readme",
+ "reset"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "Why is window-to-screen size a big deal here?",
+ "a": "Because Transit is canvas-first but still needs readable panels. If the canvas dominates, the UI becomes frustrating; responsiveness keeps it usable on phones and tablets.",
+ "tags": [
+ "layout",
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do gesture controls work in Transit?",
+ "a": "Drag to move the view, pinch to zoom, and (depending on mode) two-finger drag to pan. The goal is that the visualization feels \u2018grab-and-move\u2019 on mobile.",
+ "tags": [
+ "gesture",
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "The Back to Nexus button is missing\u2014what\u2019s expected?",
+ "a": "Transit should have consistent navigation like the other labs. If the shell is missing, it\u2019s a packaging/config issue rather than intended behavior.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I make Transit usable on phones?",
+ "a": "Use stacked layout, cap canvas height, and keep controls readable. Touch interaction should remain smooth and not fight page scrolling.",
+ "tags": [
+ "ai",
+ "gesture",
+ "layout",
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "If the canvas is dominating, what should I do?",
+ "a": "Lower canvas height (mobile) and increase panel readability. The intended design prioritizes comprehension, not maximum canvas size.",
+ "tags": [
+ "mobile",
+ "readme"
+ ]
+ },
+ {
+ "q": "What is the Snapshot step for?",
+ "a": "Snapshot captures the current view/config so you can share it or compare it later.",
+ "tags": [
+ "export",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "What\u2019s a good wow demo in Transit?",
+ "a": "Show an interaction + one parameter change that clearly alters the path/visual and explain it in one sentence.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for Transit?",
+ "a": "Ask: \u201cWhat\u2019s the best single control to change to make the demo more obvious to a new user?\u201d",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "Why does it feel off on some screen sizes?",
+ "a": "Responsive breakpoints determine when panels stack vs split. Transit is intended to adapt; if it feels off, the breakpoint/layout rules need tuning.",
+ "tags": [
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I reset to baseline?",
+ "a": "Use reset/default when available; otherwise reload.",
+ "tags": [
+ "readme",
+ "reset"
+ ]
+ },
+ {
+ "q": "If it runs slow, what\u2019s the first fix?",
+ "a": "Reduce effects/quality and avoid rapid continuous dragging. Performance should be stable enough for smooth gestures.",
+ "tags": [
+ "gesture",
+ "performance",
+ "readme"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "Does Transit rely on online services?",
+ "a": "Core visualization should work offline. Online services (AI) are optional.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s the portfolio tagline for Transit?",
+ "a": "\u2018Responsive interactive visualization with touch gestures and clear data/visual balance.\u2019",
+ "tags": [
+ "gesture",
+ "layout",
+ "mobile",
+ "readme"
+ ]
+ }
+ ]
+ },
+ "Vortex": {
+ "title": "Vortex",
+ "summary": "A finance-style cockpit demo; focuses on believable UI, numbers, and safe disclaimers.",
+ "faqs": [
+ {
+ "q": "What is Vortex and what does it demonstrate?",
+ "a": "Vortex is a finance-style cockpit demo. It demonstrates UI composition, readable dashboards, stateful controls, and presenting numbers in a way that feels believable and professional.",
+ "tags": [
+ "numbers",
+ "readme"
+ ],
+ "aliases": [
+ "overview",
+ "purpose"
+ ]
+ },
+ {
+ "q": "How do I read the cockpit?",
+ "a": "Start with the largest metric as the headline, then scan supporting metrics, then interpret the chart/graph. The UI is designed to guide your eye from \u2018what matters\u2019 to \u2018why.\u2019",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "Are these numbers real market data?",
+ "a": "No. Vortex is a demo cockpit. Numbers are illustrative and designed to look plausible, not to serve as real-time market quotes.",
+ "tags": [
+ "numbers",
+ "readme"
+ ]
+ },
+ {
+ "q": "Why do the dollar figures matter so much?",
+ "a": "Because fake-looking numbers break trust instantly. Believable ranges and consistent formatting make the demo feel like a real product.",
+ "tags": [
+ "numbers",
+ "readme"
+ ]
+ },
+ {
+ "q": "What should I do first in Vortex?",
+ "a": "Toggle a control and watch how a key metric or chart responds. The point is showing live UI responsiveness and clean state updates.",
+ "tags": [
+ "ai",
+ "layout",
+ "readme"
+ ],
+ "aliases": [
+ "start",
+ "begin"
+ ]
+ },
+ {
+ "q": "How do I make the UI look professional?",
+ "a": "Keep spacing consistent, avoid too many fonts, limit the number of colors/effects, and ensure every metric has a clear label and unit.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s the #1 demo story for Vortex?",
+ "a": "\u2018Interactive dashboard with clear hierarchy and responsive state changes.\u2019 The story is polish and UX decisions, not financial prediction.",
+ "tags": [
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What if someone asks for investment advice?",
+ "a": "You should explicitly say this is not advice and is a UI demo. A short disclaimer protects you and sets correct expectations.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "What does the Online indicator mean in Vortex?",
+ "a": "Online means optional services are reachable. The dashboard itself should still run offline as a demo.",
+ "tags": [
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s a good AI question for Vortex?",
+ "a": "Ask: \u201cHow can I make this dashboard feel more credible without adding clutter?\u201d",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "How do I avoid the UI feeling fake?",
+ "a": "Use plausible ranges, consistent decimals, and avoid sudden huge jumps unless you explain why. Smooth changes + stable formatting feel real.",
+ "tags": [
+ "ai",
+ "readme"
+ ]
+ },
+ {
+ "q": "Why remove the version number from the screen?",
+ "a": "Because it reads like a prototype label. A portfolio demo should look like a product; versioning belongs in the footer or about panel.",
+ "tags": [
+ "layout",
+ "numbers",
+ "readme"
+ ]
+ },
+ {
+ "q": "Can I export a screenshot for the portfolio?",
+ "a": "Yes\u2014use a screenshot at a clean, readable moment. Include one sentence of context about what interaction changed the state.",
+ "tags": [
+ "export",
+ "layout",
+ "readme"
+ ]
+ },
+ {
+ "q": "What does the README emphasize for Vortex?",
+ "a": "That it\u2019s a UI/UX demo, that numbers are illustrative, and that it\u2019s not financial advice.",
+ "tags": [
+ "numbers",
+ "readme"
+ ]
+ },
+ {
+ "q": "What\u2019s the portfolio tagline for Vortex?",
+ "a": "\u2018Interactive dashboard demo with credible formatting, responsive state, and product-grade UI hierarchy.\u2019",
+ "tags": [
+ "layout",
+ "readme"
+ ]
+ }
+ ]
+ }
+ },
+ "synonyms": {
+ "lag": [
+ "delay",
+ "stutter",
+ "jitter",
+ "slow",
+ "choppy",
+ "latency",
+ "drag"
+ ],
+ "delay": [
+ "lag",
+ "latency",
+ "slow",
+ "stutter"
+ ],
+ "slow": [
+ "lag",
+ "delay",
+ "stutter",
+ "choppy"
+ ],
+ "mobile": [
+ "phone",
+ "tablet",
+ "touch",
+ "gesture"
+ ],
+ "touch": [
+ "mobile",
+ "phone",
+ "tablet",
+ "gesture",
+ "pinch",
+ "swipe"
+ ],
+ "gesture": [
+ "touch",
+ "pinch",
+ "swipe",
+ "drag",
+ "pan",
+ "zoom"
+ ],
+ "fullscreen": [
+ "full screen",
+ "full-screen",
+ "maximize",
+ "expand"
+ ],
+ "canvas": [
+ "viewport",
+ "render",
+ "screen"
+ ],
+ "viewport": [
+ "canvas",
+ "screen",
+ "window"
+ ],
+ "reset": [
+ "defaults",
+ "restart",
+ "baseline",
+ "clear"
+ ],
+ "defaults": [
+ "reset",
+ "baseline"
+ ],
+ "orbit": [
+ "trajectory",
+ "path",
+ "rotation",
+ "rotate"
+ ],
+ "rotate": [
+ "orbit",
+ "rotation",
+ "spin",
+ "drag"
+ ],
+ "protein": [
+ "pdb",
+ "structure",
+ "molecule"
+ ],
+ "pdb": [
+ "protein",
+ "structure",
+ "molecule",
+ "id"
+ ],
+ "ai": [
+ "advisor",
+ "assistant",
+ "groq",
+ "key",
+ "persona"
+ ],
+ "persona": [
+ "coach",
+ "critic",
+ "navigator",
+ "mode"
+ ],
+ "numbers": [
+ "dollar",
+ "price",
+ "figures",
+ "values",
+ "realism"
+ ],
+ "dollar": [
+ "price",
+ "numbers",
+ "figures",
+ "values"
+ ],
+ "export": [
+ "share",
+ "download",
+ "screenshot",
+ "snapshot"
+ ],
+ "snapshot": [
+ "export",
+ "share",
+ "capture",
+ "save"
+ ],
+ "performance": [
+ "fps",
+ "lag",
+ "delay",
+ "quality",
+ "postfx",
+ "resolution"
+ ],
+ "fps": [
+ "frame",
+ "framerate",
+ "performance"
+ ],
+ "quality": [
+ "resolution",
+ "render",
+ "performance"
+ ],
+ "postfx": [
+ "post",
+ "effects",
+ "bloom",
+ "glow"
+ ],
+ "routing": [
+ "transit",
+ "route",
+ "path",
+ "navigation"
+ ]
+ }
+}

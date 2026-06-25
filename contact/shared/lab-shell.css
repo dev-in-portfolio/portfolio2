@@ -1,0 +1,512 @@
+/* lab-shell.css — fixed top bar + overlay (P15) */
+:root{
+  --labShellH: 60px;
+  --labShellBg: rgba(2, 6, 23, 0.88);
+  --labShellBd: rgba(148, 163, 184, 0.28);
+  --labShellTx: #e5e7eb;
+  --labShellMut: #9ca3af;
+  --labShellAcc: #38bdf8;
+}
+
+#labShellBar{
+  /* LABSHELL_NONBLOCK: do not intercept clicks for Nexus nav */
+  pointer-events: none;
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--labShellH);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--labShellBg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--labShellBd);
+  color: var(--labShellTx);
+  z-index: 9999;
+  font: 500 14px/1.2 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+#labShellLeft{
+  display: flex; align-items: center; gap: 8px; min-width: 0;
+}
+#labShellRight{
+  margin-left: auto;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.labShellBtn{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid rgba(148,163,184,.28);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, .55);
+  color: var(--labShellTx);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.labShellBtn:hover{ border-color: rgba(56,189,248,.55); }
+.labShellBtn:active{ transform: translateY(0.5px); }
+
+.labShellPill{
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid rgba(148,163,184,.22);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, .35);
+  color: var(--labShellMut);
+  white-space: nowrap;
+}
+
+.labShellTitle{
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 2px;
+}
+.labShellTitle strong{
+  font-size: 14px;
+  color: var(--labShellTx);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 48vw;
+}
+.labShellTitle span{
+  font-size: 15px;
+  color: var(--labShellMut);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 52vw;
+}
+
+@media (max-width: 560px){
+  :root{ --labShellH: 52px; }
+  #labShellBar{ padding: 6px 8px; gap: 8px; }
+  .labShellTitle span{ display:none; }
+  .labShellBtn .labShellLabel{ display:none; }
+  .labShellPill .labShellLabel{ display:none; }
+}
+
+/* Overlay */
+#labShellOverlay{
+  pointer-events: none;
+  position: fixed;
+  inset: var(--labShellH) 0 0 0;
+  z-index: 9998;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(10px);
+  display: none;
+}
+#labShellOverlay[data-open="1"]{ display: block; pointer-events: auto; }
+
+#labShellPanel{
+  position: absolute;
+  inset: 10px;
+  border: 1px solid var(--labShellBd);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.88);
+  overflow: auto;
+  padding: 14px 14px 24px;
+  color: var(--labShellTx);
+  font: 400 14px/1.55 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+#labShellPanel h2{
+  margin: 4px 0 10px;
+  font-size: 14px;
+  font-weight: 800;
+}
+#labShellPanel h3{
+  margin: 16px 0 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #e5e7eb;
+}
+#labShellPanel p{ margin: 8px 0; color: #e5e7eb; }
+#labShellPanel ul{ margin: 8px 0 8px 18px; color: #e5e7eb; }
+#labShellPanel li{ margin: 6px 0; }
+#labShellPanel code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12.5px;
+  color: #e5e7eb;
+  background: rgba(0,0,0,.25);
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(148,163,184,.18);
+}
+#labShellCloseRow{
+  display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  margin-top: 12px;
+}
+#labShellCloseRow button{
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(148,163,184,.28);
+  background: rgba(0,0,0,.20);
+  color: var(--labShellTx);
+  cursor: pointer;
+}
+#labShellCloseRow button:hover{ border-color: rgba(56,189,248,.55); }
+
+/* Push down common full-screen overlays if they exist (P2-style safeguard) */
+#dsSplash, .dsSplash, #bootOverlay, #nexusBootOverlay, #loadingStageOverlay, .bootOverlay, .nexusBootOverlay{
+  top: var(--labShellH) !important;
+  height: calc(100% - var(--labShellH)) !important;
+}
+
+
+/* --- AI panel (P16) --- */
+.labShellAiRow{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin:12px 0 8px;
+}
+.labShellAiRow label{
+  min-width:70px;
+  opacity:.9;
+}
+#labShellPersona{
+  flex:1;
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(0,0,0,0.25);
+  color:inherit;
+}
+#labShellAsk{
+  width:100%;
+  margin-top:6px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(0,0,0,0.25);
+  color:inherit;
+  resize:vertical;
+}
+.labShellAiBtns{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+#labShellAskBtn{
+  padding:10px 14px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.22);
+  background:rgba(255,255,255,0.10);
+  color:inherit;
+  cursor:pointer;
+}
+#labShellAskBtn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+.labShellAiStatus{
+  margin-top:10px;
+  font-size:12px;
+  opacity:.85;
+}
+.labShellAiOut{
+  margin-top:10px;
+  padding:12px 12px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(0,0,0,0.30);
+  white-space:pre-wrap;
+  max-height:42vh;
+  overflow:auto;
+}
+
+/* Settings-driven variables (non-breaking) */
+:root { --accent: #7aa7ff; --min-font-pt: 12pt; }
+body { font-size: var(--min-font-pt); }
+a, .nxPill { color: var(--accent); }
+.theme-light body { background: #fff; color: #111; }
+.motion-reduced * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+
+
+/* GUARDIAN_LINK_VISIBILITY_V1 — bar links */
+#labShellBar a{
+  color:#f4f7ff;
+  text-decoration:none;
+  border:1px solid rgba(148,163,184,.35);
+  background:rgba(15,23,42,.55);
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:13px;
+}
+#labShellBar a:hover{
+  background:rgba(15,23,42,.80);
+  border-color:rgba(148,163,184,.55);
+}
+
+
+
+/* === PHASE A VISIBILITY & LAYERING OVERRIDES === */
+html, body {
+  opacity: 1 !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  background-blend-mode: normal !important;
+}
+
+body::before,
+body::after,
+main::before,
+main::after {
+  content: none !important;
+  display: none !important;
+}
+
+[class*="overlay"],
+[class*="scrim"],
+[class*="backdrop"],
+[id*="overlay"],
+[id*="scrim"],
+[id*="backdrop"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+* {
+  text-shadow: none !important;
+}
+
+.nxs-pill,
+.start-pill,
+button,
+a.buttonlike {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Lock content to foreground plane */
+main, .content, .page, .container {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* === PHASE C: Z-INDEX & STACKING CONTEXT SANITY === */
+
+/* Normalize z-index layers */
+:root {
+  --z-background: 0;
+  --z-content: 1;
+  --z-ui: 10;
+  --z-nav: 100;
+  --z-modal: 1000;
+  --z-debug: 10000;
+}
+
+/* Foreground locking */
+main, section, article, .content, .container {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* Navigation always above content */
+nav, .nexusbar, header {
+  position: relative;
+  z-index: var(--z-nav) !important;
+}
+
+/* Debug UI always topmost */
+#eruda, .debug-ui, .debug-panel {
+  z-index: var(--z-debug) !important;
+}
+
+/* Remove backdrop-filter traps */
+[class*="blur"],
+[class*="glass"],
+[class*="frost"],
+[class*="backdrop"] {
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+/* Prevent future accidental stacking */
+[data-stack] {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* === END PHASE C === */
+
+
+/* === PHASE D: ACCESSIBILITY, CONTRAST & PERCEPTION === */
+
+/* Enforce readable contrast */
+:root {
+  --min-contrast-bg: #0f172a;
+  --min-contrast-text: #e5e7eb;
+}
+
+body {
+  color: var(--min-contrast-text) !important;
+  background-color: var(--min-contrast-bg) !important;
+}
+
+/* Focus visibility */
+*:focus,
+*:focus-visible {
+  outline: 3px solid #22d3ee !important;
+  outline-offset: 2px !important;
+}
+
+/* Remove fake-button links */
+a:not(.btn):not(.buttonlike) {
+  text-decoration: underline;
+}
+
+/* Button semantics */
+button, .btn, .buttonlike {
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+/* Ensure tap targets */
+a, button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Kill misleading hover-only affordances */
+@media (hover: none) {
+  *:hover {
+  }
+}
+
+/* Screen reader safety */
+[aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Ensure visible labels */
+input, select, textarea {
+  color: #0f172a !important;
+  background: #fff !important;
+}
+
+/* Prevent ultra-dense layouts */
+section, article, main {
+  line-height: 1.6;
+}
+
+/* === END PHASE D === */
+
+
+/* === Recommended Path Tile (compact) === */
+/* === More Tile === */
+
+
+/* === Hybrid Editorial Tile System (C) === */
+.inline-tile{
+  position: relative;
+  background: linear-gradient(180deg, rgba(18,22,35,0.92) 0%, rgba(12,16,28,0.88) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.inline-tile::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:4px;
+  background: linear-gradient(180deg, rgba(168,85,247,0.85) 0%, rgba(59,130,246,0.55) 100%);
+  
+}
+
+.inline-tile h3{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  
+}
+
+.inline-tile p{
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0;
+  
+  max-width: 70ch;
+}
+
+/* Slightly tighter cards for short statements */
+.inline-tile--tight{
+  padding: 16px 18px;
+}
+
+@media (max-width: 520px){
+  .inline-tile{
+    padding: 16px 16px;
+    border-radius: 14px;
+  }
+  .inline-tile p{
+    font-size: 14px;
+  }
+}
+
+
+
+/* === Inline Tiles Full-Width === */
+.inline-tile{
+  width: 100% !important;
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+}
+.inline-tile p{ max-width: none; }
+
+
+/* === Thumb De-Dimming === */
+.thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img{
+  filter: none !important;
+  opacity: 1 !important;
+}
+.thumb::after, .tile-thumb::after, .app-thumb::after, .nxs-thumb::after, .thumbs::after,
+.thumb::before, .tile-thumb::before, .app-thumb::before, .nxs-thumb::before, .thumbs::before{
+  display: none !important;
+  content: none !important;
+}
+
+
+/* === Force remove thumb dimming (override) === */
+img{ filter: none !important; opacity: 1 !important; }
+.tile img, .card img, .thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img,
+.tile picture img, picture img { filter:none !important; opacity:1 !important; mix-blend-mode: normal !important; }
+.tile::before, .tile::after,
+.card::before, .card::after,
+.thumb::before, .thumb::after,
+.tile-thumb::before, .tile-thumb::after,
+.app-thumb::before, .app-thumb::after,
+.nxs-thumb::before, .nxs-thumb::after,
+.thumbs::before, .thumbs::after,
+.tile img::before, .tile img::after { display:none !important; content:none !important; }
+
+
+/* === Full-width for Start Here + key tiles === */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* If they sit inside a grid, make them span the grid */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  grid-column: 1 / -1 !important;
+}

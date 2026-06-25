@@ -1,0 +1,234 @@
+/* Home polish – visual hierarchy + spacing */
+
+:root {
+  --nxs-max: 1120px;
+  --nxs-card-bg: rgba(255, 255, 255, 0.045);
+  --nxs-card-border: rgba(255, 255, 255, 0.14);
+  --nxs-card-border-2: rgba(255, 255, 255, 0.20);
+  --nxs-shadow: 0 18px 54px rgba(0, 0, 0, 0.48);
+  --nxs-soft: 0 10px 26px rgba(0, 0, 0, 0.30);
+}
+
+/* Overall layout */
+.wrap {
+  max-width: var(--nxs-max);
+  margin: 0 auto;
+  padding: 0 18px 84px;
+}
+
+/* Start-here row: make it feel like a UI component, not raw buttons */
+.startHereCard {
+  background: var(--nxs-card-bg);
+  border: 1px solid var(--nxs-card-border);
+  border-radius: 22px;
+  padding: 18px 18px;
+  box-shadow: var(--nxs-soft);
+  backdrop-filter: blur(10px);
+}
+
+.startHere .label {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  
+}
+
+.startHere .nxs-pill,
+.startHere button,
+.startHere [role="button"] {
+  border-radius: 999px !important;
+  padding: 10px 14px !important;
+  min-height: 38px !important;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+/* Hero / intro text becomes a real “card” */
+.introCard {
+  margin-top: 18px;
+  background: var(--nxs-card-bg);
+  border: 1px solid var(--nxs-card-border);
+  border-radius: 22px;
+  padding: 26px 24px;
+  box-shadow: var(--nxs-shadow);
+}
+
+.introCard h1,
+.introCard .h1 {
+  margin: 10px 0 10px;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.introCard .kicker {
+  
+  font-size: 14px;
+}
+
+.introCard p {
+  font-size: 16px;
+  line-height: 1.75;
+  
+}
+
+.introCard p + p {
+  margin-top: 12px;
+}
+
+/* Make section links look intentional */
+.introCard a {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* Tiles: stabilize the “glitchy” feeling by reducing aggressive motion on touch
+   + better overlays for readability */
+.tile {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: var(--nxs-soft);
+}
+
+.tile::after {
+  /* soft bottom vignette for title readability */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.06) 55%, rgba(0,0,0,0) 100%);
+  pointer-events: none;
+}
+
+.tile .meta {
+  position: relative;
+  z-index: 2;
+}
+
+.tile .t {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.tile .s {
+  
+}
+
+@media (hover: none) {
+  .tile:hover { transform: none !important; }
+  .tile:active { transform: translateY(1px) scale(0.995); }
+}
+
+/* Give the very top of the page a little more breathing room on tablets */
+@media (max-width: 1024px) {
+  .wrap {
+    padding-top: 10px;
+  }
+}
+
+
+/* === Recommended Path Tile (compact) === */
+/* === More Tile === */
+
+
+/* === Hybrid Editorial Tile System (C) === */
+.inline-tile{
+  position: relative;
+  background: linear-gradient(180deg, rgba(18,22,35,0.92) 0%, rgba(12,16,28,0.88) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.inline-tile::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:4px;
+  background: linear-gradient(180deg, rgba(168,85,247,0.85) 0%, rgba(59,130,246,0.55) 100%);
+  
+}
+
+.inline-tile h3{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  
+}
+
+.inline-tile p{
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0;
+  
+  max-width: 70ch;
+}
+
+/* Slightly tighter cards for short statements */
+.inline-tile--tight{
+  padding: 16px 18px;
+}
+
+@media (max-width: 520px){
+  .inline-tile{
+    padding: 16px 16px;
+    border-radius: 14px;
+  }
+  .inline-tile p{
+    font-size: 14px;
+  }
+}
+
+
+
+/* === Inline Tiles Full-Width === */
+.inline-tile{
+  width: 100% !important;
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+}
+.inline-tile p{ max-width: none; }
+
+
+/* === Thumb De-Dimming === */
+.thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img{
+  filter: none !important;
+  opacity: 1 !important;
+}
+.thumb::after, .tile-thumb::after, .app-thumb::after, .nxs-thumb::after, .thumbs::after,
+.thumb::before, .tile-thumb::before, .app-thumb::before, .nxs-thumb::before, .thumbs::before{
+  display: none !important;
+  content: none !important;
+}
+
+
+/* === Force remove thumb dimming (override) === */
+img{ filter: none !important; opacity: 1 !important; }
+.tile img, .card img, .thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img,
+.tile picture img, picture img { filter:none !important; opacity:1 !important; mix-blend-mode: normal !important; }
+.tile::before, .tile::after,
+.card::before, .card::after,
+.thumb::before, .thumb::after,
+.tile-thumb::before, .tile-thumb::after,
+.app-thumb::before, .app-thumb::after,
+.nxs-thumb::before, .nxs-thumb::after,
+.thumbs::before, .thumbs::after,
+.tile img::before, .tile img::after { display:none !important; content:none !important; }
+
+
+/* === Full-width for Start Here + key tiles === */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* If they sit inside a grid, make them span the grid */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  grid-column: 1 / -1 !important;
+}

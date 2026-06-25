@@ -1,0 +1,36 @@
+{
+  "steps": [
+    {
+      "ts": 0,
+      "event": "agent.start",
+      "agent": "audit-agent"
+    },
+    {
+      "ts": 1,
+      "event": "scan.files",
+      "count": 42
+    },
+    {
+      "ts": 2,
+      "event": "agent.finish",
+      "agent": "audit-agent"
+    }
+  ],
+  "logs": [
+    {
+      "ts": 0,
+      "level": "info",
+      "msg": "Run started",
+      "meta": {
+        "agent": "audit-agent"
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "ts": 2,
+      "type": "json",
+      "path": "artifacts/audit.report.json"
+    }
+  ]
+}

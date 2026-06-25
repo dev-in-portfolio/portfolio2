@@ -1,0 +1,241 @@
+[
+  {
+    "slug": "pack-a",
+    "name": "Pack A \u2014 Desktop + Files",
+    "agents": [
+      "local-cli-runner",
+      "local-filesystem-agent",
+      "env-injector-agent",
+      "secret-redaction-agent"
+    ]
+  },
+  {
+    "slug": "pack-b",
+    "name": "Pack B \u2014 Browser Automation",
+    "agents": [
+      "playwright-browser-runner",
+      "form-autofill-agent",
+      "recorder-replay-agent",
+      "ui-regression-test-agent"
+    ]
+  },
+  {
+    "slug": "pack-c",
+    "name": "Pack C \u2014 Offline + Auth",
+    "agents": [
+      "offline-receipts-agent",
+      "local-password-vault-agent",
+      "local-signing-agent",
+      "hardware-approval-agent"
+    ]
+  },
+  {
+    "slug": "pack-d",
+    "name": "Pack D \u2014 Portfolio Ops",
+    "agents": [
+      "audit-agent",
+      "thumb-sync-agent",
+      "tile-sorter-agent",
+      "nexus-bar-agent",
+      "meta-cleaner-agent",
+      "portfolio-checker-agent",
+      "code-tester-agent",
+      "settings-sync-agent",
+      "zip-verifier-agent",
+      "fixer-agent",
+      "data-link-agent",
+      "route-optimizer-agent",
+      "app-launcher-agent",
+      "page-builder-agent",
+      "playwright-smoke-test-agent"
+    ]
+  },
+  {
+    "slug": "pack-e",
+    "name": "Pack E \u2014 DevOps + System Tools",
+    "agents": [
+      "api-load-tester-agent",
+      "disk-cleanup-agent",
+      "docker-manager-agent",
+      "fuzz-stress-agent-the-chaos-monkey",
+      "git-operations-agent",
+      "port-killer-agent-devops-utility",
+      "process-monitor-agent-system-control",
+      "release-orchestrator-agent-the-manager",
+      "system-health-monitor",
+      "zip-archiver-agent"
+    ]
+  },
+  {
+    "slug": "pack-f",
+    "name": "Pack F \u2014 Data + Docs",
+    "agents": [
+      "code-formatter-agent-dev-utility",
+      "contract-filler-legal-automation",
+      "cron-scheduler-agent",
+      "csv-processor-agent-data-logic",
+      "excel-cleaner-data-hygiene",
+      "in-memory-sql-engine-database",
+      "invoice-generator-agent-finance",
+      "json-validator-agent-devtools",
+      "license-compliance-agent-legal",
+      "log-analyzer-agent-analytics-logic",
+      "markdown-table-generator-productivity",
+      "markdown-to-html-agent-content-logic",
+      "pdf-extractor-agent-document-intelligence",
+      "slide-deck-builder-presentation",
+      "sqlite-query-agent",
+      "text-adventure-engine-interactive-fiction",
+      "text-diff-engine-algorithms",
+      "tree-visualizer-agent-file-utility"
+    ]
+  },
+  {
+    "slug": "pack-g",
+    "name": "Pack G \u2014 Media + Visual",
+    "agents": [
+      "ascii-art-agent-visual",
+      "audio-transcriber-agent-hearing",
+      "barcode-generator-agent-utility",
+      "binaural-beat-generator-audio-synthesis",
+      "chart-generator-agent-data-viz",
+      "colorblindness-simulator-accessibility",
+      "fractal-generator-chaos-theory",
+      "image-processor-agent-media",
+      "matrix-rain-agent-visuals",
+      "meme-generator-agent-visuals",
+      "morse-code-audio-agent-tactical",
+      "ocr-agent-computer-vision",
+      "pixel-art-upscaler-graphics",
+      "qr-code-generator-agent-media",
+      "site-mirror-agent-archivist",
+      "sprite-slicer-agent-game-dev",
+      "text-to-speech-agent-speaking",
+      "video-to-gif-agent-media",
+      "wallpaper-swapper-redecorator",
+      "watermark-agent-media",
+      "youtube-downloader-agent-the-i-need-this-tool"
+    ]
+  },
+  {
+    "slug": "pack-h",
+    "name": "Pack H \u2014 Communication + Scheduling",
+    "agents": [
+      "calendar-invite-agent-scheduling",
+      "desktop-notifier-agent-os-integration",
+      "discord-webhook-agent-social",
+      "identicon-generator-procedural-art",
+      "mouse-jiggler-agent-the-afk-cheat",
+      "resume-parser-agent-hr-tech",
+      "rss-monitor-agent-content-ingestion",
+      "slack-bot-agent-communication",
+      "smtp-sender-agent-communication"
+    ]
+  },
+  {
+    "slug": "pack-i",
+    "name": "Pack I \u2014 LLM + AI Utilities",
+    "agents": [
+      "clipboard-manager-agent-productivity",
+      "crypto-wallet-agent-web3",
+      "llm-client-agent-the-brain",
+      "midi-composer-agent-music",
+      "sentiment-analyzer-agent-emotional-intelligence"
+    ]
+  },
+  {
+    "slug": "pack-j",
+    "name": "Pack J \u2014 Web QA + Growth",
+    "agents": [
+      "broken-link-crawler-qa-web",
+      "html-scraper-agent-lightweight-web",
+      "reddit-scraper-social"
+    ]
+  },
+  {
+    "slug": "pack-k",
+    "name": "Pack K \u2014 Security + Compliance",
+    "agents": [
+      "audio-spectrogram-agent-signal-processing",
+      "blockchain-miner-agent-crypto",
+      "dns-digger-agent-network-intel",
+      "exif-metadata-spy-forensics",
+      "file-date-spoofer-forensics",
+      "file-encryptor-agent-security",
+      "file-integrity-monitor-compliance",
+      "jwt-token-generator-auth-utility",
+      "network-port-scanner",
+      "password-auditor-security",
+      "ransomware-canary-defense",
+      "secure-file-shredder-privacy",
+      "seo-auditor-agent-marketing",
+      "ssl-certificate-checker-network-security",
+      "subdomain-enumerator-recon",
+      "token-counter-agent-cost-estimator",
+      "totp-authenticator-security",
+      "whois-agent-network-intel"
+    ]
+  },
+  {
+    "slug": "pack-l",
+    "name": "Pack L \u2014 Utility Playground",
+    "agents": [
+      "a-pathfinder-ai",
+      "arp-network-scanner-recon",
+      "astronomy-agent-space",
+      "brainfuck-interpreter-esoteric",
+      "currency-converter-agent-finance",
+      "dice-roller-agent-randomness",
+      "disk-space-analyzer-system",
+      "dna-translator-agent-bio-informatics",
+      "fake-update-agent-prank",
+      "ghost-typer-agent-haunted",
+      "honeyport-agent-trap",
+      "hue-light-controller-iot",
+      "instagram-avatar-grabber-osint",
+      "invisible-folder-agent-magic-vanish",
+      "language-detector-agent-linguistic-id",
+      "linear-regression-agent-data-science",
+      "local-server-agent-instant-hosting",
+      "loot-box-simulator-gacha-logic",
+      "markov-chain-agent-text-gen",
+      "minecraft-server-pinger-gaming",
+      "mini-compiler-agent-language-design",
+      "mqtt-broker-agent-iot-hub",
+      "neural-net-trainer-machine-learning",
+      "physics-engine-agent-simulation",
+      "prime-number-checker-math",
+      "quote-of-the-day-agent-inspiration",
+      "rhyme-finder-agent-linguistics",
+      "speedtest-agent-the-dashboard-tool",
+      "subliminal-message-flasher-psych-tech",
+      "sudoku-solver-agent-logic",
+      "system-spec-agent-hardware-info",
+      "torrent-downloader-agent-p2p",
+      "unit-converter-agent-utility",
+      "url-shortener-agent-utility",
+      "usb-watchdog-hardware",
+      "vcard-generator-networking",
+      "wake-on-lan-agent-iot-magic",
+      "weather-agent-real-time-info",
+      "zip-bomb-generator-the-trap"
+    ]
+  },
+  {
+    "slug": "pack-z",
+    "name": "Pack Z \u2014 Not Enabled (Demo Locked)",
+    "agents": [
+      "bluetooth-radar-agent-surveillance",
+      "burn-after-reading-agent-spy-tech",
+      "clipboard-logger-surveillance",
+      "ip-geolocation-tracker-surveillance",
+      "keystroke-logger-agent-surveillance",
+      "polyglot-file-generator-hacker-tech",
+      "stealth-browser-agent-evasion",
+      "steganography-agent-spy-tech",
+      "webcam-spy-agent-hardware",
+      "wifi-jammer-simulator-network-attack",
+      "wifi-password-revealer-the-magic-trick"
+    ]
+  }
+]

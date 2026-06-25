@@ -1,0 +1,529 @@
+/* lab-core.css
+ *
+ * Shared visual theme for your single-file apps.
+ * Drop this next to your HTML apps and include with:
+ *   <link rel="stylesheet" href="lab-core.css" />
+ *
+ * Provides:
+ *   - CSS variables for colors, radii, and shadows
+ *   - Basic HUD card, pill, button, chip, and scroll styling
+ *   - A simple responsive layout base
+ */
+
+:root {
+  --lab-font-scale: 1;
+
+  --lab-bg: #020617;
+  --lab-bg-elevated: rgba(15, 23, 42, 0.96);
+  --lab-surface: rgba(15, 23, 42, 0.85);
+  --lab-border-subtle: rgba(148, 163, 184, 0.35);
+  --lab-text-main: #e5e7eb;
+  --lab-text-muted: #9ca3af;
+  --lab-accent: #38bdf8;
+  --lab-accent-soft: rgba(56, 189, 248, 0.14);
+  --lab-danger: #fb7185;
+  --lab-radius-lg: 16px;
+  --lab-radius-xl: 24px;
+  --lab-radius-pill: 999px;
+  --lab-shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.7);
+  --lab-shadow-subtle: 0 10px 30px rgba(15, 23, 42, 0.6);
+  --lab-backdrop-blur: blur(18px);
+  --lab-transition-fast: 160ms ease-out;
+  --lab-transition-med: 220ms ease-out;
+  --lab-font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--lab-font-ui);
+  background: radial-gradient(circle at top, #020617 0%, #020617 35%, #020617 100%);
+  color: var(--lab-text-main);
+  height: 100%;
+  overflow: hidden;
+}
+
+body.lab-root {
+  display: flex;
+  flex-direction: column;
+  /* Mobile-safe full height: matches lab-shell's JS-pinned viewport vars */
+  min-height: var(--svhpx, 100vh);
+}
+
+/* Core layout container for HUD-style apps */
+.lab-shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr);
+  gap: 18px;
+  padding: 14px 14px 18px;
+  box-sizing: border-box;
+  height: var(--svhpx, 100vh);
+}
+
+@media (max-width: 900px) {
+  .lab-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    height: auto;
+    min-height: var(--svhpx, 100vh);
+  }
+}
+
+/* Generic HUD card */
+.hud-card {
+  background: var(--lab-surface);
+  border-radius: var(--lab-radius-xl);
+  border: 1px solid var(--lab-border-subtle);
+  box-shadow: var(--lab-shadow-soft);
+  backdrop-filter: var(--lab-backdrop-blur);
+  padding: 14px 14px 16px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.hud-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.hud-title {
+  font-size: calc(13px * var(--lab-font-scale));
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lab-text-muted);
+}
+
+.hud-subtitle {
+  font-size: calc(12px * var(--lab-font-scale));
+  color: var(--lab-text-muted);
+}
+
+/* Pills & chips */
+.hud-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--lab-radius-pill);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent);
+  font-size: calc(11px * var(--lab-font-scale));
+  color: var(--lab-text-main);
+}
+
+.hud-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: var(--lab-radius-pill);
+  font-size: calc(11px * var(--lab-font-scale));
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(15, 23, 42, 0.85);
+  color: var(--lab-text-muted);
+}
+
+/* Buttons */
+.hud-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--lab-radius-pill);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: radial-gradient(circle at top, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 0.95));
+  color: var(--lab-text-main);
+  font-size: calc(11px * var(--lab-font-scale));
+  cursor: pointer;
+  transition: background var(--lab-transition-fast), border-color var(--lab-transition-fast), transform 120ms ease-out;
+}
+
+.hud-btn:hover {
+  border-color: var(--lab-accent);
+  background: radial-gradient(circle at top, rgba(56, 189, 248, 0.28), rgba(15, 23, 42, 0.98));
+  transform: translateY(-1px);
+}
+
+.hud-btn:active {
+  transform: translateY(0);
+}
+
+.hud-btn[disabled] {
+  
+  cursor: default;
+  transform: none;
+}
+
+/* Scroll containers */
+.hud-scroll-y {
+  max-height: 100%;
+  overflow-y: auto;
+  padding-right: 6px;
+  box-sizing: border-box;
+}
+
+.hud-scroll-y::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hud-scroll-y::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hud-scroll-y::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 999px;
+}
+
+/* Small visual labels */
+.hud-section-label {
+  font-size: calc(11px * var(--lab-font-scale));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lab-text-muted);
+  margin-bottom: 4px;
+}
+
+.hud-number {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Utility: overlay gradient for HUDs */
+.hud-overlay-gradient {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 55%);
+  mix-blend-mode: screen;
+  
+}
+
+html[data-text="sm"]{ --lab-font-scale: 0.94; }
+html[data-text="md"]{ --lab-font-scale: 1; }
+html[data-text="lg"]{ --lab-font-scale: 1.08; }
+html[data-text="xl"]{ --lab-font-scale: 1.16; }
+
+/* --------------------------------------------------------------------------
+ * GLOBAL INTERACTION NORMALIZATION
+ * Fixes hard-to-read default link/button blue states + mobile tap highlights.
+ * -------------------------------------------------------------------------- */
+
+/* Prevent the shiny blue tap flash on mobile (Android/Chrome, iOS/Safari). */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Make links inherit your theme colors in ALL states (kills default blue/purple). */
+a,
+a:link,
+a:visited,
+a:hover,
+a:active {
+  color: inherit;
+  text-decoration-color: currentColor;
+}
+
+/* Keep hover/active from changing to UA default; you control styling via classes. */
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Normalize buttons so UA defaults (blue focus glow, borders, backgrounds) don't leak. */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+/* Remove UA outline, then re-add a theme-consistent focus ring via :focus-visible. */
+:where(a, button, input, select, textarea):focus {
+  outline: none;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Some browsers add inner focus padding/border on buttons; normalize it. */
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+
+
+/* === PHASE A VISIBILITY & LAYERING OVERRIDES === */
+html, body {
+  opacity: 1 !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  background-blend-mode: normal !important;
+}
+
+body::before,
+body::after,
+main::before,
+main::after {
+  content: none !important;
+  display: none !important;
+}
+
+[class*="overlay"],
+[class*="scrim"],
+[class*="backdrop"],
+[id*="overlay"],
+[id*="scrim"],
+[id*="backdrop"] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+* {
+  text-shadow: none !important;
+}
+
+.nxs-pill,
+.start-pill,
+button,
+a.buttonlike {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Lock content to foreground plane */
+main, .content, .page, .container {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* === PHASE C: Z-INDEX & STACKING CONTEXT SANITY === */
+
+/* Normalize z-index layers */
+:root {
+  --z-background: 0;
+  --z-content: 1;
+  --z-ui: 10;
+  --z-nav: 100;
+  --z-modal: 1000;
+  --z-debug: 10000;
+}
+
+/* Foreground locking */
+main, section, article, .content, .container {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* Navigation always above content */
+nav, .nexusbar, header {
+  position: relative;
+  z-index: var(--z-nav) !important;
+}
+
+/* Debug UI always topmost */
+#eruda, .debug-ui, .debug-panel {
+  z-index: var(--z-debug) !important;
+}
+
+/* Remove backdrop-filter traps */
+[class*="blur"],
+[class*="glass"],
+[class*="frost"],
+[class*="backdrop"] {
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+/* Prevent future accidental stacking */
+[data-stack] {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* === END PHASE C === */
+
+
+/* === PHASE D: ACCESSIBILITY, CONTRAST & PERCEPTION === */
+
+/* Enforce readable contrast */
+:root {
+  --min-contrast-bg: #0f172a;
+  --min-contrast-text: #e5e7eb;
+}
+
+body {
+  color: var(--min-contrast-text) !important;
+  background-color: var(--min-contrast-bg) !important;
+}
+
+/* Focus visibility */
+*:focus,
+*:focus-visible {
+  outline: 3px solid #22d3ee !important;
+  outline-offset: 2px !important;
+}
+
+/* Remove fake-button links */
+a:not(.btn):not(.buttonlike) {
+  text-decoration: underline;
+}
+
+/* Button semantics */
+button, .btn, .buttonlike {
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+/* Ensure tap targets */
+a, button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Kill misleading hover-only affordances */
+@media (hover: none) {
+  *:hover {
+  }
+}
+
+/* Screen reader safety */
+[aria-hidden="true"] {
+  display: none !important;
+}
+
+/* Ensure visible labels */
+input, select, textarea {
+  color: #0f172a !important;
+  background: #fff !important;
+}
+
+/* Prevent ultra-dense layouts */
+section, article, main {
+  line-height: 1.6;
+}
+
+/* === END PHASE D === */
+
+
+/* === Recommended Path Tile (compact) === */
+/* === More Tile === */
+
+
+/* === Hybrid Editorial Tile System (C) === */
+.inline-tile{
+  position: relative;
+  background: linear-gradient(180deg, rgba(18,22,35,0.92) 0%, rgba(12,16,28,0.88) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin: 18px 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.inline-tile::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  height:100%;
+  width:4px;
+  background: linear-gradient(180deg, rgba(168,85,247,0.85) 0%, rgba(59,130,246,0.55) 100%);
+  
+}
+
+.inline-tile h3{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px 0;
+  
+}
+
+.inline-tile p{
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0;
+  
+  max-width: 70ch;
+}
+
+/* Slightly tighter cards for short statements */
+.inline-tile--tight{
+  padding: 16px 18px;
+}
+
+@media (max-width: 520px){
+  .inline-tile{
+    padding: 16px 16px;
+    border-radius: 14px;
+  }
+  .inline-tile p{
+    font-size: 14px;
+  }
+}
+
+
+
+/* === Inline Tiles Full-Width === */
+.inline-tile{
+  width: 100% !important;
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+}
+.inline-tile p{ max-width: none; }
+
+
+/* === Thumb De-Dimming === */
+.thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img{
+  filter: none !important;
+  opacity: 1 !important;
+}
+.thumb::after, .tile-thumb::after, .app-thumb::after, .nxs-thumb::after, .thumbs::after,
+.thumb::before, .tile-thumb::before, .app-thumb::before, .nxs-thumb::before, .thumbs::before{
+  display: none !important;
+  content: none !important;
+}
+
+
+/* === Force remove thumb dimming (override) === */
+img{ filter: none !important; opacity: 1 !important; }
+.tile img, .card img, .thumb img, .tile-thumb img, .app-thumb img, .nxs-thumb img, .thumbs img,
+.tile picture img, picture img { filter:none !important; opacity:1 !important; mix-blend-mode: normal !important; }
+.tile::before, .tile::after,
+.card::before, .card::after,
+.thumb::before, .thumb::after,
+.tile-thumb::before, .tile-thumb::after,
+.app-thumb::before, .app-thumb::after,
+.nxs-thumb::before, .nxs-thumb::after,
+.thumbs::before, .thumbs::after,
+.tile img::before, .tile img::after { display:none !important; content:none !important; }
+
+
+/* === Full-width for Start Here + key tiles === */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* If they sit inside a grid, make them span the grid */
+.start-here, .startHere, .nxs-start, #start-here, .start-here-tile,
+.recommended-path, .scope-tile, .inline-tile, .inline-tile--tight {
+  grid-column: 1 / -1 !important;
+}

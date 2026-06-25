@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Agents • Keystroke Logger Agent (Surveillance)</title>
+<link href="/apps/agents/assets/css/agents.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<div class="wrap">
+<div class="nav">
+<div class="row">
+<a class="brand" href="/"><span class="logo"></span><div><b>Agents</b><div style="font-size:12px;color:var(--muted)">Store • Runner • Receipts</div></div></a>
+<div class="subnav">
+<a class="pill" href="/apps/agents/overview.html">Overview</a>
+<a class="pill" href="/apps/agents/store/index.html">Store</a>
+<a class="pill" href="/apps/agents/packs/index.html">Packs</a>
+<a class="pill" href="/apps/agents/runner.html">Runner</a>
+<a class="pill" href="/apps/agents/runs/index.html">Runs</a>
+<a class="pill" href="/apps/agents/policy.html">Policy</a>
+<a class="pill" href="/apps/agents/demo-targets/index.html">Demo Targets</a>
+<a class="pill" href="/apps/agents/sdk.html">SDK</a>
+</div>
+</div>
+</div>
+<div class="container">
+<div class="hcard">
+<h1>Keystroke Logger Agent (Surveillance)</h1>
+<p class="muted">Hooks into the OS input stream and records every key pressed to a local log file.</p>
+<div class="kv">
+<span class="tag">Z • Pack Z — Not Enabled (Demo Locked)</span>
+<span class="tag">ID DOC-075</span>
+<span class="tag">Not enabled</span>
+</div>
+<div style="margin-top:14px">
+<div class="kv">
+<a class="btn primary" href="/apps/agents/packs/pack-z.html">View Pack Z</a>
+<a class="btn" download="" href="/apps/agents/assets/packs/pack-z.agentpack.zip">Download pack</a>
+<a class="btn" download="" href="/apps/agents/assets/packs/no-soup-for-you.png">Download meme</a>
+</div>
+</div>
+<div class="sep"></div>
+<h3>Required permissions</h3>
+<div class="kv"><span class="tag">None</span></div>
+<p class="muted" style="margin-top:10px">Permissions are shown for transparency. In demo mode these agents are stubbed, and no real privileged actions run unless you wire them into your local runner.</p>
+<div class="sep"></div>
+<h3>Outputs</h3>
+<ul class="muted" style="margin-top:8px">
+<li><code>receipts.json</code></li><li><code>artifacts/</code></li>
+</ul>
+<div class="sep"></div>
+<h3>Receipt shape</h3>
+<p class="muted">This agent is designed to emit a run receipt with steps + artifacts. See <a href="/apps/agents/runs/index.html">Runs &amp; Receipts</a> for examples.</p>
+</div>
+<div class="footer">AgentX demo module • local runner + packs + receipts • v0.4.1</div>
+</div>
+</div>
+<script src="/apps/agents/assets/js/agents.js"></script>
+</body>
+</html>

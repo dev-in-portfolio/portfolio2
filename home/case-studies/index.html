@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#070A12" name="theme-color"/>
+<meta content="Interactive product builds in the Nexus suite." name="description"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Case Studies — Devin O’Rourke" property="og:title"/>
+<meta content="Interactive product builds in the Nexus suite." property="og:description"/>
+<meta content="website" property="og:type"/>
+<meta content="https://dev-in-portfolio.netlify.app/case-studies/" property="og:url"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<meta content="Case Studies — Devin O’Rourke" name="twitter:title"/>
+<meta content="Interactive product builds in the Nexus suite." name="twitter:description"/>
+<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
+<title>Case Studies — Devin O’Rourke</title>
+<style>
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#0b0f14; color:#e6edf3; }
+    a { color:#e6edf3; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 22px 16px 40px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 14px; }
+    .card { border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:14px; }
+    .btn { text-decoration:none; border:1px solid rgba(255,255,255,0.22); padding:8px 10px; border-radius:10px; display:inline-block; margin-right:8px; margin-top:10px; }
+    p { opacity:0.92; line-height:1.65; margin: 8px 0 0; }
+    ul { opacity:0.92; line-height:1.8; margin: 8px 0 0; padding-left:18px; }
+  
+/* Phase 3B: Tile polish */
+.tile{
+  display:block;
+  padding:16px;
+  border-radius:18px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+  text-decoration:none;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+.tile:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 16px 34px rgba(0,0,0,0.50);
+  border-color: rgba(155,209,255,0.30);
+  background: rgba(255,255,255,0.065);
+}
+.tile:active{ transform: translateY(-1px) scale(0.99); }
+.tile:focus-visible{ outline:2px solid rgba(255,255,255,0.75); outline-offset:4px; }
+
+
+/* ===== Phase 3C: Typography + Spacing Rhythm ===== */
+:root{
+  --rhythm-1: 10px;
+  --rhythm-2: 16px;
+  --rhythm-3: 24px;
+  --rhythm-4: 34px;
+  --rhythm-5: 46px;
+}
+
+body{
+  line-height: 1.55;
+  letter-spacing: 0.2px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+main, .wrap, .container{
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+main{ padding-left: var(--rhythm-3); padding-right: var(--rhythm-3); }
+
+section{
+  padding-top: var(--rhythm-4);
+  padding-bottom: var(--rhythm-4);
+}
+
+h1, h2, h3{
+  line-height: 1.15;
+  letter-spacing: 0.2px;
+  margin-top: 0;
+}
+
+h1{ font-size: clamp(28px, 3.2vw, 42px); margin-bottom: var(--rhythm-2); }
+h2{ font-size: clamp(20px, 2.2vw, 28px); margin-bottom: var(--rhythm-2); opacity: 0.95; }
+h3{ font-size: 16px; margin-bottom: var(--rhythm-1); opacity: 0.92; }
+
+p, li{
+  font-size: 14px;
+  max-width: 74ch;
+}
+
+p{ margin: 0 0 var(--rhythm-2) 0; opacity: 0.92; }
+
+.muted, .subtle{ opacity: 0.78; }
+
+.centerline{
+  text-align: center;
+  max-width: 70ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.divider{
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+  border: 0;
+  margin: var(--rhythm-4) 0;
+}
+
+/* Better spacing between stacked blocks */
+.stack > * + *{ margin-top: var(--rhythm-2); }
+
+/* Mobile rhythm */
+@media (max-width: 720px){
+  main{ padding-left: var(--rhythm-2); padding-right: var(--rhythm-2); }
+  section{ padding-top: var(--rhythm-3); padding-bottom: var(--rhythm-3); }
+  p, li{ max-width: 100%; }
+}
+
+
+/* ===== Phase 4: Accessibility, Contrast, & Perception ===== */
+/* Kill default shiny-blue links globally (unless explicitly styled) */
+a:link, a:visited{
+  color: rgba(255,255,255,0.92);
+  text-decoration-color: rgba(255,255,255,0.35);
+}
+a:hover{
+  color: rgba(255,255,255,0.98);
+  text-decoration-color: rgba(155,209,255,0.70);
+}
+a:active{
+  color: rgba(255,255,255,1);
+}
+
+/* If something is intended to look like a button, it should feel like one */
+a.btn, a.buttonlike, .nxs-btn, .nxs-pill, .pillBtn, button, [role="button"]{
+  text-decoration: none !important;
+}
+
+/* Keyboard: always visible focus, never the default outline that disappears on dark backgrounds */
+:focus-visible{
+  outline: 2px solid rgba(155,209,255,0.85);
+  outline-offset: 4px;
+}
+
+/* Increase tap target comfort on mobile */
+a, button{
+  -webkit-tap-highlight-color: rgba(155,209,255,0.25);
+}
+
+
+/* ===== Phase 5: Performance, SEO, & Production Paranoia ===== */
+/* Reduce layout shift from images */
+img{ height:auto; }
+
+</style>
+<link href="/shared/tokens.css" rel="stylesheet"/>
+<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+<link href="https://dev-in-portfolio.netlify.app/case-studies/" rel="canonical"/>
+<link href="/icon-192.png" rel="icon"/>
+<style>
+  /* CTA card (scoped — does NOT override generic .card) */
+  .ctaCard{background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.18);border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.45);padding:14px 14px;margin:14px 0;}
+  .ctaK{font-weight:800;margin-bottom:6px}
+  .ctaP{color:rgba(245,247,255,.74);margin-bottom:10px;line-height:1.45}
+  .ctaPill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,0.24);background:rgba(255,255,255,0.06);text-decoration:none;color:#F5F7FF}
+  .ctaPill:hover{background:rgba(255,255,255,0.10)}
+  .fullBlock{border:1px solid rgba(255,255,255,0.18);border-radius:16px;padding:14px;margin-top:12px;background:rgba(255,255,255,0.04)}
+  .fullBlock p{opacity:.92;line-height:1.7}
+  .fullBlock ul{line-height:1.8;opacity:0.92}
+  .anchorRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+</style>
+<script src="/runtime-guard.js"></script>
+<link href="/shared/tile-polish.css" rel="stylesheet"/>
+<link href="/shared/tap-physics.css" rel="stylesheet"/>
+<link href="/shared/ui-physics.css" rel="stylesheet"/>
+</head>
+<body>
+  <nav class="nxTopNav"></nav>
+
+<a class="skip-link" href="#main" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to content</a>
+<div class="wrap" id="main">
+<h1 style="margin:0;">Case Studies</h1>
+<div class="ctaCard">
+<div class="ctaK">Full case studies live on this page now</div>
+<div class="ctaP">Top tiles are for speed-scanning. Scroll down for the full writeups (problem framing → constraints → system choices → hiring signal).</div>
+<div class="anchorRow">
+<a class="ctaPill" href="../index.html#featured">Back to Featured</a>
+<a class="ctaPill" href="#full">Jump to Full ↓</a>
+</div>
+</div>
+<p>Skim fast. Dive deep. Everything here is written to be legible to hiring teams.</p>
+<div class="grid">
+<div class="card">
+<h2 style="margin:0;">Coverage Compass</h2>
+<p>Medicare tradeoffs as constrained transitions under uncertainty.</p>
+<ul>
+<li>Explainability + top drivers</li>
+<li>Lock-in + switching asymmetry</li>
+<li>Failure modes as UX</li>
+</ul>
+<div class="anchorRow">
+<a class="btn" href="coverage-compass.html">Deep dive →</a>
+<a class="btn" href="../apps/coverage-compass/">Open app →</a>
+<a class="btn" href="#full-cc">Full ↓</a>
+</div>
+</div>
+<div class="card">
+<h2 style="margin:0;">UBR</h2>
+<p>Routing as decision support: drift, overrides, and tradeoffs made visible.</p>
+<ul>
+<li>Human-in-the-loop by default</li>
+<li>Explainable planning</li>
+<li>Robustness over brittle “optimal”</li>
+</ul>
+<div class="anchorRow">
+<a class="btn" href="ubr.html">Deep dive →</a>
+<a class="btn" href="../apps/ubr/">Open app →</a>
+<a class="btn" href="#full-ubr">Full ↓</a>
+</div>
+</div>
+<div class="card">
+<h2 style="margin:0;">Alibi</h2>
+<p>Inventory as transitions + provenance with trust gradients.</p>
+<ul>
+<li>Transitions over totals</li>
+<li>Anomalies as signal</li>
+<li>Designed for drift</li>
+</ul>
+<div class="anchorRow">
+<a class="btn" href="alibi.html">Deep dive →</a>
+<a class="btn" href="../apps/alibi/">Open app →</a>
+<a class="btn" href="#full-alibi">Full ↓</a>
+</div>
+</div>
+</div>
+<h2 id="full" style="margin:22px 0 8px;">Full case studies</h2>
+<div class="fullBlock" id="full-cc">
+<h3 style="margin:0 0 6px;">Coverage Compass — Decision‑Support for Medicare Trade‑Offs</h3>
+<h4 style="margin:14px 0 6px;">Why traditional tools fail.</h4>
+<p>Most Medicare comparison tools frame plan selection like shopping: list benefits, compare premiums and check a few boxes. However, research shows that focusing solely on monthly premiums can lead to unpleasant surprises. A University of Michigan analysis on Medicare plan selection (reported by ScienceDaily) notes that consumers need to compare total costs, provider networks and drug coverage rather than just premiums. Yet only 33% of Medicare beneficiaries use online tools to explore their options, despite having more than ten Medicare Advantage plans plus multiple Part D and Medigap options.</p>
+<p>When beneficiaries choose plans based solely on low premiums, they often underestimate future out‑of‑pocket costs or network restrictions. Switching later is difficult: in all but four states, beneficiaries who try to switch from a Medicare Advantage plan back to traditional Medicare may be denied a Medigap policy if they have a pre‑existing condition. Researchers from the Center for Retirement Research describe this as the “one‑way‑street” problem: it’s easy to switch from Medigap to Medicare Advantage, but hard to go back because insurers can reject applicants after the initial enrollment period.</p>
+<h4 style="margin:14px 0 6px;">Reframing the decision.</h4>
+<p>Coverage Compass reframes the choice from “Which plan has the lowest premium?” to “What happens if I’m wrong?” It surfaces the risk of being locked into an unsuitable plan due to underwriting or network restrictions. It also communicates the asymmetric consequences of switching: for example, a retiree may want to move from an Advantage plan to a Medigap policy because Advantage networks restrict specialists and require prior authorizations, but insurers can reject them for health reasons.</p>
+<p>By highlighting these downside risks and encouraging counter‑factual thinking, the tool helps users make more resilient decisions.</p>
+<h4 style="margin:14px 0 6px;">System design choices.</h4>
+<ul>
+<li><strong>Failure modes as UX:</strong> The interface shows uncertainty, risk ranges and what could go wrong. Rather than hiding complexity, the tool visualizes potential future health costs and lock‑in risks.</li>
+<li><strong>Drivers‑first explanation:</strong> Recommendations are accompanied by the key variables (e.g., expected drug costs, likelihood of needing out‑of‑network specialists) that drive the decision.</li>
+<li><strong>Designed for high‑stakes users:</strong> Plain language, mobile‑friendly layouts, and local‑only data processing to protect privacy.</li>
+</ul>
+<p><strong>Hiring signal:</strong> The case demonstrates rethinking problem framing and building explainable decision‑support systems for high‑stakes, messy decisions.</p>
+<div class="anchorRow">
+<a class="btn" href="../apps/coverage-compass/">Open Coverage Compass →</a>
+<a class="btn" href="#main">Back to top ↑</a>
+</div>
+</div>
+<div class="fullBlock" id="full-ubr">
+<h3 style="margin:0 0 6px;">UBR — Constraint‑Aware Route Planning</h3>
+<h4 style="margin:14px 0 6px;">What’s wrong with traditional routing?</h4>
+<p>Many routing tools assume stable conditions: clean input data, fixed priorities and compliant users. Static routing strategies are optimized once and then fixed; they break down when real‑world conditions change. Modern research on “dynamic route optimization” stresses that effective systems must adapt to up‑to‑the‑minute data—traffic, weather, road closures and even customer cancellations.</p>
+<p>Unlike static routing, dynamic route optimization uses smart algorithms and real‑time updates to continuously refine routes. It also recognizes that route planning isn’t purely automated: good systems allow dispatchers and drivers to input manual changes (for example, a customer calling to delay a delivery) and incorporate those human adjustments into the routing logic. Failing to accommodate these dynamics leads to “operational drift”: last‑minute cancellations, new leads, changing priorities and incomplete or inaccurate data. Black‑box optimizers that hide their logic further erode user trust—drivers override routes or abandon the tool entirely.</p>
+<h4 style="margin:14px 0 6px;">Reframing the problem.</h4>
+<p>UBR treats routing as a negotiation surface where human judgement is integral. It answers questions like “what happens if we swap Stop A and B?” rather than spitting out an opaque route. The system embraces dynamic routing, using live data to adapt routes while exposing the factors behind each decision. Drawing from best‑in‑class dynamic routing systems that combine real‑time data and manual inputs, UBR reframes “route planning” as “decision support.”</p>
+<h4 style="margin:14px 0 6px;">System design choices.</h4>
+<ul>
+<li><strong>Explainable planning:</strong> Every adjustment is accompanied by an explanation. Users see why a stop moved, whether due to real‑time data (e.g., traffic) or a human override.</li>
+<li><strong>Human‑in‑the‑loop by default:</strong> Overrides aren’t treated as failures. Dispatchers and drivers can adjust routes, and the system re‑optimizes around those constraints.</li>
+<li><strong>Graceful degradation:</strong> When information is incomplete or conditions change, UBR still offers reasonable guidance instead of chasing brittle “optimality.”</li>
+</ul>
+<p><strong>Hiring signal:</strong> The case study shows an ability to design operationally realistic systems that preserve trust by making trade‑offs visible. It is especially relevant for logistics, field service and sales‑ops tooling.</p>
+<div class="anchorRow">
+<a class="btn" href="../apps/ubr/">Open UBR →</a>
+<a class="btn" href="#main">Back to top ↑</a>
+</div>
+</div>
+<div class="fullBlock" id="full-alibi">
+<h3 style="margin:0 0 6px;">Alibi — Trust‑Aware Inventory</h3>
+<h4 style="margin:14px 0 6px;">What’s wrong with conventional inventory systems?</h4>
+<p>Traditional inventory systems record totals and assume the ledger reflects reality. Real supply chains are messier—items are mis‑labeled, paperwork lags behind physical movements, and staff take shortcuts. The result is “ghost inventory” or “phantom inventory,” where system records show items in stock that aren’t physically there.</p>
+<p>A 2021 study by Zebra Technologies cited in the Retail Aware blog found that phantom inventory accounts for about 8% of all inventory losses, costing retailers about $8 for every $100 in inventory. Causes include theft, human counting errors, inaccurate tracking systems and product shrinkage. Phantom inventory leads to stock‑outs, higher costs (such as expediting shipments to cover mistakes), reduced customer satisfaction and reputational damage.</p>
+<h4 style="margin:14px 0 6px;">Reframing the problem.</h4>
+<p>Alibi models inventory as a stream of state transitions with uncertain provenance. Instead of treating records as ground truth, it treats them as evidence with associated confidence. Each item has a provenance trail—receipts, transfers, adjustments—allowing the system to surface discrepancies and “trust gradients.” This mirrors modern event‑sourcing approaches where each change to the inventory is logged, enabling auditors to reconstruct how and why counts diverged.</p>
+<h4 style="margin:14px 0 6px;">System design choices.</h4>
+<ul>
+<li><strong>Transitions over totals:</strong> Rather than static counts, Alibi tracks every inventory movement. By analyzing events (receipts, transfers, consumption), the system can pinpoint when and where discrepancies arose.</li>
+<li><strong>Anomalies as signal:</strong> Suspicious patterns—unexpected changes, mismatched lot numbers, missing paperwork—are surfaced for review.</li>
+<li><strong>Designed for drift:</strong> Alibi assumes messiness. It tolerates uncertainty and lag without losing meaning, reducing the need for “shadow” systems that teams often create when they lose trust in official records.</li>
+</ul>
+<p><strong>Hiring signal:</strong> The case study shows how to build trust‑aware systems for compliance, verification or supply‑chain truth. It demonstrates design thinking that accounts for human behaviour, drift and failure.</p>
+<div class="anchorRow">
+<a class="btn" href="../apps/alibi/">Open Alibi →</a>
+<a class="btn" href="#main">Back to top ↑</a>
+</div>
+</div>
+<div class="fullBlock" id="conclusion">
+<h3 style="margin:0 0 6px;">Conclusion</h3>
+<p>Across the three case studies, a common pattern emerges: many existing tools assume clean inputs and ignore human behavior, leading to brittle, black‑box systems. By examining real‑world failure modes (operational drift, ghost inventory, plan‑selection lock‑in) and drawing on research—such as dynamic route optimization that blends real‑time data and manual inputs, studies on phantom inventory losses, and policy analyses showing that most Medicare Advantage enrollees lack guaranteed issue protections for Medigap—the case studies illustrate how to build systems that are transparent, resilient and trust‑worthy.</p>
+<div class="anchorRow">
+<a class="btn" href="#main">Back to top ↑</a>
+</div>
+</div>
+<div class="ctaCard" style="margin-top:18px">
+<div class="ctaK">Contact</div>
+<div class="ctaP">If you want the fast version: open any app, hit “Help”, and skim the case-study section. If you want the hiring-team version: this page is the full writeup.</div>
+<div class="anchorRow">
+<a class="ctaPill" href="mailto:devin.dev.portfolio@gmail.com">devin.dev.portfolio@gmail.com</a>
+<a class="ctaPill" href="https://www.linkedin.com/in/devin-o%E2%80%99rourke-539ba63a5" rel="noopener" target="_blank">LinkedIn</a>
+</div>
+</div>
+</div>
+<script defer="" src="/shared/runtime-load-guard.js"></script>
+<script defer="" src="/shared/render-recovery-guard.js"></script>
+<script defer="" src="/shared/resize-dpr-guard.js"></script>
+<script defer="" src="/shared/error-boundary-guard.js"></script>
+<script defer="" src="/shared/state-init-guard.js"></script>
+<script defer="" src="/shared/scroll-focus-guard.js"></script>
+<script defer="" src="/shared/ui-physics-guard.js"></script>
+<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</body>
+</html>
