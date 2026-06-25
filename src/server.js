@@ -21,6 +21,7 @@ const pool = DATABASE_URL
 
 app.use(cors());
 app.use(express.json({ limit: '64kb' }));
+app.use(express.static('public'));
 app.use((req, _res, next) => {
   const fnPrefix = '/.netlify/functions/server';
   if (req.url === fnPrefix) req.url = '/';

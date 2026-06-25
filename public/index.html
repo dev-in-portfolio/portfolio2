@@ -3,107 +3,918 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TapForge</title>
+    <title>TapForge - Interactive Preset Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-      :root { --bg:#0b1020; --card:#111a33; --txt:#ecf2ff; --muted:#9cb1d9; --a:#67d4ff; --b:#8aa2ff; --bd:#2a3b67; }
+      :root {
+        --bg: #0b0c15;
+        --bg-darker: #05060b;
+        --panel: rgba(23, 24, 38, 0.7);
+        --panel-solid: #171826;
+        --txt: #f1f5f9;
+        --muted: #8493b2;
+        --blue: #06b6d4;         /* Neon Teal/Blue */
+        --orange: #f97316;       /* Neon Orange */
+        --blue-glow: rgba(6, 182, 212, 0.4);
+        --orange-glow: rgba(249, 115, 22, 0.4);
+        --border: rgba(6, 182, 212, 0.15);
+        --border-hover: rgba(6, 182, 212, 0.35);
+      }
+      
       * { box-sizing: border-box; }
-      body { margin:0; font-family: Inter, system-ui, sans-serif; color:var(--txt); background:radial-gradient(circle at 20% 0,#1a2c5a 0,#0b1020 55%); }
-      .wrap { max-width: 960px; margin: 0 auto; padding: 24px; }
-      .hero { border:1px solid var(--bd); background:linear-gradient(120deg,#0f1933,#111a33); border-radius:16px; padding:18px; }
-      h1 { margin:0 0 6px; font-size: 1.9rem; }
-      p { color: var(--muted); }
-      .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
-      .card { border:1px solid var(--bd); border-radius:14px; background:var(--card); padding:14px; }
-      input, textarea, button { width:100%; border-radius:10px; border:1px solid #32508d; background:#0d1730; color:var(--txt); padding:10px; }
-      button { background: linear-gradient(90deg,var(--a),var(--b)); color:#061022; border:none; font-weight:700; cursor:pointer; }
-      ul { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
-      li { border:1px solid #284176; border-radius:10px; padding:10px; background:#0d1730; }
-      .muted { color:var(--muted); font-size:.9rem; }
-      @media (max-width: 880px) { .row { grid-template-columns:1fr; } }
+      
+      body {
+        margin: 0;
+        font-family: 'Outfit', system-ui, sans-serif;
+        color: var(--txt);
+        background: radial-gradient(circle at 50% 0%, #17192f 0%, var(--bg) 70%);
+        background-attachment: fixed;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      
+      /* Scrollbar */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+      ::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.2); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--blue); }
+
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--panel);
+        padding: 24px;
+        box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        transition: border-color 0.3s ease;
+      }
+
+      .card:hover {
+        border-color: var(--border-hover);
+      }
+
+      header.card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .status-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        background: rgba(6, 182, 212, 0.08);
+        padding: 6px 14px;
+        border-radius: 99px;
+        border: 1px solid var(--border);
+        font-weight: 600;
+        color: var(--blue);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .status-tag.online {
+        color: var(--blue);
+        box-shadow: 0 0 10px var(--blue-glow);
+      }
+
+      .status-tag.fallback {
+        color: var(--orange);
+        background: rgba(249, 115, 22, 0.08);
+        border-color: rgba(249, 115, 22, 0.25);
+        box-shadow: 0 0 10px var(--orange-glow);
+      }
+      
+      h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.01em; }
+      h1 { font-size: 2rem; background: linear-gradient(135deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      h2 { font-size: 1.25rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+      
+      .m { color: var(--muted); font-size: 0.9rem; line-height: 1.4; }
+      
+      /* Main Grid layout */
+      .main-layout {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 24px;
+      }
+
+      @media(max-width:960px){
+        .main-layout { grid-template-columns: 1fr; }
+      }
+
+      .editor-pane {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+
+      .form-group label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      input, textarea, select {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg-darker);
+        color: var(--txt);
+        padding: 10px 12px;
+        font-family: inherit;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+
+      input:focus, textarea:focus, select:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 8px var(--blue-glow);
+      }
+      
+      button {
+        width: 100%;
+        background: linear-gradient(135deg, var(--blue), #0891b2);
+        color: #040810;
+        font-weight: 700;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 10px 18px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+      
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 0 12px var(--blue-glow);
+      }
+
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      button.secondary {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        color: var(--txt);
+      }
+
+      button.secondary:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: none;
+      }
+
+      button.orange-btn {
+        background: linear-gradient(135deg, var(--orange), #ea580c);
+        color: #fff;
+      }
+
+      button.orange-btn:hover:not(:disabled) {
+        box-shadow: 0 0 12px var(--orange-glow);
+      }
+
+      .flex-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .mono {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+      }
+
+      /* Radial Dial Knobs */
+      .knobs-container {
+        display: flex;
+        justify-content: space-around;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 16px 0;
+        background: rgba(0,0,0,0.15);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+      }
+
+      .dial-control {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        width: 130px;
+        user-select: none;
+      }
+
+      .dial-svg {
+        width: 90px;
+        height: 90px;
+        cursor: pointer;
+      }
+
+      .dial-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .dial-val-display {
+        font-size: 0.85rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--blue);
+        background: rgba(6, 182, 212, 0.05);
+        padding: 2px 8px;
+        border-radius: 4px;
+        border: 1px solid rgba(6, 182, 212, 0.1);
+      }
+
+      /* 2D Star Map Node Grid */
+      .map-container {
+        background: #05060b;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        height: 380px;
+        position: relative;
+        overflow: hidden;
+        margin-top: 12px;
+        box-shadow: inset 0 2px 15px rgba(0,0,0,0.8);
+      }
+
+      .map-grid-bg {
+        position: absolute;
+        inset: 0;
+        background-image: 
+          linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+        background-size: 20px 20px;
+        pointer-events: none;
+      }
+
+      .map-canvas {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .preset-node {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--bg-darker);
+        border: 2px solid var(--blue);
+        box-shadow: 0 0 10px var(--blue-glow);
+        cursor: grab;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        font-weight: 700;
+        z-index: 10;
+        transition: transform 0.15s, border-color 0.2s;
+        text-align: center;
+        padding: 4px;
+        word-break: break-all;
+        overflow: hidden;
+      }
+
+      .preset-node:hover {
+        transform: translate(-50%, -50%) scale(1.1);
+        border-color: var(--orange);
+        box-shadow: 0 0 15px var(--orange-glow);
+      }
+
+      .preset-node.active {
+        border-color: var(--orange);
+        box-shadow: 0 0 15px var(--orange-glow);
+      }
+
+      /* Inspector Sliding Pane */
+      .inspector-pane {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .inspector-code-box {
+        background: #040508;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        font-size: 0.75rem;
+        color: var(--blue);
+        height: 380px;
+        overflow-y: auto;
+        margin: 0;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+      }
     </style>
   </head>
   <body>
     <main class="wrap">
-      <section class="hero">
-        <h1>TapForge</h1>
-        <p>Create, store, duplicate, and edit interaction presets backed by Neon Postgres.</p>
-        <p id="status" class="muted">Checking API...</p>
-      </section>
-      <section class="row">
-        <article class="card">
-          <h2>Create Preset</h2>
-          <input id="name" placeholder="Preset name" />
-          <textarea id="settings" rows="8">{"version":1,"controls":[{"id":"volume","type":"slider","min":0,"max":100,"step":1,"value":35}]}</textarea>
-          <button id="create">Create</button>
-        </article>
-        <article class="card">
-          <h2>Presets</h2>
-          <ul id="list"></ul>
-        </article>
-      </section>
+      <!-- Header -->
+      <header class="card">
+        <div>
+          <h1>TapForge Preset Lab</h1>
+          <p class="m" style="margin-top: 4px;">Tactile interaction dashboard with custom knobs and preset node map.</p>
+        </div>
+        <div id="status" class="status-tag">
+          <span>●</span> Connecting...
+        </div>
+      </header>
+
+      <div class="main-layout">
+        <!-- Left Column: Knobs & Node Map -->
+        <section class="editor-pane">
+          <!-- Dial Knobs Panel -->
+          <article class="card">
+            <h2>🎛 Tactile Instrument Knobs</h2>
+            <p class="m" style="margin-bottom: 16px;">Drag dials vertically or rotate them to adjust frequency, amplitude, and duration parameters.</p>
+            
+            <div class="knobs-container">
+              <!-- Knob 1: Frequency -->
+              <div class="dial-control">
+                <span class="dial-label">Frequency</span>
+                <svg id="dial-freq" class="dial-svg" viewBox="0 0 100 100">
+                  <!-- Dial track -->
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#121422" stroke-width="8" stroke-dasharray="190 270" stroke-dashoffset="-40" stroke-linecap="round"/>
+                  <!-- Dial active fill -->
+                  <circle id="fill-freq" cx="50" cy="50" r="40" fill="none" stroke="var(--blue)" stroke-width="8" stroke-dasharray="0 270" stroke-dashoffset="-40" stroke-linecap="round" filter="drop-shadow(0 0 5px var(--blue-glow))"/>
+                  <!-- Center knob -->
+                  <circle cx="50" cy="50" r="30" fill="#171826" stroke="var(--border)" stroke-width="2"/>
+                  <!-- Indicator notch line -->
+                  <line id="notch-freq" x1="50" y1="20" x2="50" y2="35" stroke="var(--blue)" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+                <span id="val-freq" class="dial-val-display">1.0 Hz</span>
+              </div>
+
+              <!-- Knob 2: Amplitude -->
+              <div class="dial-control">
+                <span class="dial-label">Amplitude</span>
+                <svg id="dial-amp" class="dial-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#121422" stroke-width="8" stroke-dasharray="190 270" stroke-dashoffset="-40" stroke-linecap="round"/>
+                  <circle id="fill-amp" cx="50" cy="50" r="40" fill="none" stroke="var(--orange)" stroke-width="8" stroke-dasharray="0 270" stroke-dashoffset="-40" stroke-linecap="round" filter="drop-shadow(0 0 5px var(--orange-glow))"/>
+                  <circle cx="50" cy="50" r="30" fill="#171826" stroke="var(--border)" stroke-width="2"/>
+                  <line id="notch-amp" x1="50" y1="20" x2="50" y2="35" stroke="var(--orange)" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+                <span id="val-amp" class="dial-val-display">50%</span>
+              </div>
+
+              <!-- Knob 3: Duration -->
+              <div class="dial-control">
+                <span class="dial-label">Duration</span>
+                <svg id="dial-dur" class="dial-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="#121422" stroke-width="8" stroke-dasharray="190 270" stroke-dashoffset="-40" stroke-linecap="round"/>
+                  <circle id="fill-dur" cx="50" cy="50" r="40" fill="none" stroke="var(--blue)" stroke-width="8" stroke-dasharray="0 270" stroke-dashoffset="-40" stroke-linecap="round" filter="drop-shadow(0 0 5px var(--blue-glow))"/>
+                  <circle cx="50" cy="50" r="30" fill="#171826" stroke="var(--border)" stroke-width="2"/>
+                  <line id="notch-dur" x1="50" y1="20" x2="50" y2="35" stroke="var(--blue)" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+                <span id="val-dur" class="dial-val-display">100 ms</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Node Constellation Map -->
+          <article class="card">
+            <h2>✨ Constellation Preset Map</h2>
+            <p class="m">Presets map dynamically in 2D space. Drag star nodes to model relationships. Click to select.</p>
+            <div id="map-wrap" class="map-container">
+              <div class="map-grid-bg"></div>
+              <canvas id="map-canvas" class="map-canvas"></canvas>
+              <!-- Draggable star nodes will inject here -->
+            </div>
+          </article>
+        </section>
+
+        <!-- Right Column: Inspector & Form -->
+        <section class="inspector-pane">
+          <!-- Save Preset Form -->
+          <article class="card">
+            <h2>⚙ Preset Info</h2>
+            <div class="form-group">
+              <label>Preset Name</label>
+              <input id="presetName" placeholder="e.g. Tactile Alert" value="Tactile Alert" />
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px;">
+              <button id="saveBtn" class="orange-btn">💾 Save Preset</button>
+              <button id="cloneBtn" class="secondary">📋 Clone Selection</button>
+              <button id="deleteBtn" class="secondary" style="color: var(--orange); border-color: rgba(249, 115, 22, 0.2)">🗑 Delete Selection</button>
+            </div>
+          </article>
+
+          <!-- Schema Inspector -->
+          <article class="card">
+            <h2>👁 Live Schema Inspector</h2>
+            <p class="m" style="margin-bottom: 12px;">Active JSON configuration sent to haptic devices.</p>
+            <pre class="inspector-code-box mono" id="codeInspector"><code>{
+  "version": 1,
+  "controls": []
+}</code></pre>
+          </article>
+        </section>
+      </div>
     </main>
 
     <script>
+      // Web Audio Synth Click Feedbacks
+      let audioCtx = null;
+      function playClickSound(freq = 800, dur = 0.015) {
+        try {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          
+          gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+          
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          
+          osc.start();
+          osc.stop(audioCtx.currentTime + dur);
+          
+          // Trigger browser vibration if supported
+          if (navigator.vibrate) navigator.vibrate(10);
+        } catch(e) {}
+      }
+
+      // App State
       const deviceKey = localStorage.tapforgeKey || (localStorage.tapforgeKey = `tapforge-${crypto.randomUUID()}`);
       const headers = { 'Content-Type': 'application/json', 'X-Device-Key': deviceKey };
+      
       const statusEl = document.getElementById('status');
-      const listEl = document.getElementById('list');
+      const presetNameEl = document.getElementById('presetName');
+      const codeInspectorEl = document.getElementById('codeInspector');
+      const mapWrapEl = document.getElementById('map-wrap');
+      const canvasEl = document.getElementById('map-canvas');
+      const ctx = canvasEl.getContext('2d');
 
-      async function health() {
-        const res = await fetch('/api/health/db');
-        const data = await res.json();
-        statusEl.textContent = data.ok ? 'API connected to database.' : `API warning: ${data.error || 'unavailable'}`;
-      }
+      let fallbackMode = false;
+      let presetsList = [];
+      let activePresetId = null;
 
-      async function load() {
-        const res = await fetch('/api/tapforge/presets', { headers });
-        const items = await res.json();
-        listEl.innerHTML = '';
-        if (!Array.isArray(items) || !items.length) {
-          listEl.innerHTML = '<li class="muted">No presets yet.</li>';
-          return;
-        }
-        for (const item of items) {
-          const li = document.createElement('li');
-          li.innerHTML = `<strong>${item.name}</strong><div class="muted">${new Date(item.updated_at).toLocaleString()}</div>`;
-          const row = document.createElement('div');
-          row.style.display = 'grid';
-          row.style.gridTemplateColumns = '1fr 1fr';
-          row.style.gap = '8px';
-          row.style.marginTop = '8px';
-          const dup = document.createElement('button');
-          dup.textContent = 'Duplicate';
-          dup.onclick = async () => { await fetch(`/api/tapforge/presets/${item.id}/duplicate`, { method: 'POST', headers }); await load(); };
-          const del = document.createElement('button');
-          del.textContent = 'Delete';
-          del.onclick = async () => { await fetch(`/api/tapforge/presets/${item.id}`, { method: 'DELETE', headers }); await load(); };
-          row.append(dup, del);
-          li.appendChild(row);
-          listEl.appendChild(li);
-        }
-      }
-
-      document.getElementById('create').onclick = async () => {
-        const name = document.getElementById('name').value.trim();
-        let settings;
-        try { settings = JSON.parse(document.getElementById('settings').value); }
-        catch { alert('Settings must be valid JSON.'); return; }
-        const res = await fetch('/api/tapforge/presets', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ name, settings })
-        });
-        if (!res.ok) {
-          const e = await res.json().catch(() => ({}));
-          alert(e.error || 'Failed to create preset.');
-          return;
-        }
-        document.getElementById('name').value = '';
-        await load();
+      // Active Control settings (Values managed by Knobs)
+      const dialStates = {
+        freq: { value: 1.0, min: 0.1, max: 10.0, step: 0.1, unit: 'Hz', fill: 'fill-freq', notch: 'notch-freq', text: 'val-freq' },
+        amp: { value: 50, min: 0, max: 100, step: 1, unit: '%', fill: 'fill-amp', notch: 'notch-amp', text: 'val-amp' },
+        dur: { value: 100, min: 10, max: 500, step: 10, unit: 'ms', fill: 'fill-dur', notch: 'notch-dur', text: 'val-dur' }
       };
 
-      health().catch(() => { statusEl.textContent = 'API unavailable.'; });
-      load().catch(() => { listEl.innerHTML = '<li class="muted">Failed to load presets.</li>'; });
+      // Mock Local Database for Offline
+      const getLocalPresets = () => {
+        try {
+          return JSON.parse(localStorage.getItem('tapforge_presets_db')) || [];
+        } catch {
+          return [];
+        }
+      };
+
+      const saveLocalPresets = (presets) => {
+        localStorage.setItem('tapforge_presets_db', JSON.stringify(presets));
+      };
+
+      // Check DB health
+      async function checkHealth() {
+        try {
+          const res = await fetch('/api/health/db');
+          const data = await res.json();
+          if (data.ok) {
+            statusEl.className = 'status-tag online';
+            statusEl.innerHTML = '<span>●</span> Database Online';
+            fallbackMode = false;
+          } else {
+            throw new Error(data.error);
+          }
+        } catch (e) {
+          statusEl.className = 'status-tag fallback';
+          statusEl.innerHTML = '<span>●</span> Local Fallback';
+          fallbackMode = true;
+        }
+      }
+
+      // Load presets and draw constellation nodes
+      async function loadPresets() {
+        if (fallbackMode) {
+          presetsList = getLocalPresets();
+          renderNodes();
+        } else {
+          try {
+            const res = await fetch('/api/tapforge/presets', { headers });
+            const data = await res.json();
+            presetsList = Array.isArray(data) ? data : [];
+            renderNodes();
+          } catch (e) {
+            fallbackMode = true;
+            await loadPresets();
+          }
+        }
+      }
+
+      // Sync active state UI
+      function syncSchemaInspector() {
+        const schema = {
+          version: 1,
+          controls: [
+            { id: "frequency", type: "slider", min: dialStates.freq.min, max: dialStates.freq.max, step: dialStates.freq.step, value: dialStates.freq.value },
+            { id: "amplitude", type: "slider", min: dialStates.amp.min, max: dialStates.amp.max, step: dialStates.amp.step, value: dialStates.amp.value },
+            { id: "duration", type: "slider", min: dialStates.dur.min, max: dialStates.dur.max, step: dialStates.dur.step, value: dialStates.dur.value }
+          ],
+          haptics: {
+            onChange: "light",
+            onCommit: "medium"
+          }
+        };
+        codeInspectorEl.textContent = JSON.stringify(schema, null, 2);
+      }
+
+      // Render Dial Knobs
+      function updateDialUI(key) {
+        const dial = dialStates[key];
+        const percent = (dial.value - dial.min) / (dial.max - dial.min);
+        
+        // 190 degrees is the max circumference of dial track. dashoffset starts from 0 to 190
+        const dashArray = `${percent * 190} 270`;
+        document.getElementById(dial.fill).setAttribute('stroke-dasharray', dashArray);
+        
+        // Rotate indicator notch. -135deg (min) to +135deg (max)
+        const rotationAngle = -135 + percent * 270;
+        document.getElementById(dial.notch).setAttribute('transform', `rotate(${rotationAngle} 50 50)`);
+        
+        // Text display
+        document.getElementById(dial.text).textContent = `${dial.value.toFixed(dial.step % 1 === 0 ? 0 : 1)} ${dial.unit}`;
+        
+        syncSchemaInspector();
+      }
+
+      // Handle Dial dragging rotation
+      function registerDialDragging(dialId, key) {
+        const svg = document.getElementById(dialId);
+        let activeDrag = false;
+        let lastY = 0;
+
+        const onStart = (e) => {
+          activeDrag = true;
+          lastY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+          playClickSound(600, 0.01);
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onEnd);
+          document.addEventListener('touchmove', onMove, { passive: false });
+          document.addEventListener('touchend', onEnd);
+        };
+
+        const onMove = (e) => {
+          if (!activeDrag) return;
+          if (e.cancelable) e.preventDefault();
+          
+          const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+          const diffY = lastY - currentY; // Upward drag raises value
+          lastY = currentY;
+          
+          const dial = dialStates[key];
+          const range = dial.max - dial.min;
+          const stepValue = range * 0.005; // Drag sensitivity scale
+          
+          const rawVal = dial.value + diffY * stepValue;
+          const clamped = Math.max(dial.min, Math.min(dial.max, rawVal));
+          
+          // Snap to step
+          const steppedVal = Math.round(clamped / dial.step) * dial.step;
+          const finalVal = Math.max(dial.min, Math.min(dial.max, steppedVal));
+
+          if (dial.value !== finalVal) {
+            dial.value = finalVal;
+            updateDialUI(key);
+            playClickSound(500 + percentOf(dial) * 500, 0.008);
+          }
+        };
+
+        const percentOf = (d) => (d.value - d.min) / (d.max - d.min);
+
+        const onEnd = () => {
+          activeDrag = false;
+          playClickSound(800, 0.015);
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onEnd);
+          document.removeEventListener('touchmove', onMove);
+          document.removeEventListener('touchend', onEnd);
+        };
+
+        svg.addEventListener('mousedown', onStart);
+        svg.addEventListener('touchstart', onStart, { passive: true });
+      }
+
+      // Constellation Canvas Node positions
+      let nodePositions = {};
+
+      function resizeCanvas() {
+        canvasEl.width = mapWrapEl.clientWidth;
+        canvasEl.height = mapWrapEl.clientHeight;
+        drawConnections();
+      }
+
+      // Draw constellation grid paths
+      function drawConnections() {
+        ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        
+        // Draw lines from every node to consecutive ones (constellation wireframe)
+        const keys = Object.keys(nodePositions);
+        ctx.beginPath();
+        for (let i = 0; i < keys.length; i++) {
+          const nodeA = nodePositions[keys[i]];
+          for (let j = i + 1; j < keys.length; j++) {
+            const nodeB = nodePositions[keys[j]];
+            // Connect nodes that are close in space
+            const dist = Math.hypot(nodeA.x - nodeB.x, nodeA.y - nodeB.y);
+            if (dist < 180) {
+              ctx.moveTo(nodeA.x, nodeA.y);
+              ctx.lineTo(nodeB.x, nodeB.y);
+            }
+          }
+        }
+        ctx.stroke();
+      }
+
+      // Render Draggable nodes
+      function renderNodes() {
+        // Clear previous HTML nodes
+        const prevNodes = mapWrapEl.querySelectorAll('.preset-node');
+        prevNodes.forEach(n => n.remove());
+
+        // Sync nodePosition keys
+        const newPositions = {};
+        presetsList.forEach((item, index) => {
+          // Keep previous position if node existed, otherwise assign random orbit coords
+          if (nodePositions[item.id]) {
+            newPositions[item.id] = nodePositions[item.id];
+          } else {
+            const angle = (index / (presetsList.length || 1)) * Math.PI * 2;
+            const radius = 60 + Math.random() * 80;
+            const cx = canvasEl.width / 2 || 180;
+            const cy = canvasEl.height / 2 || 190;
+            newPositions[item.id] = {
+              name: item.name,
+              x: cx + Math.cos(angle) * radius,
+              y: cy + Math.sin(angle) * radius
+            };
+          }
+        });
+        nodePositions = newPositions;
+
+        // Render HTML nodes on map
+        presetsList.forEach(item => {
+          const pos = nodePositions[item.id];
+          const node = document.createElement('div');
+          node.className = `preset-node ${activePresetId === item.id ? 'active' : ''}`;
+          node.id = `node-${item.id}`;
+          node.style.left = `${pos.x}px`;
+          node.style.top = `${pos.y}px`;
+          node.textContent = item.name.substring(0, 8);
+          node.title = item.name;
+
+          // Drag Node handlers
+          let isDragging = false;
+          
+          node.onmousedown = (e) => {
+            if (e.target !== node) return;
+            isDragging = true;
+            node.style.cursor = 'grabbing';
+            activePresetId = item.id;
+            loadPresetValues(item);
+            
+            // Mark active
+            mapWrapEl.querySelectorAll('.preset-node').forEach(n => n.classList.remove('active'));
+            node.classList.add('active');
+
+            const onMouseMove = (moveEvent) => {
+              if (!isDragging) return;
+              const rect = mapWrapEl.getBoundingClientRect();
+              const x = Math.max(20, Math.min(rect.width - 20, moveEvent.clientX - rect.left));
+              const y = Math.max(20, Math.min(rect.height - 20, moveEvent.clientY - rect.top));
+              
+              pos.x = x;
+              pos.y = y;
+              node.style.left = `${x}px`;
+              node.style.top = `${y}px`;
+              drawConnections();
+            };
+
+            const onMouseUp = () => {
+              isDragging = false;
+              node.style.cursor = 'grab';
+              document.removeEventListener('mousemove', onMouseMove);
+              document.removeEventListener('mouseup', onMouseUp);
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+          };
+
+          mapWrapEl.appendChild(node);
+        });
+
+        drawConnections();
+      }
+
+      // Load values into knobs
+      function loadPresetValues(item) {
+        presetNameEl.value = item.name;
+        
+        const controls = item.settings && item.settings.controls;
+        if (Array.isArray(controls)) {
+          const f = controls.find(c => c.id === 'frequency');
+          const a = controls.find(c => c.id === 'amplitude');
+          const d = controls.find(c => c.id === 'duration');
+          
+          if (f) dialStates.freq.value = Number(f.value);
+          if (a) dialStates.amp.value = Number(a.value);
+          if (d) dialStates.dur.value = Number(d.value);
+
+          updateDialUI('freq');
+          updateDialUI('amp');
+          updateDialUI('dur');
+        }
+      }
+
+      // Save Preset
+      document.getElementById('saveBtn').onclick = async () => {
+        const name = presetNameEl.value.trim();
+        if (!name) return alert('Preset name required.');
+
+        const schema = {
+          version: 1,
+          controls: [
+            { id: "frequency", type: "slider", min: dialStates.freq.min, max: dialStates.freq.max, step: dialStates.freq.step, value: dialStates.freq.value },
+            { id: "amplitude", type: "slider", min: dialStates.amp.min, max: dialStates.amp.max, step: dialStates.amp.step, value: dialStates.amp.value },
+            { id: "duration", type: "slider", min: dialStates.dur.min, max: dialStates.dur.max, step: dialStates.dur.step, value: dialStates.dur.value }
+          ],
+          haptics: {
+            onChange: "light",
+            onCommit: "medium"
+          }
+        };
+
+        if (fallbackMode) {
+          const db = getLocalPresets();
+          const targetIdx = db.findIndex(p => p.id === activePresetId);
+          const newPreset = {
+            id: activePresetId || `local-preset-${Math.random().toString(36).substring(2, 9)}`,
+            name,
+            settings: schema,
+            updated_at: new Date().toISOString()
+          };
+
+          if (targetIdx > -1) db[targetIdx] = newPreset;
+          else db.unshift(newPreset);
+          
+          saveLocalPresets(db);
+          activePresetId = newPreset.id;
+          playClickSound(1000, 0.04);
+          await loadPresets();
+        } else {
+          try {
+            let res;
+            if (activePresetId && activePresetId.length > 8) {
+              res = await fetch(`/api/tapforge/presets/${activePresetId}`, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify({ name, settings: schema })
+              });
+            } else {
+              res = await fetch('/api/tapforge/presets', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ name, settings: schema })
+              });
+            }
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Server error');
+            activePresetId = data.preset ? data.preset.id : activePresetId;
+            playClickSound(1000, 0.04);
+            await loadPresets();
+          } catch (e) {
+            alert(e.message);
+          }
+        }
+      };
+
+      // Clone Preset
+      document.getElementById('cloneBtn').onclick = async () => {
+        if (!activePresetId) return alert('Select a preset on the map constellation first.');
+        
+        if (fallbackMode) {
+          const db = getLocalPresets();
+          const p = db.find(x => x.id === activePresetId);
+          if (!p) return;
+          const clone = {
+            id: `local-preset-${Math.random().toString(36).substring(2, 9)}`,
+            name: `${p.name} Copy`,
+            settings: JSON.parse(JSON.stringify(p.settings)),
+            updated_at: new Date().toISOString()
+          };
+          db.unshift(clone);
+          saveLocalPresets(db);
+          activePresetId = clone.id;
+          await loadPresets();
+        } else {
+          try {
+            const res = await fetch(`/api/tapforge/presets/${activePresetId}/duplicate`, { method: 'POST', headers });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Duplicate failed');
+            activePresetId = data.id || activePresetId;
+            await loadPresets();
+          } catch (e) {
+            alert(e.message);
+          }
+        }
+      };
+
+      // Delete Preset
+      document.getElementById('deleteBtn').onclick = async () => {
+        if (!activePresetId) return alert('Select a preset to delete.');
+
+        if (fallbackMode) {
+          let db = getLocalPresets();
+          db = db.filter(p => p.id !== activePresetId);
+          saveLocalPresets(db);
+          activePresetId = null;
+          presetNameEl.value = 'Tactile Alert';
+          await loadPresets();
+        } else {
+          try {
+            const res = await fetch(`/api/tapforge/presets/${activePresetId}`, { method: 'DELETE', headers });
+            if (!res.ok) throw new Error('Delete failed');
+            activePresetId = null;
+            presetNameEl.value = 'Tactile Alert';
+            await loadPresets();
+          } catch (e) {
+            alert(e.message);
+          }
+        }
+      };
+
+      // Initialize
+      window.onresize = resizeCanvas;
+      
+      // Setup Knob touch event mappings
+      registerDialDragging('dial-freq', 'freq');
+      registerDialDragging('dial-amp', 'amp');
+      registerDialDragging('dial-dur', 'dur');
+
+      // Sync active state UI
+      updateDialUI('freq');
+      updateDialUI('amp');
+      updateDialUI('dur');
+
+      checkHealth()
+        .then(() => {
+          resizeCanvas();
+          loadPresets();
+        })
+        .catch(() => {
+          resizeCanvas();
+          loadPresets();
+        });
+      
+      // Orbit init timeout
+      setTimeout(resizeCanvas, 300);
     </script>
   </body>
 </html>
