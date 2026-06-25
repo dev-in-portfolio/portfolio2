@@ -1,22 +1,43 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
 <title>Tectonic</title>
-<link href="/shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
-<link href="tectonic.css" rel="stylesheet"/>
-<link href="../../shared/wyla.css" rel="stylesheet"/>
-<script defer="" src="../../shared/wyla.js"></script>
+<style>
+:root{ --border:rgba(255,255,255,.14); --glass:rgba(0,0,0,.44); }
+*,*::before,*::after{box-sizing:border-box;}
+html,body{height:100%;margin:0;background:#000;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#e5e7eb;}
+body{display:flex;flex-direction:column;}
+.ticker{display:flex;align-items:center;gap:12px;padding:6px 14px;background:var(--glass);border-bottom:1px solid var(--border);font-size:0.7rem;}
+.ticker__brand{font-weight:700;letter-spacing:0.1em;}
+.ticker__items{display:flex;gap:14px;color:#9ca3af;}
+.ticker__items b{color:#e5e7eb;}
+.layout{display:flex;flex:1;min-height:0;}
+.stage{flex:1;position:relative;overflow:hidden;}
+#canvas-container{width:100%;height:100%;}
+#canvas-container canvas{display:block;width:100%;height:100%;}
+.panel{width:300px;background:var(--glass);border-left:1px solid var(--border);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;font-size:0.75rem;}
+.panelTitle{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#9ca3af;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:4px;}
+.row{display:flex;align-items:center;gap:8px;}
+.row span{min-width:52px;color:#cbd5f5;}
+.row input{flex:1;accent-color:#f59e0b;}
+.row .val{min-width:32px;text-align:right;color:#f59e0b;font-weight:600;}
+.miniCard{margin-top:8px;}
+.miniTitle{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:4px;}
+#miniChart{width:100%;height:60px;border:1px solid var(--border);border-radius:6px;background:rgba(0,0,0,.3);}
+.feed{max-height:100px;overflow-y:auto;font-size:0.65rem;color:#94a3b8;margin-top:4px;}
+.feedNote{font-size:0.6rem;color:#64748b;}
+.hud{position:absolute;left:12px;bottom:12px;padding:8px 12px;border:1px solid var(--border);border-radius:12px;background:var(--glass);backdrop-filter:blur(10px);z-index:3;pointer-events:none;font-size:0.7rem;line-height:1.4;}
+.hud b{font-weight:800;}
+.hud .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;color:#9ca3af;font-size:0.65rem;}
+.note{font-size:0.6rem;color:#64748b;line-height:1.4;}
+</style>
 </head>
-<body data-app="tectonic">
-  <nav class="nxTopNav"></nav>
-
-<div data-wyla=""></div>
-<header aria-label="Seismic ticker" class="ticker">
+<body>
+<header class="ticker">
 <div class="ticker__brand">TECTONIC</div>
-<div aria-hidden="true" class="ticker__dots"></div>
+<div class="ticker__dots"></div>
 <div class="ticker__items">
 <span><b id="tkMag">M5.8</b> last sample</span>
 <span>Activity <b id="tkAct">0.55</b></span>
@@ -42,7 +63,6 @@
 <input id="ctlSpin" max="1" min="0" step="0.01" type="range" value="0.40"/>
 <span class="val" id="valSpin">0.40</span>
 </label>
-<!-- Distinct change #2: extra control + mini history strip (not in Helios) -->
 <label class="row">
 <span>Depth Bias</span>
 <input id="ctlDepth" max="1" min="0" step="0.01" type="range" value="0.35"/>
@@ -50,29 +70,27 @@
 </label>
 <div class="miniCard">
 <div class="miniTitle">Recent Activity (sim)</div>
-<div class="miniCard" style="margin-top:12px;">
+<canvas aria-label="Mini activity chart" id="miniChart" width="320" height="60"></canvas>
+</div>
+<div class="miniCard">
 <div class="miniTitle">Live Quake Feed</div>
-<div class="feedNote" id="feedNote">Loading USGS feed…</div>
+<div class="feedNote" id="feedNote">Loading USGS feed...</div>
 <div aria-label="Quake feed list" class="feed" id="quakeFeed"></div>
-</div>
-<canvas aria-label="Mini activity chart" height="90" id="miniChart" width="320"></canvas>
-</div>
-<div class="note">
 </div>
 </aside>
 <section aria-label="Visualization stage" class="stage">
-<iframe class="canvasFrame" id="canvasFrame" loading="eager" src="canvas.html" title="Tectonic Canvas"></iframe>
+<div class="hud" aria-hidden="true">
+<div><b>TECTONIC</b> — Global Seismic Monitor</div>
+<div class="row">
+<span>Activity: <b id="hudA">0.55</b></span>
+<span>Magnitude: <b id="hudM">5.8</b></span>
+<span>Spin: <b id="hudS">0.40</b></span>
+<span>Depth: <b id="hudD">0.35</b></span>
+</div>
+</div>
+<div id="canvas-container"></div>
 </section>
-</main><script>
-    // per-app routing (same pattern as A69)
-    (() => {
-      const app = "tectonic";
-      const map = { home:"/index.html", readme:`/readme/${app}/`, help:`/help/${app}/`, nf:`/404/${app}/`, althea:`/althea/?app=${app}` };
-      document.querySelectorAll('[data-nexus]').forEach(a=>{ const k=a.getAttribute('data-nexus'); if(map[k]) a.href=map[k]; });
-    })();
-  </script>
-<script src="tectonic.js"></script>
-<script src="/shared/app-settings.js?v=20260101"></script>
-<script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
+</main>
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>

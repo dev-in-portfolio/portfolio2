@@ -4,99 +4,95 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Helios</title>
-
-  <!-- Shared (portfolio-wide) --><link rel="stylesheet" href="/shared/lab-shell.css?v=20251230">
-  <link rel="stylesheet" href="/shared/wyla.css?v=20260101">
-
-  <!-- Helios -->
-  <link rel="stylesheet" href="helios.css" />
-  <script src="/shared/wyla.js" defer></script>
-  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css?v=65">
-  <script src="/shared/nexus-topnav-v2.js?v=65"></script>
-
+<style>
+:root{ --border: rgba(255,255,255,.14); --glass: rgba(0,0,0,.44); }
+*{ box-sizing:border-box; }
+html,body{ height:100%; margin:0; padding:0; background:#000; overflow:hidden; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; }
+body{ display:flex; flex-direction:column; }
+header{ display:flex; align-items:center; justify-content:space-between; padding:6px 14px; background:var(--glass); border-bottom:1px solid var(--border); }
+.brand{ font-size:1.1rem; font-weight:700; color:#e5e7eb; letter-spacing:0.12em; }
+.sub{ font-size:0.65rem; color:#9ca3af; }
+.layout{ display:flex; flex:1; min-height:0; }
+.stage{ flex:1; position:relative; overflow:hidden; background:#000; }
+#canvas-container{ width:100%; height:100%; }
+#canvas-container canvas{ display:block; width:100%; height:100%; }
+.panel{ width:280px; background:var(--glass); border-left:1px solid var(--border); padding:14px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+.panelTitle{ font-size:0.65rem; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:#9ca3af; border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:4px; }
+.row{ display:flex; align-items:center; gap:8px; font-size:0.75rem; color:#cbd5f5; }
+.row span{ min-width:52px; }
+.row input{ flex:1; accent-color:#f59e0b; }
+.row .val{ min-width:32px; text-align:right; color:#f59e0b; font-weight:600; }
+.btnRow{ display:flex; gap:6px; }
+.btnRow button{ flex:1; padding:6px 0; border:1px solid var(--border); background:rgba(255,255,255,.06); color:#e5e7eb; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.08em; cursor:pointer; border-radius:6px; }
+.btnRow button:hover{ background:rgba(245,158,11,.2); border-color:#f59e0b; }
+.telemetry{ display:flex; flex-direction:column; gap:4px; font-size:0.7rem; }
+.telemetry div{ display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.telemetry span{ color:#9ca3af; }
+.telemetry b{ color:#e5e7eb; min-width:56px; text-align:right; }
+.apiStatus{ display:flex; flex-direction:column; gap:3px; font-size:0.65rem; }
+.apiStatus div{ display:flex; justify-content:space-between; }
+.apiStatus span{ color:#64748b; }
+.apiStatus b{ color:#94a3b8; }
+.note{ font-size:0.6rem; color:#64748b; line-height:1.4; margin-top:6px; }
+.hud{ position:absolute; left:12px; top:12px; display:flex; gap:8px; align-items:baseline; padding:8px 10px; border-radius:12px; background:var(--glass); border:1px solid var(--border); backdrop-filter:blur(10px); z-index:3; user-select:none; pointer-events:none; font-size:11px; }
+.hud .mode{ color:rgba(255,255,255,.58); }
+.hud .pill{ margin-left:4px; padding:4px 8px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.86); font-weight:700; }
+</style>
 </head>
-
-<body data-app="helios">
-<div data-wyla></div>
-
-  <!-- Helios header (NOT the Nexus bar) -->
-  <header class="topbar" role="banner">
-    <div class="brand">HELIOS</div>
-    <div class="sub">WebGL2 • Cinematic coronal eruption • Live telemetry when available</div>
-  </header>
-
-  <main class="layout">
-    <section class="stage" aria-label="Helios stage">
-      <iframe
-        class="canvasFrame"
-        id="canvasFrame"
-        src="canvas.html"
-        title="Helios Canvas"
-        loading="eager"
-        referrerpolicy="no-referrer"
-      ></iframe>
-    </section>
-
-    <aside class="panel" aria-label="Helios controls">
-      <div class="panelTitle">Controls</div>
-
-      <label class="row">
-        <span>Intensity</span>
-        <input id="ctlIntensity" type="range" min="0.15" max="1" step="0.01" value="0.22" />
-        <span class="val" id="valIntensity">0.22</span>
-      </label>
-
-      <label class="row">
-        <span>Zoom</span>
-        <input id="ctlZoom" type="range" min="0" max="1" step="0.01" value="0.45" />
-        <span class="val" id="valZoom">0.45</span>
-      </label>
-
-      <label class="row">
-        <span>Speed</span>
-        <input id="ctlBoost" type="range" min="1" max="3" step="0.1" value="1.0" />
-        <span class="val" id="valBoost">1.0</span>
-      </label>
-
-      <div class="btnRow">
-        <button id="btnErupt" type="button">Erupt</button>
-        <button id="btnBoostToggle" type="button">Boost</button>
-      </div>
-
-      <div class="panelTitle" style="margin-top:14px;">Telemetry</div>
-      <div class="telemetry">
-        <div><span>Planetary Kp</span><b id="tKp">—</b></div>
-        <div><span>Solar Wind (km/s)</span><b id="tWind">—</b></div>
-        <div><span>Wind Density (p/cc)</span><b id="tDensity">—</b></div>
-        <div><span>IMF Bz (nT)</span><b id="tBz">—</b></div>
-        <div><span>X-ray Flux (W/m²)</span><b id="tXray">—</b></div>
-        <div><span>Estimated Storm Risk</span><b id="tRisk">—</b></div>
-      </div>
-
-      <div class="panelTitle" style="margin-top:14px;">API Status</div>
-      <div class="apiStatus">
-        <div><span>SWPC Kp</span><b id="apiKp">pending…</b></div>
-        <div><span>SWPC Wind</span><b id="apiWind">pending…</b></div>
-        <div><span>SWPC Mag</span><b id="apiMag">pending…</b></div>
-        <div><span>SWPC X-ray</span><b id="apiXray">pending…</b></div>
-      </div>
-
-      <div class="note">
-        Minimum readable font is enforced. If an API call is blocked (CORS/network), telemetry falls back to stable proxy values.
-      </div>
-    </aside>
-  </main>
-
-  <!-- Shared scripts (portfolio-wide) -->
-  <script src="/shared/global-polyfill.js?v=20251230"></script>
-  <script src="/shared/state-store.js?v=20251230"></script>
-  <script src="/shared/telemetry-hub.js?v=20251230"></script>
-  <script type="module" src="/shared/ai-router.js?v=20251230"></script>
-  <script src="/shared/force-catch-clear.js?v=20251230"></script>
-  <script type="module" src="/shared/lab-shell.js?v=20251230"></script>
-  
-  <!-- Nexus bar (the unified one) --><!-- Helios -->
-  <script src="helios.js"></script>
-  <script src="/shared/app-settings.js?v=20260101"></script>
+<body>
+<header>
+  <div class="brand">HELIOS</div>
+  <div class="sub">WebGPU • Cinematic coronal eruption • Live telemetry</div>
+</header>
+<main class="layout">
+  <section class="stage" aria-label="Helios stage">
+    <div class="hud" aria-hidden="true">
+      <div class="mode" id="modeText">Charged calm</div>
+      <div class="pill" id="intensityText">Intensity 0.22</div>
+      <div class="pill" id="hotText">Hot A</div>
+    </div>
+    <div id="canvas-container"></div>
+  </section>
+  <aside class="panel" aria-label="Helios controls">
+    <div class="panelTitle">Controls</div>
+    <label class="row">
+      <span>Intensity</span>
+      <input id="ctlIntensity" type="range" min="0.15" max="1" step="0.01" value="0.22" />
+      <span class="val" id="valIntensity">0.22</span>
+    </label>
+    <label class="row">
+      <span>Zoom</span>
+      <input id="ctlZoom" type="range" min="0" max="1" step="0.01" value="0.45" />
+      <span class="val" id="valZoom">0.45</span>
+    </label>
+    <label class="row">
+      <span>Speed</span>
+      <input id="ctlBoost" type="range" min="1" max="3" step="0.1" value="1.0" />
+      <span class="val" id="valBoost">1.0</span>
+    </label>
+    <div class="btnRow">
+      <button id="btnErupt" type="button">Erupt</button>
+      <button id="btnBoostToggle" type="button">Boost</button>
+    </div>
+    <div class="panelTitle" style="margin-top:6px;">Telemetry</div>
+    <div class="telemetry">
+      <div><span>Kp</span><b id="tKp">—</b></div>
+      <div><span>Solar Wind</span><b id="tWind">—</b></div>
+      <div><span>Density</span><b id="tDensity">—</b></div>
+      <div><span>IMF Bz</span><b id="tBz">—</b></div>
+      <div><span>X-ray Flux</span><b id="tXray">—</b></div>
+      <div><span>Storm Risk</span><b id="tRisk">—</b></div>
+    </div>
+    <div class="panelTitle">API Status</div>
+    <div class="apiStatus">
+      <div><span>SWPC Kp</span><b id="apiKp">pending...</b></div>
+      <div><span>SWPC Wind</span><b id="apiWind">pending...</b></div>
+      <div><span>SWPC Mag</span><b id="apiMag">pending...</b></div>
+      <div><span>SWPC X-ray</span><b id="apiXray">pending...</b></div>
+    </div>
+    <div class="note">If API calls are blocked, telemetry falls back to stable proxy values.</div>
+  </aside>
+</main>
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>
