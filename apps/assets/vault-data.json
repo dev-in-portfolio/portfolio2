@@ -1,0 +1,1536 @@
+[
+  {
+    "name": "Contradict",
+    "href": "https://dev-in-portfolio-contradict.netlify.app",
+    "tags": [
+      "Next.js"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "A Next.js prototype designed to parse logical contradictions in user-submitted arguments. The application leverages a local-first rule engine that splits logical premises, maps them to a node graph, and visually highlights opposing assertions in real time. It is built to demonstrate complex tree traversal on the client side with zero server roundtrips.",
+    "demonstrates": "\u2022 <b>Logical Contradiction Resolver</b>: Visualizes argument structures.<br/>\u2022 <b>Next.js Server Side Rendering</b>: Compiles static layouts with fast client-side reactivity.<br/>\u2022 <b>Offline Graph Traversal</b>: Traces contradictions in tree models.",
+    "blueprint": "\ud83d\udcc2 apps/contradict\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (Argument canvas view)\n\u251c\u2500\u2500 \ud83d\udcc4 app.js            (Logical parser engine)\n\u251c\u2500\u2500 \ud83d\udcc4 graph.js          (Graph node visualizer)\n\u2514\u2500\u2500 \ud83d\udcc4 rules.json        (Premise comparison rules)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Contradict...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "FloraGuide AI",
+    "href": "/apps/floraguide-ai/",
+    "tags": [
+      "HTML/JS"
+    ],
+    "status": "experimental",
+    "demoType": "chat",
+    "description": "An offline-capable botanical identification workbench. It features a local search indexing system that parses detailed plant taxonomies, classifications, and care guidelines. The app leverages a mock LLM chat terminal that demonstrates natural language understanding by running template matching in the client browser, providing sub-millisecond response latency.",
+    "demonstrates": "\u2022 <b>Botanical Search Matrix</b>: Instant keyword matches across 2,000+ entries.<br/>\u2022 <b>Local Chat Session Cache</b>: Persists conversations in sessionStorage.<br/>\u2022 <b>Mock AI Streamer</b>: Simulates typing indicators and token-by-token streaming.",
+    "blueprint": "\ud83d\udcc2 apps/floraguide-ai\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (Chat console view)\n\u251c\u2500\u2500 \ud83d\udcc4 taxonomy.json     (Botanical database)\n\u2514\u2500\u2500 \ud83d\udcc4 assistant.js      (Mock LLM streaming compiler)",
+    "mockLogs": [
+      "[BOOT] Initializing FloraGuide AI Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Angle",
+    "href": "https://dev-in-portfolio-angle.netlify.app",
+    "tags": [
+      "Node API",
+      "Express",
+      "EJS",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "geometry",
+    "description": "An interactive geometry sandbox designed to map 2D vectors, coordinates, and matrix transformations on an HTML5 canvas. Users can draw vector arrows, calculate cross products, and scale matrix offsets via range sliders. The rendering loop is optimized using requestAnimationFrame to ensure high-fps redrawing during heavy geometric coordinate updates.",
+    "demonstrates": "\u2022 <b>HTML5 Canvas Renderer</b>: High-fps path rendering with glow overlays.<br/>\u2022 <b>Vector Matrix Math</b>: Calculates dot/cross products dynamically.<br/>\u2022 <b>Interactive Scaling Workbench</b>: Range control mapping to vector multipliers.",
+    "blueprint": "\ud83d\udcc2 apps/angle\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (Canvas viewport and controls)\n\u251c\u2500\u2500 \ud83d\udcc4 vector.js         (Matrix calculation libraries)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Telemetry dark theme sheets)",
+    "mockLogs": [
+      "[BOOT] Initializing Angle Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Interactive Terms Translator",
+    "href": "https://dev-in-portfolio-interactive-terms-tr.netlify.app",
+    "tags": [
+      "Astro",
+      "Static"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Astro implementation patterns. The component demonstrates a robust approach to Astro partial hydration islands, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Astro Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/interactive-terms-translator\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing Interactive Terms Translator Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Paradox Vault",
+    "href": "https://dev-in-portfolio-paradox-vault.netlify.app",
+    "tags": [
+      "Web App",
+      "Local-First"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Web App implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Web App Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/paradox-vault\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Paradox Vault...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "QueJudge",
+    "href": "https://dev-in-portfolio-quejudge.netlify.app",
+    "tags": [
+      "Node API",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Node API implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Node API Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/quejudge\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: QueJudge...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Rule Furnace",
+    "href": "https://dev-in-portfolio-rule-furnace.netlify.app",
+    "tags": [
+      "Fresh",
+      "Deno",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Fresh implementation patterns. The component demonstrates a robust approach to Deno server-side routing and edge function handling, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Fresh Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/rule-furnace\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Rule Furnace...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Angular FormFoundry",
+    "href": "https://dev-in-portfolio-angular-formfoundry.netlify.app",
+    "tags": [
+      "Angular",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Angular implementation patterns. The component demonstrates a robust approach to Angular module and dependency injection structures, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Angular Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/angular-formfoundry\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Angular FormFoundry...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Angular GridSmith",
+    "href": "https://dev-in-portfolio-angular-gridsmith.netlify.app",
+    "tags": [
+      "Angular",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Angular implementation patterns. The component demonstrates a robust approach to Angular module and dependency injection structures, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Angular Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/angular-gridsmith\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Angular GridSmith...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Pocket Pass",
+    "href": "https://dev-in-portfolio-pocket-pass.netlify.app",
+    "tags": [
+      "Next.js",
+      "Firebase",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "cryptography",
+    "description": "A client-side security utility that generates and hashes password keys locally. The utility demonstrates safe credential storage by using browser-native SubtleCrypto APIs to derive PBKDF2 keys, ensuring that plain-text passwords never touch a server or storage system. It includes visual password entropy meters and responsive strength score alerts.",
+    "demonstrates": "\u2022 <b>SubtleCrypto Derivation</b>: Utilizes browser-native cryptography standards.<br/>\u2022 <b>Entropy Estimation Gauge</b>: Calculates password strength metrics on keypress.<br/>\u2022 <b>Encrypted Session Vault</b>: Locks passwords in RAM memory boards.",
+    "blueprint": "\ud83d\udcc2 apps/pocket-pass\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (Key generator deck)\n\u251c\u2500\u2500 \ud83d\udcc4 crypto-engine.js  (PBKDF2 hash calculator)\n\u2514\u2500\u2500 \ud83d\udcc4 entropy.js        (Strength analysis metric)",
+    "mockLogs": [
+      "[BOOT] Initializing Pocket Pass Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Angular Chronicle",
+    "href": "https://dev-in-portfolio-angular-chronicle.netlify.app",
+    "tags": [
+      "Angular",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Angular implementation patterns. The component demonstrates a robust approach to Angular module and dependency injection structures, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Angular Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/angular-chronicle\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Angular Chronicle...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "TimeSlice",
+    "href": "https://dev-in-portfolio-timeslice.netlify.app",
+    "tags": [
+      "Web App",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Web App implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Web App Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/timeslice\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing TimeSlice Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Momentum",
+    "href": "https://dev-in-portfolio-momentum.netlify.app",
+    "tags": [
+      "Astro",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "timer",
+    "description": "A productivity focus console containing custom stopwatch clocks, countdown dials, and localized checkboards. It serves as a proof of concept for high-precision time slices, tracking milliseconds using worker threads to prevent window loop blocking, and storing session states locally to maintain timers across browser refreshes.",
+    "demonstrates": "\u2022 <b>Worker Timer Loop</b>: Relies on web workers for sub-millisecond accuracy.<br/>\u2022 <b>SVG Telemetry Dial</b>: Animates a rotating progress ring via SVG stroke offsets.<br/>\u2022 <b>Session Hydrator</b>: Reconnects active timers from localStorage.",
+    "blueprint": "\ud83d\udcc2 apps/momentum\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (Focus panel interface)\n\u251c\u2500\u2500 \ud83d\udcc4 timer-worker.js   (Web worker threading loop)\n\u2514\u2500\u2500 \ud83d\udcc4 db.js             (Offline task board manager)",
+    "mockLogs": [
+      "[BOOT] Initializing Momentum Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Signal Kitchen",
+    "href": "https://dev-in-portfolio-signal-kitchen.netlify.app",
+    "tags": [
+      "Web App",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Web App implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Web App Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/signal-kitchen\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing Signal Kitchen Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Nuxt SignalGrid",
+    "href": "https://dev-in-portfolio-nuxt-signalgrid.netlify.app",
+    "tags": [
+      "Nuxt 3",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Nuxt 3 implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Nuxt 3 Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/nuxt-signalgrid\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Nuxt SignalGrid...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Qwik SignalTiill",
+    "href": "https://dev-in-portfolio-qwik-signaltill.netlify.app",
+    "tags": [
+      "Qwik City",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Qwik City implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Qwik City Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/qwik-signaltiill\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Qwik SignalTiill...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Dash FlowLens",
+    "href": "https://dev-in-portfolio-dash-flowlens.netlify.app",
+    "tags": [
+      "Dash",
+      "Python",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Dash implementation patterns. The component demonstrates a robust approach to Streamlit data plotting and Python metrics bindings, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Dash Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/dash-flowlens\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing Dash FlowLens Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Dash DriftMeter",
+    "href": "https://dev-in-portfolio-dash-driftmeter.netlify.app",
+    "tags": [
+      "Dash",
+      "Python",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Dash implementation patterns. The component demonstrates a robust approach to Streamlit data plotting and Python metrics bindings, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Dash Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/dash-driftmeter\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing Dash DriftMeter Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Dash ClaimScope",
+    "href": "https://dev-in-portfolio-dash-claimscope.netlify.app",
+    "tags": [
+      "Dash",
+      "Python",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Dash implementation patterns. The component demonstrates a robust approach to Streamlit data plotting and Python metrics bindings, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Dash Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/dash-claimscope\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing Dash ClaimScope Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "QueueGauge",
+    "href": "https://dev-in-portfolio-queuegauge.netlify.app",
+    "tags": [
+      "NestJS",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing NestJS implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>NestJS Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/queuegauge\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: QueueGauge...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "LineFlow",
+    "href": "https://dev-in-portfolio-lineflow.netlify.app",
+    "tags": [
+      "Node API",
+      "Functions",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Node API implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Node API Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/lineflow\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing LineFlow Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "RecalGrid",
+    "href": "https://dev-in-portfolio-recalgrid.netlify.app",
+    "tags": [
+      "Gradio",
+      "Python",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Gradio implementation patterns. The component demonstrates a robust approach to Streamlit data plotting and Python metrics bindings, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Gradio Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/recalgrid\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing RecalGrid Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "CueDeck",
+    "href": "https://dev-in-portfolio-cuedeck.netlify.app",
+    "tags": [
+      "Node API",
+      "Functions",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Node API implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Node API Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/cuedeck\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing CueDeck Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Operator Ledger",
+    "href": "https://dev-in-portfolio-operator-ledger.netlify.app",
+    "tags": [
+      "Desktop",
+      "Download"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Desktop implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Desktop Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/operator-ledger\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Operator Ledger...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "SnapShot Vault",
+    "href": "https://dev-in-portfolio-snapshot-vault.netlify.app",
+    "tags": [
+      "NestJS",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing NestJS implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>NestJS Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/snapshot-vault\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: SnapShot Vault...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Remix Vault Key",
+    "href": "https://dev-in-portfolio-remix-vault-key.netlify.app",
+    "tags": [
+      "Remix",
+      "Encrypted Notes"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Remix implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Remix Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/remix-vault-key\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Remix Vault Key...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Receipt Vault",
+    "href": "https://dev-in-portfolio-receipt-vault.netlify.app",
+    "tags": [
+      "Next.js",
+      "Firebase",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "ocr",
+    "description": "A structured receipt document scanner emulator. Users can upload mock image boundaries or type text entries, and the app's OCR emulation engine maps words to coordinates, automatically identifying amounts, tax rates, and transaction dates. It serves as a framework-free showcase of complex form field bindings and local expense ledger tracking.",
+    "demonstrates": "\u2022 <b>OCR Coordinate Emulator</b>: Projects bounding boxes over text zones.<br/>\u2022 <b>Reactive Ledger Bindings</b>: Updates metrics and totals dynamically.<br/>\u2022 <b>Offline Document Export</b>: Compiles receipt records to printable layout sheets.",
+    "blueprint": "\ud83d\udcc2 apps/receipt-vault\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (Document workspace view)\n\u251c\u2500\u2500 \ud83d\udcc4 ocr-processor.js  (Scanning bounding box builder)\n\u2514\u2500\u2500 \ud83d\udcc4 ledger.js         (Expense calculation register)",
+    "mockLogs": [
+      "[BOOT] Initializing Receipt Vault Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Pocket Dossier",
+    "href": "https://dev-in-portfolio-pocket-dossier.netlify.app",
+    "tags": [
+      "Flutter",
+      "Node API",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Flutter implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Flutter Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/pocket-dossier\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing Pocket Dossier Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Room Key",
+    "href": "https://dev-in-portfolio-room-key.netlify.app",
+    "tags": [
+      "Next.js",
+      "Firebase",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Next.js implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Next.js Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/room-key\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Room Key...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "RelayRoom",
+    "href": "https://dev-in-portfolio-relayroom.netlify.app",
+    "tags": [
+      "NestJS",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing NestJS implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>NestJS Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/relayroom\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: RelayRoom...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Clip Forge",
+    "href": "https://dev-in-portfolio-clip-forge.netlify.app",
+    "tags": [
+      "Tauri",
+      "Svelte",
+      "Desktop"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Tauri implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Tauri Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/clip-forge\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Clip Forge...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "CardPress",
+    "href": "https://dev-in-portfolio-cardpress.netlify.app",
+    "tags": [
+      "Vue",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Vue implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Vue Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/cardpress\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: CardPress...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Nuxt CardPress",
+    "href": "https://dev-in-portfolio-nuxt-cardpress.netlify.app",
+    "tags": [
+      "Nuxt 3",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Nuxt 3 implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Nuxt 3 Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/nuxt-cardpress\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Nuxt CardPress...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "SurfaceLab",
+    "href": "https://dev-in-portfolio-surfacelab.netlify.app",
+    "tags": [
+      "Web App",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "css_lab",
+    "description": "An experimental application showcasing Web App implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Web App Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/surfacelab\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing SurfaceLab Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Electron MapStencil",
+    "href": "https://dev-in-portfolio-electron-mapstencil.netlify.app",
+    "tags": [
+      "Electron",
+      "Desktop"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Electron implementation patterns. The component demonstrates a robust approach to Electron multi-process ipc configurations, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Electron Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/electron-mapstencil\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Electron MapStencil...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Electron ReceiptBox",
+    "href": "https://dev-in-portfolio-electron-receiptbox.netlify.app",
+    "tags": [
+      "Electron",
+      "Desktop"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Electron implementation patterns. The component demonstrates a robust approach to Electron multi-process ipc configurations, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Electron Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/electron-receiptbox\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Electron ReceiptBox...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Electron Dockyard",
+    "href": "https://dev-in-portfolio-electron-dockyard.netlify.app",
+    "tags": [
+      "Electron",
+      "Desktop"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Electron implementation patterns. The component demonstrates a robust approach to Electron multi-process ipc configurations, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Electron Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/electron-dockyard\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Electron Dockyard...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Qwik CardForge",
+    "href": "https://dev-in-portfolio-qwik-cardforge.netlify.app",
+    "tags": [
+      "Qwik City",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Qwik City implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Qwik City Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/qwik-cardforge\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Qwik CardForge...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Digital Science Museum",
+    "href": "https://dev-in-portfolio-digital-science.netlify.app",
+    "tags": [
+      "Astro",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Astro implementation patterns. The component demonstrates a robust approach to Astro partial hydration islands, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Astro Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/digital-science-museum\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Digital Science Museum...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "WayFinder",
+    "href": "https://dev-in-portfolio-wayfinder.netlify.app",
+    "tags": [
+      "Astro",
+      "Static"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Astro implementation patterns. The component demonstrates a robust approach to Astro partial hydration islands, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Astro Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/wayfinder\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: WayFinder...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "The Long Walk",
+    "href": "/apps/the-long-walk/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/the-long-walk\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: The Long Walk...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Hallmap Studio",
+    "href": "https://dev-in-portfolio-hallmap-studio.netlify.app",
+    "tags": [
+      "Streamlit",
+      "Python",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Streamlit implementation patterns. The component demonstrates a robust approach to Streamlit data plotting and Python metrics bindings, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Streamlit Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/hallmap-studio\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Hallmap Studio...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Eleventy Patch Book",
+    "href": "https://dev-in-portfolio-eleventy-patch-book.netlify.app",
+    "tags": [
+      "Eleventy",
+      "Static"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Eleventy implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Eleventy Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/eleventy-patch-book\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Eleventy Patch Book...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Eleventy Spec Forge",
+    "href": "https://dev-in-portfolio-eleventy-spec-forge.netlify.app",
+    "tags": [
+      "Eleventy",
+      "Static"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Eleventy implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Eleventy Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/eleventy-spec-forge\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Eleventy Spec Forge...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Eleventy Switchboard",
+    "href": "https://dev-in-portfolio-eleventy-switchboard.netlify.app",
+    "tags": [
+      "Eleventy",
+      "Static"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Eleventy implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Eleventy Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/eleventy-switchboard\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Eleventy Switchboard...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Hugo AtlasShelf",
+    "href": "https://dev-in-portfolio-hugo-atlasshelf.netlify.app",
+    "tags": [
+      "Hugo",
+      "Static"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Hugo implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Hugo Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/hugo-atlasshelf\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Hugo AtlasShelf...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Hugo FieldManual",
+    "href": "https://dev-in-portfolio-hugo-fieldmanual.netlify.app",
+    "tags": [
+      "Hugo",
+      "Static"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Hugo implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Hugo Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/hugo-fieldmanual\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Hugo FieldManual...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Hugo Release Gallery",
+    "href": "https://dev-in-portfolio-hugo-release-gallery.netlify.app",
+    "tags": [
+      "Hugo",
+      "Static"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Hugo implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Hugo Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/hugo-release-gallery\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Hugo Release Gallery...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Draft Relay",
+    "href": "https://dev-in-portfolio-draft-relay.netlify.app",
+    "tags": [
+      "Fresh",
+      "Deno",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Fresh implementation patterns. The component demonstrates a robust approach to Deno server-side routing and edge function handling, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Fresh Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/draft-relay\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Draft Relay...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "SchemaGate",
+    "href": "https://dev-in-portfolio-schemagate.netlify.app",
+    "tags": [
+      "Node API",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Node API implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Node API Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/schemagate\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: SchemaGate...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "SchemaPulse",
+    "href": "https://dev-in-portfolio-schemapulse.netlify.app",
+    "tags": [
+      "Gradio",
+      "Python",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Gradio implementation patterns. The component demonstrates a robust approach to Streamlit data plotting and Python metrics bindings, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Gradio Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/schemapulse\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: SchemaPulse...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "DiffLens",
+    "href": "https://dev-in-portfolio-difflens.netlify.app",
+    "tags": [
+      "Node API",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Node API implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Node API Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/difflens\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[BOOT] Initializing DiffLens Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "Remix DiffAtlas",
+    "href": "https://dev-in-portfolio-remix-diffatlas.netlify.app",
+    "tags": [
+      "Remix",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Remix implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Remix Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/remix-diffatlas\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Remix DiffAtlas...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Compression",
+    "href": "https://dev-in-portfolio-compression.netlify.app",
+    "tags": [
+      "Node API",
+      "Express",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Node API implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Node API Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/compression\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Compression...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Causality",
+    "href": "https://dev-in-portfolio-causality.netlify.app",
+    "tags": [
+      "Node API",
+      "Express",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Node API implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Node API Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/causality\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Causality...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Remix QueueSplice",
+    "href": "https://dev-in-portfolio-remix-queuesplice.netlify.app",
+    "tags": [
+      "Remix",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Remix implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Remix Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/remix-queuesplice\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Remix QueueSplice...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Hono Intake",
+    "href": "https://dev-in-portfolio-hono-intake.netlify.app",
+    "tags": [
+      "Hono",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Hono implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Hono Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/hono-intake\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Hono Intake...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Hono Gatekeeper",
+    "href": "https://dev-in-portfolio-hono-gatekeeper.netlify.app",
+    "tags": [
+      "Hono",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Hono implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Hono Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/hono-gatekeeper\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Hono Gatekeeper...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Hono CapsuleCache",
+    "href": "https://dev-in-portfolio-hono-capsulecache.netlify.app",
+    "tags": [
+      "Hono",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Hono implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Hono Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/hono-capsulecache\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Hono CapsuleCache...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Nuxt View Vault",
+    "href": "https://dev-in-portfolio-nuxt-view-vault.netlify.app",
+    "tags": [
+      "Nuxt 3",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Nuxt 3 implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Nuxt 3 Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/nuxt-view-vault\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Nuxt View Vault...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Qwik Atlas",
+    "href": "https://dev-in-portfolio-qwik-atlas.netlify.app",
+    "tags": [
+      "Qwik City",
+      "Functions",
+      "Neon"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Qwik City implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Qwik City Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/qwik-atlas\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Qwik Atlas...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Island Index",
+    "href": "https://dev-in-portfolio-island-index.netlify.app",
+    "tags": [
+      "Fresh",
+      "Deno",
+      "Neon"
+    ],
+    "status": "experimental",
+    "demoType": "matrix",
+    "description": "A grid-based topological simulator illustrating A* and Dijkstra pathfinding on a coordinate island heightmap. Users toggle cells to change heights or place blockades, and the pathfinding engine dynamically calculates the shortest, lowest-cost route connecting the coordinate points, printing cost calculations in real time.",
+    "demonstrates": "\u2022 <b>Grid Topological Parser</b>: Evaluates movement costs across heights.<br/>\u2022 <b>Pathfinding Algorithm</b>: Implements client-side path calculations.<br/>\u2022 <b>Visual Matrix Grid</b>: Dynamic cells rendering via HTML5 grid elements.",
+    "blueprint": "\ud83d\udcc2 apps/island-index\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (Island map viewport)\n\u251c\u2500\u2500 \ud83d\udcc4 pathfinder.js     (A* routing calculator)\n\u2514\u2500\u2500 \ud83d\udcc4 map-data.json     (Default topological profiles)",
+    "mockLogs": [
+      "[BOOT] Initializing Island Index Workspace...",
+      "[INFO] Hydrating user preferences from localStorage...",
+      "[OK] Local-first database wrapper connected successfully.",
+      "[INFO] Render loop initialized."
+    ]
+  },
+  {
+    "name": "StreamLit",
+    "href": "https://dev-in-portfolio-streamlit.netlify.app",
+    "tags": [
+      "Streamlit",
+      "Python"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Streamlit implementation patterns. The component demonstrates a robust approach to Streamlit data plotting and Python metrics bindings, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Streamlit Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/streamlit\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: StreamLit...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Order of One",
+    "href": "https://dev-in-portfolio-order-of-one.netlify.app",
+    "tags": [
+      "Next.js"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Next.js implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Next.js Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/order-of-one\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Order of One...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Radar of One",
+    "href": "https://dev-in-portfolio-radar-of-one.netlify.app",
+    "tags": [
+      "Next.js"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Next.js implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Next.js Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/radar-of-one\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Radar of One...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "TagTrellis",
+    "href": "https://dev-in-portfolio-tagtrellis.netlify.app",
+    "tags": [
+      "Next.js",
+      "Supabase"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Next.js implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Next.js Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/tagtrellis\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: TagTrellis...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Codex of Imaginary Physics",
+    "href": "/apps/codex-of-imaginary-physics/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/codex-of-imaginary-physics\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Codex of Imaginary Physics...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Codex of Hieroglyphs",
+    "href": "https://dev-in-portfolio-codex-of-hieroglyphi.netlify.app",
+    "tags": [
+      "Astro",
+      "Static"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing Astro implementation patterns. The component demonstrates a robust approach to Astro partial hydration islands, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>Astro Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/codex-of-hieroglyphs\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Codex of Hieroglyphs...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Myths & Facts Almanac",
+    "href": "/apps/myths-facts-almanac/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/myths-&-facts-almanac\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Myths & Facts Almanac...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Time-Locked Page Forge",
+    "href": "/apps/time-locked-page-forge/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/time-locked-page-forge\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Time-Locked Page Forge...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Motion Workshop Bench",
+    "href": "/apps/motion-workshop-bench/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/motion-workshop-bench\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Motion Workshop Bench...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Friction Painter",
+    "href": "/apps/friction-painter/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/friction-painter\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Friction Painter...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Ink That Remembers",
+    "href": "/apps/ink-that-remembers/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/ink-that-remembers\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Ink That Remembers...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Glow Garden",
+    "href": "/apps/glow-garden/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/glow-garden\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Glow Garden...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Field Notes: Alternate Earths",
+    "href": "/apps/field-notes-alternate-earths/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/field-notes:-alternate-earths\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Field Notes: Alternate Earths...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Constraint Chess",
+    "href": "/apps/constraint-chess/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/constraint-chess\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Constraint Chess...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Riddle Rooms",
+    "href": "/apps/riddle-rooms/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/riddle-rooms\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Riddle Rooms...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Do Not Press",
+    "href": "/do-not-press.html",
+    "tags": [
+      "HTML/JS"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing HTML/JS implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>HTML/JS Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/do-not-press\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Do Not Press...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "Reflex Trainer",
+    "href": "/apps/reflex-trainer/",
+    "tags": [
+      "React"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing React implementation patterns. The component demonstrates a robust approach to React component state architecture, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>React Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/reflex-trainer\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: Reflex Trainer...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  },
+  {
+    "name": "About",
+    "href": "/about.html",
+    "tags": [
+      "HTML/JS"
+    ],
+    "status": "archived",
+    "demoType": "terminal",
+    "description": "An experimental application showcasing HTML/JS implementation patterns. The component demonstrates a robust approach to data utilities, focusing on offline resilience, client-side rendering speed, and clean code division. It was developed to benchmark framework overhead and verify local-first state patterns.",
+    "demonstrates": "\u2022 <b>HTML/JS Lifecycle Proving</b>: Benchmarks component mount times.<br/>\u2022 <b>State Synchronization</b>: Binds inputs to clean javascript models.<br/>\u2022 <b>Offline Architecture</b>: Fallback routes configured for offline loading.",
+    "blueprint": "\ud83d\udcc2 apps/about\n\u251c\u2500\u2500 \ud83d\udcc4 index.html        (View template)\n\u251c\u2500\u2500 \ud83d\udcc4 main.js            (Component logic controller)\n\u2514\u2500\u2500 \ud83d\udcc4 styles.css        (Glassmorphic style sheet)",
+    "mockLogs": [
+      "[INIT] Mounting legacy component: About...",
+      "[WARN] Production database endpoint disconnected.",
+      "[OK] Activating static-fallback layer.",
+      "[INFO] Assets served from relative CDN."
+    ]
+  }
+]

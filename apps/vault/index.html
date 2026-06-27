@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>The Vault — Systems Console</title>
+  <link href="../shared/tokens.css" rel="stylesheet"/>
+  <link href="../shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="/runtime-guard.js"></script>
+  <style>
+    :root {
+      --bg-void: #020306;
+      --bg-panel: rgba(6, 10, 24, 0.6);
+      --border-cyan: rgba(0, 242, 254, 0.08);
+      --border-cyan-bright: rgba(0, 242, 254, 0.35);
+      
+      --glow-cyan: #00f2fe;
+      --glow-violet: #8b5cf6;
+      --glow-magenta: #ec4899;
+      --glow-green: #10b981;
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      
+      --font-display: "Space Grotesk", sans-serif;
+      --font-body: "Plus Jakarta Sans", sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      overflow: hidden; /* Lock viewport scroll */
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Holographic Lights */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background: 
+        radial-gradient(900px circle at 5% 5%, rgba(0, 242, 254, 0.12), transparent 60%),
+        radial-gradient(1100px circle at 95% 95%, rgba(139, 92, 246, 0.08), transparent 60%);
+      pointer-events: none;
+    }
+
+    .telemetry-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-size: 80px 80px;
+      background-image: 
+        linear-gradient(to right, rgba(0, 242, 254, 0.015) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 242, 254, 0.015) 1px, transparent 1px);
+      mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 95%);
+      -webkit-mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 95%);
+      pointer-events: none;
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.01);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 242, 254, 0.12);
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--glow-cyan);
+    }
+
+    /* Console Page Wrapper */
+    .console-frame {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 68px);
+      margin-top: 68px;
+      overflow: hidden; /* Lock scroll here */
+    }
+
+    /* Unified Top Header Bar spanning 100% width */
+    .console-header-bar {
+      height: 76px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(2, 3, 7, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 32px;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .header-left-side {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--glow-cyan);
+      box-shadow: 0 0 10px var(--glow-cyan);
+      animation: pulse 1.8s infinite;
+    }
+
+    .console-brand-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+      background: linear-gradient(135deg, #ffffff, var(--glow-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .console-brand-subtitle {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .console-stats-bar {
+      display: flex;
+      gap: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .stat-badge-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 6px 14px;
+      border-radius: 6px;
+      color: var(--text-secondary);
+    }
+    .stat-badge-item span {
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-left: 4px;
+    }
+
+    /* Main Workspace Split Layout */
+    .workspace-split {
+      flex: 1;
+      display: flex;
+      overflow: hidden; /* Lock scroll inside columns */
+      height: calc(100% - 76px); /* Constrain height */
+      min-height: 0; /* Flexbox shrink safety */
+    }
+
+    /* Left Column: Directory Deck */
+    .directory-column {
+      width: 35%;
+      max-width: 440px;
+      min-width: 340px;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      background: rgba(2, 3, 6, 0.55);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Filters section */
+    .filter-section {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .search-field-wrap {
+      position: relative;
+    }
+    .search-field {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: var(--font-mono);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .search-field:focus {
+      border-color: var(--glow-cyan);
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.12);
+      background: rgba(0, 242, 254, 0.01);
+    }
+
+    .toggles-row {
+      display: flex;
+      gap: 4px;
+    }
+    .toggle-pill {
+      flex: 1;
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      padding: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .toggle-pill:hover, .toggle-pill.active {
+      border-color: var(--glow-cyan);
+      color: var(--text-primary);
+      background: rgba(0, 242, 254, 0.03);
+    }
+
+    /* Scroll List */
+    .cards-deck-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Sleek Node Card with Wrap-Safe title */
+    .node-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-cyan);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      --mouse-x: 0px;
+      --mouse-y: 0px;
+      flex-shrink: 0;
+    }
+    .node-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(120px circle at var(--mouse-x) var(--mouse-y), rgba(0, 242, 254, 0.14), transparent 80%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .node-card:hover::before {
+      opacity: 1;
+    }
+    .node-card:hover {
+      border-color: rgba(0, 242, 254, 0.2);
+      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.02);
+      transform: translateY(-1px);
+    }
+    .node-card.active {
+      border-color: var(--glow-cyan);
+      background: rgba(0, 242, 254, 0.02);
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.06);
+    }
+    .node-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .node-card-name {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+      white-space: normal; /* Safe wrapping */
+      word-break: break-word; /* Safe wrapping */
+      line-height: 1.25;
+    }
+    .node-led {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .node-card.active .node-led {
+      background: var(--glow-cyan);
+      box-shadow: 0 0 6px var(--glow-cyan);
+    }
+    .node-card[data-status="experimental"] .node-led {
+      background: var(--glow-green);
+      box-shadow: 0 0 6px var(--glow-green);
+    }
+    .node-card-desc {
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-secondary);
+      margin: 0 0 8px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .node-card-tags {
+      display: flex;
+      gap: 4px;
+    }
+    .node-card-tag {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--text-secondary);
+    }
+
+    /* Right Column: Workspace */
+    .workspace-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: rgba(2, 3, 6, 0.2);
+      height: 100%;
+      min-height: 0;
+    }
+
+    /* Tab bar headers */
+    .tabs-header-row {
+      height: 52px;
+      display: flex;
+      background: rgba(2, 3, 7, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 0 32px;
+      flex-shrink: 0;
+    }
+    .tab-btn-link {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 0 20px;
+      height: 100%;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-bottom: 2px solid transparent;
+      transition: all 0.25s;
+    }
+    .tab-btn-link:hover {
+      color: var(--text-primary);
+    }
+    .tab-btn-link.active {
+      color: var(--glow-cyan);
+      border-bottom-color: var(--glow-cyan);
+      text-shadow: 0 0 6px rgba(0, 242, 254, 0.3);
+    }
+
+    /* Scrollable Workspace body content */
+    .workspace-scroll-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Screen flicker transition */
+    .terminal-flicker {
+      animation: tabFlicker 0.22s steps(2);
+    }
+    @keyframes tabFlicker {
+      0% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    /* Top details row */
+    .meta-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      padding-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .meta-node-status {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--glow-violet);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .meta-node-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      margin: 4px 0 0 0;
+      letter-spacing: -0.01em;
+    }
+    .launch-instance-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--glow-cyan), #0284c7);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-void);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 10px 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.15);
+      transition: all 0.2s;
+    }
+    .launch-instance-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35);
+    }
+
+    /* Panels layouts */
+    .glass-card-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-cyan);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .panel-section-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-primary);
+      margin: 0 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-section-title::before {
+      content: "";
+      width: 3px;
+      height: 12px;
+      background: var(--glow-cyan);
+      border-radius: 1px;
+      display: inline-block;
+    }
+
+    .dual-pane-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+    }
+
+    /* Telemetry meters */
+    .metric-rows-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .metric-meter-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .metric-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+    .metric-label-row span:first-child {
+      color: var(--text-primary);
+    }
+    .metric-track {
+      height: 5px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .metric-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--glow-cyan), var(--glow-violet));
+      width: 0;
+      border-radius: 3px;
+      transition: width 1s cubic-bezier(0.19, 1, 0.22, 1);
+      box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+    }
+
+    /* CRT log screen */
+    .crt-monitor-console {
+      background: #010204;
+      border: 1px solid rgba(0, 242, 254, 0.12);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--glow-cyan);
+      text-shadow: 0 0 4px rgba(0, 242, 254, 0.4);
+      min-height: 180px;
+      max-height: 220px;
+      overflow-y: auto;
+      position: relative;
+    }
+    .crt-monitor-console::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%);
+      background-size: 100% 4px;
+      pointer-events: none;
+    }
+    .crt-log-row {
+      margin-bottom: 6px;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(2px);
+      animation: logLineIn 0.2s forwards;
+    }
+    @keyframes logLineIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SVG blueprint node map */
+    .svg-blueprint-canvas {
+      width: 100%;
+      height: 260px;
+      background: #010204;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+    }
+
+    /* Demonstrator Viewport */
+    .sim-viewport-frame {
+      background: rgba(2, 3, 6, 0.3);
+      border: 1px dashed rgba(0, 242, 254, 0.15);
+      border-radius: 12px;
+      padding: 24px;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .sim-viewport-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Matrix topology grid */
+    .topology-matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      width: 180px;
+      height: 180px;
+    }
+    .topology-cell {
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .topology-cell:hover {
+      background: rgba(0, 242, 254, 0.04);
+      border-color: rgba(0, 242, 254, 0.15);
+    }
+    .topology-cell.obstacle {
+      background: var(--glow-violet);
+      border-color: var(--glow-violet);
+      box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+    }
+    .topology-cell.start {
+      background: var(--glow-cyan);
+      border-color: var(--glow-cyan);
+      box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+    }
+    .topology-cell.end {
+      background: var(--glow-magenta);
+      border-color: var(--glow-magenta);
+      box-shadow: 0 0 8px rgba(236, 72, 153, 0.3);
+    }
+    .topology-cell.path {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--glow-green);
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Chatbot window */
+    .retro-chat-frame {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 380px;
+      height: 260px;
+      border: 1px solid rgba(0, 242, 254, 0.12);
+      border-radius: 10px;
+      background: #010204;
+      overflow: hidden;
+    }
+    .retro-chat-history {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .retro-chat-bubble {
+      padding: 8px 12px;
+      border-radius: 6px;
+      max-width: 80%;
+      line-height: 1.4;
+      font-family: var(--font-body);
+    }
+    .retro-chat-bubble.bot {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      align-self: flex-start;
+    }
+    .retro-chat-bubble.user {
+      background: rgba(0, 242, 254, 0.06);
+      border: 1px solid rgba(0, 242, 254, 0.15);
+      color: var(--glow-cyan);
+      align-self: flex-end;
+    }
+    .retro-chat-input-bar {
+      display: flex;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .retro-chat-textbox {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      padding: 10px 14px;
+      font-size: 12px;
+      outline: none;
+    }
+    .retro-chat-send {
+      background: none;
+      border: none;
+      color: var(--glow-cyan);
+      padding: 0 14px;
+      font-weight: 700;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="telemetry-grid"></div>
+
+  <div class="console-frame">
+    <!-- Unified 100% Width Header Bar -->
+    <header class="console-header-bar">
+      <div class="header-left-side">
+        <div class="status-led"></div>
+        <h1 class="console-brand-title">The Vault</h1>
+        <span class="console-brand-subtitle">Historical System Index</span>
+      </div>
+      
+      <div class="console-stats-bar">
+        <div class="stat-badge-item">Total Index: <span id="lbl-total">0</span></div>
+        <div class="stat-badge-item">Active Sandbox: <span id="lbl-sandbox" style="color: var(--glow-green);">0</span></div>
+        <div class="stat-badge-item">Legacy Archive: <span id="lbl-archived" style="color: var(--text-secondary);">0</span></div>
+      </div>
+    </header>
+
+    <!-- Split Pane Workspace -->
+    <div class="workspace-split">
+      <!-- Left Column: Scrollable cards directory -->
+      <aside class="directory-column">
+        <div class="filter-section">
+          <div class="search-field-wrap">
+            <input class="search-field" id="search-box" placeholder="Filter registry nodes..." type="text"/>
+          </div>
+          <div class="toggles-row">
+            <button class="toggle-pill active" data-f="all">All</button>
+            <button class="toggle-pill" data-f="experimental">Sandbox</button>
+            <button class="toggle-pill" data-f="archived">Archived</button>
+          </div>
+        </div>
+
+        <div class="cards-deck-scroll" id="node-deck">
+          <!-- Rendered dynamically -->
+        </div>
+      </aside>
+
+      <!-- Right Column: Workspace viewport -->
+      <main class="workspace-column">
+        <div class="tabs-header-row">
+          <button class="tab-btn-link active" data-tab="details">Telemetry</button>
+          <button class="tab-btn-link" data-tab="blueprint">Blueprint</button>
+          <button class="tab-btn-link" data-tab="demo">Demonstrator</button>
+        </div>
+
+        <div class="workspace-scroll-body" id="workspace-content">
+          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; color:var(--text-secondary);">
+            <svg style="width:40px; height:40px; stroke:rgba(0, 242, 254, 0.35); fill:none; margin-bottom:12px;" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2" stroke-width="1.5"/>
+              <path d="M7 11V7a5 5 0 0110 0v4" stroke-width="1.5"/>
+            </svg>
+            <span style="font-family: var(--font-mono); font-size:10px; letter-spacing: 0.1em; text-transform:uppercase;">Select system component node</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../shared/nexus-topnav-v2.js?v=54"></script>
+  <script>
+    (async () => {
+      // 1. Fetch apps
+      let nodeRegistry = [];
+      try {
+        const res = await fetch("../assets/vault-data.json");
+        if (res.ok) nodeRegistry = await res.json();
+      } catch (e) {
+        console.error("Vault fetching error", e);
+      }
+
+      // Update Header stats
+      document.getElementById("lbl-total").textContent = nodeRegistry.length;
+      document.getElementById("lbl-sandbox").textContent = nodeRegistry.filter(a => a.status === "experimental").length;
+      document.getElementById("lbl-archived").textContent = nodeRegistry.filter(a => a.status === "archived").length;
+
+      // States
+      let activeNode = null;
+      let activeTab = "details";
+      let logTimer = null;
+      let animationRaf = null;
+
+      const deck = document.getElementById("node-deck");
+      const searchBox = document.getElementById("search-box");
+      const filterToggles = document.querySelectorAll(".toggle-pill");
+      const tabBtns = document.querySelectorAll(".tab-btn-link");
+      const workspace = document.getElementById("workspace-content");
+
+      let query = "";
+      let statusFilter = "all";
+
+      // Vercel hover cursor boundary tracker
+      const trackCursorGlow = (e) => {
+        const card = e.currentTarget;
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty("--mouse-x", `${x}px`);
+        card.style.setProperty("--mouse-y", `${y}px`);
+      };
+
+      const renderDeck = () => {
+        deck.innerHTML = "";
+        const filtered = nodeRegistry.filter(app => {
+          const mQ = app.name.toLowerCase().includes(query) || 
+                     app.description.toLowerCase().includes(query) ||
+                     app.tags.some(t => t.toLowerCase().includes(query));
+          const mS = statusFilter === "all" || app.status === statusFilter;
+          return mQ && mS;
+        });
+
+        filtered.forEach(app => {
+          const card = document.createElement("div");
+          card.className = `node-card ${activeNode && activeNode.name === app.name ? "active" : ""}`;
+          card.setAttribute("data-status", app.status);
+          card.innerHTML = `
+            <div class="node-card-head">
+              <h3 class="node-card-name">${app.name}</h3>
+              <div class="node-led"></div>
+            </div>
+            <p class="node-card-desc">${app.description}</p>
+            <div class="node-card-tags">
+              ${app.tags.slice(0, 3).map(t => `<span class="node-card-tag">${t}</span>`).join("")}
+              ${app.tags.length > 3 ? `<span class="node-card-tag">+${app.tags.length - 3}</span>` : ""}
+            </div>
+          `;
+          card.addEventListener("mousemove", trackCursorGlow);
+          card.addEventListener("click", () => selectNode(app));
+          deck.appendChild(card);
+        });
+
+        if (!filtered.length) {
+          deck.innerHTML = `<div style="text-align:center; padding:32px; color:var(--text-secondary); font-size:11px; font-family:var(--font-mono);">NO NODE DETECTED</div>`;
+        }
+      };
+
+      const selectNode = (app) => {
+        activeNode = app;
+        document.querySelectorAll(".node-card").forEach(c => c.classList.remove("active"));
+        renderDeck();
+        
+        // Add console flicker transition
+        workspace.classList.remove("terminal-flicker");
+        void workspace.offsetWidth; // trigger reflow
+        workspace.classList.add("terminal-flicker");
+
+        updateWorkspace();
+      };
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          activeTab = btn.getAttribute("data-tab");
+          updateWorkspace();
+        });
+      });
+
+      const updateWorkspace = () => {
+        if (!activeNode) return;
+        if (logTimer) clearInterval(logTimer);
+        if (animationRaf) cancelAnimationFrame(animationRaf);
+
+        if (activeTab === "details") {
+          renderTelemetry();
+        } else if (activeTab === "blueprint") {
+          renderBlueprint();
+        } else if (activeTab === "demo") {
+          renderDemo();
+        }
+      };
+
+      const renderTelemetry = () => {
+        workspace.innerHTML = `
+          <div class="meta-top-bar">
+            <div>
+              <span class="meta-node-status">${activeNode.status === "experimental" ? "ACTIVE EXPERIMENTAL SANDBOX" : "LEGACY REPOSITORY ARCHIVE"}</span>
+              <h2 class="meta-node-title">${activeNode.name}</h2>
+            </div>
+            <a class="launch-instance-btn" href="${activeNode.href}" target="_blank" rel="noopener">
+              Launch Live Instance
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 01-2-2h6M15 3h6v6M10 14L21 3"/></svg>
+            </a>
+          </div>
+
+          <div class="dual-pane-grid">
+            <div class="glass-card-panel" style="display:flex; flex-direction:column; gap:20px;">
+              <div>
+                <h4 class="panel-section-title">Functional Profile</h4>
+                <p style="font-size:14px; line-height:1.6; margin:0; color:var(--text-primary);">${activeNode.description}</p>
+              </div>
+              <div>
+                <h4 class="panel-section-title">Engineering Scope</h4>
+                <div style="font-size:13px; line-height:1.5; color:var(--text-secondary);">${activeNode.demonstrates}</div>
+              </div>
+            </div>
+
+            <div class="glass-card-panel">
+              <h4 class="panel-section-title">System Metrics</h4>
+              <div class="metric-rows-wrapper">
+                <div class="metric-meter-bar">
+                  <div class="metric-label-row"><span>UI Density</span><span id="stat-ui">0%</span></div>
+                  <div class="metric-track"><div class="metric-fill" id="fill-ui"></div></div>
+                </div>
+                <div class="metric-meter-bar">
+                  <div class="metric-label-row"><span>Offline Autonomy</span><span id="stat-offline">0%</span></div>
+                  <div class="metric-track"><div class="metric-fill" id="fill-offline"></div></div>
+                </div>
+                <div class="metric-meter-bar">
+                  <div class="metric-label-row"><span>Execution Velocity</span><span id="stat-speed">0%</span></div>
+                  <div class="metric-track"><div class="metric-fill" id="fill-speed"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="panel-section-title">CRT Telemetry Monitor</h4>
+            <div class="crt-monitor-console" id="crt-terminal">
+              <!-- Logs print dynamically -->
+            </div>
+          </div>
+        `;
+
+        // Animate metrics bar chart
+        setTimeout(() => {
+          const isExp = activeNode.status === "experimental";
+          const uFill = document.getElementById("fill-ui");
+          const oFill = document.getElementById("fill-offline");
+          const sFill = document.getElementById("fill-speed");
+          
+          const uVal = isExp ? 85 : 45;
+          const oVal = isExp ? 95 : 70;
+          const sVal = isExp ? 90 : 80;
+
+          if (uFill) uFill.style.width = uVal + "%";
+          if (oFill) oFill.style.width = oVal + "%";
+          if (sFill) sFill.style.width = sVal + "%";
+
+          document.getElementById("stat-ui").textContent = uVal + "%";
+          document.getElementById("stat-offline").textContent = oVal + "%";
+          document.getElementById("stat-speed").textContent = sVal + "%";
+        }, 80);
+
+        // Terminal Log print timer loop
+        const crtTerminal = document.getElementById("crt-terminal");
+        if (crtTerminal && activeNode.mockLogs) {
+          let logIdx = 0;
+          const printLog = () => {
+            if (logIdx < activeNode.mockLogs.length) {
+              const row = document.createElement("div");
+              row.className = "crt-log-row";
+              row.textContent = activeNode.mockLogs[logIdx];
+              crtTerminal.appendChild(row);
+              crtTerminal.scrollTop = crtTerminal.scrollHeight;
+              logIdx++;
+            } else {
+              clearInterval(logTimer);
+            }
+          };
+          logTimer = setInterval(printLog, 300);
+          printLog();
+        }
+      };
+
+      const renderBlueprint = () => {
+        workspace.innerHTML = `
+          <div class="meta-top-bar">
+            <div>
+              <span class="meta-node-status">Blueprint Structure Map</span>
+              <h2 class="meta-node-title">${activeNode.name}</h2>
+            </div>
+          </div>
+
+          <div class="glass-card-panel">
+            <h4 class="panel-section-title">Module Tree Mapping</h4>
+            <svg class="svg-blueprint-canvas" id="svg-map"></svg>
+          </div>
+        `;
+
+        // Draw Interactive SVG node connection map
+        const svg = document.getElementById("svg-map");
+        if (!svg) return;
+        
+        const width = svg.clientWidth || 600;
+        const height = 260;
+        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+        const nodes = [
+          { name: "index.html", x: 80, y: 130, type: "entry" },
+          { name: "app.js", x: 230, y: 80, type: "logic" },
+          { name: "util.js", x: 380, y: 60, type: "module" },
+          { name: "style.css", x: 230, y: 180, type: "view" },
+          { name: "tokens.css", x: 380, y: 200, type: "module" }
+        ];
+
+        const links = [
+          { from: 0, to: 1 },
+          { from: 0, to: 3 },
+          { from: 1, to: 2 },
+          { from: 3, to: 4 }
+        ];
+
+        let html = "";
+        
+        // Draw connection lines
+        links.forEach(l => {
+          const n1 = nodes[l.from];
+          const n2 = nodes[l.to];
+          html += `<path d="M ${n1.x} ${n1.y} C ${(n1.x+n2.x)/2} ${n1.y}, ${(n1.x+n2.x)/2} ${n2.y}, ${n2.x} ${n2.y}" stroke="rgba(0, 242, 254, 0.25)" stroke-width="1.5" fill="none" />`;
+        });
+
+        // Draw nodes
+        nodes.forEach(n => {
+          const color = n.type === "entry" ? "var(--glow-cyan)" : n.type === "logic" ? "var(--glow-violet)" : "var(--text-secondary)";
+          html += `
+            <circle cx="${n.x}" cy="${n.y}" r="6" fill="${color}" filter="drop-shadow(0 0 6px ${color})" />
+            <text x="${n.x + 12}" y="${n.y + 4}" fill="var(--text-primary)" font-family="var(--font-mono)" font-size="10px">${n.name}</text>
+          `;
+        });
+
+        svg.innerHTML = html;
+      };
+
+      const renderDemo = () => {
+        workspace.innerHTML = `
+          <div class="meta-top-bar">
+            <div>
+              <span class="meta-node-status">Interactive Capability Demonstrator</span>
+              <h2 class="meta-node-title">${activeNode.name}</h2>
+            </div>
+          </div>
+
+          <div class="sim-viewport-frame" id="sim-frame">
+            <!-- Sandbox demonstrator widgets -->
+          </div>
+        `;
+
+        const simFrame = document.getElementById("sim-frame");
+        if (!simFrame) return;
+
+        if (activeNode.demoType === "matrix") {
+          simFrame.innerHTML = `
+            <span class="sim-viewport-tag">Island Topology Grid Sandbox</span>
+            <div class="topology-matrix-grid" id="sim-grid"></div>
+            <p style="font-size:11px; color:var(--text-secondary); margin-top:20px; font-family:var(--font-mono);">Click grid squares to draw wall obstacles</p>
+          `;
+          const grid = document.getElementById("sim-grid");
+          let cells = Array(25).fill(0); 
+          cells[0] = 2;  // Start
+          cells[24] = 3; // End
+
+          const drawGrid = () => {
+            grid.innerHTML = "";
+            cells.forEach((val, idx) => {
+              const cell = document.createElement("div");
+              cell.className = `topology-cell ${val === 1 ? "obstacle" : val === 2 ? "start" : val === 3 ? "end" : val === 4 ? "path" : ""}`;
+              cell.addEventListener("click", () => {
+                if (val !== 2 && val !== 3) {
+                  cells[idx] = cells[idx] === 1 ? 0 : 1;
+                  computePath();
+                }
+              });
+              grid.appendChild(cell);
+            });
+          };
+
+          const computePath = () => {
+            cells = cells.map(v => v === 4 ? 0 : v);
+            let current = 0;
+            const target = 24;
+            const visited = [0];
+            
+            while (current !== target && visited.length < 25) {
+              const cx = current % 5;
+              const cy = Math.floor(current / 5);
+              const tx = target % 5;
+              const ty = Math.floor(target / 5);
+              
+              let next = current;
+              if (cx < tx && cells[current + 1] !== 1) next = current + 1;
+              else if (cy < ty && cells[current + 5] !== 1) next = current + 5;
+              else if (cx > tx && cells[current - 1] !== 1) next = current - 1;
+              else if (cy > ty && cells[current - 5] !== 1) next = current - 5;
+              else break;
+
+              if (visited.includes(next) || next === current) break;
+              current = next;
+              visited.push(current);
+              if (current !== target) cells[current] = 4;
+            }
+            drawGrid();
+          };
+
+          computePath();
+
+        } else if (activeNode.demoType === "chat") {
+          simFrame.innerHTML = `
+            <span class="sim-viewport-tag">FloraGuide Assistant AI</span>
+            <div class="retro-chat-frame">
+              <div class="retro-chat-history" id="chat-history">
+                <div class="retro-chat-bubble bot">System ready. Awaiting botanical node query...</div>
+              </div>
+              <div class="retro-chat-input-bar">
+                <input type="text" class="retro-chat-textbox" id="chat-box" placeholder="Search plant node database..."/>
+                <button class="retro-chat-send" id="chat-send">Send</button>
+              </div>
+            </div>
+          `;
+          const history = document.getElementById("chat-history");
+          const input = document.getElementById("chat-box");
+          const btn = document.getElementById("chat-send");
+
+          const sendMsg = () => {
+            const txt = input.value.trim();
+            if (!txt) return;
+            
+            const uBubble = document.createElement("div");
+            uBubble.className = "retro-chat-bubble user";
+            uBubble.textContent = txt;
+            history.appendChild(uBubble);
+            input.value = "";
+            history.scrollTop = history.scrollHeight;
+
+            const typing = document.createElement("div");
+            typing.className = "retro-chat-bubble bot";
+            typing.textContent = "...";
+            history.appendChild(typing);
+
+            setTimeout(() => {
+              typing.textContent = `Retrieved details for botanical taxonomy query: "${txt}". Component is active locally.`;
+              history.scrollTop = history.scrollHeight;
+            }, 700);
+          };
+
+          btn.addEventListener("click", sendMsg);
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") sendMsg();
+          });
+
+        } else if (activeNode.demoType === "geometry" || activeNode.demoType === "matrix" || activeNode.demoType === "css_lab" || activeNode.demoType === "ocr") {
+          simFrame.innerHTML = `
+            <span class="sim-viewport-tag">Vector Angle Workbench</span>
+            <div class="vector-control-bar">
+              <div class="vector-label-slider">
+                <label>Resolution: <span id="lbl-r">16</span></label>
+                <input type="range" class="vector-slider-input" id="rng-r" min="6" max="32" step="2" value="16"/>
+              </div>
+              <div class="vector-label-slider">
+                <label>Multiplier: <span id="lbl-m">3</span></label>
+                <input type="range" class="vector-slider-input" id="rng-m" min="1" max="12" step="1" value="3"/>
+              </div>
+            </div>
+            <canvas class="vector-canvas-viewport" id="vector-canvas"></canvas>
+          `;
+          const canvas = document.getElementById("vector-canvas");
+          const ctx = canvas.getContext("2d");
+          const rngR = document.getElementById("rng-r");
+          const rngM = document.getElementById("rng-m");
+          const lblR = document.getElementById("lbl-r");
+          const lblM = document.getElementById("lbl-m");
+
+          const resize = () => {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+          };
+          window.addEventListener("resize", resize);
+          resize();
+
+          const loop = () => {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const w = canvas.width;
+            const h = canvas.height;
+            const cx = w / 2;
+            const cy = h / 2;
+            const radius = Math.min(cx, cy) - 24;
+
+            ctx.strokeStyle = "rgba(0, 242, 254, 0.03)";
+            ctx.beginPath();
+            ctx.moveTo(0, cy); ctx.lineTo(w, cy);
+            ctx.moveTo(cx, 0); ctx.lineTo(cx, h);
+            ctx.stroke();
+
+            ctx.strokeStyle = "rgba(0, 242, 254, 0.08)";
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            const res = parseInt(rngR.value);
+            const mult = parseInt(rngM.value);
+            lblR.textContent = res;
+            lblM.textContent = mult;
+
+            ctx.strokeStyle = "rgba(0, 242, 254, 0.35)";
+            ctx.shadowColor = "var(--glow-cyan)";
+            ctx.shadowBlur = 10;
+            ctx.lineWidth = 1.3;
+            ctx.beginPath();
+            for (let i = 0; i < res; i++) {
+              const a = (i * Math.PI * 2) / res;
+              const x1 = cx + Math.cos(a) * radius;
+              const y1 = cy + Math.sin(a) * radius;
+              const targetAngle = (i * mult * Math.PI * 2) / res;
+              const x2 = cx + Math.cos(targetAngle) * radius;
+              const y2 = cy + Math.sin(targetAngle) * radius;
+              ctx.moveTo(x1, y1);
+              ctx.lineTo(x2, y2);
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            const time = Date.now() * 0.0008;
+            ctx.strokeStyle = "rgba(139, 92, 246, 0.4)";
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + Math.cos(time) * radius, cy + Math.sin(time) * radius);
+            ctx.stroke();
+
+            animationRaf = requestAnimationFrame(loop);
+          };
+          loop();
+
+        } else if (activeNode.demoType === "cryptography") {
+          simFrame.innerHTML = `
+            <span class="sim-viewport-tag">Client Cryptographic Hash Vault</span>
+            <div class="crypto-field-wrapper">
+              <input type="text" class="crypto-input-box" id="c-input" value="NexusAdminKey_2026"/>
+              <div class="crypto-output-shield" id="c-output">Deriving...</div>
+            </div>
+          `;
+          const input = document.getElementById("c-input");
+          const output = document.getElementById("c-output");
+          const update = () => {
+            const val = input.value || "";
+            let hash = 0;
+            for (let i = 0; i < val.length; i++) {
+              hash = (hash << 5) - hash + val.charCodeAt(i);
+              hash |= 0;
+            }
+            output.textContent = "KEY_HASH_SHA256: " + Math.abs(hash).toString(16).toUpperCase().padStart(8, '0') + "F99EAD2B8";
+          };
+          input.addEventListener("input", update);
+          update();
+
+        } else if (activeNode.demoType === "timer") {
+          simFrame.innerHTML = `
+            <span class="sim-viewport-tag">Focus Interval Timer Loop</span>
+            <div style="text-align:center;">
+              <svg width="120" height="120" viewBox="0 0 100 100" style="transform: rotate(-90deg); filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.2));">
+                <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.03)" stroke-width="5" fill="transparent"/>
+                <circle id="timer-ring" cx="50" cy="50" r="40" stroke="var(--glow-cyan)" stroke-dasharray="251.2" stroke-dashoffset="0" stroke-width="5" fill="transparent"/>
+              </svg>
+              <div style="font-family: var(--font-code); font-size: 22px; font-weight: 500; color: var(--text-primary); margin-top: 12px;" id="timer-clock">25:00</div>
+            </div>
+          `;
+          const ring = document.getElementById("timer-ring");
+          const clock = document.getElementById("timer-clock");
+          let total = 25 * 60;
+          let left = total;
+
+          const tickClock = () => {
+            left = left <= 0 ? total : left - 1;
+            const min = Math.floor(left / 60).toString().padStart(2, '0');
+            const sec = (left % 60).toString().padStart(2, '0');
+            clock.textContent = `${min}:${sec}`;
+            const offset = 251.2 - (251.2 * left) / total;
+            ring.setAttribute("stroke-dashoffset", offset);
+          };
+          logTimer = setInterval(tickClock, 1000);
+        } else {
+          simFrame.innerHTML = `
+            <div style="text-align:center;">
+              <svg style="width:40px; height:40px; stroke:rgba(139,92,246,0.4); fill:none; margin-bottom:12px;" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <p style="margin:0 0 6px 0; font-size:13px; color:var(--text-primary);">Static telemetry channel active.</p>
+              <div style="font-family: var(--font-code); font-size: 10px; color: var(--glow-cyan);">STATE: ACTIVE_SYS_INDEX_OK</div>
+            </div>
+          `;
+        }
+      };
+
+      // Filter events
+      searchBox.addEventListener("input", (e) => {
+        query = e.target.value.toLowerCase();
+        renderDeck();
+      });
+
+      filterToggles.forEach(btn => {
+        btn.addEventListener("click", () => {
+          filterToggles.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          statusFilter = btn.getAttribute("data-f");
+          renderDeck();
+        });
+      });
+
+      // Init
+      renderDeck();
+      if (nodeRegistry.length > 0) {
+        selectNode(nodeRegistry[0]);
+      }
+    })();
+  </script>
+</body>
+</html>
