@@ -68,7 +68,7 @@ function summarizeFailures(failures) {
 
   const urls = htmlFiles.map(toUrl).filter(isProbablyAppShell);
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const ctx = await browser.newContext({
     viewport: { width: 1280, height: 800 },
     javaScriptEnabled: true
