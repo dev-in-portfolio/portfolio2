@@ -1,0 +1,923 @@
+{
+  "Agents (UI)": {
+    "name": "Agents (UI)",
+    "type": "local",
+    "href": "/apps/agents/",
+    "files": [
+      ".netlify",
+      "assets",
+      "demo-targets",
+      "help.md",
+      "index.html",
+      "not-enabled.html",
+      "overview.html",
+      "packs",
+      "policy.html",
+      "readme.md",
+      "runner.html",
+      "runs",
+      "sdk.html",
+      "store",
+      "_redirects"
+    ],
+    "scripts": [
+      "../../shared/nexus-topnav-v2.js?v=54",
+      "assets/js/agents.js"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 2532,
+    "js_len": 0,
+    "functions": []
+  },
+  "Alibi": {
+    "name": "Alibi",
+    "type": "local",
+    "href": "/apps/alibi/",
+    "files": [
+      "app.js",
+      "assets",
+      "help.md",
+      "index.html",
+      "readme.md",
+      "styles.css"
+    ],
+    "scripts": [
+      "/shared/toast.js",
+      "../../runtime-guard.js",
+      "https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js",
+      "/shared/global-polyfill.js?v=7",
+      "/shared/appdata-client.js?v=1",
+      "app.js",
+      "/shared/runtime-load-guard.js",
+      "/shared/render-recovery-guard.js",
+      "/shared/resize-dpr-guard.js",
+      "/shared/error-boundary-guard.js",
+      "/shared/state-init-guard.js",
+      "/shared/scroll-focus-guard.js",
+      "/shared/ui-physics-guard.js",
+      "/shared/nexus-topnav-v2.js?v=54"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [
+      "vendorMem"
+    ],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 23291,
+    "js_len": 122605,
+    "functions": [
+      "createPeriod",
+      "csvCell",
+      "clearDraft",
+      "renderCOGS",
+      "computePurchasesValue",
+      "_focusNextIn",
+      "goTab",
+      "getMonth",
+      "openAliasModal",
+      "estimateRecipeCost"
+    ]
+  },
+  "Prompt Vault": {
+    "name": "Prompt Vault",
+    "type": "local",
+    "href": "/apps/prompt-vault/",
+    "files": [
+      "app.js",
+      "help.md",
+      "index.html",
+      "readme.md",
+      "styles.css",
+      "vault.js"
+    ],
+    "scripts": [
+      "../../shared/nexus-topnav-v2.js",
+      "/shared/appdata-client.js",
+      "./app.js"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 5173,
+    "js_len": 33690,
+    "functions": [
+      "changePasscode",
+      "setLocked",
+      "pinClear",
+      "buildKeypad",
+      "renderList",
+      "getAllTags",
+      "renderAll",
+      "setAutoBackupEnabled",
+      "showStorageWarningBannerIfNeeded",
+      "nowISO"
+    ]
+  },
+  "Coverage Compass": {
+    "name": "Coverage Compass",
+    "type": "local",
+    "href": "/apps/coverage-compass/",
+    "files": [
+      "404.html",
+      "512.png",
+      "app.js",
+      "engine.js",
+      "glossary.js",
+      "help.md",
+      "hero.png",
+      "icon-192.png",
+      "icon-512.png",
+      "index.html",
+      "legal_pack_md",
+      "manifest.webmanifest",
+      "readme.md",
+      "service-worker.js",
+      "styles.css",
+      "theme-highcontrast.css",
+      "theme-light.css"
+    ],
+    "scripts": [
+      "../../runtime-guard.js",
+      "../../shared/global-polyfill.js?v=7",
+      "../../shared/appdata-client.js?v=1",
+      "engine.js",
+      "glossary.js",
+      "app.js",
+      "../../shared/runtime-load-guard.js",
+      "../../shared/render-recovery-guard.js",
+      "../../shared/resize-dpr-guard.js",
+      "../../shared/error-boundary-guard.js",
+      "../../shared/state-init-guard.js",
+      "../../shared/scroll-focus-guard.js",
+      "../../shared/ui-physics-guard.js",
+      "../../shared/nexus-topnav-v2.js?v=54"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [
+      "mde_build"
+    ],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Web Workers",
+      "Cryptographic Operations",
+      "Web Speech API"
+    ],
+    "html_len": 42396,
+    "js_len": 144240,
+    "functions": [
+      "setExportMode",
+      "closeExportModal",
+      "givebackTradeoffBrain",
+      "loadState",
+      "renderTracePanels",
+      "renderDetail",
+      "planYearChurnModel",
+      "setActive",
+      "buildExpansion",
+      "hydrateFromBackendIfNeeded"
+    ]
+  },
+  "Ultimate Broker Route (UBR)": {
+    "name": "Ultimate Broker Route (UBR)",
+    "type": "local",
+    "href": "/apps/ubr/",
+    "files": [
+      "app.js",
+      "help.md",
+      "index.html",
+      "readme.md"
+    ],
+    "scripts": [
+      "https://cdn.tailwindcss.com",
+      "/shared/toast.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js",
+      "https://unpkg.com/tesseract.js@v4.1.1/dist/tesseract.min.js",
+      "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+      "../../runtime-guard.js",
+      "/shared/runtime-load-guard.js",
+      "/shared/render-recovery-guard.js",
+      "/shared/resize-dpr-guard.js",
+      "/shared/error-boundary-guard.js",
+      "/shared/state-init-guard.js",
+      "/shared/scroll-focus-guard.js",
+      "/shared/ui-physics-guard.js",
+      "/shared/global-polyfill.js?v=7",
+      "/shared/appdata-client.js?v=1",
+      "./app.js",
+      "/shared/nexus-topnav-v2.js?v=54"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Data Charting/Plotting",
+      "Cryptographic Operations"
+    ],
+    "html_len": 31702,
+    "js_len": 34610,
+    "functions": [
+      "boot",
+      "saveStorage",
+      "makeStop",
+      "normalizeStops",
+      "navUrlForStop",
+      "showPage",
+      "geocode",
+      "tick",
+      "notify",
+      "updateCurrentStopBanners"
+    ]
+  },
+  "LingoLive AI": {
+    "name": "LingoLive AI",
+    "type": "local",
+    "href": "/apps/lingolive-ai/",
+    "files": [
+      "help.md",
+      "index.html",
+      "lingolive.js",
+      "readme.md"
+    ],
+    "scripts": [
+      "https://cdn.tailwindcss.com",
+      "https://unpkg.com/lucide@latest",
+      "../../shared/nexus-topnav-v2.js?v=lingo",
+      "./lingolive.js"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Web Speech API",
+      "Web Audio API"
+    ],
+    "html_len": 13649,
+    "js_len": 39290,
+    "functions": [
+      "setError",
+      "startSession",
+      "resetAllMastery",
+      "renderAll",
+      "renderLanguageGrid",
+      "removeDifficultWord",
+      "speakText",
+      "escapeHtml",
+      "clampScore",
+      "renderLevelRow"
+    ]
+  },
+  "Oracle Pit": {
+    "name": "Oracle Pit",
+    "type": "local",
+    "href": "/apps/oracle-pit/",
+    "files": [
+      "help.md",
+      "index.html",
+      "oracle-pit.js",
+      "readme.md"
+    ],
+    "scripts": [
+      "../../shared/nexus-topnav-v2.js?v=op",
+      "https://cdn.tailwindcss.com",
+      "./oracle-pit.js?v=30"
+    ],
+    "has_canvas": true,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Data Charting/Plotting"
+    ],
+    "html_len": 11253,
+    "js_len": 42530,
+    "functions": [
+      "esc",
+      "toggleExpand",
+      "setVote",
+      "startDebate",
+      "updateSetting",
+      "save",
+      "escapeHTML",
+      "clamp",
+      "drawTensionChart",
+      "serverLoadLatest"
+    ]
+  },
+  "SolveSpace": {
+    "name": "SolveSpace",
+    "type": "external",
+    "href": "https://dev-in-portfolio-solvespace.netlify.app",
+    "tech_stack": [
+      "Next.js"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "TapForge": {
+    "name": "TapForge",
+    "type": "external",
+    "href": "https://dev-in-portfolio-tapforge.netlify.app",
+    "tech_stack": [
+      "Flutter",
+      "Node API",
+      "Neon"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "SessionMint": {
+    "name": "SessionMint",
+    "type": "external",
+    "href": "https://dev-in-portfolio-sessionmint.netlify.app",
+    "tech_stack": [
+      "Next.js",
+      "Supabase"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "Signal Board": {
+    "name": "Signal Board",
+    "type": "external",
+    "href": "https://dev-in-portfolio-signal-board.netlify.app",
+    "tech_stack": [
+      "Vue",
+      "Functions",
+      "Neon"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "PalmLedger": {
+    "name": "PalmLedger",
+    "type": "external",
+    "href": "https://dev-in-portfolio-palmledger.netlify.app",
+    "tech_stack": [
+      "Node API",
+      "Functions",
+      "Neon"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "SleepyStory": {
+    "name": "SleepyStory",
+    "type": "local",
+    "href": "/apps/sleepystory/",
+    "files": [
+      "help.md",
+      "index.html",
+      "readme.md",
+      "sleepystory.js",
+      "styles.css"
+    ],
+    "scripts": [
+      "https://cdn.tailwindcss.com",
+      "./sleepystory.js",
+      "../../shared/nexus-topnav-v2.js?v=sleepystory"
+    ],
+    "has_canvas": false,
+    "has_svg": true,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 6520,
+    "js_len": 17702,
+    "functions": [
+      "parseJSONSafe",
+      "renderStory",
+      "closeKeyModal",
+      "escapeHtml",
+      "el",
+      "normalizeStory",
+      "exportData",
+      "renderStudio",
+      "els",
+      "openKeyModal"
+    ]
+  },
+  "ToonStudio": {
+    "name": "ToonStudio",
+    "type": "local",
+    "href": "/apps/toonstudio/",
+    "files": [
+      "help.md",
+      "index.html",
+      "readme.md",
+      "toonstudio.js"
+    ],
+    "scripts": [
+      "https://cdn.tailwindcss.com",
+      "../../shared/nexus-topnav-v2.js?v=toon",
+      "./toonstudio.js"
+    ],
+    "has_canvas": true,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Web Speech API"
+    ],
+    "html_len": 3434,
+    "js_len": 55140,
+    "functions": [
+      "setError",
+      "demo",
+      "addFrame",
+      "resetProject",
+      "openSetup",
+      "stopPreview",
+      "duplicateFrame",
+      "escapeHtml",
+      "playPreview",
+      "setStep"
+    ]
+  },
+  "RouteForge Console": {
+    "name": "RouteForge Console",
+    "type": "external",
+    "href": "https://dev-in-portfolio-routeforge-console.netlify.app",
+    "tech_stack": [
+      "Streamlit",
+      "Python",
+      "Neon"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "PatchSmith": {
+    "name": "PatchSmith",
+    "type": "external",
+    "href": "https://dev-in-portfolio-patchsmith.netlify.app",
+    "tech_stack": [
+      "Gradio",
+      "Python",
+      "Neon"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "Repo Pilot": {
+    "name": "Repo Pilot",
+    "type": "external",
+    "href": "https://dev-in-portfolio-repo-pilot.netlify.app",
+    "tech_stack": [
+      "Desktop",
+      "Download"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "Switchboard": {
+    "name": "Switchboard",
+    "type": "external",
+    "href": "https://dev-in-portfolio-swittchboard.netlify.app",
+    "tech_stack": [
+      "Vue",
+      "Functions",
+      "Neon"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "NeonScope": {
+    "name": "NeonScope",
+    "type": "external",
+    "href": "https://dev-in-portfolio-neonscope.netlify.app",
+    "tech_stack": [
+      "Streamlit",
+      "Python",
+      "Neon"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "LatchList": {
+    "name": "LatchList",
+    "type": "external",
+    "href": "https://dev-in-portfolio-latchlist.netlify.app",
+    "tech_stack": [
+      "Next.js",
+      "Supabase"
+    ],
+    "summary": "External Netlify deployed application.",
+    "details": "This app runs in an external sandbox deployment."
+  },
+  "Splice": {
+    "name": "Splice",
+    "type": "local",
+    "href": "/apps/splice/",
+    "files": [
+      "help.md",
+      "index.html",
+      "readme.md",
+      "splice.js"
+    ],
+    "scripts": [
+      "https://cdn.tailwindcss.com",
+      "../../shared/nexus-topnav-v2.js?v=splice_vanilla_video",
+      "/shared/appdata-client.js",
+      "./splice.js"
+    ],
+    "has_canvas": true,
+    "has_svg": true,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Cryptographic Operations",
+      "Web Audio API"
+    ],
+    "html_len": 24845,
+    "js_len": 51879,
+    "functions": [
+      "deleteBlock",
+      "readVideoDuration",
+      "handleMusicUpload",
+      "drawTitleCard",
+      "renderVideoTrack",
+      "stopSequence",
+      "onMouseUp",
+      "drawClip",
+      "getSeqTotalDuration",
+      "initMixerHandlers"
+    ]
+  },
+  "Helios": {
+    "name": "Helios",
+    "type": "local",
+    "href": "/apps/helios/",
+    "files": [
+      "canvas.html",
+      "helios.css",
+      "helios.js",
+      "help.md",
+      "index.html",
+      "package.json",
+      "readme.md",
+      "README.txt",
+      "src",
+      "tsconfig.json",
+      "vite.config.ts"
+    ],
+    "scripts": [
+      "/src/main.ts"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 5358,
+    "js_len": 7079,
+    "functions": [
+      "post",
+      "stormRisk",
+      "pullKp",
+      "pullXray",
+      "fetchJson",
+      "refreshApis",
+      "pullPlasma",
+      "clamp",
+      "proxy",
+      "refreshProxy"
+    ]
+  },
+  "Transit": {
+    "name": "Transit",
+    "type": "local",
+    "href": "/apps/transit/",
+    "files": [
+      "help.md",
+      "index.html",
+      "package.json",
+      "readme.md",
+      "src",
+      "tsconfig.json",
+      "vite.config.ts"
+    ],
+    "scripts": [
+      "../../shared/wyla.js",
+      "/shared/global-polyfill.js?v=20251230",
+      "/shared/ui-helpers.js?v=20251219",
+      "/shared/ai-personas.js?v=20251219",
+      "/shared/ai-diagnostics.js?v=20251219",
+      "/shared/ai-engines.js?v=20251219",
+      "/shared/forge-sdk.llm.js?v=20251219",
+      "/shared/forge-llm-drivers.js?v=20251219",
+      "/shared/state-store.js?v=20251230",
+      "/shared/telemetry-hub.js?v=20251230",
+      "/shared/ai-router.js?v=20251230",
+      "/shared/force-catch-clear.js?v=20251230",
+      "/shared/app-settings.js?v=20260101",
+      "/shared/nexus-topnav-v2.js?v=54",
+      "/src/main.ts"
+    ],
+    "has_canvas": true,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 44267,
+    "js_len": 0,
+    "functions": []
+  },
+  "Vortex": {
+    "name": "Vortex",
+    "type": "local",
+    "href": "/apps/vortex/",
+    "files": [
+      "help.md",
+      "index.html",
+      "package.json",
+      "readme.md",
+      "src",
+      "tsconfig.json",
+      "vite.config.ts"
+    ],
+    "scripts": [
+      "../../shared/wyla.js",
+      "/src/main.ts",
+      "/shared/ui-helpers.js?v=20251219",
+      "/shared/ai-personas.js?v=20251219",
+      "/shared/ai-diagnostics.js?v=20251219",
+      "/shared/forge-sdk.llm.js?v=20251219",
+      "/shared/global-polyfill.js?v=20251230",
+      "/shared/forge-llm-drivers.js?v=20251219",
+      "/shared/ai-engines.js?v=20251219",
+      "/shared/state-store.js?v=20251230",
+      "/shared/telemetry-hub.js?v=20251230",
+      "/shared/ai-router.js?v=20251230",
+      "/shared/force-catch-clear.js?v=20251230",
+      "/shared/app-settings.js?v=20260101",
+      "/shared/nexus-topnav-v2.js?v=54"
+    ],
+    "has_canvas": true,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Data Charting/Plotting"
+    ],
+    "html_len": 46646,
+    "js_len": 0,
+    "functions": []
+  },
+  "Helix": {
+    "name": "Helix",
+    "type": "local",
+    "href": "/apps/helix/",
+    "files": [
+      "help.md",
+      "index.html",
+      "package.json",
+      "readme.md",
+      "src",
+      "tsconfig.json",
+      "vite.config.ts"
+    ],
+    "scripts": [
+      "/src/main.ts",
+      "/shared/nexus-topnav-v2.js?v=54"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 7279,
+    "js_len": 0,
+    "functions": []
+  },
+  "Tectonic": {
+    "name": "Tectonic",
+    "type": "local",
+    "href": "/apps/tectonic/",
+    "files": [
+      "canvas.html",
+      "help.md",
+      "index.html",
+      "package.json",
+      "readme.md",
+      "src",
+      "tectonic.css",
+      "tectonic.js",
+      "tsconfig.json",
+      "vite.config.ts"
+    ],
+    "scripts": [
+      "/src/main.ts"
+    ],
+    "has_canvas": true,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Data Charting/Plotting"
+    ],
+    "html_len": 4304,
+    "js_len": 7501,
+    "functions": [
+      "post",
+      "fmtAgo",
+      "renderFeed",
+      "clamp",
+      "sync",
+      "state",
+      "addHistory",
+      "drawChart",
+      "simFeed",
+      "loadUsgs"
+    ]
+  },
+  "Aeon": {
+    "name": "Aeon",
+    "type": "local",
+    "href": "/apps/aeon/",
+    "files": [
+      "canvas.html",
+      "help.md",
+      "index.html",
+      "package.json",
+      "readme.md",
+      "src",
+      "tsconfig.json",
+      "vite.config.ts"
+    ],
+    "scripts": [
+      "/src/main.ts"
+    ],
+    "has_canvas": true,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 24675,
+    "js_len": 0,
+    "functions": []
+  },
+  "Magma": {
+    "name": "Magma",
+    "type": "local",
+    "href": "/apps/magma/",
+    "files": [
+      "help.md",
+      "index.html",
+      "package.json",
+      "readme.md",
+      "src",
+      "tsconfig.json",
+      "vite.config.ts"
+    ],
+    "scripts": [
+      "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4",
+      "../../shared/wyla.js",
+      "/src/main.ts",
+      "/shared/state-store.js?v=20251230",
+      "/shared/telemetry-hub.js?v=20251230",
+      "/shared/ai-router.js?v=20251230",
+      "/shared/app-settings.js?v=20260101",
+      "/shared/nexus-topnav-v2.js?v=54"
+    ],
+    "has_canvas": true,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 35025,
+    "js_len": 0,
+    "functions": []
+  },
+  "String": {
+    "name": "String",
+    "type": "local",
+    "href": "/apps/string/",
+    "files": [
+      "help.md",
+      "index.html",
+      "package.json",
+      "readme.md",
+      "src",
+      "tsconfig.json",
+      "vite.config.ts"
+    ],
+    "scripts": [
+      "/src/main.ts",
+      "../../shared/wyla.js",
+      "/shared/global-polyfill.js?v=20251230",
+      "/shared/ui-helpers.js?v=20251219",
+      "/shared/ai-personas.js?v=20251219",
+      "/shared/ai-diagnostics.js?v=20251219",
+      "/shared/ai-engines.js?v=20251219",
+      "/shared/forge-sdk.llm.js?v=20251219",
+      "/shared/forge-llm-drivers.js?v=20251219",
+      "/shared/state-store.js?v=20251230",
+      "/shared/telemetry-hub.js?v=20251230",
+      "/shared/ai-router.js?v=20251230",
+      "/shared/force-catch-clear.js?v=20251230",
+      "/shared/app-settings.js?v=20260101",
+      "/shared/nexus-topnav-v2.js?v=54"
+    ],
+    "has_canvas": true,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Data Charting/Plotting"
+    ],
+    "html_len": 55158,
+    "js_len": 0,
+    "functions": []
+  },
+  "Crossword Arena": {
+    "name": "Crossword Arena",
+    "type": "local",
+    "href": "/apps/crossword-arena/",
+    "files": [
+      "app.js",
+      "help.md",
+      "index.html",
+      "readme.md"
+    ],
+    "scripts": [
+      "./app.js",
+      "/shared/nexus-topnav-v2.js?v=54"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [
+      "Data Charting/Plotting",
+      "Web Workers",
+      "Cryptographic Operations",
+      "Web Speech API",
+      "Web Audio API"
+    ],
+    "html_len": 11207,
+    "js_len": 1539471,
+    "functions": [
+      "jumpTo",
+      "updateClueLine",
+      "solvedCheck",
+      "currentPuzzle",
+      "annotate",
+      "inWordSet",
+      "fmtTime",
+      "onSolved",
+      "init",
+      "renderBoard"
+    ]
+  },
+  "Evening Epic Sudoku": {
+    "name": "Evening Epic Sudoku",
+    "type": "local",
+    "href": "/apps/evening-epic-sudoku/",
+    "files": [
+      "help.md",
+      "index.html",
+      "readme.md",
+      "_redirects"
+    ],
+    "scripts": [
+      "/shared/nexus-topnav-v2.js?v=54"
+    ],
+    "has_canvas": false,
+    "has_svg": false,
+    "local_storage": [],
+    "session_storage": [],
+    "fetch_calls": [],
+    "features": [],
+    "html_len": 48684,
+    "js_len": 0,
+    "functions": []
+  }
+}
