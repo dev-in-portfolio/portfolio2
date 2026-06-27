@@ -1,674 +1,748 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<meta content="#070A12" name="theme-color"/>
-<meta content="Devin O’Rourke — operator-trained builder shipping tool apps and UI systems." name="description"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="Devin O’Rourke — Utilities" property="og:title"/>
-<meta content="Operator-trained builder shipping tool apps and UI systems." property="og:description"/>
-<meta content="website" property="og:type"/>
-<meta content="https://dev-in-portfolio.netlify.app/tools/" property="og:url"/>
-<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
-<meta content="summary_large_image" name="twitter:card"/>
-<meta content="Devin O’Rourke — Utilities" name="twitter:title"/>
-<meta content="Operator-trained builder shipping tool apps and UI systems." name="twitter:description"/>
-<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
-<title>Utilities</title>
-<link href="../shared/tokens.css" rel="stylesheet"/>
-<link href="../shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
-<link href="../shared/tap-physics.css" rel="stylesheet"/>
-<link href="../shared/ui-physics.css" rel="stylesheet"/>
-<!-- Speed: preload hero image (WebP) -->
-<link as="image" fetchpriority="high" href="../assets/tools-hero.webp" rel="preload" type="image/webp"/>
-<link href="https://dev-in-portfolio.netlify.app/tools/" rel="canonical"/>
-<link href="../icon-192.png" rel="icon"/>
-<script src="../runtime-guard.js"></script>
-<style>
-    :root{
-      --bg:#05060b;
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.72);
-      --hair:rgba(255,255,255,.14);
-      --glow:rgba(150,220,255,.18);
-      --serif: ui-serif, Iowan Old Style, Palatino, Georgia, serif;
-      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Utilities — Systems Documentation Hub</title>
+  <link href="../shared/tokens.css" rel="stylesheet"/>
+  <link href="../shared/nexus-topnav-v2.css?v=54" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="../runtime-guard.js"></script>
+  <style>
+    :root {
+      --bg-void: #020306;
+      --bg-panel: rgba(6, 10, 24, 0.6);
+      --border-cyan: rgba(0, 242, 254, 0.08);
+      --border-cyan-bright: rgba(0, 242, 254, 0.35);
+      
+      --glow-cyan: #00f2fe;
+      --glow-violet: #8b5cf6;
+      --glow-magenta: #ec4899;
+      --glow-green: #10b981;
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      
+      --font-display: "Space Grotesk", sans-serif;
+      --font-body: "Plus Jakarta Sans", sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
     }
 
-    /* Mobile/desktop: prevent padding/overlays from creating horizontal scroll. */
-    *, *::before, *::after{ box-sizing: border-box; }
-    html{ overflow-x: hidden; }
-
-    html, body{height:100%;}
-    body{
-      margin:0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      letter-spacing: .2px;
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
-      overflow-x:hidden;
+    *, *::before, *::after {
+      box-sizing: border-box;
     }
 
-    /* Keep nav above everything */
-    nav.nxTopNav{ position: relative; z-index: 9000; }
-
-    /* ===== HERO ===== */
-    .hero{
-      position: relative;
-      min-height: calc(100svh - 68px);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 64px 18px 54px;
-      overflow:hidden;
-      isolation:isolate;
-    }
-    .heroBg{
-      position:absolute; inset:0;
-      overflow:hidden;
-      background:
-        url('/assets/tools-hero-blur.webp') center/cover no-repeat;
-      z-index:-3;
-    }
-
-    .heroBg::after{
-      content:"";
-      position:absolute; inset:0;
-      background: radial-gradient(900px 520px at 50% 45%, rgba(255,255,255,.10), transparent 60%);
-      pointer-events:none;
-    }
-
-    .heroBgMedia{
-      position:absolute; inset:0;
-    }
-
-    .heroBgMedia img{
-      width:100%; height:100%;
-      object-fit: cover;
-      display:block;
-      filter: saturate(1.08) contrast(1.05);
-      transform: scale(1.03);
-      opacity: 1;
-      transition: opacity .35s ease;
-    }
-
-    .heroBg.heroFade .heroBgMedia img{
-      opacity: 0;
-    }
-
-    .heroBg.heroFade.isLoaded .heroBgMedia img{
-      opacity: 1;
-    }
-
-    .heroVignette{
-      position:absolute; inset:0;
-      background:
-        radial-gradient(1200px 700px at 50% 40%, rgba(0,0,0,.12), rgba(0,0,0,.72) 62%, rgba(0,0,0,.92) 100%),
-        linear-gradient(to bottom, rgba(0,0,0,.40), rgba(0,0,0,.92));
-      z-index:-2;
-    }
-
-    /* super subtle grain so it feels cinematic, not “teen novel cover” */
-    .heroGrain{
-      position:absolute; inset:0;
-      background:
-        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,0) 2px, rgba(255,255,255,0) 6px);
-      mix-blend-mode: overlay;
-      opacity:.08;
-      pointer-events:none;
-      z-index:-1;
-    }
-
-    .heroInner{
-      width: min(1120px, 100%);
-      display:grid;
-      gap: 18px;
+    html, body {
+      margin: 0;
       padding: 0;
+      height: 100%;
+      background-color: var(--bg-void);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      overflow: hidden; /* Lock page viewport scroll */
+      -webkit-font-smoothing: antialiased;
     }
 
-    .kicker{
-      font-family: var(--mono);
-      font-size: 12px;
-      letter-spacing: .24em;
-      opacity: .78;
+    /* Ambient Holographic Lights */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background: 
+        radial-gradient(900px circle at 5% 5%, rgba(0, 242, 254, 0.12), transparent 60%),
+        radial-gradient(1100px circle at 95% 95%, rgba(139, 92, 246, 0.08), transparent 60%);
+      pointer-events: none;
+    }
+
+    .telemetry-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-size: 80px 80px;
+      background-image: 
+        linear-gradient(to right, rgba(0, 242, 254, 0.015) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 242, 254, 0.015) 1px, transparent 1px);
+      mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 95%);
+      -webkit-mask-image: radial-gradient(circle at 50% 40%, black 10%, transparent 95%);
+      pointer-events: none;
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.01);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 242, 254, 0.12);
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--glow-cyan);
+    }
+
+    /* Page container */
+    .console-frame {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 68px);
+      margin-top: 68px;
+      overflow: hidden;
+    }
+
+    /* Header Panel */
+    .console-header-bar {
+      height: 76px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(2, 3, 7, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 32px;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+
+    .header-left-side {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-led {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--glow-cyan);
+      box-shadow: 0 0 10px var(--glow-cyan);
+      animation: pulse 1.8s infinite;
+    }
+
+    .console-brand-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+      background: linear-gradient(135deg, #ffffff, var(--glow-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .console-brand-subtitle {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
       text-transform: uppercase;
-      margin: 0;
+      margin-left: 12px;
+      padding-left: 12px;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
     }
 
-    .title{
-      font-family: var(--serif);
-      font-size: clamp(40px, 6.2vw, 88px);
-      line-height: 1.02;
-      letter-spacing: .01em;
-      margin: 0;
-      text-shadow: 0 16px 40px rgba(0,0,0,.45);
+    .console-stats-bar {
+      display: flex;
+      gap: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .stat-badge-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 6px 14px;
+      border-radius: 6px;
+      color: var(--text-secondary);
+    }
+    .stat-badge-item span {
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-left: 4px;
     }
 
-    .sub{
-      max-width: 72ch;
-      font-size: 15px;
-      line-height: 1.65;
-      color: var(--muted);
-      margin: 0;
+    /* Workspace split layout */
+    .workspace-split {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      height: calc(100% - 76px);
+      min-height: 0;
     }
 
-    .ctaRow{
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-      margin-top: 10px;
+    /* Left pane: Directory Deck */
+    .directory-column {
+      width: 35%;
+      max-width: 440px;
+      min-width: 340px;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      background: rgba(2, 3, 6, 0.55);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
     }
 
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap: 10px;
+    /* Filter section */
+    .filter-section {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .search-field-wrap {
+      position: relative;
+    }
+    .search-field {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: var(--font-mono);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .search-field:focus {
+      border-color: var(--glow-cyan);
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.12);
+      background: rgba(0, 242, 254, 0.01);
+    }
+
+    .toggles-row {
+      display: flex;
+      gap: 4px;
+    }
+    .toggle-pill {
+      flex: 1;
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      padding: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .toggle-pill:hover, .toggle-pill.active {
+      border-color: var(--glow-cyan);
+      color: var(--text-primary);
+      background: rgba(0, 242, 254, 0.03);
+    }
+
+    /* Scroll List */
+    .cards-deck-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Node Card with wrap-safe title */
+    .node-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-cyan);
+      border-radius: 10px;
       padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
-      color: rgba(255,255,255,.94);
-      text-decoration:none;
-      font-weight: 900;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      font-size: 12px;
-      box-shadow: 0 18px 60px rgba(0,0,0,.38);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      cursor:pointer;
-      user-select:none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      --mouse-x: 0px;
+      --mouse-y: 0px;
+      flex-shrink: 0;
     }
-    .btn:hover{ background: rgba(255,255,255,.12); border-color: rgba(150,220,255,.38); }
-    .btn:active{ transform: translateY(1px); }
-
-    .btn.ghost{
-      background: rgba(0,0,0,.25);
-      border-color: rgba(255,255,255,.18);
-    }
-
-    .scrollCue{
-      margin-top: 16px;
-      font-size: 12px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.72);
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      width: fit-content;
-      opacity: .9;
-    }
-    .scrollCue::before{
-      content:"";
-      width: 22px;
-      height: 1px;
-      background: rgba(255,255,255,.35);
-    }
-
-    /* ===== STORY BEATS ===== */
-    main{
-      width: min(1120px, 100%);
-      margin: 0 auto;
-      padding: 0 18px 96px;
-    }
-
-    .beat{
-      padding: 64px 0;
-      border-top: 1px solid rgba(255,255,255,.10);
-    }
-
-    .beatLine{
-      font-family: var(--serif);
-      font-size: clamp(26px, 3.2vw, 44px);
-      line-height: 1.10;
-      margin: 0 0 10px;
-      letter-spacing: .01em;
-    }
-
-    .beatText{
-      margin: 0;
-      max-width: 78ch;
-      color: rgba(255,255,255,.78);
-      font-size: 14px;
-      line-height: 1.75;
-    }
-
-    .proofRow{
-      margin-top: 22px;
-      display:flex;
-      flex-wrap:wrap;
-      gap: 10px;
-    }
-
-    .proof{
-      display:inline-flex;
-      align-items:center;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.05);
-      color: rgba(255,255,255,.92);
-      text-decoration:none;
-      font-weight: 850;
-      letter-spacing: .06em;
-      font-size: 12px;
-    }
-    .proof:hover{ background: rgba(255,255,255,.09); border-color: rgba(150,220,255,.38); }
-
-    .micro{
-      margin-top: 14px;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: rgba(255,255,255,.60);
-      letter-spacing: .06em;
-    }
-
-    /* reveal (slower + deliberate) */
-    .reveal{
-      opacity: 1;
-      transform: translateY(0);
-      transition: none;
-    }
-    body.js-reveal .reveal{
+    .node-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(100px circle at var(--mouse-x) var(--mouse-y), rgba(0, 242, 254, 0.14), transparent 80%);
+      pointer-events: none;
       opacity: 0;
-      transform: translateY(14px);
-      transition:
-        opacity 1.05s cubic-bezier(.2,.8,.2,1),
-        transform 1.05s cubic-bezier(.2,.8,.2,1);
-      transition-delay: var(--reveal-delay, 0ms);
-      will-change: opacity, transform;
+      transition: opacity 0.3s;
     }
-    body.js-reveal .reveal.on{ opacity: 1; transform: translateY(0); }
-
-    /* smaller screens */
-    @media (max-width: 720px){
-      .hero{ padding-top: 54px; }
-      .sub{ font-size: 14px; }
-      .beat{ padding: 46px 0; }
+    .node-card:hover::before {
+      opacity: 1;
+    }
+    .node-card:hover {
+      border-color: rgba(0, 242, 254, 0.2);
+      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.02);
+      transform: translateY(-1px);
+    }
+    .node-card.active {
+      border-color: var(--glow-cyan);
+      background: rgba(0, 242, 254, 0.02);
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.06);
+    }
+    .node-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .node-card-name {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.3;
+    }
+    .node-led {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .node-card.active .node-led {
+      background: var(--glow-cyan);
+      box-shadow: 0 0 6px var(--glow-cyan);
+    }
+    .node-card[data-category="case"] .node-led {
+      background: var(--glow-magenta);
+      box-shadow: 0 0 6px var(--glow-magenta);
+    }
+    .node-card[data-category="help"] .node-led {
+      background: var(--glow-green);
+      box-shadow: 0 0 6px var(--glow-green);
     }
 
-    /* Respect reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .reveal{ opacity: 1 !important; transform: none !important; transition: none !important; }
-      .btn:active{ transform:none; }
-      .heroBg{ transform:none; }
+    /* Right Column: Reader Workspace */
+    .workspace-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: rgba(2, 3, 6, 0.2);
+      height: 100%;
+      min-height: 0;
     }
-  
 
-.jumpRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.jumpBtn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(10,12,20,.55);color:rgba(255,255,255,.9);text-decoration:none;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
-.jumpBtn:hover{background:rgba(10,12,20,.72);border-color:rgba(255,255,255,.28)}
-/* === Docs UI v2 (Utilities subcategory) === */
-.docsGridV2V2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
-@media(max-width:980px){.docsGridV2V2{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){.docsGridV2V2{grid-template-columns:1fr}}
-
-.docsColV2V2{background:linear-gradient(180deg, rgba(14,16,26,.78), rgba(10,12,20,.62));border:1px solid rgba(255,255,255,.14);border-radius:22px;box-shadow:0 16px 54px rgba(0,0,0,.55);padding:14px 14px 16px;position:relative;overflow:hidden}
-.docsColV2V2:before{content:'';position:absolute;inset:-1px;pointer-events:none;background:
-  radial-gradient(700px 320px at 30% 0%, rgba(140,220,255,.10), transparent 60%),
-  radial-gradient(600px 260px at 90% 30%, rgba(255,255,255,.06), transparent 55%);
-}
-.docsColV2V2 > *{position:relative;z-index:1}
-
-.docsColV2Head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.docsColV2Title{margin:0;font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.78)}
-.docsBadge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.30);font-size:12px;color:rgba(255,255,255,.78)}
-.docsDot{width:8px;height:8px;border-radius:50%;background:rgba(150,220,255,.65);box-shadow:0 0 14px rgba(150,220,255,.32)}
-
-.docsToolsRow{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 14px}
-.docsSearch{flex:1 1 240px;min-width:220px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.30)}
-.docsSearch input{flex:1;background:transparent;border:0;outline:0;color:rgba(255,255,255,.92);font-size:14px}
-.docsSearch input::placeholder{color:rgba(255,255,255,.55)}
-.docsSearchIcon{opacity:.8}
-
-.docsPills{display:flex;gap:10px;flex-wrap:wrap}
-.docsPill{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(10,12,20,.55);color:rgba(255,255,255,.90);text-decoration:none;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
-.docsPill[aria-current="true"]{border-color:rgba(150,220,255,.45);box-shadow:0 0 0 2px rgba(150,220,255,.12) inset;background:rgba(0,0,0,.42)}
-.docsPill:hover{background:rgba(10,12,20,.72);border-color:rgba(255,255,255,.28)}
-
-.docStackV2V2{margin-top:10px;display:flex;flex-direction:column;gap:10px;max-height:58vh;overflow:auto;padding-right:6px}
-.docStackV2V2::-webkit-scrollbar{width:8px}
-.docStackV2V2::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:999px}
-
-.docBtnV2V2{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:18px;padding:12px 14px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.30);text-decoration:none;color:rgba(255,255,255,.92)}
-.docBtnV2V2:hover{background:rgba(0,0,0,.42);border-color:rgba(255,255,255,.26)}
-.docBtnV2V2:active{transform:translateY(1px)}
-.docBtnV2Label{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.04em}
-.docBtnV2Label small{display:block;font-weight:500;opacity:.68;letter-spacing:0;font-size:12px;margin-top:2px}
-.docChevron{opacity:.7}
-.docMiniTag{font-size:12px;color:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.14);background:rgba(10,12,20,.42);padding:4px 10px;border-radius:999px;white-space:nowrap}
-
-@media(max-width:640px){
-  .docStackV2V2{max-height:none}
-}
-
-html{scroll-behavior:smooth}
-
-#docs-help,#docs-readmes,#docs-case{scroll-margin-top:110px}
-</style>
-</head>
-<body class="page-landing" data-app="tools">
-<nav class="nxTopNav"></nav>
-<!-- Nav placeholder (hydrated by /shared/nexus-topnav-v2.js) -->
-<header aria-label="Utilities hero" class="hero">
-<div aria-hidden="true" class="heroBg">
-<picture class="heroBgMedia">
-<source srcset="/assets/tools-hero.webp" type="image/webp"/>
-<img alt="" decoding="async" fetchpriority="high" loading="eager" src="../assets/tools-hero.webp"/>
-</picture>
-</div>
-<div aria-hidden="true" class="heroVignette"></div>
-<div aria-hidden="true" class="heroGrain"></div>
-<div class="heroInner">
-<p class="kicker">Nexus — Utilities</p>
-<h1 class="title">Utilities</h1>
-<p class="sub">Reference docs, implementation notes, and case studies for the full app portfolio.</p>
-<div aria-label="Docs jump" class="jumpRow"><a aria-current="true" class="jumpBtn" href="#docs-case">CASE STUDIES</a><a class="jumpBtn" href="#docs-help">HELP</a><a class="jumpBtn" href="#docs-readmes">READMES</a></div>
-<div aria-hidden="true" class="scrollCue">Scroll</div>
-</div>
-</header>
-<main>
-<section class="beat" id="docs">
-<h2 class="beatLine">Docs</h2>
-<p class="beatText">Docs/Tools/Policy now map to Help, Readmes, and Case Studies for faster navigation.</p>
-<div class="docsQuickBar" aria-label="Docs quick tools">
-  <div class="docsQuickJump" aria-label="Docs section jump">
-    <a class="jumpBtn" href="#docs-case">Case Studies</a>
-    <a class="jumpBtn" href="#docs-help">Help</a>
-    <a class="jumpBtn" href="#docs-readmes">Readmes</a>
-  </div>
-  <input id="docsQuickSearch" class="docsQuickSearch" type="search" placeholder="Quick search Help + Readmes..." />
-</div>
-<div aria-label="Docs sections" class="docsGridV2">
-<details aria-label="Help files" class="docsColV2" id="docs-help"><summary class="docsColHead"><h3 class="docsColTitle">HELP</h3><div style="display:flex; align-items:center; gap:8px;"><span class="docsBadge"><span class="docsDot"></span>84</span><svg class="docsChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></div></summary>
-<div class="docStackV2">
-<a class="docBtnV2 btn buttonlike" href="../help/agents/">Agents (UI)</a>
-<a class="docBtnV2 btn buttonlike" href="../help/alibi/">Alibi</a>
-<a class="docBtnV2 btn buttonlike" href="../help/angle/">Angle</a>
-<a class="docBtnV2 btn buttonlike" href="../help/angular-chronicle/">Angular Chronicle</a>
-<a class="docBtnV2 btn buttonlike" href="../help/angular-formfoundry/">Angular FormFoundry</a>
-<a class="docBtnV2 btn buttonlike" href="../help/angular-gridsmith/">Angular GridSmith</a>
-<a class="docBtnV2 btn buttonlike" href="../help/cardpress/">CardPress</a>
-<a class="docBtnV2 btn buttonlike" href="../help/causality/">Causality</a>
-<a class="docBtnV2 btn buttonlike" href="../help/clip-forge/">Clip Forge</a>
-<a class="docBtnV2 btn buttonlike" href="../help/codex-of-hieroglyphi/">Codex of Hieroglyphs</a>
-<a class="docBtnV2 btn buttonlike" href="../help/compression/">Compression</a>
-<a class="docBtnV2 btn buttonlike" href="../help/contradict/">Contradict</a>
-<a class="docBtnV2 btn buttonlike" href="../help/coverage-compass/">Coverage Compass</a>
-<a class="docBtnV2 btn buttonlike" href="../help/cuedeck/">CueDeck</a>
-<a class="docBtnV2 btn buttonlike" href="../help/dash-claimscope/">Dash ClaimScope</a>
-<a class="docBtnV2 btn buttonlike" href="../help/dash-driftmeter/">Dash DriftMeter</a>
-<a class="docBtnV2 btn buttonlike" href="../help/dash-flowlens/">Dash FlowLens</a>
-<a class="docBtnV2 btn buttonlike" href="../help/difflens/">DiffLens</a>
-<a class="docBtnV2 btn buttonlike" href="../help/digital-science/">Digital Science Museum</a>
-<a class="docBtnV2 btn buttonlike" href="../help/draft-relay/">Draft Relay</a>
-<a class="docBtnV2 btn buttonlike" href="../help/electron-dockyard/">Electron Dockyard</a>
-<a class="docBtnV2 btn buttonlike" href="../help/electron-mapstencil/">Electron MapStencil</a>
-<a class="docBtnV2 btn buttonlike" href="../help/electron-receiptbox/">Electron ReceiptBox</a>
-<a class="docBtnV2 btn buttonlike" href="../help/eleventy-patch-book/">Eleventy Patch Book</a>
-<a class="docBtnV2 btn buttonlike" href="../help/eleventy-spec-forge/">Eleventy Spec Forge</a>
-<a class="docBtnV2 btn buttonlike" href="../help/eleventy-switchboard/">Eleventy Switchboard</a>
-<a class="docBtnV2 btn buttonlike" href="../help/floraguide-ai/">FloraGuide AI</a>
-<a class="docBtnV2 btn buttonlike" href="../help/hallmap-studio/">Hallmap Studio</a>
-<a class="docBtnV2 btn buttonlike" href="../help/hono-capsulecache/">Hono CapsuleCache</a>
-<a class="docBtnV2 btn buttonlike" href="../help/hono-gatekeeper/">Hono Gatekeeper</a>
-<a class="docBtnV2 btn buttonlike" href="../help/hono-intake/">Hono Intake</a>
-<a class="docBtnV2 btn buttonlike" href="../help/hugo-atlasshelf/">Hugo AtlasShelf</a>
-<a class="docBtnV2 btn buttonlike" href="../help/hugo-fieldmanual/">Hugo FieldManual</a>
-<a class="docBtnV2 btn buttonlike" href="../help/hugo-release-gallery/">Hugo Release Gallery</a>
-<a class="docBtnV2 btn buttonlike" href="../help/interactive-terms-tr/">Interactive Terms Translator</a>
-<a class="docBtnV2 btn buttonlike" href="../help/island-index/">Island Index</a>
-<a class="docBtnV2 btn buttonlike" href="../help/latchlist/">LatchList</a>
-<a class="docBtnV2 btn buttonlike" href="../help/lineflow/">LineFlow</a>
-<a class="docBtnV2 btn buttonlike" href="../help/lingolive-ai/">LingoLive AI</a>
-<a class="docBtnV2 btn buttonlike" href="../help/momentum/">Momentum</a>
-<a class="docBtnV2 btn buttonlike" href="../help/neonscope/">NeonScope</a>
-<a class="docBtnV2 btn buttonlike" href="../help/nuxt-cardpress/">Nuxt CardPress</a>
-<a class="docBtnV2 btn buttonlike" href="../help/nuxt-signalgrid/">Nuxt SignalGrid</a>
-<a class="docBtnV2 btn buttonlike" href="../help/nuxt-view-vault/">Nuxt View Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../help/operator-ledger/">Operator Ledger</a>
-<a class="docBtnV2 btn buttonlike" href="../help/oracle-pit/">Oracle Pit</a>
-<a class="docBtnV2 btn buttonlike" href="../help/order-of-one/">Order of One</a>
-<a class="docBtnV2 btn buttonlike" href="../help/palmledger/">PalmLedger</a>
-<a class="docBtnV2 btn buttonlike" href="../help/paradox-vault/">Paradox Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../help/patchsmith/">PatchSmith</a>
-<a class="docBtnV2 btn buttonlike" href="../help/pocket-dossier/">Pocket Dossier</a>
-<a class="docBtnV2 btn buttonlike" href="../help/pocket-pass/">Pocket Pass</a>
-<a class="docBtnV2 btn buttonlike" href="../help/prompt-vault/">Prompt Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../help/quejudge/">QueJudge</a>
-<a class="docBtnV2 btn buttonlike" href="../help/queuegauge/">QueueGauge</a>
-<a class="docBtnV2 btn buttonlike" href="../help/qwik-atlas/">Qwik Atlas</a>
-<a class="docBtnV2 btn buttonlike" href="../help/qwik-cardforge/">Qwik CardForge</a>
-<a class="docBtnV2 btn buttonlike" href="../help/qwik-signaltill/">Qwik SignalTiill</a>
-<a class="docBtnV2 btn buttonlike" href="../help/radar-of-one/">Radar of One</a>
-<a class="docBtnV2 btn buttonlike" href="../help/recalgrid/">RecalGrid</a>
-<a class="docBtnV2 btn buttonlike" href="../help/receipt-vault/">Receipt Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../help/relayroom/">RelayRoom</a>
-<a class="docBtnV2 btn buttonlike" href="../help/remix-diffatlas/">Remix DiffAtlas</a>
-<a class="docBtnV2 btn buttonlike" href="../help/remix-queuesplice/">Remix QueueSplice</a>
-<a class="docBtnV2 btn buttonlike" href="../help/remix-vault-key/">Remix Vault Key</a>
-<a class="docBtnV2 btn buttonlike" href="../help/repo-pilot/">Repo Pilot</a>
-<a class="docBtnV2 btn buttonlike" href="../help/room-key/">Room Key</a>
-<a class="docBtnV2 btn buttonlike" href="../help/routeforge-console/">RouteForge Console</a>
-<a class="docBtnV2 btn buttonlike" href="../help/rule-furnace/">Rule Furnace</a>
-<a class="docBtnV2 btn buttonlike" href="../help/schemagate/">SchemaGate</a>
-<a class="docBtnV2 btn buttonlike" href="../help/schemapulse/">SchemaPulse</a>
-<a class="docBtnV2 btn buttonlike" href="../help/sessionmint/">SessionMint</a>
-<a class="docBtnV2 btn buttonlike" href="../help/signal-board/">Signal Board</a>
-<a class="docBtnV2 btn buttonlike" href="../help/signal-kitchen/">Signal Kitchen</a>
-<a class="docBtnV2 btn buttonlike" href="../help/snapshot-vault/">SnapShot Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../help/solvespace/">SolveSpace</a>
-<a class="docBtnV2 btn buttonlike" href="../help/streamlit/">StreamLit</a>
-<a class="docBtnV2 btn buttonlike" href="../help/surfacelab/">SurfaceLab</a>
-<a class="docBtnV2 btn buttonlike" href="../help/swittchboard/">Switchboard</a>
-<a class="docBtnV2 btn buttonlike" href="../help/tagtrellis/">TagTrellis</a>
-<a class="docBtnV2 btn buttonlike" href="../help/tapforge/">TapForge</a>
-<a class="docBtnV2 btn buttonlike" href="../help/timeslice/">TimeSlice</a>
-<a class="docBtnV2 btn buttonlike" href="../help/ubr/">Ultimate Broker Route (UBR)</a>
-<a class="docBtnV2 btn buttonlike" href="../help/wayfinder/">WayFinder</a>
-</div>
-</details>
-<details aria-label="Readme files" class="docsColV2" id="docs-readmes"><summary class="docsColHead"><h3 class="docsColTitle">READMES</h3><div style="display:flex; align-items:center; gap:8px;"><span class="docsBadge"><span class="docsDot"></span>84</span><svg class="docsChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></div></summary>
-<div class="docStackV2">
-<a class="docBtnV2 btn buttonlike" href="../readme/agents/">Agents (UI)</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/alibi/">Alibi</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/angle/">Angle</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/angular-chronicle/">Angular Chronicle</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/angular-formfoundry/">Angular FormFoundry</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/angular-gridsmith/">Angular GridSmith</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/cardpress/">CardPress</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/causality/">Causality</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/clip-forge/">Clip Forge</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/codex-of-hieroglyphi/">Codex of Hieroglyphs</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/compression/">Compression</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/contradict/">Contradict</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/coverage-compass/">Coverage Compass</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/cuedeck/">CueDeck</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/dash-claimscope/">Dash ClaimScope</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/dash-driftmeter/">Dash DriftMeter</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/dash-flowlens/">Dash FlowLens</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/difflens/">DiffLens</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/digital-science/">Digital Science Museum</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/draft-relay/">Draft Relay</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/electron-dockyard/">Electron Dockyard</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/electron-mapstencil/">Electron MapStencil</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/electron-receiptbox/">Electron ReceiptBox</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/eleventy-patch-book/">Eleventy Patch Book</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/eleventy-spec-forge/">Eleventy Spec Forge</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/eleventy-switchboard/">Eleventy Switchboard</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/floraguide-ai/">FloraGuide AI</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/hallmap-studio/">Hallmap Studio</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/hono-capsulecache/">Hono CapsuleCache</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/hono-gatekeeper/">Hono Gatekeeper</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/hono-intake/">Hono Intake</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/hugo-atlasshelf/">Hugo AtlasShelf</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/hugo-fieldmanual/">Hugo FieldManual</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/hugo-release-gallery/">Hugo Release Gallery</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/interactive-terms-tr/">Interactive Terms Translator</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/island-index/">Island Index</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/latchlist/">LatchList</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/lineflow/">LineFlow</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/lingolive-ai/">LingoLive AI</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/momentum/">Momentum</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/neonscope/">NeonScope</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/nuxt-cardpress/">Nuxt CardPress</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/nuxt-signalgrid/">Nuxt SignalGrid</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/nuxt-view-vault/">Nuxt View Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/operator-ledger/">Operator Ledger</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/oracle-pit/">Oracle Pit</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/order-of-one/">Order of One</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/palmledger/">PalmLedger</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/paradox-vault/">Paradox Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/patchsmith/">PatchSmith</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/pocket-dossier/">Pocket Dossier</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/pocket-pass/">Pocket Pass</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/prompt-vault/">Prompt Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/quejudge/">QueJudge</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/queuegauge/">QueueGauge</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/qwik-atlas/">Qwik Atlas</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/qwik-cardforge/">Qwik CardForge</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/qwik-signaltill/">Qwik SignalTiill</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/radar-of-one/">Radar of One</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/recalgrid/">RecalGrid</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/receipt-vault/">Receipt Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/relayroom/">RelayRoom</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/remix-diffatlas/">Remix DiffAtlas</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/remix-queuesplice/">Remix QueueSplice</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/remix-vault-key/">Remix Vault Key</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/repo-pilot/">Repo Pilot</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/room-key/">Room Key</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/routeforge-console/">RouteForge Console</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/rule-furnace/">Rule Furnace</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/schemagate/">SchemaGate</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/schemapulse/">SchemaPulse</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/sessionmint/">SessionMint</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/signal-board/">Signal Board</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/signal-kitchen/">Signal Kitchen</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/snapshot-vault/">SnapShot Vault</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/solvespace/">SolveSpace</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/streamlit/">StreamLit</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/surfacelab/">SurfaceLab</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/swittchboard/">Switchboard</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/tagtrellis/">TagTrellis</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/tapforge/">TapForge</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/timeslice/">TimeSlice</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/ubr/">Ultimate Broker Route (UBR)</a>
-<a class="docBtnV2 btn buttonlike" href="../readme/wayfinder/">WayFinder</a>
-</div>
-</details>
-<details aria-label="Case report files" class="docsColV2" id="docs-case"><summary class="docsColHead"><h3 class="docsColTitle">CASE STUDIES</h3><div style="display:flex; align-items:center; gap:8px;"><span class="docsBadge"><span class="docsDot"></span>9</span><svg class="docsChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></div></summary>
-<div class="docStackV2">
-<a class="docBtnV2 btn buttonlike" href="../case-reports/agents-platform-ecosystem/">Agents Platform &amp; Ecosystem</a>
-<a class="docBtnV2 btn buttonlike" href="../case-reports/alibi-logged-verified-architectural-case-study/">Alibi — Logged &amp; Verified: Architectural Case Study</a>
-<a class="docBtnV2 btn buttonlike" href="../case-reports/coverage-compass-comprehensive-architectural-case-study-and-technical-report/">Coverage Compass: Comprehensive Architectural Case Study and Technical Report</a>
-<a class="docBtnV2 btn buttonlike" href="../case-reports/helios-a-comprehensive-architectural-and-domain-analysis-of-a-react-based-heliophysics-visualization-platform/">HELIOS: A Comprehensive ARCHITECTURAL AND DOMAIN ANALYSIS OF A REACT-BASED HELIOPHYSICS VISUALIZATION PLATFORM</a>
-<a class="docBtnV2 btn buttonlike" href="../case-reports/orbital-dynamics-and-photometric-reduction-an-exhaustive-technical-analysis-of-the-transit-deep-space-application/">Orbital Dynamics and Photometric Reduction: An Exhaustive Technical Analysis of the 'Transit' Deep Space Application</a>
-<a class="docBtnV2 btn buttonlike" href="../case-reports/string-a-deep-dive-case-report/">String: A Deep-Dive Case Report</a>
-<a class="docBtnV2 btn buttonlike" href="../case-reports/tectonic-the-convergence-of-ai-accelerated-development-and-high-fidelity-geospatial-visualization/">TECTONIC: The Convergence of AI-Accelerated Development and High-Fidelity Geospatial Visualization</a>
-<a class="docBtnV2 btn buttonlike" href="../case-reports/the-aeon-compendium-a-multi-domain-technical-analysis-of-ai-augmented-security-real-estate-analytics-and-decentralized-settlement-protocols/">The Aeon Compendium: A Multi-Domain Technical Analysis of AI-Augmented Security, Real Estate Analytics, and Decentralized Settlement Protocols</a>
-<a class="docBtnV2 btn buttonlike" href="../case-reports/the-decentralized-sales-stack-a-technical-and-operational-audit-of-ultimate-broker-route-ubr/">The Decentralized Sales Stack: A Technical and Operational Audit of Ultimate Broker Route (UBR)</a>
-</div>
-</details>
-</div>
-</section>
-<style>
-    .docsQuickBar{
-      max-width:1100px;
-      margin:14px auto 0;
-      padding:0 14px;
-      display:grid;
-      grid-template-columns:1fr;
-      gap:10px;
+    .meta-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 24px 32px 16px;
+      flex-shrink: 0;
+      background: rgba(2, 3, 7, 0.2);
     }
-    .docsQuickJump{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
+    .meta-node-status {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--glow-violet);
+      text-transform: uppercase;
+      font-weight: 600;
     }
-    .docsQuickSearch{
-      width:100%;
-      border:1px solid rgba(255,255,255,.16);
-      border-radius:12px;
-      background:rgba(8,10,18,.78);
-      color:rgba(255,255,255,.92);
-      font-size:14px;
-      padding:10px 12px;
+    .meta-node-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      margin: 4px 0 0 0;
+      letter-spacing: -0.01em;
     }
-    .docsQuickSearch::placeholder{color:rgba(255,255,255,.58);}
-    .docsGridV2{max-width:1100px;margin:14px auto 0;padding:0 14px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;}
-    .docsColV2{grid-column: span 12;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:14px;}
-    @media(min-width:900px){.docsColV2{grid-column: span 6;}}
-    .docsColHead {display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; outline:none; list-style:none;}
-    .docsColHead::-webkit-details-marker {display:none;}
-    .docsColTitle{margin:0; font-size:14px;letter-spacing:.12em;text-transform:uppercase;opacity:.85;}
-    .docsChevron {color:rgba(255,255,255,0.5); transition: transform 0.3s ease;}
-    .docsColV2[open] .docsChevron {transform: rotate(180deg);}
-    .docsColV2[open] .docsColHead {margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,.1); padding-bottom:12px;}
-    .docsColV2:not([open]) .docsColHead {margin-bottom:0;}
-    .docStackV2{display:flex;flex-direction:column;gap:10px; animation: jumpFadeIn 0.3s ease forwards;}
-    @keyframes jumpFadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
-    .docBtnV2{display:block;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);}
-    .docBtnV2:active{transform: translateY(1px);}
+    .launch-instance-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--glow-cyan), #0284c7);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-void);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 10px 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(0, 242, 254, 0.15);
+      transition: all 0.2s;
+    }
+    .launch-instance-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35);
+    }
+
+    /* Markdown Reader Body styling */
+    .reader-body-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px 40px;
+    }
+
+    /* Screen flicker transition */
+    .terminal-flicker {
+      animation: tabFlicker 0.22s steps(2);
+    }
+    @keyframes tabFlicker {
+      0% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    /* Beautiful markdown compiled HTML elements */
+    .markdown-compiled {
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.88);
+      max-width: 780px;
+    }
+    .markdown-compiled .md-h1 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+    }
+    .markdown-compiled .md-h2 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+    .markdown-compiled .md-h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+    .markdown-compiled .md-p {
+      margin-top: 0;
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+    .markdown-compiled .md-ul {
+      margin-top: 0;
+      margin-bottom: 20px;
+      padding-left: 20px;
+    }
+    .markdown-compiled .md-ul li {
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+    }
+    .markdown-compiled .md-code {
+      background: #010204;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--glow-cyan);
+      margin-top: 16px;
+      margin-bottom: 20px;
+    }
+    .markdown-compiled .md-inline-code {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--glow-cyan);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.5; }
+    }
   </style>
-</main>
-<script defer="defer" src="../shared/nexus-topnav-v2.js?v=54"></script>
-<script>
-    (function(){
-      const grid = document.querySelector('.docsGridV2');
-      const caseCol = document.getElementById('docs-case');
-      if (grid && caseCol) grid.prepend(caseCol);
+</head>
+<body>
+  <div class="telemetry-grid"></div>
 
-      const helpStack = document.querySelector('#docs-help .docStackV2');
-      const readmeStack = document.querySelector('#docs-readmes .docStackV2');
-      const search = document.getElementById('docsQuickSearch');
+  <div class="console-frame">
+    <!-- Unified 100% Width Header Bar -->
+    <header class="console-header-bar">
+      <div class="header-left-side">
+        <div class="status-led"></div>
+        <h1 class="console-brand-title">Nexus Utilities</h1>
+        <span class="console-brand-subtitle">Manuals & Reference Explorer</span>
+      </div>
+      
+      <div class="console-stats-bar">
+        <div class="stat-badge-item">Case Reports: <span id="lbl-cases" style="color: var(--glow-magenta);">0</span></div>
+        <div class="stat-badge-item">Help Docs: <span id="lbl-help" style="color: var(--glow-green);">0</span></div>
+        <div class="stat-badge-item">Readmes: <span id="lbl-readmes" style="color: var(--glow-cyan);">0</span></div>
+      </div>
+    </header>
 
-      function sortStack(stack){
-        if (!stack) return;
-        const items = Array.from(stack.querySelectorAll('a.docBtnV2'));
-        items.sort((a,b)=>a.textContent.trim().localeCompare(b.textContent.trim(), undefined, { sensitivity:'base' }));
-        items.forEach((el)=>stack.appendChild(el));
+    <!-- Split Pane Workspace -->
+    <div class="workspace-split">
+      <!-- Left Column: Scrollable cards directory -->
+      <aside class="directory-column">
+        <div class="filter-section">
+          <div class="search-field-wrap">
+            <input class="search-field" id="search-box" placeholder="Search manuals database..." type="text"/>
+          </div>
+          <div class="toggles-row">
+            <button class="toggle-pill active" data-cat="case">Case Reports</button>
+            <button class="toggle-pill" data-cat="help">Help Docs</button>
+            <button class="toggle-pill" data-cat="readme">Readmes</button>
+          </div>
+        </div>
+
+        <div class="cards-deck-scroll" id="node-deck">
+          <!-- Rendered dynamically -->
+        </div>
+      </aside>
+
+      <!-- Right Column: Interactive document reader viewport -->
+      <main class="workspace-column">
+        <div class="meta-top-bar" id="reader-header-area" style="display: none;">
+          <div>
+            <span class="meta-node-status" id="doc-category-badge">HELP MANUAL</span>
+            <h2 class="meta-node-title" id="doc-title-header">Select document</h2>
+          </div>
+          <a class="launch-instance-btn" id="doc-launch-btn" href="#" target="_blank" rel="noopener">
+            Open Standalone page
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 01-2-2h6M15 3h6v6M10 14L21 3"/></svg>
+          </a>
+        </div>
+
+        <div class="reader-body-scroll" id="reader-viewport">
+          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; height: 100%; color:var(--text-secondary);">
+            <svg style="width:40px; height:40px; stroke:rgba(0, 242, 254, 0.35); fill:none; margin-bottom:12px;" viewBox="0 0 24 24">
+              <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span style="font-family: var(--font-mono); font-size:10px; letter-spacing: 0.1em; text-transform:uppercase;">Select system manual to execute loader</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../shared/nexus-topnav-v2.js?v=54"></script>
+  <script>
+    (async () => {
+      // 1. Fetch document registry
+      let docsList = [];
+      try {
+        const res = await fetch("../assets/docs-list.json");
+        if (res.ok) docsList = await res.json();
+      } catch (e) {
+        console.error("Documentation loader error", e);
       }
 
-      function filterStacks(query){
-        const q = query.trim().toLowerCase();
-        [helpStack, readmeStack].forEach((stack)=>{
-          if (!stack) return;
-          Array.from(stack.querySelectorAll('a.docBtnV2')).forEach((a)=>{
-            const hit = !q || a.textContent.toLowerCase().includes(q);
-            a.style.display = hit ? '' : 'none';
-          });
-          if (q) {
-            const parent = stack.closest('details');
-            if (parent) parent.open = true;
-          }
+      // Update counters
+      document.getElementById("lbl-cases").textContent = docsList.filter(d => d.category === "case").length;
+      document.getElementById("lbl-help").textContent = docsList.filter(d => d.category === "help").length;
+      document.getElementById("lbl-readmes").textContent = docsList.filter(d => d.category === "readme").length;
+
+      let selectedDoc = null;
+      let activeCategory = "case";
+      let query = "";
+
+      const deck = document.getElementById("node-deck");
+      const searchBox = document.getElementById("search-box");
+      const filterToggles = document.querySelectorAll(".toggle-pill");
+      const viewport = document.getElementById("reader-viewport");
+      const headerArea = document.getElementById("reader-header-area");
+
+      const trackCursorGlow = (e) => {
+        const card = e.currentTarget;
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty("--mouse-x", `${x}px`);
+        card.style.setProperty("--mouse-y", `${y}px`);
+      };
+
+      const renderDeck = () => {
+        deck.innerHTML = "";
+        const filtered = docsList.filter(doc => {
+          const mC = doc.category === activeCategory;
+          const mQ = doc.name.toLowerCase().includes(query);
+          return mC && mQ;
         });
-      }
 
-      sortStack(helpStack);
-      sortStack(readmeStack);
-      if (search) search.addEventListener('input', (e)=>filterStacks(e.target.value));
-    })();
-  </script>
-<script>
-    (function(){
-      const bg = document.querySelector('.heroBg');
-      const img = bg && bg.querySelector('img');
-      if (!bg || !img) return;
-      bg.classList.add('heroFade');
-      const done = () => bg.classList.add('isLoaded');
-      if (img.complete) { done(); }
-      else {
-        img.addEventListener('load', done, { once:true });
-        img.addEventListener('error', done, { once:true });
+        filtered.forEach(doc => {
+          const card = document.createElement("div");
+          card.className = `node-card ${selectedDoc && selectedDoc.name === doc.name ? "active" : ""}`;
+          card.setAttribute("data-category", doc.category);
+          card.innerHTML = `
+            <div class="node-card-head">
+              <h3 class="node-card-name">${doc.name}</h3>
+              <div class="node-led"></div>
+            </div>
+          `;
+          card.addEventListener("mousemove", trackCursorGlow);
+          card.addEventListener("click", () => selectDoc(doc));
+          deck.appendChild(card);
+        });
+
+        if (!filtered.length) {
+          deck.innerHTML = `<div style="text-align:center; padding:32px; color:var(--text-secondary); font-size:11px; font-family:var(--font-mono);">NO DOCUMENT IN REGISTER</div>`;
+        }
+      };
+
+      const selectDoc = (doc) => {
+        selectedDoc = doc;
+        document.querySelectorAll(".node-card").forEach(c => c.classList.remove("active"));
+        renderDeck();
+
+        // Viewport transitions
+        viewport.classList.remove("terminal-flicker");
+        void viewport.offsetWidth;
+        viewport.classList.add("terminal-flicker");
+
+        loadDocContent(doc);
+      };
+
+      const loadDocContent = async (doc) => {
+        // Map url
+        let parts = doc.href.split("/");
+        let id = parts[parts.length - 2];
+        let mdUrl = "";
+        
+        if (doc.category === "help") {
+          mdUrl = `../data/help/${id}.md`;
+        } else if (doc.category === "readme") {
+          mdUrl = `../data/readme/${id}.md`;
+        } else if (doc.category === "case") {
+          mdUrl = `../docs/case-reports/${id}.canonical.md`;
+        }
+
+        // Show header
+        headerArea.style.display = "flex";
+        document.getElementById("doc-title-header").textContent = doc.name;
+        document.getElementById("doc-category-badge").textContent = 
+          doc.category === "help" ? "HELP MANUAL" : doc.category === "readme" ? "PROJECT README" : "CASE STUDY ANALYSIS";
+        document.getElementById("doc-launch-btn").href = doc.href;
+
+        viewport.innerHTML = `<div style="font-family:var(--font-mono); font-size:12px; color:var(--glow-cyan);">Loading data source at ${mdUrl}...</div>`;
+
+        try {
+          const res = await fetch(mdUrl);
+          if (res.ok) {
+            const raw = await res.text();
+            viewport.innerHTML = `<div class="markdown-compiled">${compileMarkdown(raw)}</div>`;
+          } else {
+            viewport.innerHTML = `
+              <div style="text-align:center; padding:48px; color:var(--text-secondary);">
+                <p style="font-size:14px; margin:0 0 16px 0;">Markdown source file for "${doc.name}" could not be fetched.</p>
+                <a class="launch-instance-btn" href="${doc.href}" target="_blank">Open Standalone Page</a>
+              </div>
+            `;
+          }
+        } catch (e) {
+          console.error("AJAX doc loader failure", e);
+          viewport.innerHTML = `<div style="color:var(--glow-magenta); font-family:var(--font-mono);">ERROR LOADING DOCUMENT STREAM</div>`;
+        }
+      };
+
+      // Clean, robust client-side Markdown compile engine
+      const compileMarkdown = (md) => {
+        let html = md
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+        // Headers
+        html = html.replace(/^# (.*$)/gim, '<h1 class="md-h1">$1</h1>');
+        html = html.replace(/^## (.*$)/gim, '<h2 class="md-h2">$1</h2>');
+        html = html.replace(/^### (.*$)/gim, '<h3 class="md-h3">$1</h3>');
+        html = html.replace(/^#### (.*$)/gim, '<h4 class="md-h4">$1</h4>');
+
+        // Fenced code blocks
+        html = html.replace(/```([\s\S]*?)```/gm, (match, code) => {
+          return `<pre class="md-code"><code>${code.trim()}</code></pre>`;
+        });
+
+        // Inline code blocks
+        html = html.replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>');
+
+        // Formatting
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+        html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        html = html.replace(/_([^_]+)_/g, '<em>$1</em>');
+
+        // Lists
+        const lines = html.split('\n');
+        let inList = false;
+        for (let i = 0; i < lines.length; i++) {
+          const isItem = lines[i].trim().startsWith('- ') || lines[i].trim().startsWith('* ');
+          if (isItem) {
+            const content = lines[i].trim().substring(2);
+            if (!inList) {
+              lines[i] = '<ul class="md-ul"><li>' + content + '</li>';
+              inList = true;
+            } else {
+              lines[i] = '<li>' + content + '</li>';
+            }
+          } else {
+            if (inList) {
+              lines[i] = '</ul>' + lines[i];
+              inList = false;
+            }
+          }
+        }
+        if (inList) lines.push('</ul>');
+        html = lines.join('\n');
+
+        // Paragraphs
+        html = html.split(/\n\s*\n/).map(p => {
+          const clean = p.trim();
+          if (clean.startsWith('<h') || clean.startsWith('<ul') || clean.startsWith('<li>') || clean.startsWith('<pre')) {
+            return clean;
+          }
+          return `<p class="md-p">${clean}</p>`;
+        }).join('\n');
+
+        return html;
+      };
+
+      // Search & Filters
+      searchBox.addEventListener("input", (e) => {
+        query = e.target.value.toLowerCase();
+        renderDeck();
+      });
+
+      filterToggles.forEach(btn => {
+        btn.addEventListener("click", () => {
+          filterToggles.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          activeCategory = btn.getAttribute("data-cat");
+          renderDeck();
+        });
+      });
+
+      // Init Load
+      renderDeck();
+      if (docsList.length > 0) {
+        // Load first case report by default
+        const initial = docsList.find(d => d.category === "case");
+        if (initial) selectDoc(initial);
       }
     })();
   </script>
