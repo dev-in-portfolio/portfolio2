@@ -91,8 +91,49 @@ header{ display:flex; align-items:center; justify-content:space-between; padding
       <div><span>SWPC X-ray</span><b id="apiXray">pending...</b></div>
     </div>
     <div class="note">If API calls are blocked, telemetry falls back to stable proxy values.</div>
+    <div class="panelTitle" style="margin-top:6px;">Solar Space Research</div>
+    <div class="apiStatus" style="max-height:160px; overflow-y:auto; font-size:0.65rem;" id="arxiv-solar-feed">
+      Loading solar physics preprints...
+    </div>
   </aside>
 </main>
 <script type="module" src="/src/main.ts"></script>
+<script>
+(() => {
+  const container = document.getElementById("arxiv-solar-feed");
+
+  async function fetchSolarPapers() {
+    if (!container) return;
+    try {
+      const res = await fetch("https://api.openalex.org/works?search=solar+flare+OR+space+weather&per_page=3");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+          container.innerHTML = data.results.map(work => {
+            const title = work.title || "Untitled Paper";
+            const author = work.authorships?.[0]?.author?.display_name || "Unknown Author";
+            const year = work.publication_year || "";
+            const url = work.doi || work.id;
+            return `
+              <div style="margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,.05);">
+                <a href="${url}" target="_blank" style="color: #f59e0b; text-decoration: none; font-weight: bold; display: block; margin-bottom: 2px;">${title}</a>
+                <span style="color:#64748b;">${author} (${year})</span>
+              </div>
+            `;
+          }).join("");
+        } else {
+          container.textContent = "No recent solar research papers found.";
+        }
+      } else {
+        container.textContent = "Error loading space weather papers.";
+      }
+    } catch (e) {
+      container.textContent = "OpenAlex API unreachable (network/CORS).";
+    }
+  }
+
+  fetchSolarPapers();
+})();
+</script>
 </body>
 </html>

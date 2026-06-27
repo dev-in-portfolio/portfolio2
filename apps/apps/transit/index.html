@@ -856,6 +856,13 @@ html, body{ height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -w
 <button class="btn" onclick="app.cycleReal(1)" style="width:auto;">▶</button>
 </div>
 </div>
+<!-- TRANSIT RESEARCH PREPRINTS -->
+<div class="panel-section" style="margin-top:10px;">
+  <div class="panel-title">Transit Astrophysics Papers</div>
+  <div id="transit-arxiv-feed" style="max-height: 120px; overflow-y: auto; font-size: 0.65rem; color: #888; padding: 4px;">
+    Querying OpenAlex for exoplanet transit papers...
+  </div>
+</div>
 </aside></div>
 </div>
 <div aria-hidden="true" aria-modal="true" class="overlay" id="aboutOverlay" role="dialog">
@@ -1123,5 +1130,42 @@ let _booted = false;
 <script src="/shared/app-settings.js?v=20260101"></script>
 <script defer="defer" src="/shared/nexus-topnav-v2.js?v=54"></script>
 <script type="module" src="/src/main.ts"></script>
+<script>
+(() => {
+  const container = document.getElementById("transit-arxiv-feed");
+
+  async function fetchTransitPapers() {
+    if (!container) return;
+    try {
+      const res = await fetch("https://api.openalex.org/works?search=exoplanet+transit+light+curve&per_page=3");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+          container.innerHTML = data.results.map(work => {
+            const title = work.title || "Untitled Paper";
+            const author = work.authorships?.[0]?.author?.display_name || "Unknown Author";
+            const year = work.publication_year || "";
+            const url = work.doi || work.id;
+            return `
+              <div style="margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,.05); font-size:0.62rem;">
+                <a href="${url}" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: bold; display: block; margin-bottom: 2px;">${title}</a>
+                <span style="color:#888;">${author} (${year})</span>
+              </div>
+            `;
+          }).join("");
+        } else {
+          container.textContent = "No recent transit papers found.";
+        }
+      } else {
+        container.textContent = "Error loading transit papers.";
+      }
+    } catch (e) {
+      container.textContent = "OpenAlex API unreachable (network/CORS).";
+    }
+  }
+
+  fetchTransitPapers();
+})();
+</script>
 </body>
 </html>

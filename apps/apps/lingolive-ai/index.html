@@ -194,6 +194,19 @@
         </div>
       </section>
 
+      <!-- OLS DICTIONARY WIDGET -->
+      <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mt-6">
+        <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+          <i data-lucide="book-open" class="w-[16px] h-[16px]"></i>
+          OLS Terminology Lookup
+        </h2>
+        <div class="space-y-4">
+          <input id="olsQuery" placeholder="Search biological term..." class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-mono" value="mitosis" />
+          <button id="btnOlsSearch" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black transition-colors">Query EBI OLS</button>
+          <div id="olsResult" class="hidden text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-3 max-h-[150px] overflow-y-auto font-mono"></div>
+        </div>
+      </section>
+
       <div id="errorBox" class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm font-bold flex gap-2">
         <i data-lucide="alert-circle" class="w-[18px] h-[18px] shrink-0"></i>
         <span id="errorText"></span>
@@ -239,5 +252,47 @@
 
   <script src="../../shared/nexus-topnav-v2.js?v=lingo" defer></script>
   <script src="./lingolive.js"></script>
+  <script>
+  (() => {
+    const btn = document.getElementById("btnOlsSearch");
+    const queryInput = document.getElementById("olsQuery");
+    const resultBox = document.getElementById("olsResult");
+
+    async function fetchOls(term) {
+      if (!term.trim()) return;
+      resultBox.classList.remove("hidden");
+      resultBox.innerHTML = '<div class="animate-pulse">Querying EBI OLS database...</div>';
+      try {
+        const res = await fetch(`https://www.ebi.ac.uk/ols4/api/select?q=${encodeURIComponent(term)}&rows=1`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.response && data.response.docs && data.response.docs.length > 0) {
+            const doc = data.response.docs[0];
+            const label = doc.label || term;
+            const desc = doc.description?.[0] || "No description available in ontology database.";
+            const ontology = doc.ontology_name || "unknown";
+            const iri = doc.iri || "";
+            resultBox.innerHTML = `
+              <div class="font-bold text-slate-800 uppercase text-[10px] tracking-wider mb-1">${label} (${ontology})</div>
+              <p class="text-xs text-slate-600 leading-normal mb-2">${desc}</p>
+              <a href="${iri}" target="_blank" class="text-blue-600 hover:underline text-[10px] font-bold">View Ontology IRI &rarr;</a>
+            `;
+          } else {
+            resultBox.textContent = "No ontology matching this term was found.";
+          }
+        } else {
+          resultBox.textContent = "OLS API returned an error.";
+        }
+      } catch (e) {
+        resultBox.textContent = "OLS API unreachable (CORS or network error).";
+      }
+    }
+
+    if (btn && queryInput && resultBox) {
+      btn.addEventListener("click", () => fetchOls(queryInput.value));
+      fetchOls(queryInput.value);
+    }
+  })();
+  </script>
 </body>
 </html>

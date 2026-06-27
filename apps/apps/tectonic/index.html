@@ -77,6 +77,12 @@ body{display:flex;flex-direction:column;}
 <div class="feedNote" id="feedNote">Loading USGS feed...</div>
 <div aria-label="Quake feed list" class="feed" id="quakeFeed"></div>
 </div>
+<div class="miniCard">
+<div class="miniTitle">Seismic Research Papers</div>
+<div class="feed" id="seismic-papers-feed" style="max-height:100px; overflow-y:auto;">
+  Loading recent seismology research...
+</div>
+</div>
 </aside>
 <section aria-label="Visualization stage" class="stage">
 <div class="hud" aria-hidden="true">
@@ -92,5 +98,42 @@ body{display:flex;flex-direction:column;}
 </section>
 </main>
 <script type="module" src="/src/main.ts"></script>
+<script>
+(() => {
+  const container = document.getElementById("seismic-papers-feed");
+
+  async function fetchSeismicPapers() {
+    if (!container) return;
+    try {
+      const res = await fetch("https://api.openalex.org/works?search=seismology+OR+earthquake+plate+tectonics&per_page=3");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+          container.innerHTML = data.results.map(work => {
+            const title = work.title || "Untitled Paper";
+            const author = work.authorships?.[0]?.author?.display_name || "Unknown Author";
+            const year = work.publication_year || "";
+            const url = work.doi || work.id;
+            return `
+              <div style="margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 0.62rem;">
+                <a href="${url}" target="_blank" style="color: #f59e0b; text-decoration: none; font-weight: bold; display: block; margin-bottom: 1px;">${title}</a>
+                <span style="color:#64748b;">${author} (${year})</span>
+              </div>
+            `;
+          }).join("");
+        } else {
+          container.textContent = "No recent seismology papers found.";
+        }
+      } else {
+        container.textContent = "Error loading seismology papers.";
+      }
+    } catch (e) {
+      container.textContent = "OpenAlex API unreachable (network/CORS).";
+    }
+  }
+
+  fetchSeismicPapers();
+})();
+</script>
 </body>
 </html>
