@@ -46,9 +46,10 @@ if (/\bsrc=["'][^"']*\/src\//i.test(html) || /\bsrc=["'][^"']*\.tsx?[?#"']/i.tes
 }
 
 const assetReferences = [];
+const compiledOwnedReferences = [];
+const misbasedCompiledReferences = [];
 const rootAbsoluteReferences = [];
 const externalAssemblyReferences = [];
-const compiledOwnedReferences = [];
 const resourceTagPattern = /<(?:script|link|img|source|video|audio|iframe)\b[^>]*>/gi;
 const resourceAttributePattern = /\b(?:src|href|poster)=["']([^"']+)["']/gi;
 
@@ -62,7 +63,13 @@ for (const tagMatch of html.matchAll(resourceTagPattern)) {
 
     const clean = reference.split(/[?#]/, 1)[0];
     if (clean.startsWith('/')) {
-      rootAbsoluteReferences.push(reference);
+      const compiledCandidate = path.join(distRoot, clean.replace(/^\/+/, ''));
+      if (await exists(compiledCandidate)) {
+        misbasedCompiledReferences.push(reference);
+        errors.push(`Compiled-owned asset is root-absolute and will escape the nested route: ${reference}`);
+      } else {
+        rootAbsoluteReferences.push(reference);
+      }
       continue;
     }
 
@@ -97,6 +104,7 @@ const report = {
   indexPresent: await exists(indexPath),
   assetReferenceCount: assetReferences.length,
   compiledOwnedReferences,
+  misbasedCompiledReferences,
   rootAbsoluteReferences,
   externalAssemblyReferences,
   scriptReferences,
@@ -113,6 +121,7 @@ await writeFile(path.join(reportDir, `${id}.json`), `${JSON.stringify(report, nu
 console.log(`${id}: ${report.result}`);
 console.log(`- route: ${publicRoute}`);
 console.log(`- compiled-owned assets: ${compiledOwnedReferences.length}`);
+console.log(`- misbased compiled assets: ${misbasedCompiledReferences.length}`);
 console.log(`- site-shell references: ${rootAbsoluteReferences.length + externalAssemblyReferences.length}`);
 for (const warning of warnings) console.log(`- warning: ${warning}`);
 for (const error of errors) console.error(`- error: ${error}`);
