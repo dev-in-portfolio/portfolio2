@@ -3,6 +3,7 @@ name: Reforge Foundation Baseline
 on:
   push:
     branches:
+      - main
       - 'reforge/**'
   pull_request:
     paths:
@@ -16,6 +17,8 @@ on:
       - 'about/**'
       - 'contact/**'
       - 'capabilities/**'
+      - 'config/netlify/**'
+      - 'netlify.toml'
       - '.github/workflows/reforge-foundation-baseline.yml'
 
 concurrency:
@@ -69,6 +72,9 @@ jobs:
 
       - name: Verify protected files are unchanged
         run: npm run verify:protected
+
+      - name: Verify Vortex market function contract
+        run: npm run test:vortex-market
 
       - name: Upload foundation inventory evidence
         if: always()
