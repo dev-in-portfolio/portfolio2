@@ -45,8 +45,14 @@ jobs:
       - name: Inventory deployment roots and duplicated functions
         run: npm run inventory:deployments:report
 
+      - name: Inventory compiled application build readiness
+        run: npm run inventory:builds:report
+
       - name: Validate canonical registry structure
         run: npm run validate:registries
+
+      - name: Cross-validate compiled build targets
+        run: npm run validate:build-targets
 
       - name: Verify protected files are unchanged
         run: npm run verify:protected
