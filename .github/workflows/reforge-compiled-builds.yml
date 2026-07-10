@@ -8,6 +8,7 @@ on:
       - 'apps/apps/**'
       - 'apps/shared/**'
       - 'apps/assets/**'
+      - 'apps/netlify/functions/**'
       - 'apps/index.html'
       - 'apps/runtime-guard.js'
       - 'data/apps.registry.json'
@@ -17,6 +18,7 @@ on:
       - 'scripts/verify-built-target.mjs'
       - 'scripts/assemble-compiled-apps.mjs'
       - 'scripts/assemble-static-apps.mjs'
+      - 'scripts/validate-assembled-site.mjs'
       - 'scripts/browser-audit-local.mjs'
       - '.github/workflows/reforge-compiled-builds.yml'
   pull_request:
@@ -24,6 +26,7 @@ on:
       - 'apps/apps/**'
       - 'apps/shared/**'
       - 'apps/assets/**'
+      - 'apps/netlify/functions/**'
       - 'apps/index.html'
       - 'apps/runtime-guard.js'
       - 'data/apps.registry.json'
@@ -33,6 +36,7 @@ on:
       - 'scripts/verify-built-target.mjs'
       - 'scripts/assemble-compiled-apps.mjs'
       - 'scripts/assemble-static-apps.mjs'
+      - 'scripts/validate-assembled-site.mjs'
       - 'scripts/browser-audit-local.mjs'
       - '.github/workflows/reforge-compiled-builds.yml'
 
@@ -148,6 +152,9 @@ jobs:
       - name: Add local static applications
         run: node scripts/assemble-static-apps.mjs --output dist
 
+      - name: Validate unified local application preview
+        run: node scripts/validate-assembled-site.mjs --output dist
+
       - name: Upload unified local application preview
         uses: actions/upload-artifact@v4
         with:
@@ -200,7 +207,7 @@ jobs:
           exit 1
 
       - name: Audit Apps console and all local application routes
-        run: node scripts/browser-audit-local.mjs --base-url http://127.0.0.1:4173 --output reports/reforge/browser
+        run: node scripts/browser-audit-local.mjs --strict --base-url http://127.0.0.1:4173 --output reports/reforge/browser
 
       - name: Record browser toolchain
         if: always()
