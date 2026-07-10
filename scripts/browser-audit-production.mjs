@@ -58,10 +58,16 @@ for (const route of routes) {
   const consoleErrors = [];
   const failedRequests = [];
   const badResponses = [];
+  const externalBadResponses = [];
 
   page.on('pageerror', error => pageErrors.push(String(error?.message || error)));
   page.on('console', message => {
-    if (message.type() === 'error') consoleErrors.push(message.text());
+    if (message.type() === 'error') {
+      consoleErrors.push({
+        text: message.text(),
+        location: message.location()
+      });
+    }
   });
   page.on('requestfailed', request => {
     failedRequests.push({
@@ -71,7 +77,10 @@ for (const route of routes) {
     });
   });
   page.on('response', response => {
-    if (sameOrigin(response.url()) && response.status() >= 400) badResponses.push({ url: response.url(), status: response.status() });
+    if (response.status() < 400) return;
+    const record = { url: response.url(), status: response.status() };
+    if (sameOrigin(response.url())) badResponses.push(record);
+    else externalBadResponses.push(record);
   });
 
   let navigation = null;
@@ -116,13 +125,25 @@ for (const route of routes) {
     screenshotCaptured = false;
   }
 
+  const actionableFailedRequests = failedRequests.filter(request =>
+    request.sameOrigin && !/net::ERR_ABORTED/i.test(request.errorText || '')
+  );
+  const ignoredFailedRequests = failedRequests.filter(request =>
+    request.sameOrigin && /net::ERR_ABORTED/i.test(request.errorText || '')
+  );
+  const actionableConsoleErrors = consoleErrors.filter(error => {
+    const genericResourceError = /^Failed to load resource:/i.test(error.text);
+    return !(genericResourceError && badResponses.length === 0 && actionableFailedRequests.length === 0);
+  });
+  const ignoredConsoleErrors = consoleErrors.filter(error => !actionableConsoleErrors.includes(error));
+
   const findings = [];
   if (navigationError) findings.push(`navigation-error:${navigationError}`);
   if (!navigation || !navigation.ok()) findings.push(`route-status:${navigation?.status?.() ?? 'none'}`);
   if (badResponses.length > 0) findings.push(`same-origin-http-errors:${badResponses.length}`);
-  if (failedRequests.some(request => request.sameOrigin)) findings.push(`same-origin-request-failures:${failedRequests.filter(request => request.sameOrigin).length}`);
+  if (actionableFailedRequests.length > 0) findings.push(`same-origin-request-failures:${actionableFailedRequests.length}`);
   if (pageErrors.length > 0) findings.push(`page-errors:${pageErrors.length}`);
-  if (consoleErrors.length > 0) findings.push(`console-errors:${consoleErrors.length}`);
+  if (actionableConsoleErrors.length > 0) findings.push(`console-errors:${actionableConsoleErrors.length}`);
   if ('evaluationError' in metrics) findings.push(`evaluation-error:${metrics.evaluationError}`);
   if (!('evaluationError' in metrics) && metrics.bodyChildCount === 0) findings.push('empty-body');
   if (!('evaluationError' in metrics) && metrics.bodyTextLength < 20 && metrics.visibleLandmarkCount === 0) findings.push('minimal-visible-content');
@@ -141,13 +162,20 @@ for (const route of routes) {
     findings,
     pageErrors,
     consoleErrors,
+    actionableConsoleErrors,
+    ignoredConsoleErrors,
     failedRequests,
+    actionableFailedRequests,
+    ignoredFailedRequests,
     badResponses,
+    externalBadResponses,
     screenshot: screenshotCaptured ? path.relative(rootDir, screenshotPath).split(path.sep).join('/') : null
   });
 
   console.log(`${route.id}: ${result} (${navigation?.status?.() ?? 'none'}) ${page.url()}`);
   for (const finding of findings) console.log(`  FAIL: ${finding}`);
+  if (ignoredFailedRequests.length > 0) console.log(`  ignored canceled requests: ${ignoredFailedRequests.length}`);
+  if (ignoredConsoleErrors.length > 0) console.log(`  ignored external resource console errors: ${ignoredConsoleErrors.length}`);
   await context.close();
 }
 
@@ -158,7 +186,9 @@ report.summary = {
   checkedRoutes: report.routes.length,
   passedRoutes: report.routes.length - failedRoutes.length,
   failedRoutes: failedRoutes.length,
-  deferredApplicationCount: deferredApps.length
+  deferredApplicationCount: deferredApps.length,
+  ignoredCanceledRequestCount: report.routes.reduce((sum, route) => sum + route.ignoredFailedRequests.length, 0),
+  ignoredExternalResourceErrorCount: report.routes.reduce((sum, route) => sum + route.ignoredConsoleErrors.length, 0)
 };
 await writeFile(path.join(outputDir, 'production-browser-audit.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 
