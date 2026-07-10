@@ -81,12 +81,13 @@
       "name": "dev-in-portfolio-capabilities",
       "role": "protected-standalone-capabilities-section",
       "productionDeployId": "69ecfdc7c72741000861b384",
-      "productionCommit": "d342b1a000000000000000000000000000000000",
+      "productionCommit": null,
+      "productionCommitPrefix": "d342b1a",
       "branch": "capabilities",
       "observedFunctions": 0,
       "observedEdgeFunctions": 4,
       "consolidationStatus": "protected-delegated-unchanged",
-      "notes": "Pinned to a separate April branch. The main build delegates /capabilities/ here and does not intentionally modify the protected page. productionCommit is preserved as the observed prefix because the full commit was not exposed by the connector response."
+      "notes": "Pinned to a separate April branch. The main build delegates /capabilities/ here and does not intentionally modify the protected page. The connector exposed only the commit prefix."
     }
   ],
   "hardStops": [
