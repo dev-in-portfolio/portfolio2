@@ -2,18 +2,26 @@ import { readFile } from 'node:fs/promises';
 
 const readJson = async relativePath => JSON.parse(await readFile(new URL(`../${relativePath}`, import.meta.url), 'utf8'));
 const buildRegistry = await readJson('data/build-targets.registry.json');
+const verificationRegistry = await readJson('data/build-verification.registry.json');
 const appsRegistry = await readJson('data/apps.registry.json');
 const errors = [];
 
 if (buildRegistry.schemaVersion !== 1) {
   errors.push(`Unsupported build-target schemaVersion: ${buildRegistry.schemaVersion}`);
 }
+if (verificationRegistry.schemaVersion !== 1) {
+  errors.push(`Unsupported build-verification schemaVersion: ${verificationRegistry.schemaVersion}`);
+}
 
 if (!Array.isArray(buildRegistry.targets)) {
   errors.push('build-targets.registry.json: targets must be an array');
 }
+if (!Array.isArray(verificationRegistry.results)) {
+  errors.push('build-verification.registry.json: results must be an array');
+}
 
 const targets = Array.isArray(buildRegistry.targets) ? buildRegistry.targets : [];
+const results = Array.isArray(verificationRegistry.results) ? verificationRegistry.results : [];
 if (Number.isInteger(buildRegistry.expectedTargetCount) && targets.length !== buildRegistry.expectedTargetCount) {
   errors.push(`Expected ${buildRegistry.expectedTargetCount} build targets, found ${targets.length}`);
 }
@@ -71,10 +79,48 @@ if (buildRegistry.defaults?.preferredViteBase !== './') {
   errors.push('build-targets.registry.json: preferredViteBase must be ./ for nested static routes');
 }
 
+if (verificationRegistry.verificationStatus !== 'clean-build-passed') {
+  errors.push('build-verification.registry.json: verificationStatus must be clean-build-passed');
+}
+if (!Number.isInteger(verificationRegistry.workflow?.runId)) {
+  errors.push('build-verification.registry.json: workflow.runId must be an integer');
+}
+if (typeof verificationRegistry.sourceCommit !== 'string' || !/^[a-f0-9]{40}$/.test(verificationRegistry.sourceCommit)) {
+  errors.push('build-verification.registry.json: sourceCommit must be a full Git SHA');
+}
+if (results.length !== targets.length) {
+  errors.push(`Build verification result count ${results.length} does not match target count ${targets.length}`);
+}
+
+const resultIds = new Set();
+for (const result of results) {
+  const label = result?.id || '(missing verification id)';
+  if (resultIds.has(result?.id)) errors.push(`${label}: duplicate build-verification result`);
+  resultIds.add(result?.id);
+  if (!targetIds.has(result?.id)) errors.push(`${label}: build verification has no matching target`);
+  if (result.build !== 'passed') errors.push(`${label}: build must be passed`);
+  if (result.compiledOutput !== 'passed') errors.push(`${label}: compiledOutput must be passed`);
+  if (result.deploymentAssembly !== 'pending') errors.push(`${label}: deploymentAssembly must remain pending until assembly verification`);
+  if (result.browserRuntime !== 'pending') errors.push(`${label}: browserRuntime must remain pending until browser verification`);
+  if (!Number.isInteger(result.artifact?.id)) errors.push(`${label}: artifact.id must be an integer`);
+  if (typeof result.artifact?.name !== 'string' || result.artifact.name !== `compiled-${result.id}`) {
+    errors.push(`${label}: artifact.name must match compiled-${result.id}`);
+  }
+  if (typeof result.artifact?.digest !== 'string' || !result.artifact.digest.startsWith('sha256:')) {
+    errors.push(`${label}: artifact.digest must be a SHA-256 digest`);
+  }
+}
+for (const targetId of targetIds) {
+  if (!resultIds.has(targetId)) errors.push(`${targetId}: target missing build-verification result`);
+}
+
 if (errors.length > 0) {
   console.error(`Build-target validation failed with ${errors.length} error(s):`);
   for (const error of errors) console.error(`- ${error}`);
   process.exit(1);
 }
 
-console.log(`Build-target validation passed: ${targets.length} targets match ${viteCandidates.length} cataloged Vite candidates.`);
+console.log(
+  `Build-target validation passed: ${targets.length} targets match ${viteCandidates.length} cataloged Vite candidates; ` +
+  `${results.length} clean-build results are recorded with deployment and browser verification still pending.`
+);
