@@ -15,12 +15,14 @@ const baseUrl = (valueFor('--base-url') || 'http://127.0.0.1:4173').replace(/\/$
 const outputArgument = valueFor('--output') || 'reports/reforge/browser';
 const outputDir = path.resolve(rootDir, outputArgument);
 const strict = args.includes('--strict');
+const includeRoot = args.includes('--include-root');
 const appsRegistry = JSON.parse(await readFile(path.join(rootDir, 'data/apps.registry.json'), 'utf8'));
 const deferredApps = (appsRegistry.applications || []).filter(app => app.reforgeScope === 'deferred');
 const localApps = (appsRegistry.applications || []).filter(
   app => app.deploymentType !== 'external' && app.reforgeScope !== 'deferred'
 );
 const routes = [
+  ...(includeRoot ? [{ id: 'deployment-root', name: 'Apps Deployment Root', href: '/', kind: 'deployment' }] : []),
   { id: 'apps-console', name: 'Apps Console', href: '/apps/', kind: 'section' },
   ...localApps.map(app => ({ id: app.id, name: app.name, href: app.href, kind: 'application' }))
 ];
@@ -47,6 +49,7 @@ const report = {
     launchArgs: ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--ignore-gpu-blocklist']
   },
   viewport: { width: 1366, height: 768 },
+  deploymentRootIncluded: includeRoot,
   deferredApplications: deferredApps.map(app => ({
     id: app.id,
     name: app.name,
@@ -217,6 +220,7 @@ report.summary = {
 
 await writeFile(path.join(outputDir, 'local-browser-audit.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 console.log(`\nBrowser audit summary: ${JSON.stringify(report.summary.resultCounts)}`);
+console.log(`Deployment root included: ${includeRoot ? 'yes' : 'no'}`);
 console.log(`Deferred applications: ${deferredApps.map(app => app.id).join(', ') || 'none'}`);
 console.log(`Report: ${path.relative(rootDir, path.join(outputDir, 'local-browser-audit.json')).split(path.sep).join('/')}`);
 
