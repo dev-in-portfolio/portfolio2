@@ -1,0 +1,45 @@
+name: Reforge External Deployment Health
+
+on:
+  push:
+    branches:
+      - 'reforge/**'
+    paths:
+      - 'data/apps.registry.json'
+      - 'scripts/verify-external-deployments.mjs'
+      - '.github/workflows/reforge-external-health.yml'
+  pull_request:
+    paths:
+      - 'data/apps.registry.json'
+      - 'scripts/verify-external-deployments.mjs'
+      - '.github/workflows/reforge-external-health.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  health:
+    name: Check cataloged external deployments
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check external deployment health
+        run: node scripts/verify-external-deployments.mjs --write
+
+      - name: Upload external health evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: reforge-external-health
+          path: reports/reforge/external-deployment-health.json
+          if-no-files-found: error
+          retention-days: 14
