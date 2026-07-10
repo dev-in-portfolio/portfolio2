@@ -1,13 +1,13 @@
 [build]
-  command = "cd .. && npm run build:apps-deployment"
-  publish = "dist"
+  command = "cd .. && npm run build:netlify"
+  publish = "../dist"
 
 [build.environment]
   NODE_VERSION = "22"
   NPM_FLAGS = "--no-audit --no-fund"
 
 [functions]
-  directory = "netlify/functions"
+  directory = "../netlify/functions"
   node_bundler = "esbuild"
 
 [[redirects]]
