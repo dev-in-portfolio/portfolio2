@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build:site"
+  command = "npm run build:netlify"
   publish = "dist"
 
 [build.environment]
@@ -7,7 +7,7 @@
   NPM_FLAGS = "--no-audit --no-fund"
 
 [functions]
-  directory = "apps/netlify/functions"
+  directory = "netlify/functions"
   node_bundler = "esbuild"
 
 [[redirects]]
