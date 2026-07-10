@@ -1,0 +1,104 @@
+name: Reforge Compiled Application Builds
+
+on:
+  push:
+    branches:
+      - 'reforge/**'
+    paths:
+      - 'apps/apps/helios/**'
+      - 'apps/apps/transit/**'
+      - 'apps/apps/vortex/**'
+      - 'apps/apps/helix/**'
+      - 'apps/apps/tectonic/**'
+      - 'apps/apps/aeon/**'
+      - 'apps/apps/magma/**'
+      - 'apps/apps/string/**'
+      - 'data/apps.registry.json'
+      - 'data/build-targets.registry.json'
+      - 'scripts/verify-built-target.mjs'
+      - '.github/workflows/reforge-compiled-builds.yml'
+  pull_request:
+    paths:
+      - 'apps/apps/helios/**'
+      - 'apps/apps/transit/**'
+      - 'apps/apps/vortex/**'
+      - 'apps/apps/helix/**'
+      - 'apps/apps/tectonic/**'
+      - 'apps/apps/aeon/**'
+      - 'apps/apps/magma/**'
+      - 'apps/apps/string/**'
+      - 'data/apps.registry.json'
+      - 'data/build-targets.registry.json'
+      - 'scripts/verify-built-target.mjs'
+      - '.github/workflows/reforge-compiled-builds.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: helios
+            source: apps/apps/helios
+            route: /apps/helios/
+          - id: transit
+            source: apps/apps/transit
+            route: /apps/transit/
+          - id: vortex
+            source: apps/apps/vortex
+            route: /apps/vortex/
+          - id: helix
+            source: apps/apps/helix
+            route: /apps/helix/
+          - id: tectonic
+            source: apps/apps/tectonic
+            route: /apps/tectonic/
+          - id: aeon
+            source: apps/apps/aeon
+            route: /apps/aeon/
+          - id: magma
+            source: apps/apps/magma
+            route: /apps/magma/
+          - id: string
+            source: apps/apps/string
+            route: /apps/string/
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install application dependencies
+        working-directory: ${{ matrix.source }}
+        run: npm install --no-package-lock --ignore-scripts --no-audit --no-fund
+
+      - name: Build application
+        working-directory: ${{ matrix.source }}
+        run: npm run build
+
+      - name: Verify compiled output
+        run: >-
+          node scripts/verify-built-target.mjs
+          --id "${{ matrix.id }}"
+          --source "${{ matrix.source }}"
+          --route "${{ matrix.route }}"
+
+      - name: Upload compiled application
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-${{ matrix.id }}
+          path: |
+            ${{ matrix.source }}/dist
+            reports/reforge/builds/${{ matrix.id }}.json
+          if-no-files-found: error
+          retention-days: 14
