@@ -13,7 +13,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     target: 'esnext',
-    sourcemap: true,
+    sourcemap: false,
   },
   plugins: [
     glsl(),
