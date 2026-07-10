@@ -8,7 +8,7 @@ const targetsRegistry = JSON.parse(await readFile(path.join(rootDir, 'data/build
 const appsRegistry = JSON.parse(await readFile(path.join(rootDir, 'data/apps.registry.json'), 'utf8'));
 const shouldWrite = process.argv.includes('--write');
 const errors = [];
-const warnings = [];
+const findings = [];
 const report = {
   generatedAt: new Date().toISOString(),
   schemaVersion: targetsRegistry.schemaVersion,
@@ -37,7 +37,7 @@ function detectSourceEntry(indexHtml) {
   const matches = [...String(indexHtml || '').matchAll(/<script\b[^>]*\btype=["']module["'][^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)];
   const entries = matches.map(match => match[1]);
   let classification = 'missing-module-entry';
-  if (entries.some(entry => /^\/src\/main\.(?:ts|js)$/i.test(entry))) classification = 'absolute-source-entry';
+  if (entries.some(entry => /^\/src\/main\.(?:ts|js)$/i.test(entry))) classification = 'vite-root-source-entry';
   else if (entries.some(entry => /^(?:\.\/)?src\/main\.(?:ts|js)$/i.test(entry))) classification = 'relative-source-entry';
   else if (entries.length > 0) classification = 'other-module-entry';
   return { entries, classification };
@@ -146,8 +146,8 @@ for (const target of targets) {
 
   const indexHtml = await readText(path.join(sourceRoot, 'index.html'));
   targetResult.indexEntry = detectSourceEntry(indexHtml);
-  if (targetResult.indexEntry.classification === 'absolute-source-entry') {
-    targetResult.blockers.push('absolute-source-entry-will-not-resolve-at-nested-route');
+  if (targetResult.indexEntry.classification === 'vite-root-source-entry') {
+    targetResult.warnings.push('raw-index-requires-vite-build-before-nested-deployment');
   } else if (targetResult.indexEntry.classification === 'missing-module-entry') {
     targetResult.warnings.push('no-module-entry-detected');
   }
@@ -176,14 +176,15 @@ for (const target of targets) {
     directory: outputDirectory,
     indexPresent: await exists(outputIndex)
   };
-  if (!targetResult.output.indexPresent) targetResult.warnings.push('compiled-output-not-committed');
+  if (!targetResult.output.indexPresent) targetResult.warnings.push('compiled-output-not-present-in-source-tree');
 
   if (targetResult.blockers.length > 0) targetResult.readiness = 'blocked';
-  else if (targetResult.warnings.length > 0) targetResult.readiness = 'build-candidate-with-warnings';
-  else targetResult.readiness = 'build-candidate';
+  else if (!targetResult.output.indexPresent) targetResult.readiness = 'build-required';
+  else if (targetResult.warnings.length > 0) targetResult.readiness = 'compiled-output-present-with-warnings';
+  else targetResult.readiness = 'compiled-output-present';
 
-  for (const blocker of targetResult.blockers) warnings.push(`${label}: blocker ${blocker}`);
-  for (const warning of targetResult.warnings) warnings.push(`${label}: warning ${warning}`);
+  for (const blocker of targetResult.blockers) findings.push(`${label}: blocker ${blocker}`);
+  for (const warning of targetResult.warnings) findings.push(`${label}: warning ${warning}`);
   report.targets.push(targetResult);
 }
 
@@ -202,16 +203,16 @@ report.summary = {
 console.log('NEXUS compiled-application build-readiness inventory');
 console.log(`- Registered targets: ${report.summary.registeredTargets}`);
 console.log(`- Readiness: ${JSON.stringify(report.summary.readinessCounts)}`);
-console.log(`- Blockers: ${report.summary.blockerCount}`);
-console.log(`- Warnings: ${report.summary.warningCount}`);
+console.log(`- Structural blockers: ${report.summary.blockerCount}`);
+console.log(`- Findings: ${report.summary.warningCount}`);
 for (const target of report.targets) {
   console.log(`\n${target.id}: ${target.readiness}`);
   console.log(`  entry: ${target.indexEntry?.classification || 'unknown'} ${JSON.stringify(target.indexEntry?.entries || [])}`);
   console.log(`  vite base: ${target.vite?.base ?? '(implicit)'}`);
-  console.log(`  output: ${target.output?.directory || '(unknown)'}; committed index: ${target.output?.indexPresent === true ? 'yes' : 'no'}`);
+  console.log(`  output: ${target.output?.directory || '(unknown)'}; source-tree index: ${target.output?.indexPresent === true ? 'yes' : 'no'}`);
   console.log(`  lockfiles: ${target.lockfiles.length ? target.lockfiles.join(', ') : 'none'}`);
   for (const blocker of target.blockers) console.log(`  BLOCKER: ${blocker}`);
-  for (const warning of target.warnings) console.log(`  warning: ${warning}`);
+  for (const warning of target.warnings) console.log(`  finding: ${warning}`);
 }
 
 if (shouldWrite) {
@@ -222,8 +223,8 @@ if (shouldWrite) {
   console.log(`\nWrote ${path.relative(rootDir, outputPath)}`);
 }
 
-if (warnings.length > 0) {
-  console.log(`\nReadiness findings recorded: ${warnings.length}. These do not fail structural inventory; clean-build verification is the promotion gate.`);
+if (findings.length > 0) {
+  console.log(`\nReadiness findings recorded: ${findings.length}. Clean-build verification and deployment assembly are the promotion gates.`);
 }
 
 if (errors.length > 0) {
@@ -232,4 +233,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('\nBuild-readiness structural inventory passed. No application is promoted until its clean build and deployed route are verified.');
+console.log('\nBuild-readiness structural inventory passed. Vite source entry paths are not production output; no application is promoted until clean build and deployed-route verification pass.');
