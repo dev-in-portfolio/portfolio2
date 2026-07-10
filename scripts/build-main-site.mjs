@@ -68,6 +68,7 @@ for (const target of buildRegistry.targets) {
 run(process.execPath, ['scripts/assemble-compiled-apps.mjs', '--output', 'dist']);
 run(process.execPath, ['scripts/assemble-static-apps.mjs', '--output', 'dist']);
 run(process.execPath, ['scripts/assemble-main-sections.mjs', '--output', 'dist']);
+run(process.execPath, ['scripts/assemble-inline-section-assets.mjs', '--output', 'dist']);
 run(process.execPath, ['scripts/validate-assembled-site.mjs', '--output', 'dist']);
 
 await copyRequired(path.join(rootDir, 'config/netlify/main-redirects'), path.join(outputRoot, '_redirects'), 'main redirect rules');
