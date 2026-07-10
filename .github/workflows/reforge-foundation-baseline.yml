@@ -10,6 +10,11 @@ on:
       - 'data/**'
       - 'scripts/**'
       - 'apps/assets/apps-data.json'
+      - 'home/**'
+      - 'apps/**'
+      - 'utilities/**'
+      - 'about/**'
+      - 'contact/**'
       - 'capabilities/**'
       - '.github/workflows/reforge-foundation-baseline.yml'
 
@@ -33,6 +38,9 @@ jobs:
 
       - name: Compare canonical registry with legacy catalog
         run: npm run inventory
+
+      - name: Inventory copied roots and shared-file divergence
+        run: npm run inventory:roots
 
       - name: Validate canonical registry structure
         run: npm run validate:registries
