@@ -46,28 +46,41 @@ if (/\bsrc=["'][^"']*\/src\//i.test(html) || /\bsrc=["'][^"']*\.tsx?[?#"']/i.tes
 }
 
 const assetReferences = [];
+const rootAbsoluteReferences = [];
+const externalAssemblyReferences = [];
+const compiledOwnedReferences = [];
 const referencePattern = /\b(?:src|href)=["']([^"']+)["']/gi;
 for (const match of html.matchAll(referencePattern)) {
   const reference = match[1].trim();
   if (!reference || reference.startsWith('#') || reference.startsWith('data:') || reference.startsWith('blob:')) continue;
   if (/^(?:https?:)?\/\//i.test(reference) || /^[a-z][a-z0-9+.-]*:/i.test(reference)) continue;
   assetReferences.push(reference);
-}
 
-for (const reference of assetReferences) {
   const clean = reference.split(/[?#]/, 1)[0];
-  const relative = clean.replace(/^\.\//, '').replace(/^\//, '');
-  if (!relative) continue;
-  const target = path.join(distRoot, relative);
-  if (!await exists(target)) errors.push(`Compiled asset reference is missing: ${reference}`);
+  if (clean.startsWith('/')) {
+    rootAbsoluteReferences.push(reference);
+    continue;
+  }
+
+  const resolved = path.resolve(distRoot, clean);
+  const relativeToDist = path.relative(distRoot, resolved);
+  if (relativeToDist.startsWith('..') || path.isAbsolute(relativeToDist)) {
+    externalAssemblyReferences.push(reference);
+    continue;
+  }
+
+  compiledOwnedReferences.push(reference);
+  if (!await exists(resolved)) errors.push(`Compiled-owned asset reference is missing: ${reference}`);
 }
 
 const scriptReferences = assetReferences.filter(reference => /\.m?js(?:[?#]|$)/i.test(reference));
 const stylesheetReferences = assetReferences.filter(reference => /\.css(?:[?#]|$)/i.test(reference));
 if (scriptReferences.length === 0) warnings.push('No compiled JavaScript reference detected in dist/index.html.');
-
-if (/\b(?:src|href)=["']\//i.test(html)) {
-  warnings.push('Compiled output contains root-absolute local references; nested-route verification is required.');
+if (rootAbsoluteReferences.length > 0) {
+  warnings.push(`Root-absolute site-shell references require assembled-route verification: ${rootAbsoluteReferences.join(', ')}`);
+}
+if (externalAssemblyReferences.length > 0) {
+  warnings.push(`References outside dist require deployment assembly: ${externalAssemblyReferences.join(', ')}`);
 }
 
 const report = {
@@ -78,6 +91,9 @@ const report = {
   distPath: path.relative(rootDir, distRoot).split(path.sep).join('/'),
   indexPresent: await exists(indexPath),
   assetReferenceCount: assetReferences.length,
+  compiledOwnedReferences,
+  rootAbsoluteReferences,
+  externalAssemblyReferences,
   scriptReferences,
   stylesheetReferences,
   errors,
@@ -91,7 +107,8 @@ await writeFile(path.join(reportDir, `${id}.json`), `${JSON.stringify(report, nu
 
 console.log(`${id}: ${report.result}`);
 console.log(`- route: ${publicRoute}`);
-console.log(`- compiled assets referenced: ${assetReferences.length}`);
+console.log(`- compiled-owned assets: ${compiledOwnedReferences.length}`);
+console.log(`- site-shell references: ${rootAbsoluteReferences.length + externalAssemblyReferences.length}`);
 for (const warning of warnings) console.log(`- warning: ${warning}`);
 for (const error of errors) console.error(`- error: ${error}`);
 
