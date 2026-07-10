@@ -182,7 +182,25 @@ async function copyDependency(appId, appSourceRoot, sourceBaseFile, destinationB
   }
 
   const key = `${path.resolve(resolved.source)}=>${path.resolve(resolved.destination)}`;
-  if (seen.has(key)) return copiedDependencies.get(key) || null;
+  const dependencyKey = path.resolve(resolved.destination);
+  if (seen.has(key)) {
+    const existing = copiedDependencies.get(dependencyKey);
+    if (existing) {
+      if (!existing.requestedBy.includes(appId)) existing.requestedBy.push(appId);
+      if (!existing.kinds.includes(item.kind)) existing.kinds.push(item.kind);
+      return existing;
+    }
+    return await exists(resolved.destination)
+      ? {
+          sourcePath: toPosix(path.relative(rootDir, resolved.source)),
+          outputPath: toPosix(path.relative(rootDir, resolved.destination)),
+          publicReference: item.reference,
+          scope: resolved.scope,
+          kinds: [item.kind],
+          requestedBy: [appId]
+        }
+      : null;
+  }
   seen.add(key);
 
   if (!await exists(resolved.source)) {
@@ -207,7 +225,6 @@ async function copyDependency(appId, appSourceRoot, sourceBaseFile, destinationB
     await cp(resolved.source, resolved.destination, { force: true });
   }
 
-  const dependencyKey = path.resolve(resolved.destination);
   let record = copiedDependencies.get(dependencyKey);
   if (!record) {
     record = {
