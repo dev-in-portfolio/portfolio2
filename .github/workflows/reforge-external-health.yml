@@ -15,6 +15,10 @@ on:
       - '.github/workflows/reforge-external-health.yml'
   workflow_dispatch:
 
+concurrency:
+  group: reforge-external-health-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -37,9 +41,10 @@ jobs:
         run: node scripts/verify-external-deployments.mjs --write
 
       - name: Upload external health evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: reforge-external-health
           path: reports/reforge/external-deployment-health.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
