@@ -3,6 +3,7 @@ name: Reforge External Deployment Health
 on:
   push:
     branches:
+      - main
       - 'reforge/**'
     paths:
       - 'data/apps.registry.json'
