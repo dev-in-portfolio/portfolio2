@@ -23,6 +23,8 @@
     "verify:external:report": "node scripts/verify-external-deployments.mjs --write",
     "assemble:compiled": "node scripts/assemble-compiled-apps.mjs --clean --output dist",
     "assemble:static": "node scripts/assemble-static-apps.mjs --output dist",
+    "build:apps-deployment": "node scripts/build-apps-deployment.mjs",
+    "build:apps-deployment:cached": "node scripts/build-apps-deployment.mjs --skip-install --skip-build",
     "build:site": "node scripts/build-main-site.mjs",
     "build:site:cached": "node scripts/build-main-site.mjs --skip-install --skip-build",
     "build:netlify": "node scripts/build-netlify-site.mjs",
