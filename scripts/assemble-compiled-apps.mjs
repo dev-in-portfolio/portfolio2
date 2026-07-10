@@ -18,6 +18,12 @@ const errors = [];
 const manifest = {
   generatedAt: new Date().toISOString(),
   outputRoot: path.relative(rootDir, outputRoot).split(path.sep).join('/'),
+  shell: {
+    sourceRoot: 'apps',
+    landingPage: 'apps/index.html',
+    sharedPath: 'shared',
+    assetsPath: 'assets'
+  },
   applicationCount: 0,
   applications: []
 };
@@ -47,8 +53,23 @@ async function hashFile(target) {
   return createHash('sha256').update(content).digest('hex');
 }
 
+async function copyRequired(source, destination, label) {
+  if (!await exists(source)) {
+    errors.push(`Missing ${label}: ${path.relative(rootDir, source)}`);
+    return false;
+  }
+  await mkdir(path.dirname(destination), { recursive: true });
+  await cp(source, destination, { recursive: true, force: true });
+  return true;
+}
+
 if (shouldClean) await rm(outputRoot, { recursive: true, force: true });
 await mkdir(outputRoot, { recursive: true });
+
+const appsSourceRoot = path.join(rootDir, 'apps');
+await copyRequired(path.join(appsSourceRoot, 'index.html'), path.join(outputRoot, 'apps/index.html'), 'Apps landing page');
+await copyRequired(path.join(appsSourceRoot, 'shared'), path.join(outputRoot, 'shared'), 'Apps shared shell');
+await copyRequired(path.join(appsSourceRoot, 'assets'), path.join(outputRoot, 'assets'), 'Apps asset shell');
 
 for (const target of buildRegistry.targets || []) {
   const sourceDist = path.join(rootDir, target.sourcePath, 'dist');
@@ -78,6 +99,32 @@ for (const target of buildRegistry.targets || []) {
     buildReport = JSON.parse(await readFile(buildReportPath, 'utf8'));
   }
 
+  if (buildReport?.result !== 'passed') {
+    errors.push(`${target.id}: compiled output report is not passed`);
+  }
+  if ((buildReport?.misbasedCompiledReferences || []).length > 0) {
+    errors.push(`${target.id}: compiled output still contains root-absolute owned assets`);
+  }
+
+  const dependencyResults = [];
+  for (const reference of buildReport?.rootAbsoluteReferences || []) {
+    const clean = reference.split(/[?#]/, 1)[0];
+    const resolved = path.join(outputRoot, clean.replace(/^\/+/, ''));
+    const present = await exists(resolved);
+    dependencyResults.push({ reference, resolvedPath: path.relative(rootDir, resolved).split(path.sep).join('/'), present, type: 'root-shell' });
+    if (!present) errors.push(`${target.id}: missing assembled root dependency ${reference}`);
+  }
+  for (const reference of buildReport?.externalAssemblyReferences || []) {
+    const clean = reference.split(/[?#]/, 1)[0];
+    const resolved = path.resolve(destination, clean);
+    const relativeToOutput = path.relative(outputRoot, resolved);
+    const insideOutput = !(relativeToOutput.startsWith('..') || path.isAbsolute(relativeToOutput));
+    const present = insideOutput && await exists(resolved);
+    dependencyResults.push({ reference, resolvedPath: path.relative(rootDir, resolved).split(path.sep).join('/'), present, type: 'relative-shell' });
+    if (!insideOutput) errors.push(`${target.id}: dependency escapes assembled output ${reference}`);
+    else if (!present) errors.push(`${target.id}: missing assembled relative dependency ${reference}`);
+  }
+
   manifest.applications.push({
     id: target.id,
     publicRoute: target.publicRoute,
@@ -87,10 +134,8 @@ for (const target of buildRegistry.targets || []) {
     totalBytes: bytes.reduce((sum, value) => sum + value, 0),
     indexSha256: await hashFile(destinationIndex),
     compiledOutputResult: buildReport?.result || 'report-not-found',
-    siteShellDependencies: [
-      ...(buildReport?.rootAbsoluteReferences || []),
-      ...(buildReport?.externalAssemblyReferences || [])
-    ]
+    dependencyResults,
+    dependenciesResolved: dependencyResults.every(item => item.present)
   });
 }
 
@@ -99,12 +144,24 @@ if (manifest.applicationCount !== buildRegistry.expectedTargetCount) {
   errors.push(`Assembled ${manifest.applicationCount} applications; expected ${buildRegistry.expectedTargetCount}`);
 }
 
+const shellFiles = [];
+for (const relative of ['apps/index.html', 'shared', 'assets']) {
+  const target = path.join(outputRoot, relative);
+  if (await exists(target)) {
+    const details = await stat(target);
+    if (details.isDirectory()) shellFiles.push(...(await walkFiles(target)).map(file => `${relative}/${file}`));
+    else shellFiles.push(relative);
+  }
+}
+manifest.shell.fileCount = shellFiles.length;
+
 const manifestPath = path.join(outputRoot, 'compiled-apps-manifest.json');
 await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
 console.log(`Assembled ${manifest.applicationCount} compiled applications into ${path.relative(rootDir, outputRoot)}`);
+console.log(`- shell files: ${manifest.shell.fileCount}`);
 for (const app of manifest.applications) {
-  console.log(`- ${app.id}: ${app.publicRoute} (${app.fileCount} files, ${app.totalBytes} bytes, ${app.siteShellDependencies.length} shell dependencies)`);
+  console.log(`- ${app.id}: ${app.publicRoute} (${app.fileCount} files, ${app.totalBytes} bytes, dependencies resolved: ${app.dependenciesResolved ? 'yes' : 'no'})`);
 }
 
 if (errors.length > 0) {
