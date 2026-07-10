@@ -13,8 +13,9 @@
     "inventory:builds": "node scripts/inventory-build-readiness.mjs",
     "inventory:builds:report": "node scripts/inventory-build-readiness.mjs --write",
     "validate:registries": "node scripts/validate-registries.mjs",
+    "validate:build-targets": "node scripts/validate-build-targets.mjs",
     "verify:protected": "node scripts/verify-protected-files.mjs",
-    "validate": "npm run validate:registries && npm run verify:protected",
+    "validate": "npm run validate:registries && npm run validate:build-targets && npm run verify:protected",
     "test": "npm run validate",
     "baseline": "npm run inventory && npm run inventory:roots && npm run inventory:deployments && npm run inventory:builds && npm run validate",
     "baseline:report": "npm run inventory && npm run inventory:roots:report && npm run inventory:deployments:report && npm run inventory:builds:report && npm run validate"
