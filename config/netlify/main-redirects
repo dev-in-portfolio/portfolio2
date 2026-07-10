@@ -1,15 +1,7 @@
-/tools             https://dev-in-portfolio-utilities.netlify.app/  302
-/tools/            https://dev-in-portfolio-utilities.netlify.app/  302
-/tools/*           https://dev-in-portfolio-utilities.netlify.app/:splat  302
-/about             https://dev-in-portfolio-about.netlify.app/  302
-/about/            https://dev-in-portfolio-about.netlify.app/  302
-/about/*           https://dev-in-portfolio-about.netlify.app/:splat  302
-/contact           https://dev-in-portfolio-contact.netlify.app/  302
-/contact/          https://dev-in-portfolio-contact.netlify.app/  302
-/contact/*         https://dev-in-portfolio-contact.netlify.app/:splat  302
-/capabilities      https://dev-in-portfolio-capabilities.netlify.app/  302
-/capabilities/     https://dev-in-portfolio-capabilities.netlify.app/  302
-/capabilities/*    https://dev-in-portfolio-capabilities.netlify.app/:splat  302
+/tools             /tools/  301
+/about             /about/  301
+/contact           /contact/  301
+/capabilities      /capabilities/  301
 
 /agents/*    /apps/agents/:splat    301
 /apps/agents    /apps/agents/    301
