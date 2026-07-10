@@ -16,6 +16,7 @@ const report = {
 };
 
 const toPosix = value => value.split(path.sep).join('/');
+const localDataExtension = /\.(?:json|txt|csv|tsv|xml|glsl|wgsl|wasm|svg|png|jpe?g|webp|gif|ico|mp3|wav|ogg|mp4|webm|vtt|pdf)(?:[?#]|$)/i;
 
 async function exists(target) {
   try {
@@ -51,6 +52,11 @@ function cleanReference(reference) {
   return String(reference || '').split(/[?#]/, 1)[0].trim();
 }
 
+function isRuntimeEndpoint(reference) {
+  const clean = cleanReference(reference);
+  return clean.startsWith('/api/') || clean.startsWith('/.netlify/functions/') || clean.startsWith('api/');
+}
+
 function collectHtmlResources(html) {
   const references = [];
   const externalScriptPattern = /<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>[\s\S]*?<\/script>/gi;
@@ -68,13 +74,6 @@ function collectHtmlResources(html) {
   return references;
 }
 
-function collectServiceWorkers(html) {
-  const references = [];
-  const pattern = /serviceWorker\.register\(\s*["'`]([^"'`]+)["'`]/gi;
-  for (const match of html.matchAll(pattern)) references.push(match[1]);
-  return references;
-}
-
 function collectCssUrls(css) {
   const references = [];
   const pattern = /url\(\s*["']?([^"')]+)["']?\s*\)/gi;
@@ -82,13 +81,67 @@ function collectCssUrls(css) {
   return references;
 }
 
-function resolveSourceReference(appRoot, baseFile, reference) {
+function collectJavaScriptReferences(js) {
+  const files = [];
+  const endpoints = [];
+  const workers = [];
+
+  const serviceWorkerPattern = /serviceWorker\.register\(\s*["'`]([^"'`]+)["'`]/gi;
+  for (const match of js.matchAll(serviceWorkerPattern)) {
+    workers.push({ reference: match[1], kind: 'service-worker' });
+  }
+
+  const workerPattern = /new\s+(?:Shared)?Worker\(\s*["'`]([^"'`]+)["'`]/gi;
+  for (const match of js.matchAll(workerPattern)) {
+    workers.push({ reference: match[1], kind: 'worker' });
+  }
+
+  const importPattern = /(?:\bimport\s*(?:\([^)]*\)|[^;]*?\bfrom\s*)|\bexport\s+[^;]*?\bfrom\s*)["'`]([^"'`]+)["'`]/gi;
+  for (const match of js.matchAll(importPattern)) {
+    files.push({ reference: match[1], kind: 'module-import' });
+  }
+
+  const fetchPattern = /\bfetch\(\s*["'`]([^"'`]+)["'`]/gi;
+  for (const match of js.matchAll(fetchPattern)) {
+    const reference = match[1];
+    if (isRuntimeEndpoint(reference) || isExternal(reference)) {
+      endpoints.push(reference);
+    } else if (localDataExtension.test(reference)) {
+      files.push({ reference, kind: 'fetch-file' });
+    } else {
+      endpoints.push(reference);
+    }
+  }
+
+  return { files, endpoints, workers };
+}
+
+function resolveSourceReference(baseFile, reference) {
   const clean = cleanReference(reference);
   if (!clean || clean.startsWith('#') || clean.startsWith('data:') || clean.startsWith('blob:') || isExternal(clean) || clean.includes('${')) {
     return null;
   }
   if (clean.startsWith('/')) return path.join(appsRoot, clean.replace(/^\/+/, ''));
   return path.resolve(path.dirname(baseFile), clean);
+}
+
+async function addResource(result, seenResources, baseFile, reference, kind, discoveredFrom) {
+  const source = resolveSourceReference(baseFile, reference);
+  if (!source) return null;
+  const key = path.resolve(source);
+  if (seenResources.has(key)) return source;
+  seenResources.add(key);
+  const present = await exists(source);
+  const record = {
+    reference,
+    kind,
+    sourcePath: toPosix(path.relative(rootDir, source)),
+    present,
+    discoveredFrom
+  };
+  result.resources.push(record);
+  if (!present) errors.push(`${result.id}: missing ${kind} ${reference} -> ${record.sourcePath}`);
+  return present ? source : null;
 }
 
 if (registry.schemaVersion !== 1) errors.push(`Unsupported static-target registry schemaVersion: ${registry.schemaVersion}`);
@@ -107,6 +160,8 @@ for (const target of registry.targets || []) {
     resourceCount: 0,
     resources: [],
     serviceWorkers: [],
+    runtimeEndpoints: [],
+    inspectedScripts: [],
     fileCount: 0,
     totalBytes: 0,
     largestFile: null,
@@ -130,56 +185,52 @@ for (const target of registry.targets || []) {
   if (!result.title) result.warnings.push('missing-title');
 
   const seenResources = new Set();
+  const scriptSources = [];
   const htmlResources = collectHtmlResources(html);
   for (const item of htmlResources) {
-    const source = resolveSourceReference(appRoot, entryPath, item.reference);
+    const source = await addResource(result, seenResources, entryPath, item.reference, item.kind, target.entryFile);
     if (!source) continue;
-    const key = path.resolve(source);
-    if (seenResources.has(key)) continue;
-    seenResources.add(key);
-    const present = await exists(source);
-    const resourceRecord = {
-      reference: item.reference,
-      kind: item.kind,
-      sourcePath: toPosix(path.relative(rootDir, source)),
-      present,
-      discoveredFrom: target.entryFile
-    };
-    result.resources.push(resourceRecord);
-    if (!present) errors.push(`${target.id}: missing HTML resource ${item.reference} -> ${resourceRecord.sourcePath}`);
 
-    if (present && item.kind === 'link' && /\.css$/i.test(cleanReference(item.reference))) {
+    if (item.kind === 'script' && /\.m?js$/i.test(cleanReference(item.reference))) scriptSources.push(source);
+    if (item.kind === 'link' && /\.css$/i.test(cleanReference(item.reference))) {
       const css = await readFile(source, 'utf8');
       for (const cssReference of collectCssUrls(css)) {
-        const cssSource = resolveSourceReference(appRoot, source, cssReference);
-        if (!cssSource) continue;
-        const cssKey = path.resolve(cssSource);
-        if (seenResources.has(cssKey)) continue;
-        seenResources.add(cssKey);
-        const cssPresent = await exists(cssSource);
-        const cssRecord = {
-          reference: cssReference,
-          kind: 'css-url',
-          sourcePath: toPosix(path.relative(rootDir, cssSource)),
-          present: cssPresent,
-          discoveredFrom: toPosix(path.relative(appRoot, source))
-        };
-        result.resources.push(cssRecord);
-        if (!cssPresent) errors.push(`${target.id}: missing CSS resource ${cssReference} -> ${cssRecord.sourcePath}`);
+        await addResource(
+          result,
+          seenResources,
+          source,
+          cssReference,
+          'css-url',
+          toPosix(path.relative(appRoot, source))
+        );
       }
     }
   }
 
-  for (const reference of collectServiceWorkers(html)) {
-    const source = resolveSourceReference(appRoot, entryPath, reference);
-    const present = source ? await exists(source) : false;
-    const record = {
-      reference,
-      sourcePath: source ? toPosix(path.relative(rootDir, source)) : null,
-      present
-    };
-    result.serviceWorkers.push(record);
-    if (!present) errors.push(`${target.id}: missing service worker ${reference}`);
+  for (const scriptSource of scriptSources) {
+    const js = await readFile(scriptSource, 'utf8');
+    const discoveredFrom = toPosix(path.relative(appRoot, scriptSource));
+    result.inspectedScripts.push(discoveredFrom);
+    const references = collectJavaScriptReferences(js);
+
+    for (const worker of references.workers) {
+      const source = await addResource(result, seenResources, scriptSource, worker.reference, worker.kind, discoveredFrom);
+      result.serviceWorkers.push({
+        reference: worker.reference,
+        kind: worker.kind,
+        sourcePath: source ? toPosix(path.relative(rootDir, source)) : null,
+        present: Boolean(source),
+        discoveredFrom
+      });
+    }
+
+    for (const file of references.files) {
+      await addResource(result, seenResources, scriptSource, file.reference, file.kind, discoveredFrom);
+    }
+
+    for (const endpoint of references.endpoints) {
+      if (!result.runtimeEndpoints.includes(endpoint)) result.runtimeEndpoints.push(endpoint);
+    }
   }
 
   const files = await walkFiles(appRoot);
@@ -199,6 +250,8 @@ for (const target of registry.targets || []) {
   if (result.backupFiles.length > 0) result.warnings.push(`backup-files:${result.backupFiles.length}`);
   if (result.sourceMapFiles.length > 0) result.warnings.push(`source-maps:${result.sourceMapFiles.length}`);
   if (result.fileCount === 1) result.warnings.push('single-file-application');
+  if (result.largestFile?.bytes > 1_000_000) result.warnings.push(`monolithic-file:${result.largestFile.path}`);
+  if (result.runtimeEndpoints.length > 0) result.warnings.push(`runtime-endpoints:${result.runtimeEndpoints.length}`);
   result.readiness = result.warnings.length > 0 ? 'static-candidate-with-warnings' : 'static-candidate';
   report.targets.push(result);
 }
@@ -214,6 +267,8 @@ report.summary = {
   totalFiles: report.targets.reduce((sum, target) => sum + target.fileCount, 0),
   totalBytes: report.targets.reduce((sum, target) => sum + target.totalBytes, 0),
   totalResources: report.targets.reduce((sum, target) => sum + target.resourceCount, 0),
+  totalWorkers: report.targets.reduce((sum, target) => sum + target.serviceWorkers.length, 0),
+  totalRuntimeEndpoints: report.targets.reduce((sum, target) => sum + target.runtimeEndpoints.length, 0),
   totalWarnings: report.targets.reduce((sum, target) => sum + target.warnings.length, 0)
 };
 
@@ -223,11 +278,13 @@ console.log(`- Readiness: ${JSON.stringify(report.summary.readinessCounts)}`);
 console.log(`- Files inventoried: ${report.summary.totalFiles}`);
 console.log(`- Source bytes: ${report.summary.totalBytes}`);
 console.log(`- Local resources checked: ${report.summary.totalResources}`);
+console.log(`- Workers found: ${report.summary.totalWorkers}`);
+console.log(`- Runtime endpoints found: ${report.summary.totalRuntimeEndpoints}`);
 for (const target of report.targets) {
   console.log(`\n${target.id}: ${target.readiness}`);
   console.log(`  title: ${target.title || 'none'}`);
   console.log(`  files: ${target.fileCount}; bytes: ${target.totalBytes}; resources: ${target.resourceCount}`);
-  console.log(`  service workers: ${target.serviceWorkers.length}`);
+  console.log(`  inspected scripts: ${target.inspectedScripts.length}; workers: ${target.serviceWorkers.length}; endpoints: ${target.runtimeEndpoints.length}`);
   if (target.largestFile) console.log(`  largest: ${target.largestFile.path} (${target.largestFile.bytes} bytes)`);
   for (const warning of target.warnings) console.log(`  warning: ${warning}`);
 }
@@ -246,4 +303,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('\nStatic readiness structural inventory passed. Browser behavior, APIs, persistence, and accessibility remain separate verification gates.');
+console.log('\nStatic readiness structural inventory passed. Browser behavior, API correctness, persistence, and accessibility remain separate verification gates.');
