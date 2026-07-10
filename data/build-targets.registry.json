@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "registryStatus": "foundation-readiness",
+  "policy": "Build-target registration proves only that a compiled application is expected. Promotion requires a successful clean build and route verification.",
+  "expectedTargetCount": 8,
+  "defaults": {
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "preferredViteBase": "./",
+    "requiredFiles": [
+      "package.json",
+      "index.html",
+      "src/main.ts",
+      "tsconfig.json",
+      "vite.config.ts"
+    ]
+  },
+  "targets": [
+    {"id":"helios","sourcePath":"apps/apps/helios","publicRoute":"/apps/helios/","runtimeClass":"webgpu"},
+    {"id":"transit","sourcePath":"apps/apps/transit","publicRoute":"/apps/transit/","runtimeClass":"compiled-visualization"},
+    {"id":"vortex","sourcePath":"apps/apps/vortex","publicRoute":"/apps/vortex/","runtimeClass":"compiled-simulation"},
+    {"id":"helix","sourcePath":"apps/apps/helix","publicRoute":"/apps/helix/","runtimeClass":"compiled-renderer"},
+    {"id":"tectonic","sourcePath":"apps/apps/tectonic","publicRoute":"/apps/tectonic/","runtimeClass":"webgpu"},
+    {"id":"aeon","sourcePath":"apps/apps/aeon","publicRoute":"/apps/aeon/","runtimeClass":"webgpu-with-fallback"},
+    {"id":"magma","sourcePath":"apps/apps/magma","publicRoute":"/apps/magma/","runtimeClass":"webgpu"},
+    {"id":"string","sourcePath":"apps/apps/string","publicRoute":"/apps/string/","runtimeClass":"compiled-simulation"}
+  ]
+}
