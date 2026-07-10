@@ -67,10 +67,12 @@ for (const target of buildRegistry.targets) {
 
 run(process.execPath, ['scripts/assemble-compiled-apps.mjs', '--output', 'dist']);
 run(process.execPath, ['scripts/assemble-static-apps.mjs', '--output', 'dist']);
+run(process.execPath, ['scripts/assemble-main-sections.mjs', '--output', 'dist']);
 run(process.execPath, ['scripts/validate-assembled-site.mjs', '--output', 'dist']);
 
 await copyRequired(path.join(rootDir, 'config/netlify/main-redirects'), path.join(outputRoot, '_redirects'), 'main redirect rules');
 await copyRequired(path.join(rootDir, 'apps/_headers'), path.join(outputRoot, '_headers'), 'Apps header rules');
+run(process.execPath, ['scripts/validate-production-site.mjs', '--output', 'dist']);
 
 const manifest = {
   generatedAt: new Date().toISOString(),
@@ -80,14 +82,15 @@ const manifest = {
     compiled: buildRegistry.targets.length,
     static: JSON.parse(await readFile(path.join(rootDir, 'data/static-targets.registry.json'), 'utf8')).targets.length
   },
-  delegatedSections: [
-    { route: '/tools/', project: 'dev-in-portfolio-utilities' },
-    { route: '/about/', project: 'dev-in-portfolio-about' },
-    { route: '/contact/', project: 'dev-in-portfolio-contact' },
-    { route: '/capabilities/', project: 'dev-in-portfolio-capabilities', protected: true }
+  bundledSections: [
+    { route: '/tools/', source: 'utilities/tools' },
+    { route: '/about/', source: 'about' },
+    { route: '/contact/', source: 'contact' },
+    { route: '/capabilities/', source: 'capabilities', protected: true }
   ],
   functionsDirectory: 'netlify/functions',
   assemblyValidated: true,
+  productionValidated: true,
   capabilitiesSourceModified: false
 };
 await writeFile(path.join(outputRoot, 'nexus-build-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
@@ -95,4 +98,5 @@ await writeFile(path.join(outputRoot, 'nexus-build-manifest.json'), `${JSON.stri
 console.log('\nNEXUS main-site build complete.');
 console.log(`- root entry: ${await exists(path.join(outputRoot, 'index.html')) ? 'present' : 'missing'}`);
 console.log(`- Apps console: ${await exists(path.join(outputRoot, 'apps/index.html')) ? 'present' : 'missing'}`);
+console.log('- canonical sections: /tools/, /about/, /contact/, /capabilities/');
 console.log(`- build manifest: ${toPosix(path.relative(rootDir, path.join(outputRoot, 'nexus-build-manifest.json')))}`);
