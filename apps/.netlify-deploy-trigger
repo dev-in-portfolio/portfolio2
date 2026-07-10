@@ -1,4 +1,0 @@
-NEXUS production deployment trigger
-Branch: main
-Triggered: 2026-07-10
-Purpose: publish the canonical navigation hotfix so Nexus pathways remain on https://dev-in-portfolio.netlify.app and no longer open legacy standalone section sites.
