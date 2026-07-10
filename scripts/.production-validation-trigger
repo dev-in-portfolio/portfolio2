@@ -1,3 +1,4 @@
 Validate the exact current main production package after canonical route consolidation.
 Rerun with persistent production build logs enabled.
 Rerun after dependency-graph section packaging.
+Final rerun after inline resource assembly and audit refinement.
