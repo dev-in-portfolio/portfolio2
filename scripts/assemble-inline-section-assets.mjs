@@ -15,8 +15,9 @@ const mounts = [
   { id: 'about', sourceRoot: path.join(rootDir, 'about'), outputEntry: path.join(outputRoot, 'about/index.html') },
   { id: 'contact', sourceRoot: path.join(rootDir, 'contact'), outputEntry: path.join(outputRoot, 'contact/index.html') }
 ];
-const rootReferencePattern = /\/(?:assets|shared|data|help|case-studies)\/[^"'`\s)<>]+|\/(?:runtime-guard\.js|manifest\.webmanifest|favicon\.ico|icon-\d+\.(?:png|svg))/gi;
+const rootReferencePattern = /(?<![A-Za-z0-9_./-])\/(?:assets|shared|data|help|case-studies)\/[^"'`\s)<>]+|(?<![A-Za-z0-9_./-])\/(?:runtime-guard\.js|manifest\.webmanifest|favicon\.ico|icon-\d+\.(?:png|svg))/gi;
 const excludedFilePattern = /\.(?:bak|backup|old|orig|map|zip)(?:[?#]|$)/i;
+const excludedDirectoryNames = new Set(['.git', '.netlify', 'node_modules', 'dist', 'archive', 'source_backups', 'private', 'reports']);
 const records = [];
 const errors = [];
 
@@ -36,6 +37,12 @@ function splitReference(reference) {
     : { clean: reference.slice(0, index), suffix: reference.slice(index) };
 }
 
+function includeContent(source) {
+  const parts = source.split(path.sep);
+  if (parts.some(part => excludedDirectoryNames.has(part))) return false;
+  return !excludedFilePattern.test(source);
+}
+
 for (const mount of mounts) {
   if (!await exists(mount.outputEntry)) {
     errors.push(`${mount.id}: output entry is missing`);
@@ -47,7 +54,6 @@ for (const mount of mounts) {
   let updated = original;
 
   for (const reference of references) {
-    if (reference.startsWith(`/${mount.id}/`)) continue;
     if (excludedFilePattern.test(reference)) {
       errors.push(`${mount.id}: prohibited inline reference ${reference}`);
       continue;
@@ -67,6 +73,20 @@ for (const mount of mounts) {
     records.push({ section: mount.id, source: path.relative(rootDir, source), output: path.relative(outputRoot, output), reference, rewritten });
   }
 
+  if (mount.id === 'tools') {
+    for (const directoryName of ['data', 'docs']) {
+      const source = path.join(mount.sourceRoot, directoryName);
+      const output = path.join(outputRoot, 'tools', directoryName);
+      if (!await exists(source)) continue;
+      await mkdir(path.dirname(output), { recursive: true });
+      await cp(source, output, { recursive: true, force: true, filter: includeContent });
+      records.push({ section: 'tools', source: path.relative(rootDir, source), output: path.relative(outputRoot, output), reference: `${directoryName}/**`, rewritten: `/tools/${directoryName}/**` });
+    }
+    updated = updated
+      .replace(/\.\.\/data\//g, './data/')
+      .replace(/\.\.\/docs\//g, './docs/');
+  }
+
   if (updated !== original) await writeFile(mount.outputEntry, updated, 'utf8');
 }
 
@@ -76,7 +96,7 @@ await writeFile(
   'utf8'
 );
 
-console.log(`Assembled ${records.length} inline section asset reference(s).`);
+console.log(`Assembled ${records.length} inline section asset/content reference(s).`);
 for (const record of records) console.log(`- ${record.section}: ${record.reference} -> ${record.rewritten}`);
 
 if (errors.length > 0) {
