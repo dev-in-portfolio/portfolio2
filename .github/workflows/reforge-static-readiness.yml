@@ -3,6 +3,7 @@ name: Reforge Static Application Readiness
 on:
   push:
     branches:
+      - main
       - 'reforge/**'
     paths:
       - 'apps/apps/agents/**'
