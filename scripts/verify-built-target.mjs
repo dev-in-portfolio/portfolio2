@@ -49,28 +49,33 @@ const assetReferences = [];
 const rootAbsoluteReferences = [];
 const externalAssemblyReferences = [];
 const compiledOwnedReferences = [];
-const referencePattern = /\b(?:src|href)=["']([^"']+)["']/gi;
-for (const match of html.matchAll(referencePattern)) {
-  const reference = match[1].trim();
-  if (!reference || reference.startsWith('#') || reference.startsWith('data:') || reference.startsWith('blob:')) continue;
-  if (/^(?:https?:)?\/\//i.test(reference) || /^[a-z][a-z0-9+.-]*:/i.test(reference)) continue;
-  assetReferences.push(reference);
+const resourceTagPattern = /<(?:script|link|img|source|video|audio|iframe)\b[^>]*>/gi;
+const resourceAttributePattern = /\b(?:src|href|poster)=["']([^"']+)["']/gi;
 
-  const clean = reference.split(/[?#]/, 1)[0];
-  if (clean.startsWith('/')) {
-    rootAbsoluteReferences.push(reference);
-    continue;
+for (const tagMatch of html.matchAll(resourceTagPattern)) {
+  const tag = tagMatch[0];
+  for (const attributeMatch of tag.matchAll(resourceAttributePattern)) {
+    const reference = attributeMatch[1].trim();
+    if (!reference || reference.startsWith('#') || reference.startsWith('data:') || reference.startsWith('blob:')) continue;
+    if (/^(?:https?:)?\/\//i.test(reference) || /^[a-z][a-z0-9+.-]*:/i.test(reference)) continue;
+    assetReferences.push(reference);
+
+    const clean = reference.split(/[?#]/, 1)[0];
+    if (clean.startsWith('/')) {
+      rootAbsoluteReferences.push(reference);
+      continue;
+    }
+
+    const resolved = path.resolve(distRoot, clean);
+    const relativeToDist = path.relative(distRoot, resolved);
+    if (relativeToDist.startsWith('..') || path.isAbsolute(relativeToDist)) {
+      externalAssemblyReferences.push(reference);
+      continue;
+    }
+
+    compiledOwnedReferences.push(reference);
+    if (!await exists(resolved)) errors.push(`Compiled-owned asset reference is missing: ${reference}`);
   }
-
-  const resolved = path.resolve(distRoot, clean);
-  const relativeToDist = path.relative(distRoot, resolved);
-  if (relativeToDist.startsWith('..') || path.isAbsolute(relativeToDist)) {
-    externalAssemblyReferences.push(reference);
-    continue;
-  }
-
-  compiledOwnedReferences.push(reference);
-  if (!await exists(resolved)) errors.push(`Compiled-owned asset reference is missing: ${reference}`);
 }
 
 const scriptReferences = assetReferences.filter(reference => /\.m?js(?:[?#]|$)/i.test(reference));
