@@ -30,9 +30,17 @@
       "publicRoute": "/apps/",
       "provider": "netlify",
       "configPath": "apps/netlify.toml",
-      "publishPath": ".",
+      "publishPath": "dist",
       "functionsPath": "apps/netlify/functions",
-      "status": "active-section-root"
+      "status": "active-compiled-section-root",
+      "expectedNetlifyConfig": {
+        "command": "cd .. && npm run build:apps-deployment",
+        "publish": "dist",
+        "functions": "netlify/functions",
+        "apiRedirectFrom": "/api/*",
+        "apiRedirectTo": "/.netlify/functions/:splat",
+        "apiRedirectStatus": 200
+      }
     },
     {
       "id": "utilities",
