@@ -87,6 +87,11 @@ function isRuntimeEndpoint(reference) {
   return clean.startsWith('/api/') || clean.startsWith('/.netlify/functions/') || clean.startsWith('api/');
 }
 
+function isLocalModuleSpecifier(reference) {
+  const clean = cleanReference(reference);
+  return clean.startsWith('./') || clean.startsWith('../') || clean.startsWith('/');
+}
+
 function inside(parent, child) {
   const relative = path.relative(parent, child);
   return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
@@ -129,7 +134,9 @@ function collectJavaScriptReferences(js) {
   for (const match of js.matchAll(workerPattern)) references.push({ reference: match[1], kind: 'worker' });
 
   const importPattern = /(?:\bimport\s*(?:\([^)]*\)|[^;]*?\bfrom\s*)|\bexport\s+[^;]*?\bfrom\s*)["'`]([^"'`]+)["'`]/gi;
-  for (const match of js.matchAll(importPattern)) references.push({ reference: match[1], kind: 'module-import' });
+  for (const match of js.matchAll(importPattern)) {
+    if (isLocalModuleSpecifier(match[1])) references.push({ reference: match[1], kind: 'module-import' });
+  }
 
   const fetchPattern = /\bfetch\(\s*["'`]([^"'`]+)["'`]/gi;
   for (const match of js.matchAll(fetchPattern)) {
@@ -165,6 +172,7 @@ function resolveReference(sourceBaseFile, destinationBaseFile, reference) {
 }
 
 async function copyDependency(appId, appSourceRoot, sourceBaseFile, destinationBaseFile, item, seen) {
+  if (item.kind === 'module-import' && !isLocalModuleSpecifier(item.reference)) return null;
   const resolved = resolveReference(sourceBaseFile, destinationBaseFile, item.reference);
   if (!resolved) return null;
 
@@ -256,6 +264,7 @@ for (const target of registry.targets || []) {
   const dependencyResults = [];
   const seen = new Set();
   for (const item of references) {
+    if (item.kind === 'module-import' && !isLocalModuleSpecifier(item.reference)) continue;
     const resolved = resolveReference(sourceEntry, destinationEntry, item.reference);
     if (!resolved) continue;
     const sourceInsideApp = inside(source, resolved.source);
