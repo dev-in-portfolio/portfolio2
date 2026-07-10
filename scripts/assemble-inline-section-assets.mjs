@@ -43,6 +43,15 @@ function includeContent(source) {
   return !excludedFilePattern.test(source);
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function replaceRootReference(content, reference, rewritten) {
+  const pattern = new RegExp(`(?<![A-Za-z0-9_./-])${escapeRegExp(reference)}`, 'g');
+  return content.replace(pattern, rewritten);
+}
+
 for (const mount of mounts) {
   if (!await exists(mount.outputEntry)) {
     errors.push(`${mount.id}: output entry is missing`);
@@ -69,7 +78,7 @@ for (const mount of mounts) {
     await cp(source, output, { force: true });
 
     const rewritten = `/${mount.id}/${relative}${suffix}`;
-    updated = updated.split(reference).join(rewritten);
+    updated = replaceRootReference(updated, reference, rewritten);
     records.push({ section: mount.id, source: path.relative(rootDir, source), output: path.relative(outputRoot, output), reference, rewritten });
   }
 
@@ -82,7 +91,19 @@ for (const mount of mounts) {
       await cp(source, output, { recursive: true, force: true, filter: includeContent });
       records.push({ section: 'tools', source: path.relative(rootDir, source), output: path.relative(outputRoot, output), reference: `${directoryName}/**`, rewritten: `/tools/${directoryName}/**` });
     }
+
+    const docsListSource = path.join(mount.sourceRoot, 'assets/docs-list.json');
+    const docsListOutput = path.join(outputRoot, 'tools/assets/docs-list.json');
+    if (await exists(docsListSource)) {
+      await mkdir(path.dirname(docsListOutput), { recursive: true });
+      await cp(docsListSource, docsListOutput, { force: true });
+      records.push({ section: 'tools', source: path.relative(rootDir, docsListSource), output: path.relative(outputRoot, docsListOutput), reference: '../assets/docs-list.json', rewritten: './assets/docs-list.json' });
+    } else {
+      errors.push('tools: missing utilities/assets/docs-list.json');
+    }
+
     updated = updated
+      .replace(/\.\.\/assets\//g, './assets/')
       .replace(/\.\.\/data\//g, './data/')
       .replace(/\.\.\/docs\//g, './docs/');
   }
