@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,7 +7,15 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, '..');
 const registryPath = path.join(rootDir, 'data/source-roots.registry.json');
 const registry = JSON.parse(await readFile(registryPath, 'utf8'));
+const shouldWrite = process.argv.includes('--write');
 const errors = [];
+const report = {
+  generatedAt: new Date().toISOString(),
+  schemaVersion: registry.schemaVersion,
+  roots: [],
+  sharedFamilies: [],
+  backupFiles: []
+};
 
 const normalizeRoot = value => value === '.' ? rootDir : path.join(rootDir, value);
 
@@ -67,15 +75,37 @@ for (const root of registry.roots || []) {
   routes.add(root.route);
 
   const absoluteRoot = normalizeRoot(root.path);
+  const rootResult = {
+    id: root.id,
+    path: root.path,
+    role: root.role,
+    route: root.route,
+    canonicalStatus: root.canonicalStatus,
+    requiredPaths: [],
+    optionalPaths: []
+  };
+
   if (!await exists(absoluteRoot)) {
     errors.push(`${root.id}: root path does not exist (${root.path})`);
+    rootResult.exists = false;
+    report.roots.push(rootResult);
     continue;
   }
+  rootResult.exists = true;
 
   for (const requiredPath of root.requiredPaths || []) {
     const target = path.join(absoluteRoot, requiredPath);
-    if (!await exists(target)) errors.push(`${root.id}: missing required path ${requiredPath}`);
+    const present = await exists(target);
+    rootResult.requiredPaths.push({ path: requiredPath, present });
+    if (!present) errors.push(`${root.id}: missing required path ${requiredPath}`);
   }
+
+  for (const optionalPath of root.optionalPaths || []) {
+    const target = path.join(absoluteRoot, optionalPath);
+    rootResult.optionalPaths.push({ path: optionalPath, present: await exists(target) });
+  }
+
+  report.roots.push(rootResult);
 }
 
 console.log('NEXUS copied-root inventory');
@@ -92,26 +122,36 @@ for (const family of registry.sharedFamilies || []) {
   }
 
   if (copies.length === 0) continue;
-  const uniqueHashes = new Set(copies.map(copy => copy.hash));
-  const state = uniqueHashes.size === 1 ? 'IDENTICAL' : 'DIVERGED';
-  console.log(`\n${family}: ${state} across ${copies.length} root(s)`);
+  const uniqueHashes = [...new Set(copies.map(copy => copy.hash))];
+  const state = uniqueHashes.length === 1 ? 'identical' : 'diverged';
+  report.sharedFamilies.push({ family, state, uniqueHashCount: uniqueHashes.length, copies });
+
+  console.log(`\n${family}: ${state.toUpperCase()} across ${copies.length} root(s)`);
   for (const copy of copies) console.log(`  - ${copy.root}: ${copy.hash.slice(0, 16)} ${copy.path}`);
 }
 
 const backupSuffixes = registry.backupPatterns || [];
-const backupFiles = [];
 for (const root of registry.roots || []) {
   if (root.path === '.') continue;
   const files = await walk(normalizeRoot(root.path));
   for (const relativePath of files) {
     if (backupSuffixes.some(suffix => relativePath.toLowerCase().endsWith(suffix))) {
-      backupFiles.push(`${root.path}/${relativePath}`);
+      report.backupFiles.push(`${root.path}/${relativePath}`);
     }
   }
 }
+report.backupFiles.sort();
 
-console.log(`\nPublic backup artifacts found: ${backupFiles.length}`);
-for (const backup of backupFiles.sort()) console.log(`  - ${backup}`);
+console.log(`\nPublic backup artifacts found: ${report.backupFiles.length}`);
+for (const backup of report.backupFiles) console.log(`  - ${backup}`);
+
+if (shouldWrite) {
+  const outputDir = path.join(rootDir, 'reports/reforge');
+  await mkdir(outputDir, { recursive: true });
+  const outputPath = path.join(outputDir, 'source-root-inventory.json');
+  await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  console.log(`- Wrote ${path.relative(rootDir, outputPath)}`);
+}
 
 if (errors.length > 0) {
   console.error(`\nSource-root inventory failed with ${errors.length} error(s):`);
