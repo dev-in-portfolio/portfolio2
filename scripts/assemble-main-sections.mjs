@@ -162,7 +162,7 @@ for (const section of sections) {
   const destinationRoot = path.join(outputRoot, section.outputPath);
   if (!await exists(path.join(sourceRoot, section.entry))) throw new Error(`${section.id}: source entry is missing.`);
   await copySectionTree(sourceRoot, destinationRoot);
-  const rewrittenFiles = await rewriteTextTree(destinationRoot, section.outputPath);
+  const rewrittenFiles = section.protected ? 0 : await rewriteTextTree(destinationRoot, section.outputPath);
   const assembledEntry = path.join(destinationRoot, section.entry);
   if (!await exists(assembledEntry)) throw new Error(`${section.id}: assembled entry is missing.`);
   if (section.protected) {
