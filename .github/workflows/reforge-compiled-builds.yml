@@ -1,53 +1,48 @@
-name: Reforge Compiled Application Builds
+name: NEXUS Production Build Verification
 
 on:
   push:
     branches:
+      - main
       - 'reforge/**'
     paths:
-      - 'apps/apps/**'
-      - 'apps/shared/**'
-      - 'apps/assets/**'
-      - 'apps/netlify/functions/**'
-      - 'apps/netlify.toml'
-      - 'apps/index.html'
-      - 'apps/runtime-guard.js'
+      - 'index.html'
+      - 'home/**'
+      - 'apps/**'
+      - 'utilities/**'
+      - 'about/**'
+      - 'contact/**'
+      - 'capabilities/**'
+      - 'config/netlify/**'
+      - 'netlify.toml'
       - 'data/apps.registry.json'
       - 'data/build-targets.registry.json'
       - 'data/build-verification.registry.json'
       - 'data/static-targets.registry.json'
       - 'package.json'
-      - 'scripts/verify-built-target.mjs'
-      - 'scripts/assemble-compiled-apps.mjs'
-      - 'scripts/assemble-static-apps.mjs'
-      - 'scripts/build-apps-deployment.mjs'
-      - 'scripts/validate-assembled-site.mjs'
-      - 'scripts/browser-audit-local.mjs'
+      - 'scripts/**'
       - '.github/workflows/reforge-compiled-builds.yml'
   pull_request:
     paths:
-      - 'apps/apps/**'
-      - 'apps/shared/**'
-      - 'apps/assets/**'
-      - 'apps/netlify/functions/**'
-      - 'apps/netlify.toml'
-      - 'apps/index.html'
-      - 'apps/runtime-guard.js'
+      - 'index.html'
+      - 'home/**'
+      - 'apps/**'
+      - 'utilities/**'
+      - 'about/**'
+      - 'contact/**'
+      - 'capabilities/**'
+      - 'config/netlify/**'
+      - 'netlify.toml'
       - 'data/apps.registry.json'
       - 'data/build-targets.registry.json'
       - 'data/build-verification.registry.json'
       - 'data/static-targets.registry.json'
       - 'package.json'
-      - 'scripts/verify-built-target.mjs'
-      - 'scripts/assemble-compiled-apps.mjs'
-      - 'scripts/assemble-static-apps.mjs'
-      - 'scripts/build-apps-deployment.mjs'
-      - 'scripts/validate-assembled-site.mjs'
-      - 'scripts/browser-audit-local.mjs'
+      - 'scripts/**'
       - '.github/workflows/reforge-compiled-builds.yml'
 
 concurrency:
-  group: reforge-local-apps-${{ github.ref }}
+  group: nexus-production-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -122,8 +117,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  assemble:
-    name: Assemble local application routes
+  assemble-production:
+    name: Build exact main Netlify package
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -144,47 +139,35 @@ jobs:
           path: .
           merge-multiple: true
 
-      - name: Assemble compiled public routes
-        run: node scripts/assemble-compiled-apps.mjs --clean --output dist
+      - name: Build exact production package and generated functions
+        env:
+          SITE_NAME: dev-in-portfolio
+        run: npm run build:netlify:cached
 
-      - name: Upload lean compiled route package
+      - name: Verify generated Vortex function exists
+        run: test -f netlify/functions/vortex-market.js
+
+      - name: Upload exact production site
         uses: actions/upload-artifact@v4
         with:
-          name: nexus-compiled-apps
+          name: nexus-production-site
           path: dist
           if-no-files-found: error
           retention-days: 14
 
-      - name: Add local static applications
-        run: node scripts/assemble-static-apps.mjs --output dist
-
-      - name: Validate unified local application preview
-        run: node scripts/validate-assembled-site.mjs --output dist
-
-      - name: Upload unified local application preview
+      - name: Upload generated production functions
         uses: actions/upload-artifact@v4
         with:
-          name: nexus-local-site
-          path: dist
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Build exact Apps Netlify deployment package
-        run: npm run build:apps-deployment:cached
-
-      - name: Upload exact Apps Netlify deployment package
-        uses: actions/upload-artifact@v4
-        with:
-          name: nexus-apps-deployment
-          path: apps/dist
+          name: nexus-production-functions
+          path: netlify/functions
           if-no-files-found: error
           retention-days: 14
 
   browser-audit:
-    name: Audit Apps deployment in Chromium
-    needs: assemble
+    name: Audit exact production package in Chromium
+    needs: assemble-production
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
 
     steps:
       - name: Check out repository
@@ -195,10 +178,10 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Download exact Apps Netlify deployment package
+      - name: Download exact production package
         uses: actions/download-artifact@v4
         with:
-          name: nexus-apps-deployment
+          name: nexus-production-site
           path: dist
 
       - name: Install current Playwright bootstrap
@@ -209,35 +192,40 @@ jobs:
           npm install --no-save --no-package-lock --no-audit --no-fund "playwright@${PLAYWRIGHT_VERSION}"
           npx playwright install --with-deps chromium
 
-      - name: Start local preview server
+      - name: Start exact production preview server
         shell: bash
         run: |
-          python3 -m http.server 4173 --directory dist > /tmp/nexus-preview.log 2>&1 &
-          echo $! > /tmp/nexus-preview.pid
+          python3 -m http.server 4173 --directory dist > /tmp/nexus-production-preview.log 2>&1 &
+          echo $! > /tmp/nexus-production-preview.pid
           for attempt in $(seq 1 30); do
-            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null && curl --fail --silent http://127.0.0.1:4173/apps/ > /dev/null; then
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/apps/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/tools/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/about/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/contact/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/capabilities/ > /dev/null; then
               exit 0
             fi
             sleep 1
           done
-          cat /tmp/nexus-preview.log
+          cat /tmp/nexus-production-preview.log
           exit 1
 
-      - name: Audit deployment root, Apps console, and local application routes
-        run: node scripts/browser-audit-local.mjs --strict --include-root --base-url http://127.0.0.1:4173 --output reports/reforge/browser
+      - name: Audit all canonical production routes
+        run: node scripts/browser-audit-production.mjs --base-url http://127.0.0.1:4173 --output reports/reforge/production-browser
 
       - name: Record browser toolchain
         if: always()
         shell: bash
         run: |
-          mkdir -p reports/reforge/browser
-          printf '{\n  "node": "%s",\n  "playwright": "%s"\n}\n' "$(node --version)" "${PLAYWRIGHT_VERSION:-unknown}" > reports/reforge/browser/toolchain.json
+          mkdir -p reports/reforge/production-browser
+          printf '{\n  "node": "%s",\n  "playwright": "%s"\n}\n' "$(node --version)" "${PLAYWRIGHT_VERSION:-unknown}" > reports/reforge/production-browser/toolchain.json
 
-      - name: Upload browser audit evidence
+      - name: Upload production browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nexus-apps-deployment-browser-audit
-          path: reports/reforge/browser
+          name: nexus-production-browser-audit
+          path: reports/reforge/production-browser
           if-no-files-found: warn
           retention-days: 14
