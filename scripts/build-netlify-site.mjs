@@ -48,6 +48,17 @@ function includeSectionFile(source) {
   return true;
 }
 
+async function prepareFunctions() {
+  await rm(generatedFunctionsRoot, { recursive: true, force: true });
+  await mkdir(path.dirname(generatedFunctionsRoot), { recursive: true });
+  await cp(path.join(rootDir, 'apps/netlify/functions'), generatedFunctionsRoot, { recursive: true, force: true });
+
+  const functionFiles = (await readdir(generatedFunctionsRoot)).filter(name => name.endsWith('.js')).sort();
+  if (!functionFiles.includes('vortex-market.js')) throw new Error('Generated Netlify functions are missing vortex-market.js.');
+  run(process.execPath, ['scripts/test-vortex-market-function.mjs']);
+  return functionFiles;
+}
+
 async function buildSection(sourceDirectory) {
   const sourceRoot = path.join(rootDir, sourceDirectory);
   if (!await exists(path.join(sourceRoot, 'index.html'))) {
@@ -65,18 +76,22 @@ async function buildSection(sourceDirectory) {
 }
 
 async function buildMain() {
-  await rm(generatedFunctionsRoot, { recursive: true, force: true });
-  await mkdir(path.dirname(generatedFunctionsRoot), { recursive: true });
-  await cp(path.join(rootDir, 'apps/netlify/functions'), generatedFunctionsRoot, { recursive: true, force: true });
-
-  const functionFiles = (await readdir(generatedFunctionsRoot)).filter(name => name.endsWith('.js')).sort();
-  if (!functionFiles.includes('vortex-market.js')) throw new Error('Generated Netlify functions are missing vortex-market.js.');
-  run(process.execPath, ['scripts/test-vortex-market-function.mjs']);
-
+  const functionFiles = await prepareFunctions();
   const buildArgs = ['scripts/build-main-site.mjs'];
   if (cached) buildArgs.push('--skip-install', '--skip-build');
   run(process.execPath, buildArgs);
   console.log(`Generated main functions: ${toPosix(path.relative(rootDir, generatedFunctionsRoot))} (${functionFiles.length} JavaScript files)`);
+}
+
+async function buildStandaloneApps() {
+  const functionFiles = await prepareFunctions();
+  const args = ['scripts/build-apps-deployment.mjs'];
+  if (cached) args.push('--skip-install', '--skip-build');
+  run(process.execPath, args);
+
+  await rm(outputRoot, { recursive: true, force: true });
+  await cp(path.join(rootDir, 'apps/dist'), outputRoot, { recursive: true, force: true });
+  console.log(`Built standalone Apps project into ${toPosix(path.relative(rootDir, outputRoot))} (${functionFiles.length} JavaScript functions)`);
 }
 
 if (!siteName) {
@@ -84,10 +99,10 @@ if (!siteName) {
   await buildMain();
 } else if (siteName === 'dev-in-portfolio') {
   await buildMain();
+} else if (siteName === 'dev-in-portfolio-apps') {
+  await buildStandaloneApps();
 } else if (sectionProjects.has(siteName)) {
   await buildSection(sectionProjects.get(siteName));
-} else if (siteName === 'dev-in-portfolio-apps') {
-  throw new Error('The stale dev-in-portfolio-apps project is intentionally blocked until its dedicated compiled-root migration is completed.');
 } else {
   throw new Error(`No explicit build mapping exists for Netlify project ${siteName}. Refusing to publish the wrong repository root.`);
 }
