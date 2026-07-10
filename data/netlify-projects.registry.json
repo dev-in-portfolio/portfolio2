@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "registryStatus": "observed-production-topology",
+  "observedAt": "2026-07-10T18:20:00Z",
+  "policy": "These records describe observed Netlify project and deploy metadata. Hidden edge-function behavior must be preserved or explicitly replaced before a project is consolidated or retired.",
+  "projects": [
+    {
+      "id": "fa58fcc4-0fe4-4a94-8201-7720c69cc9fa",
+      "name": "dev-in-portfolio",
+      "role": "main-production-bundle",
+      "productionDeployId": "6a416b20d450000008cdc309",
+      "productionCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
+      "branch": "main",
+      "observedFunctions": 9,
+      "observedEdgeFunctions": 4,
+      "consolidationStatus": "target-main-project",
+      "notes": "Large production bundle. The Reforged root build is intended to make this deployment deterministic from source."
+    },
+    {
+      "id": "573a0e68-9c67-4587-b15a-ac68bd01eff5",
+      "name": "dev-in-portfolio-home",
+      "role": "standalone-home-copy",
+      "productionDeployId": "6a416b1fd539d40008b42d17",
+      "productionCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
+      "branch": "main",
+      "observedFunctions": 0,
+      "observedEdgeFunctions": 4,
+      "consolidationStatus": "preserve-during-foundation",
+      "notes": "Publishes the home/ section copy. Do not retire until hidden edge behavior and public routes are compared."
+    },
+    {
+      "id": "3a07e73d-1992-4f9c-adba-dab82f41e168",
+      "name": "dev-in-portfolio-apps",
+      "role": "stale-standalone-apps-project",
+      "productionDeployId": "69e2cb2e9ce91c0008a7b1dc",
+      "productionCommit": "ce7d9a808ee4fcc7f1866ac1aaab477280ab7f00",
+      "branch": "main",
+      "observedFunctions": 0,
+      "observedEdgeFunctions": 0,
+      "consolidationStatus": "stale-review-required",
+      "notes": "Production is pinned to the April 18 pre-console architecture and does not include the June Apps console, Vault, or compiled application work."
+    },
+    {
+      "id": "cdd23bf5-95f4-4a31-bdea-1b1440727788",
+      "name": "dev-in-portfolio-utilities",
+      "role": "standalone-utilities-section",
+      "productionDeployId": "6a416b1fb137040008dce773",
+      "productionCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
+      "branch": "main",
+      "observedFunctions": 0,
+      "observedEdgeFunctions": 4,
+      "consolidationStatus": "delegated-by-main-build",
+      "notes": "Retained as a standalone destination while its navigation and hidden edge behavior are reconciled."
+    },
+    {
+      "id": "4c397678-10d6-45a2-8615-a803782fd1ed",
+      "name": "dev-in-portfolio-about",
+      "role": "standalone-about-section",
+      "productionDeployId": "6a416b1fb31442000738f73d",
+      "productionCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
+      "branch": "main",
+      "observedFunctions": 0,
+      "observedEdgeFunctions": 4,
+      "consolidationStatus": "delegated-by-main-build",
+      "notes": "Retained as a standalone destination while its navigation and hidden edge behavior are reconciled."
+    },
+    {
+      "id": "72e68d7b-8fca-402f-820c-3cadd916eace",
+      "name": "dev-in-portfolio-contact",
+      "role": "standalone-contact-section",
+      "productionDeployId": "6a416b1ffd281f0008c52da5",
+      "productionCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
+      "branch": "main",
+      "observedFunctions": 0,
+      "observedEdgeFunctions": 4,
+      "consolidationStatus": "delegated-by-main-build",
+      "notes": "Retained as a standalone destination while its navigation and hidden edge behavior are reconciled."
+    },
+    {
+      "id": "98ff0d61-a874-4e3b-abad-52824f67a099",
+      "name": "dev-in-portfolio-capabilities",
+      "role": "protected-standalone-capabilities-section",
+      "productionDeployId": "69ecfdc7c72741000861b384",
+      "productionCommit": "d342b1a000000000000000000000000000000000",
+      "branch": "capabilities",
+      "observedFunctions": 0,
+      "observedEdgeFunctions": 4,
+      "consolidationStatus": "protected-delegated-unchanged",
+      "notes": "Pinned to a separate April branch. The main build delegates /capabilities/ here and does not intentionally modify the protected page. productionCommit is preserved as the observed prefix because the full commit was not exposed by the connector response."
+    }
+  ],
+  "hardStops": [
+    "Do not retire a standalone project until its hidden edge-function behavior is identified or replaced.",
+    "Do not repoint the protected Capabilities project during the foundation pass.",
+    "Do not treat the stale Apps project as evidence that current Apps routes are deployed.",
+    "Do not infer build settings that the Netlify project API does not expose."
+  ]
+}
