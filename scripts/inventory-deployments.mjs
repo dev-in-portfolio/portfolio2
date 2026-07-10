@@ -78,7 +78,8 @@ for (const deployment of registry.localDeployments || []) {
     provider: deployment.provider,
     status: deployment.status,
     configPath: deployment.configPath,
-    functionsPath: deployment.functionsPath
+    functionsPath: deployment.functionsPath,
+    publishPath: deployment.publishPath
   };
 
   if (deployment.configPath) {
@@ -91,16 +92,25 @@ for (const deployment of registry.localDeployments || []) {
       result.configHash = hash;
       configRecords.push({ id: deployment.id, path: deployment.configPath, hash });
 
-      const expected = registry.expectedNetlifyConfig || {};
+      const expected = {
+        ...(registry.expectedNetlifyConfig || {}),
+        ...(deployment.expectedNetlifyConfig || {})
+      };
       const requiredFragments = [
-        `publish = \"${expected.publish}\"`,
-        `functions = \"${expected.functions}\"`,
-        `from = \"${expected.apiRedirectFrom}\"`,
-        `to = \"${expected.apiRedirectTo}\"`,
+        `publish = "${expected.publish}"`,
+        `from = "${expected.apiRedirectFrom}"`,
+        `to = "${expected.apiRedirectTo}"`,
         `status = ${expected.apiRedirectStatus}`
       ];
+      if (expected.command) requiredFragments.push(`command = "${expected.command}"`);
       for (const fragment of requiredFragments) {
         if (!content.includes(fragment)) errors.push(`${deployment.id}: config missing expected fragment ${fragment}`);
+      }
+
+      const functionsFragment = `functions = "${expected.functions}"`;
+      const directoryFragment = `directory = "${expected.functions}"`;
+      if (!content.includes(functionsFragment) && !content.includes(directoryFragment)) {
+        errors.push(`${deployment.id}: config missing functions directory ${expected.functions}`);
       }
     }
   }
@@ -172,4 +182,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('\nDeployment inventory passed. Identical configs and functions remain untouched until canonical-source decisions are documented.');
+console.log('\nDeployment inventory passed. Intentional config divergence is recorded per deployment; shared function families remain evidence-backed.');
