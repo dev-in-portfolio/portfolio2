@@ -140,9 +140,21 @@ jobs:
           merge-multiple: true
 
       - name: Build exact production package and generated functions
+        shell: bash
         env:
           SITE_NAME: dev-in-portfolio
-        run: npm run build:netlify:cached
+        run: |
+          set -o pipefail
+          npm run build:netlify:cached 2>&1 | tee production-build.log
+
+      - name: Upload production build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-production-build-log
+          path: production-build.log
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Verify generated Vortex function exists
         run: test -f netlify/functions/vortex-market.js
