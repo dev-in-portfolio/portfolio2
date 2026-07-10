@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "snapshotStatus": "endpoint-health-passed",
+  "checkedAt": "2026-07-10T17:41:58.796Z",
+  "sourceCommit": "5096b7217b5c059e32966de7a098a0e9c2bdd152",
+  "workflow": {
+    "name": "Reforge External Deployment Health",
+    "runId": 29111885804
+  },
+  "artifact": {
+    "id": 8235090066,
+    "name": "reforge-external-health",
+    "digest": "sha256:274cc9786808d23e0f922001289054a2356a0ade108c4f18be99b5225fac14f9"
+  },
+  "policy": "This snapshot verifies that each cataloged external URL returned a healthy HTML response during the recorded check. It does not verify application features, authentication, persistence, accessibility, API behavior, or continued future availability.",
+  "summary": {
+    "expectedTargets": 11,
+    "checkedTargets": 11,
+    "healthyCount": 11,
+    "recoveredAfterRetryCount": 2,
+    "unhealthyCount": 0,
+    "timeoutMs": 30000,
+    "maxAttempts": 2
+  },
+  "results": [
+    {"id":"solvespace","status":200,"title":"SolveSpace","health":"healthy-response","attempts":2,"recoveredAfterRetry":true},
+    {"id":"tapforge","status":200,"title":"TapForge - Interactive Preset Lab","health":"healthy-response","attempts":1,"recoveredAfterRetry":false},
+    {"id":"sessionmint","status":200,"title":"SessionMint","health":"healthy-response","attempts":1,"recoveredAfterRetry":false},
+    {"id":"signal-board","status":200,"title":"Signal Board","health":"healthy-response","attempts":1,"recoveredAfterRetry":false},
+    {"id":"palmledger","status":200,"title":"PalmLedger","health":"healthy-response","attempts":1,"recoveredAfterRetry":false},
+    {"id":"routeforge-console","status":200,"title":"RouteForge Console | Portfolio Preview","health":"healthy-response","attempts":1,"recoveredAfterRetry":false},
+    {"id":"patchsmith","status":200,"title":"PatchSmith - Tactical Code Patches","health":"healthy-response","attempts":1,"recoveredAfterRetry":false},
+    {"id":"repo-pilot","status":200,"title":"RepoPilot | Download","health":"healthy-response","attempts":2,"recoveredAfterRetry":true},
+    {"id":"switchboard","status":200,"title":"Switchboard","health":"healthy-response","attempts":1,"recoveredAfterRetry":false},
+    {"id":"neonscope","status":200,"title":"NeonScope — Cyberpunk SQL Workbench","health":"healthy-response","attempts":1,"recoveredAfterRetry":false},
+    {"id":"latchlist","status":200,"title":"LatchList","health":"healthy-response","attempts":1,"recoveredAfterRetry":false}
+  ]
+}

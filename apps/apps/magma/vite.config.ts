@@ -12,7 +12,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     target: 'esnext',
-    sourcemap: true,
+    sourcemap: false,
   },
   assetsInclude: ['**/*.wgsl'],
   appType: 'mpa',

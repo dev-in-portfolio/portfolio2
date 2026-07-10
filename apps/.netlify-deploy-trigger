@@ -1,0 +1,4 @@
+NEXUS Reforged deployment trigger
+Branch: reforge/baseline
+Triggered: 2026-07-10
+Purpose: force the connected Apps Netlify project to build and publish the verified apps/dist package for review.

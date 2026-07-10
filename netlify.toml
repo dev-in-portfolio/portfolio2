@@ -1,5 +1,5 @@
 [build]
-  command = "cd .. && npm run build:apps-deployment"
+  command = "npm run build:netlify"
   publish = "dist"
 
 [build.environment]

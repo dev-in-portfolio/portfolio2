@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "registryStatus": "baseline",
+  "baselineCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
+  "policy": "Deployment records describe current repository roots and declared build behavior. They do not prove that a live deployment is healthy.",
+  "localDeployments": [
+    {
+      "id": "root-shell",
+      "sourceRoot": ".",
+      "publicRoute": "/",
+      "provider": "pending-verification",
+      "configPath": null,
+      "publishPath": ".",
+      "functionsPath": null,
+      "status": "pending-verification"
+    },
+    {
+      "id": "home",
+      "sourceRoot": "home",
+      "publicRoute": "/home/",
+      "provider": "netlify",
+      "configPath": "home/netlify.toml",
+      "publishPath": ".",
+      "functionsPath": "home/netlify/functions",
+      "status": "legacy-deployment-root"
+    },
+    {
+      "id": "apps",
+      "sourceRoot": "apps",
+      "publicRoute": "/apps/",
+      "provider": "netlify",
+      "configPath": "apps/netlify.toml",
+      "publishPath": "dist",
+      "functionsPath": "apps/netlify/functions",
+      "status": "active-compiled-section-root",
+      "expectedNetlifyConfig": {
+        "command": "cd .. && npm run build:apps-deployment",
+        "publish": "dist",
+        "functions": "netlify/functions",
+        "apiRedirectFrom": "/api/*",
+        "apiRedirectTo": "/.netlify/functions/:splat",
+        "apiRedirectStatus": 200
+      }
+    },
+    {
+      "id": "utilities",
+      "sourceRoot": "utilities",
+      "publicRoute": "/tools/",
+      "provider": "pending-verification",
+      "configPath": null,
+      "publishPath": ".",
+      "functionsPath": null,
+      "status": "section-root"
+    },
+    {
+      "id": "about",
+      "sourceRoot": "about",
+      "publicRoute": "/about/",
+      "provider": "netlify",
+      "configPath": "about/netlify.toml",
+      "publishPath": ".",
+      "functionsPath": "about/netlify/functions",
+      "status": "section-deployment-root"
+    },
+    {
+      "id": "contact",
+      "sourceRoot": "contact",
+      "publicRoute": "/contact/",
+      "provider": "netlify",
+      "configPath": "contact/netlify.toml",
+      "publishPath": ".",
+      "functionsPath": "contact/netlify/functions",
+      "status": "section-deployment-root"
+    },
+    {
+      "id": "capabilities",
+      "sourceRoot": "capabilities",
+      "publicRoute": "/capabilities/",
+      "provider": "pending-verification",
+      "configPath": null,
+      "publishPath": ".",
+      "functionsPath": null,
+      "status": "protected-section-root"
+    }
+  ],
+  "expectedNetlifyConfig": {
+    "publish": ".",
+    "functions": "netlify/functions",
+    "apiRedirectFrom": "/api/*",
+    "apiRedirectTo": "/.netlify/functions/:splat",
+    "apiRedirectStatus": 200
+  }
+}

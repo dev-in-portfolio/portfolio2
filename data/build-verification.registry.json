@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "verificationStatus": "clean-build-passed",
+  "verifiedAt": "2026-07-10T17:36:47Z",
+  "sourceCommit": "118a1bb10647bfd774c94687fe3d9c612b73e666",
+  "workflow": {
+    "name": "Reforge Compiled Application Builds",
+    "runId": 29111571536
+  },
+  "policy": "A passing clean build verifies compilation and compiled-output integrity only. It does not prove deployed-route health, browser compatibility, accessibility, API behavior, or feature accuracy.",
+  "results": [
+    {"id":"helios","build":"passed","compiledOutput":"passed","deploymentAssembly":"pending","browserRuntime":"pending","artifact":{"id":8234965122,"name":"compiled-helios","digest":"sha256:da21f362584cda94fe16ecc82fae94dd0772da1c9e69d24303c7ae76dd6bebf9"}},
+    {"id":"transit","build":"passed","compiledOutput":"passed","deploymentAssembly":"pending","browserRuntime":"pending","artifact":{"id":8234968601,"name":"compiled-transit","digest":"sha256:32d5bfef7cd83aec6475ef5ec42b01df6d7b4221bfd5870589e27b6eec79949f"}},
+    {"id":"vortex","build":"passed","compiledOutput":"passed","deploymentAssembly":"pending","browserRuntime":"pending","artifact":{"id":8234966765,"name":"compiled-vortex","digest":"sha256:d870158485296b0e29efbef555f9c6ebd2b976314b8ab7924193acfe977df8c4"}},
+    {"id":"helix","build":"passed","compiledOutput":"passed","deploymentAssembly":"pending","browserRuntime":"pending","artifact":{"id":8234969903,"name":"compiled-helix","digest":"sha256:9f77dc849e3573575e70593e02e020a8f93d300dbb20eebc508900687e63d926"}},
+    {"id":"tectonic","build":"passed","compiledOutput":"passed","deploymentAssembly":"pending","browserRuntime":"pending","artifact":{"id":8234966419,"name":"compiled-tectonic","digest":"sha256:e8b1ca2145e8bc56a52cef5b8b95b76714af6ae5fcbb9e29d248cc44bf088e44"}},
+    {"id":"aeon","build":"passed","compiledOutput":"passed","deploymentAssembly":"pending","browserRuntime":"pending","artifact":{"id":8234966612,"name":"compiled-aeon","digest":"sha256:f59d6f7e9c90dff18778ec408414a9db29db84f9cca0dc355a7a77892d62097e"}},
+    {"id":"magma","build":"passed","compiledOutput":"passed","deploymentAssembly":"pending","browserRuntime":"pending","artifact":{"id":8234965810,"name":"compiled-magma","digest":"sha256:6b547778d7db9f76feb67d16a987ecdafcbe5cf5acc604156276186d2f045560"}},
+    {"id":"string","build":"passed","compiledOutput":"passed","deploymentAssembly":"pending","browserRuntime":"pending","artifact":{"id":8234966358,"name":"compiled-string","digest":"sha256:efa37136db1aa8186776c2498f6d4638339bfa7f69acaa4baaa62c65566dd96c"}}
+  ]
+}

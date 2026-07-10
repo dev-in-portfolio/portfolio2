@@ -13,7 +13,24 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     target: 'esnext',
-    sourcemap: true,
+    sourcemap: false,
   },
-  plugins: [glsl()],
+  plugins: [
+    glsl(),
+    {
+      name: 'helios-webgpu-fallback',
+      transformIndexHtml() {
+        return [
+          {
+            tag: 'script',
+            attrs: {
+              src: '/shared/webgpu-canvas-fallback.js',
+              'data-nexus-fallback': 'helios',
+            },
+            injectTo: 'head-prepend',
+          },
+        ];
+      },
+    },
+  ],
 });

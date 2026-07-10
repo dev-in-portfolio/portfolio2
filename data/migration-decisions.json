@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "decisionStatus": "foundation-baseline",
+  "evidence": {
+    "workflowRunId": 29110973878,
+    "artifactId": 8234740438,
+    "artifactName": "reforge-foundation-inventory",
+    "artifactDigest": "sha256:4d88c78e5cbd47e17eab91cf7709b50511b93978f30c782bf7eedf904d1e3b20",
+    "headCommit": "aee1f14a679a62315931e07117a4469a924a73af"
+  },
+  "sourceAuthority": {
+    "portfolioEntry": {
+      "path": "index.html",
+      "decision": "retain-current-entry"
+    },
+    "activeApplicationSource": {
+      "path": "apps/apps",
+      "decision": "canonical-during-foundation",
+      "reason": "The active Apps catalog resolves local application routes from the Apps deployment root."
+    },
+    "legacyFullSiteRoot": {
+      "path": "home",
+      "decision": "preserve-until-content-migration",
+      "reason": "Contains historical full-site copies, documentation, help pages, case studies, tests, and backend notes."
+    },
+    "protectedCapabilitiesRoot": {
+      "path": "capabilities",
+      "decision": "exclude-from-intentional-modernization",
+      "reason": "The Capabilities page has a separate future stage and remains hash-protected."
+    }
+  },
+  "sharedFamilies": [
+    {
+      "path": "shared/nexus-topnav-v2.css",
+      "observedCopies": 6,
+      "uniqueHashes": 1,
+      "decision": "template-extraction-candidate"
+    },
+    {
+      "path": "shared/nexus-topnav.js",
+      "observedCopies": 6,
+      "uniqueHashes": 1,
+      "decision": "template-extraction-candidate"
+    },
+    {
+      "path": "shared/nexus-topnav.css",
+      "observedCopies": 6,
+      "uniqueHashes": 1,
+      "decision": "template-extraction-candidate"
+    },
+    {
+      "path": "shared/nexus-prefs.js",
+      "observedCopies": 6,
+      "uniqueHashes": 1,
+      "decision": "template-extraction-candidate"
+    },
+    {
+      "path": "shared/nexus-welcome.js",
+      "observedCopies": 6,
+      "uniqueHashes": 1,
+      "decision": "template-extraction-candidate"
+    },
+    {
+      "path": "shared/nexusbar-inline.js",
+      "observedCopies": 6,
+      "uniqueHashes": 1,
+      "decision": "template-extraction-candidate"
+    },
+    {
+      "path": "shared/nexus-topnav-v2.js",
+      "observedCopies": 6,
+      "uniqueHashes": 3,
+      "decision": "manual-review-required",
+      "groups": [
+        {
+          "roots": ["home"],
+          "hash": "5c082835c879a7742ec18176e7eba774cf36a9493794e14c01fc110b8e6cc770"
+        },
+        {
+          "roots": ["apps", "about", "contact"],
+          "hash": "fd98e3ba91f1e33c0084456ec512eff5791de263e0d7ee3b73ee9f1360fb0146"
+        },
+        {
+          "roots": ["utilities", "capabilities"],
+          "hash": "8ebdf3d17288aa6f8cb5094fb5947c53c647064e1c7b99b0bf5cbdc44ce2b08e"
+        }
+      ],
+      "restriction": "Do not overwrite any variant until behavior and mobile navigation differences are reconciled."
+    },
+    {
+      "path": "shared/appdata-client.js",
+      "observedCopies": 6,
+      "uniqueHashes": 2,
+      "decision": "manual-review-required",
+      "groups": [
+        {
+          "roots": ["home", "apps", "about", "contact", "capabilities"],
+          "hash": "dbd307367a148de677699378f8155b12bfd0db5aa95ff5f64d84d4fe8e6d9e23"
+        },
+        {
+          "roots": ["utilities"],
+          "hash": "564e163e361e1dcb9d744d4bf850bfbc1734a31ea7638cdee5fda7f3069a1880"
+        }
+      ],
+      "restriction": "Do not normalize the Utilities variant until its API and storage behavior is compared."
+    }
+  ],
+  "backendCopies": {
+    "netlifyConfig": {
+      "copies": 4,
+      "uniqueHashes": 1,
+      "roots": ["home", "apps", "about", "contact"],
+      "decision": "root-template-candidate"
+    },
+    "serverlessFunctions": {
+      "roots": ["home", "apps", "about", "contact"],
+      "filesPerRoot": 9,
+      "totalCopies": 36,
+      "uniqueFamilies": 9,
+      "allFamiliesIdentical": true,
+      "decision": "centralization-candidate-after-security-review",
+      "families": [
+        "_cors.js",
+        "_db.js",
+        "ai-gemini-proxy.js",
+        "appdata.js",
+        "health.js",
+        "lingolive-save.js",
+        "oracle-save.js",
+        "sleepystory-save.js",
+        "toon-project-save.js"
+      ],
+      "restriction": "Centralization must include the planned authentication, CORS, validation, and retention hardening rather than merely moving insecure copies."
+    }
+  },
+  "backupArtifacts": {
+    "count": 6,
+    "decision": "archive-candidates",
+    "files": [
+      "about/shared/nexus-topnav-v2.js.bak",
+      "apps/shared/nexus-topnav-v2.js.bak",
+      "capabilities/shared/nexus-topnav-v2.js.bak",
+      "contact/shared/nexus-topnav-v2.js.bak",
+      "home/shared/nexus-topnav-v2.js.bak",
+      "utilities/shared/nexus-topnav-v2.js.bak"
+    ],
+    "restriction": "Compare and preserve before moving; do not delete during the baseline phase."
+  },
+  "hardStops": [
+    "Do not intentionally modify capabilities/index.html.",
+    "Do not make the Capabilities page consume any new registry.",
+    "Do not replace divergent shared files with an arbitrary majority copy.",
+    "Do not delete backup artifacts before archival comparison.",
+    "Do not centralize backend functions without applying the security workstream."
+  ]
+}

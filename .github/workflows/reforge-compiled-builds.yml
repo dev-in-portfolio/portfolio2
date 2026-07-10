@@ -1,0 +1,243 @@
+name: Reforge Compiled Application Builds
+
+on:
+  push:
+    branches:
+      - 'reforge/**'
+    paths:
+      - 'apps/apps/**'
+      - 'apps/shared/**'
+      - 'apps/assets/**'
+      - 'apps/netlify/functions/**'
+      - 'apps/netlify.toml'
+      - 'apps/index.html'
+      - 'apps/runtime-guard.js'
+      - 'data/apps.registry.json'
+      - 'data/build-targets.registry.json'
+      - 'data/build-verification.registry.json'
+      - 'data/static-targets.registry.json'
+      - 'package.json'
+      - 'scripts/verify-built-target.mjs'
+      - 'scripts/assemble-compiled-apps.mjs'
+      - 'scripts/assemble-static-apps.mjs'
+      - 'scripts/build-apps-deployment.mjs'
+      - 'scripts/validate-assembled-site.mjs'
+      - 'scripts/browser-audit-local.mjs'
+      - '.github/workflows/reforge-compiled-builds.yml'
+  pull_request:
+    paths:
+      - 'apps/apps/**'
+      - 'apps/shared/**'
+      - 'apps/assets/**'
+      - 'apps/netlify/functions/**'
+      - 'apps/netlify.toml'
+      - 'apps/index.html'
+      - 'apps/runtime-guard.js'
+      - 'data/apps.registry.json'
+      - 'data/build-targets.registry.json'
+      - 'data/build-verification.registry.json'
+      - 'data/static-targets.registry.json'
+      - 'package.json'
+      - 'scripts/verify-built-target.mjs'
+      - 'scripts/assemble-compiled-apps.mjs'
+      - 'scripts/assemble-static-apps.mjs'
+      - 'scripts/build-apps-deployment.mjs'
+      - 'scripts/validate-assembled-site.mjs'
+      - 'scripts/browser-audit-local.mjs'
+      - '.github/workflows/reforge-compiled-builds.yml'
+
+concurrency:
+  group: reforge-local-apps-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.id }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: helios
+            source: apps/apps/helios
+            route: /apps/helios/
+          - id: transit
+            source: apps/apps/transit
+            route: /apps/transit/
+          - id: vortex
+            source: apps/apps/vortex
+            route: /apps/vortex/
+          - id: helix
+            source: apps/apps/helix
+            route: /apps/helix/
+          - id: tectonic
+            source: apps/apps/tectonic
+            route: /apps/tectonic/
+          - id: aeon
+            source: apps/apps/aeon
+            route: /apps/aeon/
+          - id: magma
+            source: apps/apps/magma
+            route: /apps/magma/
+          - id: string
+            source: apps/apps/string
+            route: /apps/string/
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install application dependencies
+        working-directory: ${{ matrix.source }}
+        run: npm install --no-package-lock --ignore-scripts --no-audit --no-fund
+
+      - name: Build application
+        working-directory: ${{ matrix.source }}
+        run: npm run build
+
+      - name: Verify compiled output
+        run: >-
+          node scripts/verify-built-target.mjs
+          --id "${{ matrix.id }}"
+          --source "${{ matrix.source }}"
+          --route "${{ matrix.route }}"
+
+      - name: Upload compiled application and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-${{ matrix.id }}
+          path: |
+            ${{ matrix.source }}/dist
+            reports/reforge/builds/${{ matrix.id }}.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  assemble:
+    name: Assemble local application routes
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Download all compiled applications
+        uses: actions/download-artifact@v4
+        with:
+          pattern: compiled-*
+          path: .
+          merge-multiple: true
+
+      - name: Assemble compiled public routes
+        run: node scripts/assemble-compiled-apps.mjs --clean --output dist
+
+      - name: Upload lean compiled route package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-compiled-apps
+          path: dist
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Add local static applications
+        run: node scripts/assemble-static-apps.mjs --output dist
+
+      - name: Validate unified local application preview
+        run: node scripts/validate-assembled-site.mjs --output dist
+
+      - name: Upload unified local application preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-local-site
+          path: dist
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Build exact Apps Netlify deployment package
+        run: npm run build:apps-deployment:cached
+
+      - name: Upload exact Apps Netlify deployment package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-apps-deployment
+          path: apps/dist
+          if-no-files-found: error
+          retention-days: 14
+
+  browser-audit:
+    name: Audit Apps deployment in Chromium
+    needs: assemble
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Download exact Apps Netlify deployment package
+        uses: actions/download-artifact@v4
+        with:
+          name: nexus-apps-deployment
+          path: dist
+
+      - name: Install current Playwright bootstrap
+        shell: bash
+        run: |
+          PLAYWRIGHT_VERSION="$(npm view playwright version)"
+          echo "PLAYWRIGHT_VERSION=${PLAYWRIGHT_VERSION}" >> "$GITHUB_ENV"
+          npm install --no-save --no-package-lock --no-audit --no-fund "playwright@${PLAYWRIGHT_VERSION}"
+          npx playwright install --with-deps chromium
+
+      - name: Start local preview server
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --directory dist > /tmp/nexus-preview.log 2>&1 &
+          echo $! > /tmp/nexus-preview.pid
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null && curl --fail --silent http://127.0.0.1:4173/apps/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/nexus-preview.log
+          exit 1
+
+      - name: Audit deployment root, Apps console, and local application routes
+        run: node scripts/browser-audit-local.mjs --strict --include-root --base-url http://127.0.0.1:4173 --output reports/reforge/browser
+
+      - name: Record browser toolchain
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p reports/reforge/browser
+          printf '{\n  "node": "%s",\n  "playwright": "%s"\n}\n' "$(node --version)" "${PLAYWRIGHT_VERSION:-unknown}" > reports/reforge/browser/toolchain.json
+
+      - name: Upload browser audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-apps-deployment-browser-audit
+          path: reports/reforge/browser
+          if-no-files-found: warn
+          retention-days: 14

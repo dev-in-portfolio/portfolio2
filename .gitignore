@@ -1,8 +1,10 @@
 *.zip
 
-# Local Netlify folder
+# Local/generated Netlify folders
 .netlify
+netlify/functions/
 
 node_modules/
 dist/
+reports/reforge/
 package-lock.json
