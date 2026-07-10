@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,7 @@ const buildRegistry = JSON.parse(await readFile(path.join(rootDir, 'data/build-t
 const staticRegistry = JSON.parse(await readFile(path.join(rootDir, 'data/static-targets.registry.json'), 'utf8'));
 const skipInstall = process.argv.includes('--skip-install');
 const skipBuild = process.argv.includes('--skip-build');
+const canonicalRoutesTag = '<script src="/shared/nexus-canonical-routes.js?v=1" defer></script>';
 
 const toPosix = value => value.split(path.sep).join('/');
 
@@ -39,6 +40,24 @@ async function copyRequired(source, destination, label) {
   if (!await exists(source)) throw new Error(`Missing ${label}: ${toPosix(path.relative(rootDir, source))}`);
   await mkdir(path.dirname(destination), { recursive: true });
   await cp(source, destination, { recursive: true, force: true });
+}
+
+async function walkHtml(directory) {
+  const files = [];
+  const entries = await readdir(directory, { withFileTypes: true });
+  for (const entry of entries) {
+    const absolute = path.join(directory, entry.name);
+    if (entry.isDirectory()) files.push(...await walkHtml(absolute));
+    else if (entry.isFile() && entry.name.toLowerCase().endsWith('.html')) files.push(absolute);
+  }
+  return files;
+}
+
+function withCanonicalRoutes(html) {
+  if (html.includes('nexus-canonical-routes.js')) return html;
+  if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, `  ${canonicalRoutesTag}\n</head>`);
+  if (/<\/body>/i.test(html)) return html.replace(/<\/body>/i, `  ${canonicalRoutesTag}\n</body>`);
+  return `${html}\n${canonicalRoutesTag}\n`;
 }
 
 function withAppsBase(html) {
@@ -72,12 +91,31 @@ for (const target of buildRegistry.targets) {
 
 run(process.execPath, ['scripts/assemble-compiled-apps.mjs', '--clean', '--output', 'apps/dist']);
 run(process.execPath, ['scripts/assemble-static-apps.mjs', '--output', 'apps/dist']);
-run(process.execPath, ['scripts/validate-assembled-site.mjs', '--output', 'apps/dist']);
+
+await copyRequired(
+  path.join(rootDir, 'apps/shared/nexus-canonical-routes.js'),
+  path.join(outputRoot, 'shared/nexus-canonical-routes.js'),
+  'canonical route guard'
+);
+
+let injectedPageCount = 0;
+for (const htmlPath of await walkHtml(outputRoot)) {
+  const relative = toPosix(path.relative(outputRoot, htmlPath));
+  if (relative === 'apps/coverage-compass/index.html') continue;
+  const html = await readFile(htmlPath, 'utf8');
+  const updated = withCanonicalRoutes(html);
+  if (updated !== html) {
+    await writeFile(htmlPath, updated, 'utf8');
+    injectedPageCount += 1;
+  }
+}
 
 const appsConsolePath = path.join(outputRoot, 'apps/index.html');
 if (!await exists(appsConsolePath)) throw new Error('Assembled Apps console is missing.');
 const appsConsole = await readFile(appsConsolePath, 'utf8');
 await writeFile(path.join(outputRoot, 'index.html'), withAppsBase(appsConsole), 'utf8');
+
+run(process.execPath, ['scripts/validate-assembled-site.mjs', '--output', 'apps/dist']);
 
 await copyRequired(path.join(rootDir, 'apps/_redirects'), path.join(outputRoot, '_redirects'), 'Apps redirect rules');
 await copyRequired(path.join(rootDir, 'apps/_headers'), path.join(outputRoot, '_headers'), 'Apps header rules');
@@ -93,6 +131,9 @@ const manifest = {
   staticApplications: staticRegistry.targets.length,
   deferredApplications: ['coverage-compass'],
   functionsDirectory: 'apps/netlify/functions',
+  canonicalRouteOrigin: 'https://dev-in-portfolio.netlify.app',
+  canonicalRouteGuard: 'shared/nexus-canonical-routes.js',
+  canonicalRoutePagesInjected: injectedPageCount,
   capabilitiesSourceIncluded: false,
   assemblyValidated: true
 };
@@ -101,5 +142,6 @@ await writeFile(path.join(outputRoot, 'nexus-apps-deployment-manifest.json'), `$
 console.log('\nNEXUS Apps deployment build complete.');
 console.log(`- root console alias: ${await exists(path.join(outputRoot, 'index.html')) ? 'present' : 'missing'}`);
 console.log(`- canonical /apps/ console: ${await exists(appsConsolePath) ? 'present' : 'missing'}`);
-console.log(`- Coverage Compass: preserved, deferred from reforge verification`);
-console.log(`- Capabilities source: excluded`);
+console.log(`- canonical route guard injected: ${injectedPageCount} page(s)`);
+console.log('- Coverage Compass: preserved, deferred from reforge verification');
+console.log('- Capabilities source: excluded');
