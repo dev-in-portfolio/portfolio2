@@ -1,0 +1,3 @@
+Canonical production deployment trigger
+Main contract commit: 75e74bb1037a2e5ca857ad8dab95b208373c8546
+Purpose: force the dev-in-portfolio Netlify project to reload apps/netlify.toml and deploy the validated canonical main artifact.
