@@ -1,0 +1,68 @@
+name: Deploy Canonical Production
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/deploy-canonical-production.yml'
+      - 'apps/.netlify-deploy-trigger'
+      - 'apps/netlify.toml'
+      - 'netlify.toml'
+      - 'package.json'
+      - 'scripts/**'
+      - 'config/netlify/**'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-canonical-production
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build, verify, and deploy canonical site
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NETLIFY_SITE_ID: fa58fcc4-0fe4-4a94-8201-7720c69cc9fa
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN || secrets.NETLIFY_TOKEN }}
+      SITE_NAME: dev-in-portfolio
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify deployment credential exists
+        shell: bash
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
+            echo "No NETLIFY_AUTH_TOKEN or NETLIFY_TOKEN repository secret is configured."
+            exit 1
+          fi
+
+      - name: Build exact canonical production package
+        run: npm run build:netlify
+
+      - name: Verify canonical production package
+        run: |
+          npm run validate:production
+          test -f netlify/functions/vortex-market.js
+
+      - name: Deploy validated package to production
+        shell: bash
+        run: |
+          npx -y netlify-cli@latest deploy \
+            --prod \
+            --dir=dist \
+            --functions=netlify/functions \
+            --site="$NETLIFY_SITE_ID" \
+            --auth="$NETLIFY_AUTH_TOKEN" \
+            --message="Canonical production ${GITHUB_SHA}"
