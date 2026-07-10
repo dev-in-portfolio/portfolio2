@@ -15,5 +15,22 @@ export default defineConfig({
     target: 'esnext',
     sourcemap: true,
   },
-  plugins: [glsl()],
+  plugins: [
+    glsl(),
+    {
+      name: 'helios-webgpu-fallback',
+      transformIndexHtml() {
+        return [
+          {
+            tag: 'script',
+            attrs: {
+              src: '/shared/webgpu-canvas-fallback.js',
+              'data-nexus-fallback': 'helios',
+            },
+            injectTo: 'head-prepend',
+          },
+        ];
+      },
+    },
+  ],
 });
