@@ -15,7 +15,9 @@ on:
       - 'apps/apps/string/**'
       - 'data/apps.registry.json'
       - 'data/build-targets.registry.json'
+      - 'data/build-verification.registry.json'
       - 'scripts/verify-built-target.mjs'
+      - 'scripts/assemble-compiled-apps.mjs'
       - '.github/workflows/reforge-compiled-builds.yml'
   pull_request:
     paths:
@@ -29,7 +31,9 @@ on:
       - 'apps/apps/string/**'
       - 'data/apps.registry.json'
       - 'data/build-targets.registry.json'
+      - 'data/build-verification.registry.json'
       - 'scripts/verify-built-target.mjs'
+      - 'scripts/assemble-compiled-apps.mjs'
       - '.github/workflows/reforge-compiled-builds.yml'
 
 permissions:
@@ -102,4 +106,37 @@ jobs:
             ${{ matrix.source }}/dist
             reports/reforge/builds/${{ matrix.id }}.json
           if-no-files-found: warn
+          retention-days: 14
+
+  assemble:
+    name: Assemble compiled application routes
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Download all compiled applications
+        uses: actions/download-artifact@v4
+        with:
+          pattern: compiled-*
+          path: .
+          merge-multiple: true
+
+      - name: Assemble public route tree
+        run: node scripts/assemble-compiled-apps.mjs --clean --output dist
+
+      - name: Upload assembled compiled routes
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-compiled-apps
+          path: dist
+          if-no-files-found: error
           retention-days: 14
