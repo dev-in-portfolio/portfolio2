@@ -11,18 +11,47 @@ const valueFor = flag => {
 };
 const outputRoot = path.resolve(rootDir, valueFor('--output') || 'dist');
 const toPosix = value => value.split(path.sep).join('/');
-
-const excludedDirectoryNames = new Set([
-  '.git', '.github', '.netlify', 'node_modules', 'dist', 'netlify',
-  'archive', 'source_backups', 'tests', 'reports', 'private'
-]);
+const textExtensions = new Set(['.html', '.htm', '.js', '.mjs', '.css', '.json', '.webmanifest', '.txt', '.xml', '.svg']);
 const excludedFilePattern = /\.(?:bak|backup|old|orig|map|zip)$/i;
-const textExtensions = new Set(['.html', '.js', '.mjs', '.css', '.json', '.webmanifest', '.txt', '.xml']);
+const canonicalRoutePattern = /^\/(?:apps|tools|about|contact|capabilities)(?:\/|$)/i;
+const errors = [];
+const warnings = [];
+const processedOutputs = new Set();
+const records = [];
 
-const sections = [
-  { id: 'about', sourceRoot: 'about', outputPath: 'about', entry: 'index.html' },
-  { id: 'contact', sourceRoot: 'contact', outputPath: 'contact', entry: 'index.html' },
-  { id: 'capabilities', sourceRoot: 'capabilities', outputPath: 'capabilities', entry: 'index.html', protected: true }
+const mounts = [
+  {
+    id: 'tools',
+    sourceRoot: path.join(rootDir, 'utilities'),
+    entrySource: path.join(rootDir, 'utilities/tools/index.html'),
+    entryOutput: path.join(outputRoot, 'tools/index.html'),
+    routePrefix: 'tools',
+    protectedEntry: false
+  },
+  {
+    id: 'about',
+    sourceRoot: path.join(rootDir, 'about'),
+    entrySource: path.join(rootDir, 'about/index.html'),
+    entryOutput: path.join(outputRoot, 'about/index.html'),
+    routePrefix: 'about',
+    protectedEntry: false
+  },
+  {
+    id: 'contact',
+    sourceRoot: path.join(rootDir, 'contact'),
+    entrySource: path.join(rootDir, 'contact/index.html'),
+    entryOutput: path.join(outputRoot, 'contact/index.html'),
+    routePrefix: 'contact',
+    protectedEntry: false
+  },
+  {
+    id: 'capabilities',
+    sourceRoot: path.join(rootDir, 'capabilities'),
+    entrySource: path.join(rootDir, 'capabilities/index.html'),
+    entryOutput: path.join(outputRoot, 'capabilities/index.html'),
+    routePrefix: 'capabilities',
+    protectedEntry: true
+  }
 ];
 
 async function exists(target) {
@@ -34,156 +63,260 @@ async function exists(target) {
   }
 }
 
-function includeSectionFile(sourceRoot, absolute) {
-  const relative = toPosix(path.relative(sourceRoot, absolute));
-  const parts = relative.split('/');
-  if (parts.some(part => excludedDirectoryNames.has(part))) return false;
-  if (parts[0] === 'apps' || parts[0] === 'tools') return false;
-  if (excludedFilePattern.test(relative)) return false;
-  return true;
+function inside(parent, child) {
+  const relative = path.relative(parent, child);
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
-async function copySectionTree(sourceRoot, destinationRoot) {
-  await rm(destinationRoot, { recursive: true, force: true });
-  await mkdir(path.dirname(destinationRoot), { recursive: true });
-  await cp(sourceRoot, destinationRoot, {
-    recursive: true,
-    force: true,
-    filter: absolute => includeSectionFile(sourceRoot, absolute)
-  });
+function splitReference(reference) {
+  const value = String(reference || '').trim();
+  const index = value.search(/[?#]/);
+  return index < 0
+    ? { clean: value, suffix: '' }
+    : { clean: value.slice(0, index), suffix: value.slice(index) };
 }
 
-async function walk(directory) {
-  const files = [];
-  const entries = await readdir(directory, { withFileTypes: true });
-  for (const entry of entries) {
-    const absolute = path.join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...await walk(absolute));
-    else if (entry.isFile()) files.push(absolute);
+function isExternal(reference) {
+  return /^(?:https?:)?\/\//i.test(reference)
+    || /^(?:data|blob|mailto|tel|javascript):/i.test(reference)
+    || reference.startsWith('#');
+}
+
+function mapSourceToOutput(mount, sourcePath) {
+  const relative = toPosix(path.relative(mount.sourceRoot, sourcePath));
+  if (mount.id === 'tools') {
+    const toolsRelative = relative.startsWith('tools/') ? relative.slice('tools/'.length) : relative;
+    return path.join(outputRoot, 'tools', toolsRelative);
   }
-  return files;
+  return path.join(outputRoot, mount.routePrefix, relative);
 }
 
-function rewriteRouteLocalReferences(content, route) {
-  const prefix = `/${route}`;
-  const replacements = [
-    [/(["'(=:\s])\/shared\//g, `$1${prefix}/shared/`],
-    [/(["'(=:\s])\/assets\//g, `$1${prefix}/assets/`],
-    [/(["'(=:\s])\/runtime-guard\.js/g, `$1${prefix}/runtime-guard.js`],
-    [/url\(\/shared\//g, `url(${prefix}/shared/`],
-    [/url\(\/assets\//g, `url(${prefix}/assets/`]
+function collectHtmlReferences(content) {
+  const references = [];
+  const resourceTagPattern = /<(script|link|img|source|video|audio|iframe)\b[^>]*>/gi;
+  const attributePattern = /\b(?:src|href|poster)=["']([^"']+)["']/gi;
+  for (const tagMatch of content.matchAll(resourceTagPattern)) {
+    for (const attributeMatch of tagMatch[0].matchAll(attributePattern)) {
+      references.push({ reference: attributeMatch[1], required: true, kind: tagMatch[1].toLowerCase() });
+    }
+  }
+  const anchorPattern = /<a\b[^>]*\bhref=["']([^"']+)["'][^>]*>/gi;
+  for (const match of content.matchAll(anchorPattern)) references.push({ reference: match[1], required: false, kind: 'anchor' });
+  const inlineAssignmentPattern = /\.(?:src|href|poster)\s*=\s*["'`]([^"'`]+)["'`]/gi;
+  for (const match of content.matchAll(inlineAssignmentPattern)) references.push({ reference: match[1], required: true, kind: 'dynamic-resource' });
+  return references;
+}
+
+function collectCssReferences(content) {
+  const references = [];
+  const urlPattern = /url\(\s*["']?([^"')]+)["']?\s*\)/gi;
+  for (const match of content.matchAll(urlPattern)) references.push({ reference: match[1], required: true, kind: 'css-url' });
+  const importPattern = /@import\s+(?:url\()?\s*["']([^"']+)["']/gi;
+  for (const match of content.matchAll(importPattern)) references.push({ reference: match[1], required: true, kind: 'css-import' });
+  return references;
+}
+
+function collectJavaScriptReferences(content) {
+  const references = [];
+  const patterns = [
+    { pattern: /\bimport\s*["'`]([^"'`]+)["'`]/g, kind: 'module-import' },
+    { pattern: /\b(?:import|export)\s+[^;\n]*?\bfrom\s*["'`]([^"'`]+)["'`]/g, kind: 'module-import' },
+    { pattern: /\bimport\(\s*["'`]([^"'`]+)["'`]\s*\)/g, kind: 'dynamic-import' },
+    { pattern: /\bfetch\(\s*["'`]([^"'`]+)["'`]/g, kind: 'fetch' },
+    { pattern: /serviceWorker\.register\(\s*["'`]([^"'`]+)["'`]/g, kind: 'service-worker' },
+    { pattern: /new\s+(?:Shared)?Worker\(\s*["'`]([^"'`]+)["'`]/g, kind: 'worker' },
+    { pattern: /\.(?:src|href|poster)\s*=\s*["'`]([^"'`]+)["'`]/g, kind: 'dynamic-resource' }
   ];
-  let updated = content;
-  for (const [pattern, replacement] of replacements) updated = updated.replace(pattern, replacement);
-  return updated;
-}
-
-async function rewriteTextTree(destinationRoot, route) {
-  let changed = 0;
-  for (const file of await walk(destinationRoot)) {
-    if (!textExtensions.has(path.extname(file).toLowerCase())) continue;
-    const original = await readFile(file, 'utf8');
-    const updated = rewriteRouteLocalReferences(original, route);
-    if (updated !== original) {
-      await writeFile(file, updated, 'utf8');
-      changed += 1;
+  for (const item of patterns) {
+    for (const match of content.matchAll(item.pattern)) {
+      references.push({ reference: match[1], required: item.kind !== 'fetch' || /\.[a-z0-9]{2,8}(?:[?#]|$)/i.test(match[1]), kind: item.kind });
     }
   }
-  return changed;
+  return references;
 }
 
-async function assembleTools() {
-  const utilitiesRoot = path.join(rootDir, 'utilities');
-  const toolsSource = path.join(utilitiesRoot, 'tools');
-  const destination = path.join(outputRoot, 'tools');
-  await rm(destination, { recursive: true, force: true });
-  await mkdir(destination, { recursive: true });
-
-  const siblingNames = ['shared', 'assets', 'data', 'help', 'case-studies'];
-  for (const name of siblingNames) {
-    const source = path.join(utilitiesRoot, name);
-    if (await exists(source)) await cp(source, path.join(destination, name), { recursive: true, force: true });
+function collectJsonReferences(content) {
+  const references = [];
+  let value;
+  try {
+    value = JSON.parse(content);
+  } catch {
+    return references;
   }
-  for (const name of ['runtime-guard.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'favicon.ico']) {
-    const source = path.join(utilitiesRoot, name);
-    if (await exists(source)) await cp(source, path.join(destination, name), { force: true });
+  const visit = node => {
+    if (typeof node === 'string' && /(?:^|\/)\S+\.[a-z0-9]{2,8}(?:[?#].*)?$/i.test(node)) {
+      references.push({ reference: node, required: true, kind: 'json-resource' });
+    } else if (Array.isArray(node)) {
+      node.forEach(visit);
+    } else if (node && typeof node === 'object') {
+      Object.values(node).forEach(visit);
+    }
+  };
+  visit(value);
+  return references;
+}
+
+function collectReferences(sourcePath, content) {
+  const extension = path.extname(sourcePath).toLowerCase();
+  if (extension === '.html' || extension === '.htm') return collectHtmlReferences(content);
+  if (extension === '.css') return collectCssReferences(content);
+  if (extension === '.js' || extension === '.mjs') return collectJavaScriptReferences(content);
+  if (extension === '.json' || extension === '.webmanifest') return collectJsonReferences(content);
+  if (extension === '.svg') return collectHtmlReferences(content);
+  return [];
+}
+
+async function resolveReference(mount, sourceFile, outputFile, item) {
+  const original = String(item.reference || '').trim();
+  if (!original || isExternal(original)) return null;
+  const { clean, suffix } = splitReference(original);
+  if (!clean || clean.includes('${')) return null;
+  if (clean === '/' || canonicalRoutePattern.test(clean)) return null;
+  if (excludedFilePattern.test(clean)) {
+    if (item.required) errors.push(`${mount.id}: prohibited referenced artifact ${clean}`);
+    return null;
   }
 
-  await cp(toolsSource, destination, { recursive: true, force: true });
+  let sourceTarget;
+  if (clean.startsWith('/')) {
+    const relative = clean.replace(/^\/+/, '');
+    const allowedRootResource = /^(?:shared|assets|data|help|case-studies)\//i.test(relative)
+      || /^(?:runtime-guard\.js|manifest\.webmanifest|favicon\.ico|icon-\d+\.(?:png|svg))$/i.test(relative);
+    if (!allowedRootResource) return null;
+    sourceTarget = path.join(mount.sourceRoot, relative);
+  } else {
+    sourceTarget = path.resolve(path.dirname(sourceFile), clean);
+  }
 
-  let changed = 0;
-  const toolSourceFiles = await walk(toolsSource);
-  for (const sourceFile of toolSourceFiles) {
-    if (!textExtensions.has(path.extname(sourceFile).toLowerCase())) continue;
-    const relative = path.relative(toolsSource, sourceFile);
-    const destinationFile = path.join(destination, relative);
-    if (!await exists(destinationFile)) continue;
-    const original = await readFile(destinationFile, 'utf8');
-    let updated = original.replace(/\.\.\//g, './');
-    updated = rewriteRouteLocalReferences(updated, 'tools');
-    if (updated !== original) {
-      await writeFile(destinationFile, updated, 'utf8');
-      changed += 1;
+  if (!inside(mount.sourceRoot, sourceTarget)) {
+    if (item.required) errors.push(`${mount.id}: reference escapes section source ${original}`);
+    return null;
+  }
+
+  let sourceStats;
+  try {
+    sourceStats = await stat(sourceTarget);
+  } catch {
+    if (item.required) errors.push(`${mount.id}: missing ${item.kind} ${original} from ${toPosix(path.relative(rootDir, sourceFile))}`);
+    return null;
+  }
+
+  if (sourceStats.isDirectory()) {
+    const indexSource = path.join(sourceTarget, 'index.html');
+    if (!await exists(indexSource)) {
+      if (item.required) errors.push(`${mount.id}: directory reference has no index.html ${original}`);
+      return null;
+    }
+    sourceTarget = indexSource;
+  }
+  if (!(await stat(sourceTarget)).isFile()) return null;
+
+  const outputTarget = mapSourceToOutput(mount, sourceTarget);
+  let rewritten;
+  if (clean.startsWith('/')) {
+    rewritten = `/${toPosix(path.relative(outputRoot, outputTarget))}${suffix}`;
+  } else {
+    let relative = toPosix(path.relative(path.dirname(outputFile), outputTarget));
+    if (!relative.startsWith('.')) relative = `./${relative}`;
+    if (sourceStats.isDirectory() && !relative.endsWith('/')) relative += '/';
+    rewritten = `${relative}${suffix}`;
+  }
+
+  return { sourceTarget, outputTarget, original, rewritten };
+}
+
+async function processFile(mount, sourcePath, outputPath, protectedBytes = false) {
+  const outputKey = path.resolve(outputPath);
+  if (processedOutputs.has(outputKey)) return;
+  processedOutputs.add(outputKey);
+
+  if (!await exists(sourcePath)) {
+    errors.push(`${mount.id}: missing source ${toPosix(path.relative(rootDir, sourcePath))}`);
+    return;
+  }
+  if (excludedFilePattern.test(sourcePath)) {
+    errors.push(`${mount.id}: refused prohibited source ${toPosix(path.relative(rootDir, sourcePath))}`);
+    return;
+  }
+
+  await mkdir(path.dirname(outputPath), { recursive: true });
+  const extension = path.extname(sourcePath).toLowerCase();
+  if (!textExtensions.has(extension)) {
+    await cp(sourcePath, outputPath, { force: true });
+    records.push({ mount: mount.id, source: toPosix(path.relative(rootDir, sourcePath)), output: toPosix(path.relative(outputRoot, outputPath)), transformed: false });
+    return;
+  }
+
+  const originalContent = await readFile(sourcePath, 'utf8');
+  const references = collectReferences(sourcePath, originalContent);
+  const replacements = new Map();
+  const dependencies = [];
+  for (const item of references) {
+    const resolved = await resolveReference(mount, sourcePath, outputPath, item);
+    if (!resolved) continue;
+    replacements.set(resolved.original, resolved.rewritten);
+    dependencies.push(resolved);
+  }
+
+  let outputContent = originalContent;
+  if (!protectedBytes) {
+    for (const [original, rewritten] of [...replacements.entries()].sort((a, b) => b[0].length - a[0].length)) {
+      outputContent = outputContent.split(original).join(rewritten);
     }
   }
+  await writeFile(outputPath, outputContent, 'utf8');
+  records.push({
+    mount: mount.id,
+    source: toPosix(path.relative(rootDir, sourcePath)),
+    output: toPosix(path.relative(outputRoot, outputPath)),
+    transformed: outputContent !== originalContent,
+    dependencyCount: dependencies.length
+  });
 
-  if (!await exists(path.join(destination, 'index.html'))) throw new Error('Tools section entry is missing after assembly.');
-  return { id: 'tools', outputPath: 'tools', rewrittenFiles: changed };
+  for (const dependency of dependencies) {
+    await processFile(mount, dependency.sourceTarget, dependency.outputTarget, false);
+  }
 }
 
-async function mergeHomeDependencies() {
-  const homeRoot = path.join(rootDir, 'home');
-  const merged = [];
-  for (const name of ['assets', 'shared']) {
-    const source = path.join(homeRoot, name);
-    const destination = path.join(outputRoot, name);
-    if (!await exists(source)) continue;
-    await mkdir(destination, { recursive: true });
-    await cp(source, destination, { recursive: true, force: false, errorOnExist: false });
-    merged.push(name);
+for (const mount of mounts) {
+  await rm(path.dirname(mount.entryOutput), { recursive: true, force: true });
+  await processFile(mount, mount.entrySource, mount.entryOutput, mount.protectedEntry);
+  if (!await exists(mount.entryOutput)) errors.push(`${mount.id}: assembled entry is missing`);
+  if (mount.protectedEntry) {
+    const source = await readFile(mount.entrySource);
+    const output = await readFile(mount.entryOutput).catch(() => null);
+    if (!output || !source.equals(output)) errors.push('Protected Capabilities page content changed during assembly.');
   }
-  for (const name of ['runtime-guard.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'favicon.ico']) {
-    const source = path.join(homeRoot, name);
-    const destination = path.join(outputRoot, name);
-    if (await exists(source) && !await exists(destination)) {
-      await cp(source, destination, { force: false });
-      merged.push(name);
-    }
-  }
-  return merged;
 }
 
-await mkdir(outputRoot, { recursive: true });
-const results = [];
-results.push(await assembleTools());
-
-for (const section of sections) {
-  const sourceRoot = path.join(rootDir, section.sourceRoot);
-  const destinationRoot = path.join(outputRoot, section.outputPath);
-  if (!await exists(path.join(sourceRoot, section.entry))) throw new Error(`${section.id}: source entry is missing.`);
-  await copySectionTree(sourceRoot, destinationRoot);
-  const rewrittenFiles = section.protected ? 0 : await rewriteTextTree(destinationRoot, section.outputPath);
-  const assembledEntry = path.join(destinationRoot, section.entry);
-  if (!await exists(assembledEntry)) throw new Error(`${section.id}: assembled entry is missing.`);
-  if (section.protected) {
-    const source = await readFile(path.join(sourceRoot, section.entry));
-    const assembled = await readFile(assembledEntry);
-    if (!source.equals(assembled)) throw new Error('Protected Capabilities page content changed during assembly.');
-  }
-  results.push({ id: section.id, outputPath: section.outputPath, rewrittenFiles, protected: Boolean(section.protected) });
-}
-
-const homeDependencies = await mergeHomeDependencies();
+const filesByMount = records.reduce((counts, record) => {
+  counts[record.mount] = (counts[record.mount] || 0) + 1;
+  return counts;
+}, {});
 const manifest = {
   generatedAt: new Date().toISOString(),
   outputRoot: toPosix(path.relative(rootDir, outputRoot)),
-  sections: results,
-  homeDependenciesMergedWithoutOverwrite: homeDependencies,
+  strategy: 'dependency-graph',
+  sections: mounts.map(mount => ({
+    id: mount.id,
+    route: `/${mount.routePrefix}/`,
+    fileCount: filesByMount[mount.id] || 0,
+    protectedEntry: mount.protectedEntry
+  })),
+  files: records,
+  warnings,
+  errors,
   standaloneSectionRedirectsRequired: false,
   capabilitiesSourceModified: false
 };
 await writeFile(path.join(outputRoot, 'main-sections-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
-console.log(`Assembled ${results.length} canonical main-site sections into ${manifest.outputRoot}.`);
-for (const result of results) console.log(`- /${result.outputPath}/ (${result.rewrittenFiles} route-local reference file(s) adjusted)`);
-console.log(`- Home dependencies merged without overwriting canonical Apps assets: ${homeDependencies.join(', ') || 'none'}`);
+console.log(`Assembled ${mounts.length} canonical sections by dependency graph.`);
+for (const section of manifest.sections) console.log(`- ${section.route}: ${section.fileCount} file(s)${section.protectedEntry ? ' [protected entry]' : ''}`);
+for (const warning of warnings) console.log(`- warning: ${warning}`);
+
+if (errors.length > 0) {
+  console.error(`Main section assembly failed with ${errors.length} error(s):`);
+  for (const error of errors) console.error(`- ${error}`);
+  process.exit(1);
+}
