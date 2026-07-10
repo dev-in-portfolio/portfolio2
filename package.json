@@ -6,11 +6,12 @@
   "description": "Repository-level control plane for the NEXUS Reforged foundation pass.",
   "scripts": {
     "inventory": "node scripts/inventory-catalog.mjs",
+    "inventory:roots": "node scripts/inventory-source-roots.mjs",
     "validate:registries": "node scripts/validate-registries.mjs",
     "verify:protected": "node scripts/verify-protected-files.mjs",
     "validate": "npm run validate:registries && npm run verify:protected",
     "test": "npm run validate",
-    "baseline": "npm run inventory && npm run validate"
+    "baseline": "npm run inventory && npm run inventory:roots && npm run validate"
   },
   "engines": {
     "node": ">=20"
