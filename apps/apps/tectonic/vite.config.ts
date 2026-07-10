@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   root: '.',
   base: './',
-  build: { outDir: 'dist', target: 'esnext', sourcemap: true },
+  build: { outDir: 'dist', target: 'esnext', sourcemap: false },
   plugins: [
     {
       name: 'tectonic-webgpu-fallback',
