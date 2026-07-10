@@ -46,6 +46,10 @@ on:
       - 'scripts/inventory-static-readiness.mjs'
       - '.github/workflows/reforge-static-readiness.yml'
 
+concurrency:
+  group: reforge-static-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
