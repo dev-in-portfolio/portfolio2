@@ -57,6 +57,11 @@ function isRuntimeEndpoint(reference) {
   return clean.startsWith('/api/') || clean.startsWith('/.netlify/functions/') || clean.startsWith('api/');
 }
 
+function isLocalModuleSpecifier(reference) {
+  const clean = cleanReference(reference);
+  return clean.startsWith('./') || clean.startsWith('../') || clean.startsWith('/');
+}
+
 function collectHtmlResources(html) {
   const references = [];
   const externalScriptPattern = /<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>[\s\S]*?<\/script>/gi;
@@ -98,7 +103,7 @@ function collectJavaScriptReferences(js) {
 
   const importPattern = /(?:\bimport\s*(?:\([^)]*\)|[^;]*?\bfrom\s*)|\bexport\s+[^;]*?\bfrom\s*)["'`]([^"'`]+)["'`]/gi;
   for (const match of js.matchAll(importPattern)) {
-    files.push({ reference: match[1], kind: 'module-import' });
+    if (isLocalModuleSpecifier(match[1])) files.push({ reference: match[1], kind: 'module-import' });
   }
 
   const fetchPattern = /\bfetch\(\s*["'`]([^"'`]+)["'`]/gi;
@@ -126,6 +131,7 @@ function resolveSourceReference(baseFile, reference) {
 }
 
 async function addResource(result, seenResources, baseFile, reference, kind, discoveredFrom) {
+  if (kind === 'module-import' && !isLocalModuleSpecifier(reference)) return null;
   const source = resolveSourceReference(baseFile, reference);
   if (!source) return null;
   const key = path.resolve(source);
