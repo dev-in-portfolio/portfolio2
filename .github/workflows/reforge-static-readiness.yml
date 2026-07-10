@@ -1,0 +1,80 @@
+name: Reforge Static Application Readiness
+
+on:
+  push:
+    branches:
+      - 'reforge/**'
+    paths:
+      - 'apps/apps/agents/**'
+      - 'apps/apps/alibi/**'
+      - 'apps/apps/prompt-vault/**'
+      - 'apps/apps/coverage-compass/**'
+      - 'apps/apps/ubr/**'
+      - 'apps/apps/lingolive-ai/**'
+      - 'apps/apps/oracle-pit/**'
+      - 'apps/apps/sleepystory/**'
+      - 'apps/apps/toonstudio/**'
+      - 'apps/apps/splice/**'
+      - 'apps/apps/crossword-arena/**'
+      - 'apps/apps/evening-epic-sudoku/**'
+      - 'apps/shared/**'
+      - 'apps/assets/**'
+      - 'data/apps.registry.json'
+      - 'data/static-targets.registry.json'
+      - 'scripts/validate-static-targets.mjs'
+      - 'scripts/inventory-static-readiness.mjs'
+      - '.github/workflows/reforge-static-readiness.yml'
+  pull_request:
+    paths:
+      - 'apps/apps/agents/**'
+      - 'apps/apps/alibi/**'
+      - 'apps/apps/prompt-vault/**'
+      - 'apps/apps/coverage-compass/**'
+      - 'apps/apps/ubr/**'
+      - 'apps/apps/lingolive-ai/**'
+      - 'apps/apps/oracle-pit/**'
+      - 'apps/apps/sleepystory/**'
+      - 'apps/apps/toonstudio/**'
+      - 'apps/apps/splice/**'
+      - 'apps/apps/crossword-arena/**'
+      - 'apps/apps/evening-epic-sudoku/**'
+      - 'apps/shared/**'
+      - 'apps/assets/**'
+      - 'data/apps.registry.json'
+      - 'data/static-targets.registry.json'
+      - 'scripts/validate-static-targets.mjs'
+      - 'scripts/inventory-static-readiness.mjs'
+      - '.github/workflows/reforge-static-readiness.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    name: Inventory local static applications
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate static target registry
+        run: node scripts/validate-static-targets.mjs
+
+      - name: Inventory static entries and local resources
+        run: node scripts/inventory-static-readiness.mjs --write
+
+      - name: Upload static readiness evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reforge-static-readiness
+          path: reports/reforge/static-readiness.json
+          if-no-files-found: warn
+          retention-days: 14
