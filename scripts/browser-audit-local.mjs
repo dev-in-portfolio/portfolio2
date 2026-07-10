@@ -16,7 +16,10 @@ const outputArgument = valueFor('--output') || 'reports/reforge/browser';
 const outputDir = path.resolve(rootDir, outputArgument);
 const strict = args.includes('--strict');
 const appsRegistry = JSON.parse(await readFile(path.join(rootDir, 'data/apps.registry.json'), 'utf8'));
-const localApps = (appsRegistry.applications || []).filter(app => app.deploymentType !== 'external');
+const deferredApps = (appsRegistry.applications || []).filter(app => app.reforgeScope === 'deferred');
+const localApps = (appsRegistry.applications || []).filter(
+  app => app.deploymentType !== 'external' && app.reforgeScope !== 'deferred'
+);
 const routes = [
   { id: 'apps-console', name: 'Apps Console', href: '/apps/', kind: 'section' },
   ...localApps.map(app => ({ id: app.id, name: app.name, href: app.href, kind: 'application' }))
@@ -44,6 +47,11 @@ const report = {
     launchArgs: ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--ignore-gpu-blocklist']
   },
   viewport: { width: 1366, height: 768 },
+  deferredApplications: deferredApps.map(app => ({
+    id: app.id,
+    name: app.name,
+    reason: app.deferReason || 'deferred'
+  })),
   summary: {},
   routes: []
 };
@@ -199,6 +207,7 @@ const resultCounts = report.routes.reduce((counts, route) => {
 report.summary = {
   expectedRoutes: routes.length,
   checkedRoutes: report.routes.length,
+  deferredApplicationCount: deferredApps.length,
   resultCounts,
   structuralFailureCount: report.routes.filter(route => route.result === 'failed-structural').length,
   runtimeFindingCount: report.routes.filter(route => route.result === 'passed-with-runtime-findings').length,
@@ -208,6 +217,7 @@ report.summary = {
 
 await writeFile(path.join(outputDir, 'local-browser-audit.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 console.log(`\nBrowser audit summary: ${JSON.stringify(report.summary.resultCounts)}`);
+console.log(`Deferred applications: ${deferredApps.map(app => app.id).join(', ') || 'none'}`);
 console.log(`Report: ${path.relative(rootDir, path.join(outputDir, 'local-browser-audit.json')).split(path.sep).join('/')}`);
 
 if (report.summary.structuralFailureCount > 0) process.exit(1);
