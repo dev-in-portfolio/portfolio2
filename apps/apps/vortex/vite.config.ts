@@ -14,4 +14,18 @@ export default defineConfig({
         id.startsWith('/shared/') && !/\.css(?:[?#]|$)/i.test(id),
     },
   },
+  plugins: [
+    {
+      name: 'vortex-market-transport',
+      transformIndexHtml() {
+        return [
+          {
+            tag: 'script',
+            attrs: { src: './vortex-network-guard.js' },
+            injectTo: 'head-prepend',
+          },
+        ]
+      },
+    },
+  ],
 })
