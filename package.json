@@ -25,6 +25,7 @@
     "assemble:static": "node scripts/assemble-static-apps.mjs --output dist",
     "build:site": "node scripts/build-main-site.mjs",
     "build:site:cached": "node scripts/build-main-site.mjs --skip-install --skip-build",
+    "build:netlify": "node scripts/build-netlify-site.mjs",
     "validate": "npm run validate:registries && npm run validate:build-targets && npm run validate:static-targets && npm run validate:external-health && npm run verify:protected",
     "test": "npm run validate",
     "baseline": "npm run inventory && npm run inventory:roots && npm run inventory:deployments && npm run inventory:builds && npm run inventory:static && npm run validate",
