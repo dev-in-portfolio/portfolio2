@@ -7,11 +7,15 @@
   "scripts": {
     "inventory": "node scripts/inventory-catalog.mjs",
     "inventory:roots": "node scripts/inventory-source-roots.mjs",
+    "inventory:roots:report": "node scripts/inventory-source-roots.mjs --write",
+    "inventory:deployments": "node scripts/inventory-deployments.mjs",
+    "inventory:deployments:report": "node scripts/inventory-deployments.mjs --write",
     "validate:registries": "node scripts/validate-registries.mjs",
     "verify:protected": "node scripts/verify-protected-files.mjs",
     "validate": "npm run validate:registries && npm run verify:protected",
     "test": "npm run validate",
-    "baseline": "npm run inventory && npm run inventory:roots && npm run validate"
+    "baseline": "npm run inventory && npm run inventory:roots && npm run inventory:deployments && npm run validate",
+    "baseline:report": "npm run inventory && npm run inventory:roots:report && npm run inventory:deployments:report && npm run validate"
   },
   "engines": {
     "node": ">=20"
