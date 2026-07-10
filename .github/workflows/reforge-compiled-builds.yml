@@ -93,12 +93,13 @@ jobs:
           --source "${{ matrix.source }}"
           --route "${{ matrix.route }}"
 
-      - name: Upload compiled application
+      - name: Upload compiled application and diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: compiled-${{ matrix.id }}
           path: |
             ${{ matrix.source }}/dist
             reports/reforge/builds/${{ matrix.id }}.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
