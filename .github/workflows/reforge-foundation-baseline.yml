@@ -40,10 +40,21 @@ jobs:
         run: npm run inventory
 
       - name: Inventory copied roots and shared-file divergence
-        run: npm run inventory:roots
+        run: npm run inventory:roots:report
+
+      - name: Inventory deployment roots and duplicated functions
+        run: npm run inventory:deployments:report
 
       - name: Validate canonical registry structure
         run: npm run validate:registries
 
       - name: Verify protected files are unchanged
         run: npm run verify:protected
+
+      - name: Upload foundation inventory evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: reforge-foundation-inventory
+          path: reports/reforge/*.json
+          if-no-files-found: error
+          retention-days: 30
