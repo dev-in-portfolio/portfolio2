@@ -67,6 +67,7 @@ for (const target of buildRegistry.targets) {
 
 run(process.execPath, ['scripts/assemble-compiled-apps.mjs', '--output', 'dist']);
 run(process.execPath, ['scripts/assemble-static-apps.mjs', '--output', 'dist']);
+run(process.execPath, ['scripts/validate-assembled-site.mjs', '--output', 'dist']);
 
 await copyRequired(path.join(rootDir, 'config/netlify/main-redirects'), path.join(outputRoot, '_redirects'), 'main redirect rules');
 await copyRequired(path.join(rootDir, 'apps/_headers'), path.join(outputRoot, '_headers'), 'Apps header rules');
@@ -85,7 +86,8 @@ const manifest = {
     { route: '/contact/', project: 'dev-in-portfolio-contact' },
     { route: '/capabilities/', project: 'dev-in-portfolio-capabilities', protected: true }
   ],
-  functionsDirectory: 'apps/netlify/functions',
+  functionsDirectory: 'netlify/functions',
+  assemblyValidated: true,
   capabilitiesSourceModified: false
 };
 await writeFile(path.join(outputRoot, 'nexus-build-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
