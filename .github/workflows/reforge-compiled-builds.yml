@@ -36,6 +36,10 @@ on:
       - 'scripts/browser-audit-local.mjs'
       - '.github/workflows/reforge-compiled-builds.yml'
 
+concurrency:
+  group: reforge-local-apps-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
