@@ -5,35 +5,33 @@ on:
     branches:
       - 'reforge/**'
     paths:
-      - 'apps/apps/helios/**'
-      - 'apps/apps/transit/**'
-      - 'apps/apps/vortex/**'
-      - 'apps/apps/helix/**'
-      - 'apps/apps/tectonic/**'
-      - 'apps/apps/aeon/**'
-      - 'apps/apps/magma/**'
-      - 'apps/apps/string/**'
+      - 'apps/apps/**'
+      - 'apps/shared/**'
+      - 'apps/assets/**'
+      - 'apps/index.html'
+      - 'apps/runtime-guard.js'
       - 'data/apps.registry.json'
       - 'data/build-targets.registry.json'
       - 'data/build-verification.registry.json'
+      - 'data/static-targets.registry.json'
       - 'scripts/verify-built-target.mjs'
       - 'scripts/assemble-compiled-apps.mjs'
+      - 'scripts/assemble-static-apps.mjs'
       - '.github/workflows/reforge-compiled-builds.yml'
   pull_request:
     paths:
-      - 'apps/apps/helios/**'
-      - 'apps/apps/transit/**'
-      - 'apps/apps/vortex/**'
-      - 'apps/apps/helix/**'
-      - 'apps/apps/tectonic/**'
-      - 'apps/apps/aeon/**'
-      - 'apps/apps/magma/**'
-      - 'apps/apps/string/**'
+      - 'apps/apps/**'
+      - 'apps/shared/**'
+      - 'apps/assets/**'
+      - 'apps/index.html'
+      - 'apps/runtime-guard.js'
       - 'data/apps.registry.json'
       - 'data/build-targets.registry.json'
       - 'data/build-verification.registry.json'
+      - 'data/static-targets.registry.json'
       - 'scripts/verify-built-target.mjs'
       - 'scripts/assemble-compiled-apps.mjs'
+      - 'scripts/assemble-static-apps.mjs'
       - '.github/workflows/reforge-compiled-builds.yml'
 
 permissions:
@@ -109,10 +107,10 @@ jobs:
           retention-days: 14
 
   assemble:
-    name: Assemble compiled application routes
+    name: Assemble local application routes
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Check out repository
@@ -130,13 +128,24 @@ jobs:
           path: .
           merge-multiple: true
 
-      - name: Assemble public route tree
+      - name: Assemble compiled public routes
         run: node scripts/assemble-compiled-apps.mjs --clean --output dist
 
-      - name: Upload assembled compiled routes
+      - name: Upload lean compiled route package
         uses: actions/upload-artifact@v4
         with:
           name: nexus-compiled-apps
+          path: dist
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Add local static applications
+        run: node scripts/assemble-static-apps.mjs --output dist
+
+      - name: Upload unified local application preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-local-site
           path: dist
           if-no-files-found: error
           retention-days: 14
