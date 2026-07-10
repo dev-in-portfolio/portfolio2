@@ -9,15 +9,18 @@ on:
       - 'apps/shared/**'
       - 'apps/assets/**'
       - 'apps/netlify/functions/**'
+      - 'apps/netlify.toml'
       - 'apps/index.html'
       - 'apps/runtime-guard.js'
       - 'data/apps.registry.json'
       - 'data/build-targets.registry.json'
       - 'data/build-verification.registry.json'
       - 'data/static-targets.registry.json'
+      - 'package.json'
       - 'scripts/verify-built-target.mjs'
       - 'scripts/assemble-compiled-apps.mjs'
       - 'scripts/assemble-static-apps.mjs'
+      - 'scripts/build-apps-deployment.mjs'
       - 'scripts/validate-assembled-site.mjs'
       - 'scripts/browser-audit-local.mjs'
       - '.github/workflows/reforge-compiled-builds.yml'
@@ -27,15 +30,18 @@ on:
       - 'apps/shared/**'
       - 'apps/assets/**'
       - 'apps/netlify/functions/**'
+      - 'apps/netlify.toml'
       - 'apps/index.html'
       - 'apps/runtime-guard.js'
       - 'data/apps.registry.json'
       - 'data/build-targets.registry.json'
       - 'data/build-verification.registry.json'
       - 'data/static-targets.registry.json'
+      - 'package.json'
       - 'scripts/verify-built-target.mjs'
       - 'scripts/assemble-compiled-apps.mjs'
       - 'scripts/assemble-static-apps.mjs'
+      - 'scripts/build-apps-deployment.mjs'
       - 'scripts/validate-assembled-site.mjs'
       - 'scripts/browser-audit-local.mjs'
       - '.github/workflows/reforge-compiled-builds.yml'
@@ -120,7 +126,7 @@ jobs:
     name: Assemble local application routes
     needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
@@ -163,8 +169,19 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Build exact Apps Netlify deployment package
+        run: npm run build:apps-deployment:cached
+
+      - name: Upload exact Apps Netlify deployment package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-apps-deployment
+          path: apps/dist
+          if-no-files-found: error
+          retention-days: 14
+
   browser-audit:
-    name: Audit local routes in Chromium
+    name: Audit Apps deployment in Chromium
     needs: assemble
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -178,10 +195,10 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Download unified local preview
+      - name: Download exact Apps Netlify deployment package
         uses: actions/download-artifact@v4
         with:
-          name: nexus-local-site
+          name: nexus-apps-deployment
           path: dist
 
       - name: Install current Playwright bootstrap
@@ -198,7 +215,7 @@ jobs:
           python3 -m http.server 4173 --directory dist > /tmp/nexus-preview.log 2>&1 &
           echo $! > /tmp/nexus-preview.pid
           for attempt in $(seq 1 30); do
-            if curl --fail --silent http://127.0.0.1:4173/apps/ > /dev/null; then
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null && curl --fail --silent http://127.0.0.1:4173/apps/ > /dev/null; then
               exit 0
             fi
             sleep 1
@@ -206,8 +223,8 @@ jobs:
           cat /tmp/nexus-preview.log
           exit 1
 
-      - name: Audit Apps console and all local application routes
-        run: node scripts/browser-audit-local.mjs --strict --base-url http://127.0.0.1:4173 --output reports/reforge/browser
+      - name: Audit deployment root, Apps console, and local application routes
+        run: node scripts/browser-audit-local.mjs --strict --include-root --base-url http://127.0.0.1:4173 --output reports/reforge/browser
 
       - name: Record browser toolchain
         if: always()
@@ -220,7 +237,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nexus-local-browser-audit
+          name: nexus-apps-deployment-browser-audit
           path: reports/reforge/browser
           if-no-files-found: warn
           retention-days: 14
