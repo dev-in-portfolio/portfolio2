@@ -1,4 +1,4 @@
-import { cp, mkdir, rm, stat } from 'node:fs/promises';
+import { cp, mkdir, readdir, rm, stat } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,6 +8,7 @@ const rootDir = path.resolve(scriptDir, '..');
 const outputRoot = path.join(rootDir, 'dist');
 const generatedFunctionsRoot = path.join(rootDir, 'netlify/functions');
 const siteName = process.env.SITE_NAME || process.env.NETLIFY_SITE_NAME || '';
+const cached = process.argv.includes('--cached');
 
 const sectionProjects = new Map([
   ['dev-in-portfolio-home', 'home'],
@@ -67,8 +68,15 @@ async function buildMain() {
   await rm(generatedFunctionsRoot, { recursive: true, force: true });
   await mkdir(path.dirname(generatedFunctionsRoot), { recursive: true });
   await cp(path.join(rootDir, 'apps/netlify/functions'), generatedFunctionsRoot, { recursive: true, force: true });
-  run(process.execPath, ['scripts/build-main-site.mjs']);
-  console.log(`Generated main functions: ${toPosix(path.relative(rootDir, generatedFunctionsRoot))}`);
+
+  const functionFiles = (await readdir(generatedFunctionsRoot)).filter(name => name.endsWith('.js')).sort();
+  if (!functionFiles.includes('vortex-market.js')) throw new Error('Generated Netlify functions are missing vortex-market.js.');
+  run(process.execPath, ['scripts/test-vortex-market-function.mjs']);
+
+  const buildArgs = ['scripts/build-main-site.mjs'];
+  if (cached) buildArgs.push('--skip-install', '--skip-build');
+  run(process.execPath, buildArgs);
+  console.log(`Generated main functions: ${toPosix(path.relative(rootDir, generatedFunctionsRoot))} (${functionFiles.length} JavaScript files)`);
 }
 
 if (!siteName) {
