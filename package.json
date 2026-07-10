@@ -14,11 +14,12 @@
     "inventory:builds:report": "node scripts/inventory-build-readiness.mjs --write",
     "validate:registries": "node scripts/validate-registries.mjs",
     "validate:build-targets": "node scripts/validate-build-targets.mjs",
+    "validate:external-health": "node scripts/validate-external-health.mjs",
     "verify:protected": "node scripts/verify-protected-files.mjs",
     "verify:external": "node scripts/verify-external-deployments.mjs",
     "verify:external:report": "node scripts/verify-external-deployments.mjs --write",
     "assemble:compiled": "node scripts/assemble-compiled-apps.mjs --clean --output dist",
-    "validate": "npm run validate:registries && npm run validate:build-targets && npm run verify:protected",
+    "validate": "npm run validate:registries && npm run validate:build-targets && npm run validate:external-health && npm run verify:protected",
     "test": "npm run validate",
     "baseline": "npm run inventory && npm run inventory:roots && npm run inventory:deployments && npm run inventory:builds && npm run validate",
     "baseline:report": "npm run inventory && npm run inventory:roots:report && npm run inventory:deployments:report && npm run inventory:builds:report && npm run validate"
