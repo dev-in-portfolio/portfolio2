@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "registryStatus": "baseline",
+  "baselineCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
+  "policy": "This registry inventories copied section roots before consolidation. It does not select a canonical root by itself.",
+  "roots": [
+    {
+      "id": "root-shell",
+      "path": ".",
+      "role": "portfolio-entry",
+      "route": "/",
+      "requiredPaths": ["index.html"],
+      "optionalPaths": ["netlify.toml"],
+      "canonicalStatus": "current-entry"
+    },
+    {
+      "id": "home",
+      "path": "home",
+      "role": "legacy-full-site-root",
+      "route": "/home/",
+      "requiredPaths": ["index.html", "shared/nexus-topnav-v2.js", "shared/nexus-topnav-v2.css", "shared/nexus-prefs.js", "netlify.toml"],
+      "optionalPaths": ["netlify/functions", "apps", "help", "readme", "case-studies"],
+      "canonicalStatus": "undecided"
+    },
+    {
+      "id": "apps",
+      "path": "apps",
+      "role": "apps-section-deployment-root",
+      "route": "/apps/",
+      "requiredPaths": ["index.html", "shared/nexus-topnav-v2.js", "shared/nexus-topnav-v2.css", "shared/nexus-prefs.js", "netlify.toml", "apps"],
+      "optionalPaths": ["netlify/functions", "assets", "reports"],
+      "canonicalStatus": "active-section-source"
+    },
+    {
+      "id": "utilities",
+      "path": "utilities",
+      "role": "utilities-section-root",
+      "route": "/tools/",
+      "requiredPaths": ["index.html", "shared/nexus-topnav-v2.js", "shared/nexus-topnav-v2.css", "shared/nexus-prefs.js"],
+      "optionalPaths": ["netlify.toml", "apps", "help", "readme"],
+      "canonicalStatus": "undecided"
+    },
+    {
+      "id": "about",
+      "path": "about",
+      "role": "about-section-deployment-root",
+      "route": "/about/",
+      "requiredPaths": ["index.html", "shared/nexus-topnav-v2.js", "shared/nexus-topnav-v2.css", "shared/nexus-prefs.js", "netlify.toml"],
+      "optionalPaths": ["netlify/functions", "apps"],
+      "canonicalStatus": "undecided"
+    },
+    {
+      "id": "contact",
+      "path": "contact",
+      "role": "contact-section-deployment-root",
+      "route": "/contact/",
+      "requiredPaths": ["index.html", "shared/nexus-topnav-v2.js", "shared/nexus-topnav-v2.css", "shared/nexus-prefs.js", "netlify.toml"],
+      "optionalPaths": ["netlify/functions", "apps"],
+      "canonicalStatus": "undecided"
+    },
+    {
+      "id": "capabilities",
+      "path": "capabilities",
+      "role": "protected-capabilities-section-root",
+      "route": "/capabilities/",
+      "requiredPaths": ["index.html", "shared/nexus-topnav-v2.js", "shared/nexus-topnav-v2.css", "shared/nexus-prefs.js"],
+      "optionalPaths": ["netlify.toml", "apps"],
+      "canonicalStatus": "protected-unchanged"
+    }
+  ],
+  "sharedFamilies": [
+    "shared/nexus-topnav-v2.js",
+    "shared/nexus-topnav-v2.css",
+    "shared/nexus-topnav.js",
+    "shared/nexus-topnav.css",
+    "shared/nexus-prefs.js",
+    "shared/nexus-welcome.js",
+    "shared/appdata-client.js",
+    "shared/nexusbar-inline.js"
+  ],
+  "backupPatterns": [
+    ".bak",
+    ".backup",
+    ".old",
+    ".orig"
+  ]
+}
