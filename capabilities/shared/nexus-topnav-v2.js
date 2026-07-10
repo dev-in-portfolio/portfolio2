@@ -559,15 +559,15 @@ if (!nav) {
         var isCapabilities = (h.indexOf("dev-in-portfolio-capabilities") !== -1);
 
         if (label === "Utilities") {
-          return isUtilities ? join(rootPrefix, internalHref) : "https://dev-in-portfolio-utilities.netlify.app/";
+          return isUtilities ? join(rootPrefix, internalHref) : "https://dev-in-portfolio.netlify.app/tools/";
         }
         if (label === "Capabilities") {
-          return isCapabilities ? join(rootPrefix, internalHref) : "https://dev-in-portfolio-capabilities.netlify.app/";
+          return isCapabilities ? join(rootPrefix, internalHref) : "https://dev-in-portfolio.netlify.app/capabilities/";
         }
 
         // On standalone sites, Home/Apps/About/Contact should point back to MAIN hub.
         if (!isMain && (isUtilities || isCapabilities) && (label === "Home" || label === "Apps" || label === "About" || label === "Contact")) {
-          return "https://dev-in-portfolio-home.netlify.app/" + String(internalHref || "");
+          return "https://dev-in-portfolio.netlify.app/" + String(internalHref || "");
         }
 
         return join(rootPrefix, internalHref);
@@ -714,12 +714,12 @@ if (!nav) {
 // =======================
 (function () {
   const CANON = Object.freeze({
-    home:         "https://dev-in-portfolio-home.netlify.app/",
-    apps:         "https://dev-in-portfolio-apps.netlify.app/",
-    utilities:    "https://dev-in-portfolio-utilities.netlify.app/",
-    capabilities: "https://dev-in-portfolio-capabilities.netlify.app/",
-    about:        "https://dev-in-portfolio-about.netlify.app/",
-    contact:      "https://dev-in-portfolio-contact.netlify.app/",
+    home:         "https://dev-in-portfolio.netlify.app/",
+    apps:         "https://dev-in-portfolio.netlify.app/apps/",
+    utilities:    "https://dev-in-portfolio.netlify.app/tools/",
+    capabilities: "https://dev-in-portfolio.netlify.app/capabilities/",
+    about:        "https://dev-in-portfolio.netlify.app/about/",
+    contact:      "https://dev-in-portfolio.netlify.app/contact/",
   });
 
   const LABEL_TO_URL = new Map([

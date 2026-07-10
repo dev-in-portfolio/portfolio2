@@ -434,12 +434,12 @@ if (resetBtn) resetBtn.addEventListener("click", () => {
 // =======================
 (function () {
   const CANON = Object.freeze({
-    home:         "https://dev-in-portfolio-home.netlify.app/",
-    apps:         "https://dev-in-portfolio-apps.netlify.app/",
-    utilities:    "https://dev-in-portfolio-utilities.netlify.app/",
-    capabilities: "https://dev-in-portfolio-capabilities.netlify.app/",
-    about:        "https://dev-in-portfolio-about.netlify.app/",
-    contact:      "https://dev-in-portfolio-contact.netlify.app/",
+    home:         "https://dev-in-portfolio.netlify.app/",
+    apps:         "https://dev-in-portfolio.netlify.app/apps/",
+    utilities:    "https://dev-in-portfolio.netlify.app/tools/",
+    capabilities: "https://dev-in-portfolio.netlify.app/capabilities/",
+    about:        "https://dev-in-portfolio.netlify.app/about/",
+    contact:      "https://dev-in-portfolio.netlify.app/contact/",
   });
 
   const LABEL_TO_URL = new Map([
