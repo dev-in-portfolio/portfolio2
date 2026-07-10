@@ -1,0 +1,18 @@
+{
+  "name": "portfolio2-nexus",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Repository-level control plane for the NEXUS Reforged foundation pass.",
+  "scripts": {
+    "inventory": "node scripts/inventory-catalog.mjs",
+    "validate:registries": "node scripts/validate-registries.mjs",
+    "verify:protected": "node scripts/verify-protected-files.mjs",
+    "validate": "npm run validate:registries && npm run verify:protected",
+    "test": "npm run validate",
+    "baseline": "npm run inventory && npm run validate"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
