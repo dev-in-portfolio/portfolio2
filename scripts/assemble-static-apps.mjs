@@ -14,7 +14,7 @@ const valueFor = flag => {
 const outputRoot = path.resolve(rootDir, valueFor('--output') || 'dist');
 const registry = JSON.parse(await readFile(path.join(rootDir, 'data/static-targets.registry.json'), 'utf8'));
 const errors = [];
-const copiedRootDependencies = new Map();
+const copiedDependencies = new Map();
 const manifest = {
   generatedAt: new Date().toISOString(),
   outputRoot: path.relative(rootDir, outputRoot).split(path.sep).join('/'),
@@ -32,12 +32,14 @@ const manifest = {
     '*.orig',
     '*.map'
   ],
+  dependencyStrategy: 'resolve-root-and-external-relative-references',
   applicationCount: 0,
-  rootDependencies: [],
+  sharedDependencies: [],
   applications: []
 };
 
 const toPosix = value => value.split(path.sep).join('/');
+const localFileExtension = /\.(?:js|mjs|css|json|txt|csv|tsv|xml|glsl|wgsl|wasm|svg|png|jpe?g|webp|gif|ico|mp3|wav|ogg|mp4|webm|vtt|pdf|webmanifest)(?:[?#]|$)/i;
 
 async function exists(target) {
   try {
@@ -80,58 +82,150 @@ function cleanReference(reference) {
   return String(reference || '').split(/[?#]/, 1)[0].trim();
 }
 
-function collectRootReferences(html) {
-  const references = new Set();
-  const externalScriptPattern = /<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>[\s\S]*?<\/script>/gi;
-  for (const match of html.matchAll(externalScriptPattern)) {
-    if (match[1].startsWith('/')) references.add(match[1]);
-  }
+function isRuntimeEndpoint(reference) {
+  const clean = cleanReference(reference);
+  return clean.startsWith('/api/') || clean.startsWith('/.netlify/functions/') || clean.startsWith('api/');
+}
+
+function inside(parent, child) {
+  const relative = path.relative(parent, child);
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+function collectHtmlReferences(html) {
+  const references = [];
+  const scriptPattern = /<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>[\s\S]*?<\/script>/gi;
+  for (const match of html.matchAll(scriptPattern)) references.push({ reference: match[1], kind: 'script' });
 
   const withoutScripts = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
-  const tagPattern = /<(?:link|img|source|video|audio|iframe)\b[^>]*>/gi;
+  const tagPattern = /<(link|img|source|video|audio|iframe)\b[^>]*>/gi;
   const attributePattern = /\b(?:src|href|poster)=["']([^"']+)["']/gi;
   for (const tagMatch of withoutScripts.matchAll(tagPattern)) {
+    const kind = tagMatch[1].toLowerCase();
     for (const attributeMatch of tagMatch[0].matchAll(attributePattern)) {
-      if (attributeMatch[1].startsWith('/')) references.add(attributeMatch[1]);
+      references.push({ reference: attributeMatch[1], kind });
     }
   }
 
-  const workerPattern = /serviceWorker\.register\(\s*["'`]([^"'`]+)["'`]/gi;
-  for (const match of html.matchAll(workerPattern)) {
-    if (match[1].startsWith('/')) references.add(match[1]);
-  }
-  return [...references].filter(reference => !isExternal(reference));
+  const inlineWorkerPattern = /serviceWorker\.register\(\s*["'`]([^"'`]+)["'`]/gi;
+  for (const match of html.matchAll(inlineWorkerPattern)) references.push({ reference: match[1], kind: 'service-worker' });
+  return references;
 }
 
-async function copyRootDependency(reference, appId) {
-  const clean = cleanReference(reference);
-  if (!clean || !clean.startsWith('/')) return null;
-  const relative = clean.replace(/^\/+/, '');
-  const source = path.join(appsRoot, relative);
-  const destination = path.join(outputRoot, relative);
-  const key = path.resolve(destination);
-  if (copiedRootDependencies.has(key)) return copiedRootDependencies.get(key);
+function collectCssReferences(css) {
+  const references = [];
+  const pattern = /url\(\s*["']?([^"')]+)["']?\s*\)/gi;
+  for (const match of css.matchAll(pattern)) references.push({ reference: match[1].trim(), kind: 'css-url' });
+  return references;
+}
 
-  if (!await exists(source)) {
-    errors.push(`${appId}: missing root dependency ${reference} -> ${toPosix(path.relative(rootDir, source))}`);
-    return null;
+function collectJavaScriptReferences(js) {
+  const references = [];
+
+  const serviceWorkerPattern = /serviceWorker\.register\(\s*["'`]([^"'`]+)["'`]/gi;
+  for (const match of js.matchAll(serviceWorkerPattern)) references.push({ reference: match[1], kind: 'service-worker' });
+
+  const workerPattern = /new\s+(?:Shared)?Worker\(\s*["'`]([^"'`]+)["'`]/gi;
+  for (const match of js.matchAll(workerPattern)) references.push({ reference: match[1], kind: 'worker' });
+
+  const importPattern = /(?:\bimport\s*(?:\([^)]*\)|[^;]*?\bfrom\s*)|\bexport\s+[^;]*?\bfrom\s*)["'`]([^"'`]+)["'`]/gi;
+  for (const match of js.matchAll(importPattern)) references.push({ reference: match[1], kind: 'module-import' });
+
+  const fetchPattern = /\bfetch\(\s*["'`]([^"'`]+)["'`]/gi;
+  for (const match of js.matchAll(fetchPattern)) {
+    const reference = match[1];
+    if (!isExternal(reference) && !isRuntimeEndpoint(reference) && localFileExtension.test(reference)) {
+      references.push({ reference, kind: 'fetch-file' });
+    }
   }
-  const details = await stat(source);
-  if (!details.isFile()) {
-    errors.push(`${appId}: root dependency is not a file ${reference}`);
-    return null;
+
+  return references;
+}
+
+function resolveReference(sourceBaseFile, destinationBaseFile, reference) {
+  const clean = cleanReference(reference);
+  if (!clean || clean.startsWith('#') || clean.startsWith('data:') || clean.startsWith('blob:') || isExternal(clean) || clean.includes('${')) return null;
+
+  if (clean.startsWith('/')) {
+    const relative = clean.replace(/^\/+/, '');
+    return {
+      clean,
+      source: path.join(appsRoot, relative),
+      destination: path.join(outputRoot, relative),
+      scope: 'root-absolute'
+    };
   }
-  await mkdir(path.dirname(destination), { recursive: true });
-  await cp(source, destination, { force: true });
-  const record = {
-    reference,
-    requestedBy: [appId],
-    sourcePath: toPosix(path.relative(rootDir, source)),
-    outputPath: toPosix(path.relative(rootDir, destination)),
-    bytes: details.size,
-    sha256: await hashFile(destination)
+
+  return {
+    clean,
+    source: path.resolve(path.dirname(sourceBaseFile), clean),
+    destination: path.resolve(path.dirname(destinationBaseFile), clean),
+    scope: 'relative'
   };
-  copiedRootDependencies.set(key, record);
+}
+
+async function copyDependency(appId, appSourceRoot, sourceBaseFile, destinationBaseFile, item, seen) {
+  const resolved = resolveReference(sourceBaseFile, destinationBaseFile, item.reference);
+  if (!resolved) return null;
+
+  if (!inside(outputRoot, resolved.destination)) {
+    errors.push(`${appId}: dependency escapes output ${item.reference} -> ${toPosix(path.relative(rootDir, resolved.destination))}`);
+    return null;
+  }
+
+  const key = `${path.resolve(resolved.source)}=>${path.resolve(resolved.destination)}`;
+  if (seen.has(key)) return copiedDependencies.get(key) || null;
+  seen.add(key);
+
+  if (!await exists(resolved.source)) {
+    errors.push(`${appId}: missing ${item.kind} ${item.reference} -> ${toPosix(path.relative(rootDir, resolved.source))}`);
+    return null;
+  }
+
+  const sourceStats = await stat(resolved.source);
+  if (!sourceStats.isFile()) {
+    errors.push(`${appId}: dependency is not a file ${item.reference} -> ${toPosix(path.relative(rootDir, resolved.source))}`);
+    return null;
+  }
+
+  const sourceInsideApp = inside(appSourceRoot, resolved.source);
+  const destinationPresent = await exists(resolved.destination);
+  if (!sourceInsideApp || !destinationPresent) {
+    if (!shouldInclude(resolved.source)) {
+      errors.push(`${appId}: referenced dependency is excluded by deployment policy ${item.reference}`);
+      return null;
+    }
+    await mkdir(path.dirname(resolved.destination), { recursive: true });
+    await cp(resolved.source, resolved.destination, { force: true });
+  }
+
+  const dependencyKey = path.resolve(resolved.destination);
+  let record = copiedDependencies.get(dependencyKey);
+  if (!record) {
+    record = {
+      sourcePath: toPosix(path.relative(rootDir, resolved.source)),
+      outputPath: toPosix(path.relative(rootDir, resolved.destination)),
+      publicReference: item.reference,
+      scope: resolved.scope,
+      kinds: [item.kind],
+      requestedBy: [appId],
+      bytes: sourceStats.size,
+      sha256: await hashFile(resolved.destination)
+    };
+    copiedDependencies.set(dependencyKey, record);
+  } else {
+    if (!record.requestedBy.includes(appId)) record.requestedBy.push(appId);
+    if (!record.kinds.includes(item.kind)) record.kinds.push(item.kind);
+  }
+
+  const extension = path.extname(resolved.source).toLowerCase();
+  let nested = [];
+  if (extension === '.css') nested = collectCssReferences(await readFile(resolved.source, 'utf8'));
+  if (extension === '.js' || extension === '.mjs') nested = collectJavaScriptReferences(await readFile(resolved.source, 'utf8'));
+  for (const nestedItem of nested) {
+    await copyDependency(appId, appSourceRoot, resolved.source, resolved.destination, nestedItem, seen);
+  }
+
   return record;
 }
 
@@ -158,12 +252,23 @@ for (const target of registry.targets || []) {
   }
 
   const html = await readFile(sourceEntry, 'utf8');
-  const rootReferences = collectRootReferences(html);
-  const rootDependencyResults = [];
-  for (const reference of rootReferences) {
-    const record = await copyRootDependency(reference, target.id);
-    if (record && !record.requestedBy.includes(target.id)) record.requestedBy.push(target.id);
-    rootDependencyResults.push({ reference, present: Boolean(record) });
+  const references = collectHtmlReferences(html);
+  const dependencyResults = [];
+  const seen = new Set();
+  for (const item of references) {
+    const resolved = resolveReference(sourceEntry, destinationEntry, item.reference);
+    if (!resolved) continue;
+    const sourceInsideApp = inside(source, resolved.source);
+    const record = await copyDependency(target.id, source, sourceEntry, destinationEntry, item, seen);
+    dependencyResults.push({
+      reference: item.reference,
+      kind: item.kind,
+      scope: resolved.scope,
+      sourceInsideApp,
+      sourcePath: toPosix(path.relative(rootDir, resolved.source)),
+      outputPath: toPosix(path.relative(rootDir, resolved.destination)),
+      present: Boolean(record) && await exists(resolved.destination)
+    });
   }
 
   const files = await walkFiles(destination);
@@ -182,8 +287,9 @@ for (const target of registry.targets || []) {
     fileCount: files.length,
     totalBytes: fileStats.reduce((sum, file) => sum + file.bytes, 0),
     largestFile,
-    rootDependencyResults,
-    dependenciesResolved: rootDependencyResults.every(result => result.present)
+    dependencyResults,
+    externalDependencyCount: dependencyResults.filter(result => !result.sourceInsideApp).length,
+    dependenciesResolved: dependencyResults.every(result => result.present)
   });
 }
 
@@ -191,15 +297,15 @@ manifest.applicationCount = manifest.applications.length;
 if (manifest.applicationCount !== registry.expectedTargetCount) {
   errors.push(`Assembled ${manifest.applicationCount} static applications; expected ${registry.expectedTargetCount}`);
 }
-manifest.rootDependencies = [...copiedRootDependencies.values()].sort((a, b) => a.outputPath.localeCompare(b.outputPath));
+manifest.sharedDependencies = [...copiedDependencies.values()].sort((a, b) => a.outputPath.localeCompare(b.outputPath));
 
 const manifestPath = path.join(outputRoot, 'static-apps-manifest.json');
 await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
 console.log(`Assembled ${manifest.applicationCount} static applications into ${toPosix(path.relative(rootDir, outputRoot))}`);
-console.log(`- root shell dependencies: ${manifest.rootDependencies.length}`);
+console.log(`- resolved shared dependencies: ${manifest.sharedDependencies.length}`);
 for (const app of manifest.applications) {
-  console.log(`- ${app.id}: ${app.publicRoute} (${app.fileCount} files, ${app.totalBytes} bytes, dependencies resolved: ${app.dependenciesResolved ? 'yes' : 'no'})`);
+  console.log(`- ${app.id}: ${app.publicRoute} (${app.fileCount} files, ${app.totalBytes} bytes, external dependencies: ${app.externalDependencyCount}, resolved: ${app.dependenciesResolved ? 'yes' : 'no'})`);
 }
 
 if (errors.length > 0) {
