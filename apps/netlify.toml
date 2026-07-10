@@ -1,11 +1,16 @@
 [build]
-  publish = "."
-  functions = "netlify/functions"
+  command = "cd .. && npm run build:apps-deployment"
+  publish = "dist"
 
-# Optional: route /api/* to matching function name (strip /api/)
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--no-audit --no-fund"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
-
-# Basic CORS for function responses is handled in code.
