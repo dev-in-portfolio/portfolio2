@@ -31,5 +31,11 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Run catalog inventory and foundation validation
-        run: npm run baseline
+      - name: Compare canonical registry with legacy catalog
+        run: npm run inventory
+
+      - name: Validate canonical registry structure
+        run: npm run validate:registries
+
+      - name: Verify protected files are unchanged
+        run: npm run verify:protected
