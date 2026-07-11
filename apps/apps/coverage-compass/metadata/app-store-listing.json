@@ -1,0 +1,31 @@
+{
+  "appName": "Coverage Compass",
+  "subtitle": "Medicare coverage decision support",
+  "shortDescription": "Local-first Medicare decision support with printable report packets.",
+  "longDescription": "Coverage Compass helps users turn a Medicare coverage-structure assessment into premium printable conversation guides, verification checklists, and decision-defense packets. It is educational decision support, not plan sales, insurance enrollment, brokerage, or legal, financial, or medical advice.",
+  "categoryCandidates": ["Medical", "Finance"],
+  "keywords": ["Medicare", "Medigap", "Medicare Advantage", "coverage", "decision support", "retirement", "health insurance"],
+  "inAppPurchaseCandidates": [
+    {"id": "agent-ready", "name": "Agent Ready Packet", "type": "one-time report"},
+    {"id": "switch-defense", "name": "Switch Defense Sheet", "type": "one-time report"},
+    {"id": "phone-script", "name": "Phone Call Script", "type": "one-time report"},
+    {"id": "doorstep-event", "name": "Doorstep / Event Response Sheet", "type": "one-time report"},
+    {"id": "family-review", "name": "Family Review Packet", "type": "one-time report"},
+    {"id": "annual-review", "name": "Annual Review Checklist", "type": "one-time report"},
+    {"id": "red-flag", "name": "Red Flag Report", "type": "one-time report"},
+    {"id": "enrollment-status", "name": "Enrollment Status Review Packet", "type": "one-time report"},
+    {"id": "full-bundle", "name": "Full Coverage Compass Report Bundle", "type": "one-time bundle"}
+  ],
+  "supportUrl": null,
+  "marketingUrl": null,
+  "privacyPolicyUrl": null,
+  "reviewNotes": "Current private-beta scope is local-first educational decision support. The app does not sell insurance, enroll users in plans, or connect to Medicare.gov accounts. Printable packets are saved or printed through the browser's native print flow.",
+  "launchBlockers": [
+    "Final legal entity and support contact",
+    "Counsel-reviewed legal pack",
+    "Production deployment URL",
+    "Final privacy policy URL",
+    "Store screenshots",
+    "Platform-specific privacy labels"
+  ]
+}

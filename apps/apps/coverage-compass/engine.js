@@ -52,6 +52,7 @@ const state = {
   i: 0,
   stage: "front",
   answers: {},
+  completedAt: null,
   flags: {},
   candidates: { MEDIGAP: 0, MA_HMO: 0, MA_PPO: 0 },
   axes: {
@@ -93,6 +94,8 @@ const state = {
   }
 };
 
+const DECLARED_AXES = Object.freeze(Object.keys(state.axes));
+
 // ================================
 // 3) HELPERS + TRACE
 // ================================
@@ -105,8 +108,18 @@ function setFlag(k, v = true, why) {
 }
 function hasFlag(k) { return !!state.flags[k]; }
 function addAxis(k, v, why) {
-  state.axes[k] = (state.axes[k] || 0) + v;
-  state.audit.axisDeltas.push({ axis: k, delta: v, why: why || "" });
+  const mapped = {
+    // Backward-compatible audit names from older question drafts.
+    freedom: "networkDependency",
+    planComplexityTolerance: "adminTolerance"
+  };
+  const axis = mapped[k] || k;
+  if (!Object.prototype.hasOwnProperty.call(state.axes, axis)) {
+    state.audit.axisDeltas.push({ axis: k, mappedAxis: null, delta: v, why: why || "", ignored: true });
+    return;
+  }
+  state.axes[axis] = (state.axes[axis] || 0) + v;
+  state.audit.axisDeltas.push({ axis, originalAxis: axis === k ? null : k, delta: v, why: why || "" });
 }
 function addWhy(s) { state.explanations.why.push(s); }
 function addTrade(s) { state.explanations.tradeoffs.push(s); }
@@ -835,12 +848,12 @@ const questions = [
       (v) => {
         if (v <= 1) {
           if (idx === 0 || idx === 1 || idx === 4) {
-            addAxis("planComplexityTolerance", -0.05, "Medication complexity" );
+            addAxis("adminTolerance", -0.05, "Medication complexity" );
             addAxis("predictability", 0.05, "Medication cost concern" );
             addAxis("utilization", 0.05, "Higher likely Rx utilization" );
             setFlag("high_rx_complexity", true, "Higher Rx complexity");
           }
-          if (idx === 2) addAxis("freedom", -0.03, "Pharmacy preference can behave like a network constraint");
+          if (idx === 2) addAxis("networkDependency", 0.03, "Pharmacy preference can behave like a network constraint");
           if (idx === 5) addAxis("predictability", 0.07, "Prefers predictable Rx spend");
           if (idx === 8) setFlag("wants_admin_penalty", true, "Wants admin complexity penalties");
           if (idx === 9) setFlag("stability_bias", true, "Stability bias" );
@@ -868,7 +881,7 @@ const questions = [
         if (v <= 1) {
           addAxis("utilization", 0.05, "Post-acute likelihood" );
           addAxis("predictability", 0.05, "Wants predictable post-acute costs" );
-          if (idx === 4) addAxis("freedom", 0.04, "Rehab network concern" );
+          if (idx === 4) addAxis("networkDependency", 0.04, "Rehab network concern" );
           if (idx === 5) addAxis("regretSensitivity", 0.05, "Facility cost regret" );
         }
       }
@@ -1235,18 +1248,25 @@ function computeConfidence(ranked) {
 // ================================
 // 7) SAVE / LOAD
 // ================================
+const STORAGE_KEY = "coverage_compass_state_v1";
+const LEGACY_STORAGE_KEY = "mde_build";
+
 function saveState() {
   try {
-    localStorage.setItem("mde_build", JSON.stringify({ answers: state.answers, idx: state.i }));
+    const payload = { answers: state.answers, idx: state.i, completedAt: state.completedAt || null };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (_) {}
 }
 
 function loadState() {
   try {
-    const d = JSON.parse(localStorage.getItem("mde_build"));
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+    const d = JSON.parse(raw);
     if (d && d.answers) {
       state.answers = d.answers || {};
       state.i = typeof d.idx === "number" ? d.idx : 0;
+      state.completedAt = typeof d.completedAt === "string" ? d.completedAt : null;
+      if (!localStorage.getItem(STORAGE_KEY)) saveState();
       return true;
     }
   } catch (_) {}
@@ -1324,9 +1344,24 @@ function renderComparison(containerId, winnerKey, runnerUpKey) {
   if (!runnerUpKey) { el.innerHTML = ""; return; }
 
   const dict = {
-    MEDIGAP: { net: "Any Medicare provider", auth: "Rare", prem: "$100–$250+", moop: "Very low" },
-    MA_HMO: { net: "Local network", auth: "Common", prem: "$0–$50", moop: "$3k–$9k" },
-    MA_PPO: { net: "Network + OON", auth: "Common", prem: "$0–$80", moop: "$4k–$9k" }
+    MEDIGAP: {
+      net: "Broad access to Medicare-accepting providers",
+      auth: "Generally less plan prior authorization",
+      prem: "Higher monthly premium pressure",
+      moop: "Lower medical cost-sharing variability"
+    },
+    MA_HMO: {
+      net: "Local contracted provider network",
+      auth: "Plan authorization rules commonly apply",
+      prem: "Often lower monthly premium pressure",
+      moop: "Higher variable medical cost exposure"
+    },
+    MA_PPO: {
+      net: "Contracted network with limited out-of-network access",
+      auth: "Plan authorization rules commonly apply",
+      prem: "Lower-to-moderate monthly premium pressure",
+      moop: "Higher variable medical cost exposure"
+    }
   };
   const w = dict[winnerKey] || dict.MA_PPO;
   const r = dict[runnerUpKey] || dict.MA_HMO;
@@ -1352,12 +1387,49 @@ function renderComparison(containerId, winnerKey, runnerUpKey) {
 
 function getExportText(primary) {
   const uniq = (arr) => [...new Set(arr)];
+  const out = pickWinner();
+  const result = {
+    ...out.primary,
+    ...(primary && typeof primary === "object" ? primary : {}),
+    confidence: (primary && primary.confidence) || out.confidence
+  };
   const why = uniq(state.explanations.why).map(x => `- ${x}`).join("\n");
+  const trades = uniq(state.explanations.tradeoffs).map(x => `- ${x}`).join("\n");
+  const changes = uniq(state.explanations.changes).map(x => `- ${x}`).join("\n");
   const warns = uniq(state.hardWarnings).map(x => `- ${x}`).join("\n");
   const locks = uniq(state.hardBlocks).map(x => `- ${x}`).join("\n");
-  const sim = state.sim ? JSON.stringify(state.sim, null, 2) : "";
+  // Dynamic Defense Script generation based on the winning plan
+  let defenseScript = "";
+  if (result.key === C.MEDIGAP) {
+    defenseScript = `
+DECISION DEFENSE SCRIPT 
+(Keep this by the phone or hand it to an agent at your door)
 
-  return `Coverage Compass Result\n\nRecommendation: ${primary.name}\nScore: ${primary.score.toFixed(2)}\nConfidence: ${primary.confidence}\n\nWHY\n${why || "- (none)"}\n\nWARNINGS\n${warns || "- (none)"}\n\nLOCKOUTS / BLOCKS\n${locks || "- (none)"}\n\nScenario Simulator (summary)\n${sim}`;
+AGENT PITCH: "I can show you a plan with a lower premium and extra benefits."
+YOUR RESPONSE: "Thank you. I am keeping my Medigap-style coverage focus because I want broad provider access, predictable medical costs, and less risk that a future change will limit my options. Please send the details in writing. I will verify doctors, prescriptions, network rules, and any switching consequences before I consider a change."
+`;
+  } else if (result.key === C.MA_PPO) {
+    defenseScript = `
+DECISION DEFENSE SCRIPT 
+(Keep this by the phone or hand it to an agent at your door)
+
+AGENT PITCH: "I have an HMO in your area with low copays and extra benefits."
+YOUR RESPONSE: "Thank you. I am reviewing a PPO because I want some provider flexibility and I need the plan rules, doctor access, prescription coverage, and out-of-network costs to be clear before I make a change. Please send the plan information in writing. I will compare it carefully and decide later."
+`;
+  } else if (result.key === C.MA_HMO) {
+    defenseScript = `
+DECISION DEFENSE SCRIPT 
+(Keep this by the phone or hand it to an agent at your door)
+
+AGENT PITCH: "I can switch you to a different HMO with extra benefits."
+YOUR RESPONSE: "Thank you. I am only considering changes that preserve my doctors, specialists, prescriptions, pharmacy access, and the plan rules I can realistically follow. Please leave the information with me in writing. I will review whether the network, referrals, prior approval rules, and yearly cost exposure fit my actual needs before I decide."
+`;
+  }
+
+  return `Coverage Compass Result\n\nRecommendation: ${result.name}\nScore: ${Number(result.score || 0).toFixed(2)}\nConfidence: ${result.confidence}\n\nWHY\n${why || "- (none)"}\n\nTRADEOFFS\n${trades || "- (none)"}\n\nWHAT COULD CHANGE THIS LATER\n${changes || "- (none)"}\n\nWARNINGS\n${warns || "- (none)"}\n\nLOCKOUTS / BLOCKS\n${locks || "- (none)"}\n\n${defenseScript}\nQUALITATIVE SCENARIO GUIDANCE
+- Compare monthly premium pressure, variable medical cost exposure, provider-network dependency, administrative friction, and annual review burden.
+- Coverage Compass does not provide a quote, plan-specific estimate, probability forecast, or personalized cost projection.
+- Verify actual premiums, benefits, networks, formularies, authorization rules, and maximum out-of-pocket amounts with current official plan materials.`;
 }
 
 // ================================
@@ -1365,6 +1437,7 @@ function getExportText(primary) {
 // ================================
 window.CoverageCompass = {
   STATE_RULES, STATE_LIST,
+  DECLARED_AXES,
   state,
   questions,
   recomputeAll,
@@ -1380,4 +1453,3 @@ window.CoverageCompass = {
 };
 
 // Back-compat alias
-

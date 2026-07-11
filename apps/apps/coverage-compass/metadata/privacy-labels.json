@@ -1,0 +1,39 @@
+{
+  "lastReviewed": "2026-07-10",
+  "modelVersion": "2.0.0-hardening.1",
+  "currentRuntime": {
+    "analytics": false,
+    "thirdPartyTracking": false,
+    "accountRequired": false,
+    "serverSync": false,
+    "payments": false,
+    "urlAnswerImport": false,
+    "fullAnswerShareLinks": false
+  },
+  "dataStoredLocally": [
+    "questionnaire answers",
+    "print packet context",
+    "organization profile",
+    "export preferences",
+    "private-beta report access state"
+  ],
+  "dataCollectedByDeveloper": [],
+  "sensitiveDataWarnings": [
+    "Users may enter health, financial, geography, prescription, and plan-history answers.",
+    "Users may enter identifying details in print packet context despite in-app warnings.",
+    "Full local exports and printed packets may contain sensitive data.",
+    "Safe export is limited to a generalized non-identifying result summary."
+  ],
+  "runtimeControls": [
+    "Production build removes the URL share-link control.",
+    "Preflight removes URL fragments before the legacy application can import answers.",
+    "Clear All Local Data removes every Coverage Compass-prefixed localStorage key.",
+    "Questionnaire answers are not sent to a server by default."
+  ],
+  "storeDisclosureDraft": {
+    "dataLinkedToUser": [],
+    "dataNotLinkedToUser": [],
+    "notCollectedByDefault": true,
+    "notes": "Accurate only while the app remains local-only with no analytics, accounts, backend sync, payments, crash reporting, support upload, native-wrapper telemetry, or restored URL answer imports."
+  }
+}
