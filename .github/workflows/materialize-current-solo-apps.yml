@@ -1,4 +1,3 @@
-# trigger: workflow existed before this push
 name: Materialize Current Solo Apps
 
 on:
@@ -7,6 +6,11 @@ on:
       - main
     paths:
       - '.github/workflows/materialize-current-solo-apps.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'scripts/.solo-app-materialize-trigger'
   workflow_dispatch:
 
 permissions:
@@ -22,7 +26,7 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Check out main
+      - name: Check out current main
         uses: actions/checkout@v4
         with:
           ref: main
@@ -32,19 +36,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3 \
-            'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-3618-722f-9c27-f5f878240b3f/raw?se=2026-07-11T01:26:49Z&sp=r&sv=2026-02-06&sr=b&scid=432a3dc4-0aff-572a-88f9-bf0cf3f385e6&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T02:02:44Z&ske=2026-07-12T02:02:44Z&sks=b&skv=2026-02-06&sig=ZAu9svPP/xXSRlEzyZqBL6ohykdhj%2BioNaqEYqd%2BbN0%3D' \
-            --output /tmp/alibi-netlify-site.zip
-          curl --fail --location --retry 3 \
-            'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-4464-722f-be61-0b74cfa28f5c/raw?se=2026-07-11T01:26:57Z&sp=r&sv=2026-02-06&sr=b&scid=6fa43118-a7d6-5492-af11-7160767d5053&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T01:56:46Z&ske=2026-07-12T01:56:46Z&sks=b&skv=2026-02-06&sig=%2Bke5qpy9ThcracEhuMU6CiqkwH13xI/6i2fCoubHmyM%3D' \
-            --output /tmp/coverage-compass-dist.zip
+          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-123c-722f-ba29-69b29a5d06d3/raw?se=2026-07-11T01:31:39Z&sp=r&sv=2026-02-06&sr=b&scid=1416bd8f-d63e-5c39-9ba6-bf4782e77663&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T01:52:52Z&ske=2026-07-12T01:52:52Z&sks=b&skv=2026-02-06&sig=y4R6J7xoDRAg8dye92Q134Nu3nC8hfebWdCZFfRG32s%3D' --output /tmp/alibi-netlify-site.zip
+          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-1768-722f-a794-579086431737/raw?se=2026-07-11T01:31:46Z&sp=r&sv=2026-02-06&sr=b&scid=740f2f70-fdd6-50f2-ac65-adcab3bb108b&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T01:54:47Z&ske=2026-07-12T01:54:47Z&sks=b&skv=2026-02-06&sig=UWWjzdCkWV4sj5qAJn5PwaQh7DnFItJLyw7UU8hhK8I%3D' --output /tmp/coverage-compass-dist.zip
           echo '9cfe80bfdc8c019561ea2b2eae1698b841c57cc836bdc7df707cfb0eb61c524a  /tmp/alibi-netlify-site.zip' | sha256sum --check --strict
           echo '069f0baeb47725de5aed78a5800f41d60353398ccd5ac667d7ca0c8f833c3d2f  /tmp/coverage-compass-dist.zip' | sha256sum --check --strict
 
       - name: Replace embedded applications
-        shell: bash
         run: |
-          set -euo pipefail
           rm -rf apps/apps/alibi apps/apps/coverage-compass
           mkdir -p apps/apps/alibi apps/apps/coverage-compass
           unzip -q /tmp/alibi-netlify-site.zip -d apps/apps/alibi
@@ -58,7 +56,6 @@ jobs:
           import json
           from pathlib import Path
 
-          root = Path('.')
           apps = {
               'alibi': {
                   'canonical': 'https://dev-in-portfolio.netlify.app/apps/alibi/',
@@ -77,12 +74,10 @@ jobs:
           }
 
           def add_once(text, marker, insertion, before):
-              if marker in text:
-                  return text
-              return text.replace(before, f'{insertion}\n{before}', 1)
+              return text if marker in text else text.replace(before, f'{insertion}\n{before}', 1)
 
           for slug, meta in apps.items():
-              directory = root / 'apps' / 'apps' / slug
+              directory = Path('apps/apps') / slug
               page = directory / 'index.html'
               html = page.read_text(encoding='utf-8')
               head = (
@@ -102,7 +97,6 @@ jobs:
               )
               html = add_once(html, '/shared/nexus-topnav-v2.js', scripts, '</body>')
               page.write_text(html, encoding='utf-8')
-
               provenance = {
                   'sourceRepository': meta['source'],
                   'sourceCommit': meta['commit'],
@@ -112,18 +106,13 @@ jobs:
               }
               (directory / '.portfolio-source.json').write_text(json.dumps(provenance, indent=2) + '\n', encoding='utf-8')
 
-          coverage_404 = root / 'apps/apps/coverage-compass/404.html'
-          text = coverage_404.read_text(encoding='utf-8')
-          text = text.replace('https://coverage-compass.app/', apps['coverage-compass']['canonical'])
-          coverage_404.write_text(text, encoding='utf-8')
+          coverage_404 = Path('apps/apps/coverage-compass/404.html')
+          coverage_404.write_text(coverage_404.read_text(encoding='utf-8').replace('https://coverage-compass.app/', apps['coverage-compass']['canonical']), encoding='utf-8')
 
-          registry_path = root / 'data/apps.registry.json'
+          registry_path = Path('data/apps.registry.json')
           registry = json.loads(registry_path.read_text(encoding='utf-8'))
           for app in registry['applications']:
-              if app['id'] == 'alibi':
-                  app['lifecycleStatus'] = 'current-standalone-swap'
-                  app['verification'] = {'status': 'pending'}
-              if app['id'] == 'coverage-compass':
+              if app['id'] in {'alibi', 'coverage-compass'}:
                   app.pop('reforgeScope', None)
                   app.pop('deferReason', None)
                   app['lifecycleStatus'] = 'current-standalone-swap'
@@ -132,12 +121,12 @@ jobs:
 
           manifest = {'schemaVersion': 1, 'applications': {}}
           for slug, meta in apps.items():
-              directory = root / 'apps/apps' / slug
-              records = []
+              directory = Path('apps/apps') / slug
+              files = []
               for file in sorted(p for p in directory.rglob('*') if p.is_file()):
                   payload = file.read_bytes()
-                  records.append({'path': file.relative_to(directory).as_posix(), 'bytes': len(payload), 'sha256': hashlib.sha256(payload).hexdigest()})
-              manifest['applications'][slug] = {**meta, 'files': records}
+                  files.append({'path': file.relative_to(directory).as_posix(), 'bytes': len(payload), 'sha256': hashlib.sha256(payload).hexdigest()})
+              manifest['applications'][slug] = {**meta, 'files': files}
           Path('reports/reforge').mkdir(parents=True, exist_ok=True)
           Path('reports/reforge/solo-app-swap.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
           PY
@@ -150,13 +139,11 @@ jobs:
           npm run verify:protected
           test -f apps/apps/alibi/src/runtime-hardening.js
           test -f apps/apps/coverage-compass/src/browser/runtime.js
-          test -f apps/apps/coverage-compass/build-metadata.json
           grep -q '2.0.0-modular.1' apps/apps/coverage-compass/build-metadata.json
 
       - name: Remove temporary transfer files
-        shell: bash
         run: |
-          rm -f tmp/solo-deploy-bridge.html
+          rm -f tmp/solo-deploy-bridge.html scripts/.solo-app-materialize-trigger
           rm -f .github/workflows/materialize-current-solo-apps.yml
 
       - name: Commit exact standalone swaps
@@ -165,6 +152,6 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A apps/apps/alibi apps/apps/coverage-compass data/apps.registry.json reports/reforge/solo-app-swap.json tmp/solo-deploy-bridge.html .github/workflows/materialize-current-solo-apps.yml
+          git add -A apps/apps/alibi apps/apps/coverage-compass data/apps.registry.json reports/reforge/solo-app-swap.json tmp/solo-deploy-bridge.html scripts/.solo-app-materialize-trigger .github/workflows/materialize-current-solo-apps.yml
           git commit -m 'feat(apps): replace Alibi and Coverage Compass from standalone releases'
           git push origin HEAD:main
