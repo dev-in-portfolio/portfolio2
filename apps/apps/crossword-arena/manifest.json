@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "Crossword Arena",
+  "short_name": "Crossword",
+  "description": "A responsive, keyboard-first crossword puzzle game with local progress and offline play.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070A12",
+  "theme_color": "#D946EF",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

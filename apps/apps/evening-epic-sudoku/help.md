@@ -1,21 +1,35 @@
-# Evening Epic Sudoku - User Guide
+# Evening+ Epic Sudoku — User Guide
 
-Evening Epic Sudoku is a premium, keyboard-first Sudoku application featuring daily puzzles, stats tracking, notes, and an undo/redo system.
+Epic Sudoku offers classic generated puzzles and a deterministic daily puzzle that changes at the player’s local midnight.
 
-## Features
-- Keyboard-first interaction for rapid solving.
-- Notes system for tracking potential numbers.
-- Undo/redo history.
-- Daily puzzles and detailed statistics tracking.
+## Playing
 
-## Step-by-Step Usage
-1. Launch the application and select a difficulty or the daily puzzle.
-2. Click on a cell or use arrow keys to navigate the grid.
-3. Type a number to fill the cell.
-4. Toggle "Notes" mode to add potential candidates to a cell instead of a final answer.
-5. Use undo/redo buttons to correct mistakes.
+1. Choose Classic or Daily mode.
+2. Choose an estimated difficulty.
+3. Select a cell and enter a number using the keypad or keyboard.
+4. Use arrow keys to move between cells.
+5. Toggle Notes mode to enter candidate numbers.
+6. Use Undo or Redo to navigate recent changes.
+
+## Settings
+
+- **Conflict Guard** blocks duplicate values in the same row, column, or 3×3 box.
+- **Correctness Feedback** separately highlights values that differ from the generated solution.
+- **Peer highlighting** highlights the selected row, column, and box.
+
+## Assistance and statistics
+
+Hints, reveals, and checks are recorded. Any of these makes the completion an assisted solve. Only clean solves can set clean best times.
+
+Daily streaks advance according to the player’s local calendar day.
+
+## Generation
+
+Puzzle generation and uniqueness checks run in a background Web Worker. Difficulty is currently estimated using clue count and is labeled accordingly.
 
 ## Troubleshooting
-- If keyboard inputs are ignored, ensure the grid is in focus by clicking on it.
-- If stats are not updating, verify that you are not using private browsing or clearing site data.
-- Clear browser cache and refresh if the daily puzzle doesn't update.
+
+- Allow the generation message to finish before entering values.
+- Reload if the worker fails to initialize after a deployment update.
+- Confirm browser storage is available if progress does not save.
+- Clearing application storage removes saved puzzles and statistics.

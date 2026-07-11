@@ -1,11 +1,315 @@
 <!doctype html>
 <html lang="en">
-<head> <meta charset="utf-8" /> <meta name="viewport" content="width=device-width,initial-scale=1" /> <title>Crossword Arena</title> <meta name="description" content="Crossword Arena: 400-puzzle built-in pack (portfolio demo)" /> <style> :root{ --bg:#070A12; --panel:rgba(255,255,255,.06); --border:rgba(255,255,255,.12); --border2:rgba(255,255,255,.18); --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.82); --shadow: 0 12px 40px rgba(0,0,0,.45); --radius: 22px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji"; --cell: 42px; /* 👈 bigger boxes */ --gap: 3px; } *{box-sizing:border-box} body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--text)} .bgfx{position:fixed;inset:0;pointer-events:none;overflow:hidden} .orb{position:absolute;width:520px;height:520px;border-radius:999px;filter:blur(72px);opacity:.35} .orb.p1{left:-140px;top:-160px;background:rgba(217,70,239,.25)} .orb.p2{right:-160px;top:40px;background:rgba(34,211,238,.22)} .orb.p3{left:30%;bottom:-220px;background:rgba(16,185,129,.18)} header{position:sticky;top:0;z-index:50;background:rgba(0,0,0,.35);backdrop-filter:blur(10px); border-bottom:1px solid var(--border)} .wrap{max-width:1500px;margin:0 auto;padding:14px 16px} .row{display:flex;align-items:center;justify-content:space-between;gap:12px} .title{font-weight:800;letter-spacing:.10em;font-size:13px} .sub{font-size:12px;color:var(--muted)} .tabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end} .pill{ border:1px solid var(--border);background:rgba(255,255,255,.05); padding:8px 12px;border-radius:999px;font-size:13px;color:var(--text); transition:.12s ease; cursor:pointer; } .pill:hover{background:rgba(255,255,255,.09)} .pill.active{border-color:var(--border2);background:rgba(255,255,255,.12)} .divider{width:1px;height:22px;background:var(--border);margin:0 6px} main{max-width:1500px;margin:0 auto;padding:16px} .panel{border:1px solid var(--border);background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(10px)} .panel.pad{padding:14px} .hunt{display:flex;align-items:center;justify-content:space-between;gap:12px} .bars{display:flex;gap:8px;align-items:center} .bar{width:46px;height:10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.04)} .bar.done{border-color:var(--border2);background:rgba(255,255,255,.18)} .grid{display:grid;grid-template-columns: 380px 1fr;gap:16px;margin-top:16px} @media (max-width: 1024px){.grid{grid-template-columns:1fr}} .card{border:1px solid var(--border);background:rgba(0,0,0,.22);border-radius:18px;padding:12px} .card h3{margin:0 0 6px 0;font-size:13px} .small{font-size:12px;color:var(--muted);line-height:1.35} .btn{border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text); border-radius:16px;padding:10px 12px;font-size:12px;cursor:pointer;transition:.12s} .btn:hover{background:rgba(255,255,255,.12)} .btn:disabled{opacity:.5;cursor:not-allowed} .stack{display:flex;gap:8px} .list{max-height:420px;overflow:auto;padding-right:6px} .item{width:100%;text-align:left;border-radius:16px;border:1px solid var(--border); background:rgba(255,255,255,.05);padding:10px 12px;cursor:pointer;margin-bottom:8px;transition:.12s} .item:hover{background:rgba(255,255,255,.09)} .item.active{background:rgba(255,255,255,.12);border-color:var(--border2)} .item .name{font-weight:800;font-size:13px} .item .meta{font-size:11px;color:var(--muted);margin-top:2px} .playWrap{border-radius:var(--radius);border:1px solid var(--border);background:var(--panel);padding:14px} .topline{border:1px solid var(--border);background:linear-gradient(90deg, rgba(217,70,239,.14), rgba(34,211,238,.10), rgba(16,185,129,.10)); border-radius:18px;padding:12px} .topline .kicker{font-size:12px;color:var(--muted)} .topline .clue{margin-top:8px;font-size:14px} /* 👈 bigger clue line */ .board{margin-top:12px;border-radius:18px;border:1px solid var(--border); background:rgba(0,0,0,.35);padding:10px;display:grid;gap:var(--gap);justify-content:center} .cell{width:var(--cell);height:var(--cell);border-radius:10px;border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center; font-weight:900;position:relative;text-transform:uppercase;cursor:pointer;transition:.12s; font-size:16px; /* 👈 bigger letters */} .cell:hover{background:rgba(255,255,255,.10)} .cell.black{background:rgba(0,0,0,.75);border-color:rgba(0,0,0,.75);cursor:default} .cell.active{border-color:rgba(34,211,238,.55);background:rgba(34,211,238,.12)} .cell.inword{background:rgba(34,211,238,.07)} .num{position:absolute;left:7px;top:5px;font-size:10px;color:rgba(255,255,255,.70);font-weight:800} .clueCols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px} @media (max-width: 900px){.clueCols{grid-template-columns:1fr}} .clueBtn{width:100%;text-align:left;border-radius:14px;border:1px solid var(--border); background:rgba(255,255,255,.05);padding:10px 10px;margin-bottom:8px;cursor:pointer; font-size:13px;color:rgba(255,255,255,.86)} /* 👈 bigger clue list */ .clueBtn:hover{background:rgba(255,255,255,.10)} .toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%); border-radius:18px;border:1px solid var(--border2);background:rgba(0,0,0,.70); backdrop-filter:blur(10px);padding:10px 14px;font-size:13px;color:rgba(255,255,255,.88);box-shadow:var(--shadow);display:none;z-index:100} .badge{display:inline-block;border-radius:999px;border:1px solid var(--border); background:rgba(255,255,255,.06);padding:4px 10px;font-size:11px;color:var(--muted)} .hint{margin-top:10px;font-size:12px;color:var(--muted)} .twoCol{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media (max-width: 900px){.twoCol{grid-template-columns:1fr}}  input,button,select,textarea{color:var(--text)!important;} input::placeholder,textarea::placeholder{color:rgba(255,255,255,.72)!important;} svg text{fill:var(--text)!important;} .muted{color:var(--muted)!important;} </style>
-  <link rel="stylesheet" href="/shared/tokens.css"/>
-  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css"/>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#D946EF" />
+  <title>Crossword Arena</title>
+  <meta name="description" content="An original, responsive crossword puzzle game with five weekly rounds, a Meta puzzle, local progress, and offline play." />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <link rel="stylesheet" href="/shared/tokens.css" />
+  <style>
+    :root {
+      --bg: #070a12;
+      --panel: rgba(255,255,255,.065);
+      --border: rgba(255,255,255,.16);
+      --border-strong: rgba(255,255,255,.28);
+      --text: rgba(255,255,255,.95);
+      --muted: rgba(255,255,255,.72);
+      --accent: #22d3ee;
+      --accent2: #d946ef;
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(900px 650px at 0% 0%, rgba(217,70,239,.16), transparent 60%),
+        radial-gradient(900px 650px at 100% 15%, rgba(34,211,238,.13), transparent 60%),
+        var(--bg);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    button, input { font: inherit; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7,10,18,.88);
+      backdrop-filter: blur(14px);
+    }
+    .wrap { width: min(1440px, calc(100% - 24px)); margin: 0 auto; }
+    .header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 0; }
+    .title { font-weight: 900; letter-spacing: .12em; font-size: .82rem; }
+    .subtitle { margin-top: 4px; color: var(--muted); font-size: .78rem; }
+    .tabs, .actions, .bars { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pill, .btn {
+      min-height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 9px 12px;
+      color: var(--text);
+      background: rgba(255,255,255,.055);
+      cursor: pointer;
+    }
+    .pill.active, .btn.active { background: rgba(255,255,255,.14); border-color: var(--border-strong); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    main { width: min(1440px, calc(100% - 24px)); margin: 0 auto; padding: 16px 0 48px; }
+    .panel { border: 1px solid var(--border); border-radius: var(--radius); background: var(--panel); box-shadow: 0 20px 65px rgba(0,0,0,.34); }
+    .pad { padding: 14px; }
+    .weekly { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .weekly-title { font-weight: 900; }
+    .small { color: var(--muted); font-size: .82rem; line-height: 1.45; }
+    .bar { width: 42px; height: 10px; border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.04); }
+    .bar.done { background: linear-gradient(90deg, var(--accent2), var(--accent)); border-color: transparent; }
+    .layout { display: grid; grid-template-columns: 340px minmax(0,1fr); gap: 16px; margin-top: 16px; }
+    aside { min-width: 0; }
+    .section-title { font-weight: 900; margin-bottom: 8px; }
+    .list { max-height: 560px; overflow: auto; }
+    .item, .clueBtn {
+      width: 100%;
+      display: block;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      color: var(--text);
+      background: rgba(255,255,255,.045);
+      text-align: left;
+      cursor: pointer;
+    }
+    .item.active, .clueBtn.active { background: rgba(34,211,238,.13); border-color: rgba(34,211,238,.48); }
+    .item .name, .item .meta { display: block; }
+    .item .name { font-weight: 850; }
+    .item .meta { margin-top: 3px; color: var(--muted); font-size: .75rem; }
+    .meta-card { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .play { min-width: 0; padding: 14px; }
+    .topline {
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(90deg, rgba(217,70,239,.13), rgba(34,211,238,.10));
+    }
+    .top-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    #pTitle { font-size: 1.05rem; font-weight: 900; }
+    .meta-line { margin-top: 4px; color: var(--muted); font-size: .8rem; }
+    .clue-row { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 8px; margin-top: 12px; }
+    .current-clue { text-align: center; line-height: 1.4; }
+    .board-viewport { margin-top: 12px; overflow: auto; border: 1px solid var(--border); border-radius: 18px; background: rgba(0,0,0,.28); }
+    .board {
+      width: max-content;
+      min-width: 100%;
+      display: grid;
+      justify-content: center;
+      gap: 3px;
+      padding: 14px;
+    }
+    .cell {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: 8px;
+      color: var(--text);
+      background: rgba(255,255,255,.055);
+      cursor: pointer;
+      font-weight: 900;
+    }
+    .cell.black { background: rgba(0,0,0,.72); border-color: rgba(0,0,0,.72); }
+    .cell.inword { background: rgba(34,211,238,.08); }
+    .cell.active { background: rgba(34,211,238,.2); border-color: rgba(34,211,238,.75); }
+    .num { position: absolute; top: 2px; left: 4px; font-size: .58rem; color: var(--muted); }
+    .letter { font-size: 1rem; }
+    .clues { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 12px; }
+    .clue-card { padding: 12px; border: 1px solid var(--border); border-radius: 18px; background: rgba(0,0,0,.18); }
+    .stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+    .stat { padding: 16px; border: 1px solid var(--border); border-radius: 18px; background: rgba(255,255,255,.045); }
+    .stat-value { margin-top: 5px; font-size: 1.45rem; font-weight: 900; }
+    .error { margin: 16px 0; padding: 14px; border: 1px solid rgba(244,63,94,.55); border-radius: 16px; background: rgba(244,63,94,.12); }
+    .toast { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 50; padding: 11px 16px; border: 1px solid var(--border-strong); border-radius: 16px; background: rgba(0,0,0,.86); box-shadow: 0 15px 50px rgba(0,0,0,.5); }
+    dialog { width: min(620px, calc(100% - 30px)); border: 1px solid var(--border); border-radius: 22px; padding: 0; color: var(--text); background: #0d1222; }
+    dialog::backdrop { background: rgba(0,0,0,.7); backdrop-filter: blur(6px); }
+    .dialog-body { padding: 22px; }
+    .dialog-head { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .layout:not(.show-library) aside { display: none; }
+      .layout.show-library .play { display: none; }
+      .clues { grid-template-columns: 1fr; }
+      .header-row { align-items: flex-start; flex-direction: column; }
+    }
+    @media (max-width: 560px) {
+      .weekly { align-items: flex-start; flex-direction: column; }
+      .bar { width: 34px; }
+      .actions { gap: 6px; }
+      .btn, .pill { min-height: 44px; }
+      .cell { width: 36px; height: 36px; }
+      .stats { grid-template-columns: 1fr; }
+      .clue-row { grid-template-columns: 1fr 1fr; }
+      .current-clue { grid-column: 1 / -1; grid-row: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css?v=55">
+  <link rel="canonical" href="https://dev-in-portfolio.netlify.app/apps/crossword-arena/">
+  <script>window.APP_ID="crossword-arena";</script>
 </head>
-<body>   <nav class="nxTopNav"></nav>
-<div class="bgfx"> <div class="orb p1"></div><div class="orb p2"></div><div class="orb p3"></div> </div> <header> <div class="wrap"> <div class="row"> <div> <div class="title">CROSSWORD ARENA</div> <div class="sub">Premium crossword experience • bigger grid • instant play</div> </div> <div class="tabs"> <span class="badge" id="modeBadge">SESSION: SOLO</span> <span class="divider"></span> <button class="pill active" data-tab="play">Play</button> <button class="pill" data-tab="progress">Progress</button> <button class="pill" id="aboutBtn">About</button> </div> </div> </div> </header> <main> <section class="panel pad"> <div class="hunt"> <div> <div style="font-weight:800;font-size:13px">Weekly Hunt</div> <div class="small">Solve 5 featured puzzles to unlock the Meta. </div> </div> <div class="bars" id="bars"></div> </div> </section> <div id="tab-play" class="grid" style="margin-top:16px"> <aside class="panel pad"> <div style="font-weight:800;font-size:13px">Puzzle Select</div> <div class="small" style="margin-top:6px">Weekly Hunt + Library</div> <div class="card" style="margin-top:12px"> <h3>Mode</h3> <div class="stack"><button class="btn" data-mode="solo">Solo</button></div><div class="hint">Built for fast, focused solving.</div> </div> <div class="card" style="margin-top:12px"> <h3>Weekly / Library</h3> <div class="list" id="puzzleList"></div> </div> <div class="card" style="margin-top:12px"> <h3>Meta</h3> <button class="btn" id="metaBtn" style="width:100%;text-align:left"> <div style="font-weight:900">META — The Final Hunt</div> <div class="small">Unlock after 5 weekly solves</div> </button> </div> </aside> <section class="playWrap"> <div class="topline"> <div class="row" style="align-items:flex-start"> <div> <div style="font-weight:900" id="pTitle">—</div> <div class="kicker">Direction: <b id="dirLbl">ACROSS</b> • Time <b id="timeLbl">00:00</b></div> </div> <div class="stack"> <button class="btn" id="acrossBtn">Across</button> <button class="btn" id="downBtn">Down</button> <button class="btn" id="checkBtn">Check</button> </div> </div> <div class="clue"><span style="color:rgba(255,255,255,.65)">Clue:</span> <b id="clueNum">—</b> <span id="clueTxt">—</span></div> </div> <div class="board" id="board"></div> <div class="clueCols"> <div class="card"> <h3>Across</h3> <div id="acrossList"></div> </div> <div class="card"> <h3>Down</h3> <div id="downList"></div> </div> </div> <div class="hint">Keyboard: letters • arrows • tab toggles direction • backspace clears</div> </section> </div> <div id="tab-progress" style="display:none;margin-top:16px" class="twoCol"> <div class="panel pad"> <div style="font-weight:900;font-size:13px">Stats</div> <div class="twoCol" style="margin-top:10px"> <div class="card"><div class="small">Solves</div><div style="font-weight:900;font-size:18px" id="solvesLbl">0</div></div> <div class="card"><div class="small">Streak</div><div style="font-weight:900;font-size:18px" id="streakLbl">0</div></div> </div> <div class="card" style="margin-top:10px"><div class="small">Best Time</div><div style="font-weight:900;font-size:18px" id="bestLbl">—</div></div> <button class="btn" id="resetStatsBtn" style="width:100%;margin-top:10px">Reset Stats</button> </div> <div class="panel pad"> <div style="font-weight:900;font-size:13px">Weekly Hunt</div> <div class="small" style="margin-top:6px">Weekly progress is stored locally.</div> <button class="btn" id="resetWeeklyBtn" style="width:100%;margin-top:10px">Reset Weekly Progress</button> </div> </div> </main> <div id="aboutModal" style="display:none;position:fixed;inset:0;z-index:120;"> <div id="aboutOverlay" style="position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);"></div> <div style="position:relative;max-width:720px;margin:72px auto;padding:0 16px;"> <div class="panel pad" style="border-radius:24px;"> <div class="row" style="align-items:flex-start"> <div> <div style="font-weight:900;letter-spacing:.08em;font-size:12px;color:rgba(255,255,255,.72)">CROSSWORD ARENA</div> <div style="font-weight:900;font-size:18px;margin-top:4px">A premium, fast crossword experience</div> <div class="small" style="margin-top:8px;line-height:1.5"> • Clean keyboard-first solving<br> • Instant library (no sign-in)<br> • Weekly Hunt progression + Meta unlock<br> • Local progress + best-time tracking </div> </div> <button class="btn" id="aboutCloseBtn">Close</button> </div> <div class="card" style="margin-top:12px"> <div class="small"> This is a portfolio demo build focused on UI polish, playability, and performance. Full product version can add packs, search, difficulty, themes, and multi-device sync. </div> </div> </div> </div> </div> <div class="toast" id="toast"></div> <script src="./app.js"></script>
-  <script src="/shared/nexus-topnav-v2.js?v=54"></script>
+<body>
+  <nav class="nxTopNav" aria-label="Nexus navigation"></nav>
+  <label class="sr-only" for="crosswordInput">Crossword letter input</label>
+  <input id="crosswordInput" class="sr-only" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" />
+
+  <header>
+    <div class="wrap header-row">
+      <div>
+        <div class="title">CROSSWORD ARENA</div>
+        <div class="subtitle">Original puzzles • local progress • offline-ready shell</div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Crossword sections">
+        <span class="small" id="modeBadge">SESSION: WEEKLY</span>
+        <button class="pill active" type="button" role="tab" data-tab="play" aria-selected="true">Play</button>
+        <button class="pill" type="button" role="tab" data-tab="progress" aria-selected="false">Progress</button>
+        <button class="pill" type="button" id="aboutBtn">About</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="appError" class="error" role="alert" hidden></div>
+
+    <section class="panel pad weekly" aria-labelledby="weeklyTitle">
+      <div>
+        <div id="weeklyTitle" class="weekly-title">Weekly Hunt</div>
+        <div class="small">Solve all five original weekly puzzles to unlock the Meta.</div>
+      </div>
+      <div class="bars" id="bars" aria-label="Weekly puzzle progress"></div>
+    </section>
+
+    <div id="tab-play" class="layout">
+      <aside class="panel pad" aria-label="Puzzle library">
+        <div class="section-title">Puzzle Library</div>
+        <div id="puzzleList" class="list"></div>
+        <div class="meta-card">
+          <button id="metaBtn" class="btn" type="button" style="width:100%">Open Meta Puzzle</button>
+          <div class="small" style="margin-top:8px">Unlocks after five weekly solves.</div>
+        </div>
+      </aside>
+
+      <section class="panel play" aria-label="Crossword play area">
+        <div class="topline">
+          <div class="top-row">
+            <div>
+              <div id="pTitle">Loading puzzle…</div>
+              <div class="meta-line">Direction: <strong id="dirLbl">ACROSS</strong> • Time <strong id="timeLbl">00:00</strong></div>
+            </div>
+            <div class="actions">
+              <button id="libraryBtn" class="btn" type="button">Library</button>
+              <button id="acrossBtn" class="btn" type="button">Across</button>
+              <button id="downBtn" class="btn" type="button">Down</button>
+              <button id="revealBtn" class="btn" type="button">Reveal letter</button>
+              <button id="checkBtn" class="btn" type="button">Check</button>
+            </div>
+          </div>
+          <div class="clue-row">
+            <button id="prevClueBtn" class="btn" type="button">← Previous</button>
+            <div class="current-clue" aria-live="polite"><strong id="clueNum">—</strong>. <span id="clueTxt">—</span></div>
+            <button id="nextClueBtn" class="btn" type="button">Next →</button>
+          </div>
+        </div>
+
+        <div class="board-viewport">
+          <div id="board" class="board" role="grid" aria-label="Crossword puzzle grid"></div>
+        </div>
+
+        <div class="clues">
+          <section class="clue-card" aria-labelledby="acrossHeading">
+            <div id="acrossHeading" class="section-title">Across</div>
+            <div id="acrossList"></div>
+          </section>
+          <section class="clue-card" aria-labelledby="downHeading">
+            <div id="downHeading" class="section-title">Down</div>
+            <div id="downList"></div>
+          </section>
+        </div>
+        <p class="small">Keyboard: letters to enter • arrows to move • Tab to switch direction • Backspace to clear. On mobile, tap a cell to open the keyboard and double-tap the same cell to switch direction.</p>
+      </section>
+    </div>
+
+    <section id="tab-progress" class="panel pad" hidden aria-labelledby="progressHeading">
+      <div id="progressHeading" class="section-title">Local Statistics</div>
+      <div class="stats">
+        <div class="stat"><div class="small">Clean solves</div><div id="solvesLbl" class="stat-value">0</div></div>
+        <div class="stat"><div class="small">Assisted solves</div><div id="assistedLbl" class="stat-value">0</div></div>
+        <div class="stat"><div class="small">Best clean time</div><div id="bestLbl" class="stat-value">—</div></div>
+      </div>
+      <div class="actions" style="margin-top:14px">
+        <button id="resetStatsBtn" class="btn" type="button">Reset statistics</button>
+        <button id="resetWeeklyBtn" class="btn" type="button">Reset weekly progress</button>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="aboutModal" aria-labelledby="aboutTitle">
+    <div class="dialog-body">
+      <div class="dialog-head">
+        <div>
+          <div class="small">CROSSWORD ARENA</div>
+          <h2 id="aboutTitle">Original offline puzzle pack</h2>
+        </div>
+        <button id="aboutCloseBtn" class="btn" type="button">Close</button>
+      </div>
+      <p>This hardened build uses an original puzzle pack rather than redistributing newspaper crossword archives. Progress and statistics stay on this device.</p>
+      <p class="small">Checks and revealed letters mark a solve as assisted, so clean best times remain meaningful.</p>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="./app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      window.addEventListener('load', async () => {
+        try {
+          const registration = await navigator.serviceWorker.register('./sw.js');
+          registration.addEventListener('updatefound', () => {
+            const worker = registration.installing;
+            worker?.addEventListener('statechange', () => {
+              if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                worker.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
+          });
+          let reloading = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (reloading) return;
+            reloading = true;
+            location.reload();
+          });
+        } catch (error) {
+          console.warn('Crossword service worker registration failed', error);
+        }
+      });
+    }
+  </script>
+  <script defer src="/shared/nexus-topnav-v2.js?v=55"></script>
+  <script defer src="/shared/nexus-canonical-routes.js?v=1"></script>
 </body>
 </html>

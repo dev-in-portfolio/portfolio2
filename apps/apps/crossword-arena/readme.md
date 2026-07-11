@@ -1,23 +1,41 @@
-# Crossword Arena - Developer Documentation
+# Crossword Arena — Developer Documentation
 
-Crossword Arena is a feature-rich, client-side crossword application designed for performance and instant playability, featuring a custom crossword engine.
+## Architecture
 
-## Architecture & Tech Stack
-- Vanilla JavaScript (ES6+).
-- CSS3 with CSS variables and custom properties for theming.
-- LocalStorage API for progress tracking.
+- `index.html` provides the responsive and accessible application shell.
+- `app.js` provides grid rendering, input handling, persistence, weekly progression, Meta unlocking, and clean/assisted statistics.
+- `data/puzzles.json` contains the original licensed-in-repository puzzle pack.
+- `manifest.json` defines a directory-scoped standalone PWA.
+- `sw.js` owns only `for-me-crossword-*` caches.
 
-## Key Systems / Components
-- `app.js`: Contains the core crossword engine, grid rendering, and state management.
-- `index.html`: The main structural layout including the dashboard, puzzle selection, and play area.
-- State Manager: Handles user inputs, toggling between 'Across' and 'Down', and validating answers.
+## Puzzle contract
 
-## Performance & Accessibility / Development Notes
-- Grid rendering is optimized to handle large DOM structures without lag.
-- Keyboard navigation is a primary focus; ensure arrow keys and tab stops work correctly.
-- Background animations are visually appealing but handled via CSS to prevent main-thread blocking.
+The data file must contain:
 
-## Integration & DB
-- Purely client-side; no backend database.
-- Puzzle data is bundled directly within the application or loaded via static JSON files.
-- Uses `localStorage` to persist user session, progress, and unlocked Meta puzzles.
+- Exactly five `weekly` puzzles
+- A `library` array
+- One `meta` puzzle
+- Unique IDs
+- Square uppercase grids
+- Clues for every Across and Down entry
+- Explicit license metadata
+
+Run `npm run validate:release` from the repository root to validate the contract.
+
+## Storage
+
+- `cw_arena_progress_v4` — per-puzzle grid state and assistance usage
+- `cw_arena_stats_v4` — clean and assisted solve statistics
+- `cw_arena_weekly_v4` — weekly puzzle completion IDs
+
+Malformed or older incompatible data falls back to a clean versioned state.
+
+## Input
+
+Desktop letters are handled through global keyboard events when focus is not inside another form control. Mobile text is handled through the dedicated `crosswordInput` element so one input event maps to one letter.
+
+Direction changes are target-aware. Double-tapping the same cell changes direction without globally suppressing rapid taps on different cells.
+
+## Content policy
+
+Do not restore the removed newspaper puzzle archive without documented redistribution rights. See the root `CONTENT-LICENSE.md`.
