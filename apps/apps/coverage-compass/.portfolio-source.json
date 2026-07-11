@@ -1,0 +1,7 @@
+{
+  "sourceRepository": "dev-in-portfolio/Coverage-Compass",
+  "sourceCommit": "f5c2f37209966465de016257cb5dfa92d6251c1c",
+  "sourceArtifact": "coverage-compass-dist",
+  "sourceArtifactSha256": "069f0baeb47725de5aed78a5800f41d60353398ccd5ac667d7ca0c8f833c3d2f",
+  "portfolioRoute": "/apps/coverage-compass/"
+}

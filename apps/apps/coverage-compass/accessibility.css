@@ -1,0 +1,43 @@
+/* Deterministic WCAG contrast surfaces.
+   Opaque backgrounds avoid ambiguous contrast calculations over page gradients. */
+.infoTile,
+.disclosureSummary > div {
+  background: #142238;
+}
+
+.infoTile h3,
+.disclosureSummary strong {
+  color: #f8fbff;
+}
+
+.infoTile p,
+.disclosureSummary span {
+  color: #d7e4f5;
+}
+
+.reportStrip > span {
+  background: #2f2611;
+  border-color: #a57a18;
+  color: #fff3c4;
+}
+
+.privacyBanner {
+  background: #123b39;
+  border-color: #2dd4bf;
+  color: #f0fdfa;
+}
+
+.privacyBanner strong {
+  color: #ffffff;
+}
+
+.foot {
+  background: #07111f;
+  color: #f8fbff;
+}
+
+.foot .muted,
+.foot a,
+.foot .sep {
+  color: #f8fbff;
+}

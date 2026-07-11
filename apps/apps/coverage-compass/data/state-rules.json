@@ -1,0 +1,26 @@
+{
+  "ruleSetVersion": "2026.07-beta",
+  "runtimePolicy": "informational-only-until-reviewed",
+  "reviewedThrough": null,
+  "releaseStatus": "blocked-pending-domain-review",
+  "notes": [
+    "The legacy engine contains simplified state Medigap switching classifications.",
+    "No state classification in this registry may be treated as legal advice or as a guaranteed-issue determination.",
+    "Each state requires an official source, effective date, limitations, reviewer, and review date before production approval."
+  ],
+  "requiredEntryFields": [
+    "state",
+    "ruleType",
+    "summary",
+    "effectiveFrom",
+    "limitations",
+    "sources",
+    "lastReviewed",
+    "reviewedBy",
+    "reviewStatus"
+  ],
+  "states": [
+    "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
+  ],
+  "entries": []
+}

@@ -5,24 +5,25 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <meta content="#070A12" name="theme-color"/>
-<meta content="Interactive product builds in the Nexus suite." name="description"/>
+<meta content="Local-first Medicare decision support that turns assessments into printable decision-defense packets." name="description"/>
+<meta content="yes" name="mobile-web-app-capable"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="Coverage Compass — Devin O’Rourke" property="og:title"/>
-<meta content="Interactive product builds in the Nexus suite." property="og:description"/>
+<meta content="Coverage Compass" property="og:title"/>
+<meta content="Local-first Medicare decision support that turns assessments into printable decision-defense packets." property="og:description"/>
 <meta content="website" property="og:type"/>
-<meta content="https://dev-in-portfolio.netlify.app/apps/coverage-compass/" property="og:url"/>
-<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" property="og:image"/>
+<meta content="https://coverage-compass.app/" property="og:url"/>
+<meta content="hero.png" property="og:image"/>
 <meta content="summary_large_image" name="twitter:card"/>
-<meta content="Coverage Compass — Devin O’Rourke" name="twitter:title"/>
-<meta content="Interactive product builds in the Nexus suite." name="twitter:description"/>
-<meta content="https://dev-in-portfolio.netlify.app/assets/og.svg" name="twitter:image"/>
-<title>Coverage Compass — Devin O’Rourke</title>
-<link href="../../manifest.webmanifest" rel="manifest"/>
-<link href="../../shared/tokens.css" rel="stylesheet"/><link href="styles.css" rel="stylesheet"/>
+<meta content="Coverage Compass" name="twitter:title"/>
+<meta content="Local-first Medicare decision support that turns assessments into printable decision-defense packets." name="twitter:description"/>
+<meta content="hero.png" name="twitter:image"/>
+<title>Coverage Compass</title>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="styles.css" rel="stylesheet"/>
+<link href="accessibility.css" rel="stylesheet"/>
 <!-- iOS home screen (best-effort; still works without) -->
-<link href="icon-192.png" rel="apple-touch-icon"/><link href="https://dev-in-portfolio.netlify.app/apps/coverage-compass/" rel="canonical"/><link href="../../icon-192.png" rel="icon"/><script src="../../runtime-guard.js"></script>
-<link href="../../shared/tile-polish.css" rel="stylesheet"/>
+<link href="icon-192.png" rel="apple-touch-icon"/><link href="https://coverage-compass.app/" rel="canonical"/><link href="icon-192.png" rel="icon"/>
 <style>
 
 /* ===== Phase 4: Accessibility, Contrast, & Perception ===== */
@@ -61,27 +62,28 @@ a, button{
 img{ height:auto; }
 
 </style>
-<link href="../../shared/tap-physics.css" rel="stylesheet"/>
-<link href="../../shared/ui-physics.css" rel="stylesheet"/>
- <link rel="stylesheet" href="../../shared/nexus-topnav-v2.css"/>
- <link rel="stylesheet" href="../../shared/nexus-topnav.css"/>
+  <link rel="stylesheet" href="/shared/tokens.css">
+  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css?v=55">
+  <link rel="canonical" href="https://dev-in-portfolio.netlify.app/apps/coverage-compass/">
+  <script>window.APP_ID="coverage-compass";</script>
 </head>
 <body>
- <nav class="nxTopNav"></nav>
+  <nav class="nxTopNav" aria-label="Nexus navigation"></nav>
 
 <a class="skip-link" href="#main" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to content</a>
 <div class="app">
 <header class="top">
 <div class="left">
-<div class="logo"><img alt="Coverage Compass logo" class="logoImg" decoding="async" loading="lazy" src="512.png"/></div>
+<div class="logo"><img alt="Coverage Compass logo" class="logoImg" decoding="async" loading="lazy" src="icon-512.png"/></div>
 <div class="">
 <div class="h1">Coverage Compass</div>
-<div class="sub">Medigap vs Medicare Advantage — decision support</div>
+<div class="sub">Medicare decision support &amp; printable protection packets</div>
 </div>
 </div>
 <div class="right">
 <span class="pill" id="stagePill">Welcome</span>
-<span class="sync" id="saveStatus">Local</span>
+<span class="sync" id="saveStatus" title="Nothing is sent to a server by default. Exports are controlled by you.">Local-first</span>
+<button class="btn tiny ghost" id="btnReportsOpen" type="button">Reports</button>
 <button class="btn tiny ghost" id="btnHelpOpen" type="button">Help</button>
 <button class="btn tiny ghost" id="btnGlossaryOpen" type="button">Glossary</button>
 <button class="btn tiny ghost" id="btnLegalOpen" type="button">Legal</button>
@@ -90,47 +92,75 @@ img{ height:auto; }
 <main class="main" id="main">
 <!-- FRONT -->
 <section class="content" id="screenFront">
-<div class="card">
-<h2>Pick the right structure (not a sales pitch).</h2>
-<p class="muted">This tool scores your preferences, risk tolerance, provider needs, and switching friction. It also warns you about irreversible choices.</p>
-<div class="btnrow">
-<button class="btn primary" id="btnStart" type="button">Start</button>
-<button class="btn" id="btnResume" style="display:none" type="button">Resume</button>
-<button class="btn ghost" id="btnResetAll" type="button">Reset</button>
+<div class="heroPanel">
+<div class="heroContent">
+<div class="eyebrow">Local-first Medicare preparedness</div>
+<h1>Medicare decisions are easier when the conversation stays focused.</h1>
+<p class="heroLead">Answer a guided assessment, see your coverage-structure result, then turn it into printable packets for agents, family conversations, phone calls, and annual reviews.</p>
+<div class="trustChips" aria-label="Coverage Compass trust markers">
+<span>Local-first</span>
+<span>No sales</span>
+<span>No carrier recommendations</span>
+<span>Printable packets</span>
+<span>Educational decision support</span>
+</div>
+<div class="btnrow heroActions">
+<button class="btn primary large" id="btnStart" type="button">Start Assessment</button>
+<button class="btn large" id="btnReportExamples" type="button">View Report Examples</button>
+<button class="btn large" id="btnResume" style="display:none" type="button">Resume Assessment</button>
+<button class="btn ghost large" id="btnResetAll" type="button">Clear All Local Data</button>
 </div>
 <div class="btnrow" style="margin-top:4px">
-<button class="btn ghost" id="btnInstall" style="display:none" type="button">Install to Home Screen</button>
+<button class="btn ghost large" id="btnInstall" style="display:none" type="button">Install to Home Screen</button>
 </div>
-<div class="callout">
-<div class="calloutTitle">What you’ll get</div>
-<ul>
-<li>A recommendation (Medigap vs MA PPO vs MA HMO)</li>
-<li>Lockout warnings + switching friction modeling (state-aware heuristics)</li>
-<li>Assistance modeling (LIS / MSP / Medicaid) when relevant</li>
-<li>Scenario simulator + churn risk modeling</li>
-<li>Explanation trace + audit log (how the engine reasoned)</li>
-</ul>
 </div>
-<div class="callout" style="margin-top:12px">
-<div class="calloutTitle">Privacy</div>
-<p class="muted" style="margin:0">Local-only by default. Nothing is sent to a server. Your answers live in your browser unless you export/share them.</p>
+<aside class="heroPreview" aria-label="Printable report preview">
+<div class="paperMini">
+<div class="paperLine strong"></div>
+<div class="paperLine"></div>
+<div class="paperLine short"></div>
+<div class="paperCheck">Verify doctors, drugs, costs, and switching risk.</div>
 </div>
+<div class="miniCaption">Your answers become practical scripts and checklists you can print or save.</div>
+</aside>
+</div>
+<div class="helpGrid" aria-label="What Coverage Compass helps with">
+<article class="infoTile"><h2>Before you meet an agent</h2><p>Know what must be verified before signing.</p></article>
+<article class="infoTile"><h2>When someone tries to switch you</h2><p>Keep the conversation centered on your actual priorities.</p></article>
+<article class="infoTile"><h2>When calls or in-person pitches feel rushed</h2><p>Use simple scripts and checklists.</p></article>
+<article class="infoTile"><h2>During annual review</h2><p>Re-check doctors, covered drug lists, maximum out-of-pocket risk, networks, and plan rules.</p></article>
+</div>
+<div class="reportStrip" aria-label="Printable packet examples">
+<span>Agent Ready Packet</span>
+<span>Switch Defense Sheet</span>
+<span>Phone Call Script</span>
+<span>Family Review Packet</span>
+</div>
+<div class="privacyBanner">
+<strong>Local-first by default.</strong> Your answers stay in this browser unless you choose to print, copy, or download them.
 </div>
 </section>
 <!-- CONSENT + KEY DISCLOSURES -->
 <section class="content hidden" id="screenDisclaimer">
-<div class="card">
-<h2>Before you use this</h2>
+<div class="card disclosureCard">
+<div class="eyebrow">Disclosures</div>
+<h1>Before you use this</h1>
+<div class="disclosureSummary">
+<div><strong>What this app does</strong><span>Educational decision support and printable packet generation.</span></div>
+<div><strong>What it does not do</strong><span>No enrollment, sales, brokerage, or carrier recommendations.</span></div>
+<div><strong>Privacy</strong><span>Answers stay in this browser unless you export them.</span></div>
+<div><strong>Verify</strong><span>Check official sources before enrolling, switching, or canceling.</span></div>
+</div>
 <div class="scrollbox" id="discBox">
-<h3 style="margin-top:0">Not advice</h3>
+<h2 style="margin-top:0">Not advice</h2>
 <p><strong>This is a decision-support tool — not medical, legal, financial, or benefits advice.</strong> It produces an educational comparison based on the information you provide and simplified rule heuristics.</p>
-<h3>Not enrollment. Not sales.</h3>
+<h2>Not enrollment. Not sales.</h2>
 <p>This app does not sell plans, does not take commissions, does not recommend specific carriers, and does not enroll you in Medicare, Medicare Advantage, Part D, or Medigap.</p>
-<h3>Verify with official sources</h3>
+<h2>Verify with official sources</h2>
 <p>Medicare rules, state Medigap protections, provider networks, formularies, and premiums change. Always confirm enrollment periods, eligibility, and plan details with Medicare, your state SHIP office, and/or the plan itself.</p>
-<h3>Privacy &amp; sharing</h3>
-<p>By default, this app stores progress in <strong>your device’s browser storage</strong> so you can resume. If you export or share a link, you may be copying sensitive personal information (including health-related answers). Use the <strong>"Safe"</strong> export/share option if you want redaction.</p>
-<h3>What the engine does</h3>
+<h2>Privacy &amp; exports</h2>
+<p>By default, this app stores progress in <strong>your device’s browser storage</strong> so you can resume. Exported files may contain sensitive personal information, including health-related answers. Use the <strong>"Safe"</strong> export option for a generalized, non-identifying summary.</p>
+<h2>What the engine does</h2>
 <ul>
 <li>Scores three structures: <strong>Medigap</strong>, <strong>MA PPO</strong>, <strong>MA HMO</strong></li>
 <li>Models cost predictability vs. worst-case risk</li>
@@ -142,7 +172,8 @@ img{ height:auto; }
 <div style="height: 380px"></div>
 <p><strong>End of key disclosures.</strong> Full Terms + Privacy are available under <strong>Legal</strong>.</p>
 </div>
-<label class="checkbox"><input checked="" id="agree" type="checkbox"/> I understand and want to continue</label>
+<div class="consentStatus" id="consentStatus">Scroll to the bottom to continue.</div>
+<label class="checkbox"><input disabled="" id="agree" type="checkbox"/> I understand and want to continue</label>
 <div class="btnrow">
 <button class="btn" id="btnBackFromDisclaimer" type="button">Back</button>
 <button class="btn" id="btnViewLegalFromDisclaimer" type="button">View Full Legal</button>
@@ -152,29 +183,39 @@ img{ height:auto; }
 </section>
 <!-- QUESTIONS -->
 <section class="content hidden" id="screenQuiz">
-<div class="card">
+<div class="card quizCard">
 <div class="toprow">
-<div class="tag" id="secTag">Section</div>
+<div>
+<div class="tag">Assessment step</div>
+<div class="sectionName" id="secTag">Section</div>
+</div>
 <div class="progress">
 <div class="bar"><div class="fill" id="barFill"></div></div>
 <div class="pct" id="barText">0%</div>
 </div>
 </div>
-<h2 id="qText">Question text</h2>
+<h1 id="qText">Question text</h1>
 <div class="note" id="qNote"></div>
 <div class="opts" id="opts"></div>
 <div class="btnrow">
-<button class="btn" id="btnPrev" type="button">Prev</button>
-<button class="btn primary" id="btnNext" type="button">Next</button>
+<button class="btn large" id="btnPrev" type="button">Back</button>
+<button class="btn primary large" id="btnNext" type="button">Continue</button>
 <button class="btn ghost" id="btnSkip" type="button">Skip / Prefer not to answer</button>
 </div>
-<div class="muted" style="margin-top:10px">
- Tip: You can always go back. Skipping reduces confidence.
- </div>
+<div class="assessmentTip">Not sure is okay. Choose the closest answer or skip sensitive questions. More complete answers make your printable packets more useful.</div>
 </div>
 </section>
 <!-- RESULTS -->
 <section class="content hidden" id="screenResult">
+<div class="resultHero card">
+<div>
+<div class="eyebrow">Your Coverage Compass Result</div>
+<h1 id="resHeroTitle">Recommended structure</h1>
+<p id="resHeroWhy" class="heroLead"></p>
+</div>
+<div class="confidenceBadge" id="resHeroConfidence">Confidence</div>
+</div>
+<div class="resultChips" id="resultChips"></div>
 <div class="grid2">
 <div class="card">
 <h2 id="resTitle">Recommendation</h2>
@@ -192,12 +233,13 @@ img{ height:auto; }
 </div>
 <h3>What could change this later</h3>
 <div class="box" id="changeBox"></div>
-<h3>Lockouts &amp; Warnings</h3>
+<h3>Important to verify</h3>
 <div class="warnbox" id="warnBox"></div>
 <div class="warnbox" id="locksBox"></div>
+<div class="callout" id="reportCtaBox"></div>
 <div class="btnrow">
 <button class="btn" id="btnBackToQuiz" type="button">Back to Questions</button>
-<button class="btn primary" id="btnExport" type="button">Export</button>
+<button class="btn" id="btnExport" type="button">Advanced Export</button>
 <button class="btn ghost" id="btnReset" type="button">Restart</button>
 </div>
 </div>
@@ -210,14 +252,14 @@ img{ height:auto; }
 <h3>Comparison Snapshot</h3>
 <div id="compTableContainer"></div>
 </div>
-<div class="card">
+<div class="card advancedCard">
 <div class="row">
-<h3 style="margin:0">Explanation Trace</h3>
-<button class="btn tiny" id="btnToggleTrace" type="button">Toggle</button>
+<h3 style="margin:0">Advanced Explanation Trace</h3>
+<button class="btn tiny" id="btnToggleTrace" type="button">Show / Hide</button>
 </div>
 <div class="trace hidden" id="tracePanel"></div>
 </div>
-<div class="card">
+<div class="card advancedCard">
 <div class="row">
 <h3 style="margin:0">Decision Audit Log</h3>
 <button class="btn tiny" id="btnCopyAudit" type="button">Copy</button>
@@ -232,13 +274,28 @@ img{ height:auto; }
 <div class="card">
 <div class="row" style="align-items:flex-end">
 <div>
-<h2 style="margin:0">Legal</h2>
+<h1 style="margin:0">Legal</h1>
 <div class="muted">Terms, Privacy, Disclosures (local-only app)</div>
 </div>
 <div class="btnrow" style="margin:0">
 <button class="btn" id="btnBackFromLegal" type="button">Back</button>
 </div>
 </div>
+<div class="privacyBanner">
+<strong>Current Runtime Summary</strong>
+<p style="margin:8px 0 0">
+Coverage Compass currently runs as a local-first static app. It does not require an account, does not use analytics, does not sync questionnaire answers to a backend, and does not submit report data to a server by default. Answers are stored in this browser unless you choose to print, copy, or download them.
+</p>
+</div>
+<div class="privacyBanner">
+<strong>Private Beta Legal Notice</strong>
+<p style="margin:8px 0 0">
+These legal templates are placeholders for counsel review. Some template language below is intentionally broad and must be finalized before public release.
+</p>
+</div>
+<details class="legalTemplatePack">
+<summary>Template Legal Pack - Not Final</summary>
+<div class="muted" style="margin:8px 0 12px">Template language below may describe future account, payment, support, or hosted-service behavior that is not active in this local-first private beta.</div>
 <div class="tabs" id="legalTabs">
 <button class="tab active" data-tab="terms" type="button">Terms</button>
 <button class="tab" data-tab="glossary" type="button">Glossary</button>
@@ -288,7 +345,7 @@ The Services do **not** connect to Medicare.gov accounts and do **not** retrieve
 If we add claims import or account connections in the future, we will provide updated terms and request additional permissions as needed.
 
 ## 6) User accounts; security
-Some features may require an account. You are responsible for maintaining the confidentiality of your credentials and for all activity under your account. You agree to notify us promptly of any unauthorized use.
+Some future features may require an account or hosted-service access. You are responsible for maintaining the confidentiality of your credentials and for all activity under your account. You agree to notify us promptly of any unauthorized use.
 
 ## 7) User Content; permissions; responsibilities
 You retain ownership of your User Content. You grant us a limited, non‑exclusive, worldwide license to host, process, display, and use your User Content solely to provide and improve the Services, comply with law, and enforce these Terms.
@@ -350,7 +407,7 @@ Questions about these Terms: **[CONTACT EMAIL]**.
 This Privacy Policy explains how **[COMPANY NAME]** (“we,” “us,” “our”) collects, uses, shares, and protects information when you use **[APP NAME]** (the “App”) and related services (collectively, the “Services”).
 
 ## 1) What we do (and don’t do)
-The Services are designed as a consumer decision‑support tool. We do not sell insurance and we do not run marketing/lead‑gen funnels by default.
+The Services are designed as a consumer decision‑support tool. The current runtime is local-first: there is no account system, no analytics, no backend sync, and no default server submission of questionnaire answers. We do not sell insurance and we do not run marketing/lead‑gen funnels by default.
 
 **Important scope note:** The current version of the Services does **not** connect to Medicare.gov accounts and does **not** import claims data through Blue Button or any other Medicare claims API. If we add such features in the future, we will update this Policy and present additional notices and choices.
 
@@ -363,16 +420,16 @@ You may provide information such as age or age range, ZIP code or county/state, 
 You should **not** enter sensitive identifiers such as a Medicare Beneficiary Identifier (MBI) or Social Security number unless a specific feature explicitly asks for it and explains the purpose.
 
 ### (b) Device and usage data
-We may collect information about how you use the Services, such as device type, OS version, app version, log data (timestamps, pages/screens, crashes), approximate location derived from IP address, and performance metrics and diagnostics.
+In the current local-first build, answers and report context stay in browser storage unless you choose to export them. Future hosted or support tooling may add limited device or diagnostics logging, but that is not part of the default runtime today.
 
 ### (c) Cookies and similar technologies 
-If you use a website version of the Services, we may use cookies/local storage for functionality, security, and analytics. See our Cookie Policy.
+If you use a website version of the Services, we may use local storage for functionality and security. The current runtime does not use analytics cookies.
 
 ## 3) How we use information
-We use information to provide Decision Outputs and personalized comparisons, operate, maintain, and improve the Services, secure the Services and prevent fraud, communicate with you (support, updates, important notices), and comply with legal obligations and enforce our Terms.
+We use information to provide Decision Outputs and personalized comparisons, operate the current local-first runtime, secure the Services and prevent fraud, communicate with you (support, updates, important notices), and comply with legal obligations and enforce our Terms.
 
 ## 4) How we share information
-We may share information with service providers that help us operate the Services (hosting, analytics, customer support, security). They are permitted to use the information only to provide services to us.
+In the current local-first build, we do not send questionnaire answers to a backend by default and we do not share data with analytics providers. Future service providers, if any, will be documented before they are enabled.
 
 We may disclose information if we believe in good faith that disclosure is necessary to comply with law, protect rights and safety, prevent fraud, or respond to lawful requests.
 
@@ -609,6 +666,7 @@ This version **removes all Blue Button / Blue Button 2.0 / CMS claims‑API assu
 </div>
 </details>
 </div>
+ </details>
 </div>
 </div>
 </section>
@@ -616,12 +674,85 @@ This version **removes all Blue Button / Blue Button 2.0 / CMS claims‑API assu
 <div class="modal" id="exportModal">
 <div class="modalCard">
 <div class="row">
-<h3 style="margin:0">Export Summary</h3>
+<h3 style="margin:0">Advanced Export</h3>
 <button class="btn tiny" id="btnCloseExport" type="button">Close</button>
 </div>
 <div class="muted" style="margin-top:6px">
- Use “Safe” to redact sensitive answers. “Full” includes everything.
+ Use “Safe” to redact sensitive answers. “Full” includes everything. This is the advanced raw export, not the main packet workflow.
  </div>
+<details class="proReport" open>
+<summary>Print packet context</summary>
+<p class="muted" style="margin:8px 0 10px">
+ Optional local-only fields for labeling a printable packet. Do not enter Medicare numbers, SSNs, claim numbers, full medical details, or other sensitive identifiers.
+ </p>
+<div class="proSubhead">Organization profile</div>
+<div class="proGrid">
+<label>Display name
+<input autocomplete="organization" id="orgDisplayName" maxlength="80" placeholder="Organization or practice name" type="text"/>
+</label>
+<label>Support email
+<input autocomplete="email" id="orgSupportEmail" maxlength="120" placeholder="support@example.com" type="email"/>
+</label>
+<label>License mode
+<select id="orgLicenseMode">
+<option value="private-beta">Private beta</option>
+<option value="helper-prepared">Helper prepared</option>
+<option value="licensed-review">Licensed professional review</option>
+</select>
+</label>
+<label>Disclosure stance
+<select id="orgDisclosureStance">
+<option value="education-only">Education-only, no sales or enrollment</option>
+<option value="helper-review">Helper review support</option>
+<option value="licensed-review">Licensed professional review</option>
+</select>
+</label>
+</div>
+<label class="proNotesLabel">Report footer disclosure
+<textarea id="orgReportDisclosure" maxlength="600" placeholder="Optional organization-specific report footer. Keep it consistent with counsel-approved legal language." style="min-height:76px"></textarea>
+</label>
+<div class="proSubhead">Session context</div>
+<div class="proGrid">
+<label>Client label
+<input autocomplete="off" id="proClientLabel" maxlength="80" placeholder="Initials, household label, or case nickname" type="text"/>
+</label>
+<label>Prepared by
+<input autocomplete="off" id="proPreparedBy" maxlength="80" placeholder="Helper, reviewer, or preparer name" type="text"/>
+</label>
+<label>Organization
+<input autocomplete="off" id="proOrganization" maxlength="80" placeholder="Organization, if any" type="text"/>
+</label>
+<label>Review type
+<select id="proReviewType">
+<option value="">Select...</option>
+<option value="initial">Initial coverage structure review</option>
+<option value="annual">Annual review</option>
+<option value="switching">Switching-risk review</option>
+<option value="care-change">Care-change review</option>
+<option value="second-opinion">Second opinion</option>
+</select>
+</label>
+<label>Planning horizon
+<select id="proPlanningHorizon">
+<option value="">Select...</option>
+<option value="current-year">Current plan year</option>
+<option value="1-2-years">1-2 years</option>
+<option value="3-5-years">3-5 years</option>
+<option value="long-term">Long-term stability</option>
+</select>
+</label>
+<label>Report date
+<input id="proReportDate" type="date"/>
+</label>
+</div>
+<label class="proNotesLabel">Reviewer notes
+<textarea id="proReviewerNotes" maxlength="1000" placeholder="Non-sensitive notes for the exported report. Keep personal identifiers out." style="min-height:96px"></textarea>
+</label>
+<div class="btnrow">
+<button class="btn tiny" id="btnClearOrgProfile" type="button">Clear Org Profile</button>
+<button class="btn tiny" id="btnClearProContext" type="button">Clear Pro Context</button>
+</div>
+</details>
 <div class="tabs" id="exportTabs" style="margin-top:10px">
 <button class="tab active" data-tab="safe" type="button">Safe</button>
 <button class="tab" data-tab="full" type="button">Full</button>
@@ -630,36 +761,84 @@ This version **removes all Blue Button / Blue Button 2.0 / CMS claims‑API assu
 <div class="btnrow">
 <button class="btn" id="btnCopyExport" type="button">Copy</button>
 <button class="btn" id="btnDownloadExport" type="button">Download.txt</button>
-<button class="btn" id="btnCopyLink" type="button">Copy Share Link</button>
 </div>
-<div class="muted" style="margin-top:10px">
- Share links put data in the URL fragment. Don’t post publicly.
- </div>
+<div class="muted" style="margin-top:10px">Exports remain on this device unless you copy or download them.</div>
+</div>
+</div>
+<!-- REPORTS MODAL -->
+<div aria-labelledby="reportsModalTitle" aria-modal="true" class="modal" id="reportsModal" role="dialog">
+<div class="modalCard">
+<div class="row">
+<h3 id="reportsModalTitle" style="margin:0">Printable Medicare Decision Packets</h3>
+<button class="btn tiny" id="btnCloseReports" type="button">Close</button>
+</div>
+<p class="muted" style="margin:8px 0 10px">
+ Printable packets use your Coverage Compass result to create practical conversation guides. Use them with agents, family members, annual reviews, or anyone trying to rush a plan change.
+ </p>
+<div class="callout">
+<div class="calloutTitle">Private beta</div>
+<p class="muted" style="margin:0">Checkout is not connected yet. Pricing labels are placeholders. Report generation is enabled for testing. Future checkout will unlock printable report downloads.</p>
+</div>
+<div class="planCurrent" id="reportAccessCurrent"></div>
+<div class="reportProductGrid" id="reportProductGrid"></div>
+<div class="btnrow">
+<button class="btn tiny" id="btnPrivateBetaUnlockReports" type="button">Private Beta Unlock Reports</button>
+</div>
+</div>
+</div>
+<!-- REPORT PREVIEW MODAL -->
+<div aria-labelledby="reportPreviewTitle" aria-modal="true" class="modal" id="reportPreviewModal" role="dialog">
+<div class="modalCard reportPreview">
+<div class="row noPrint reportActionBar">
+<div>
+<h3 id="reportPreviewTitle" style="margin:0">Report Preview</h3>
+<p class="muted" id="reportPreviewSubtitle" style="margin:4px 0 0"></p>
+</div>
+<div class="btnrow reportActions">
+<button class="btn primary" id="btnPrintReport" type="button">Print / Save as PDF</button>
+<button class="btn" id="btnDownloadReport" type="button">Download Text</button>
+<button class="btn" id="btnCopyReport" type="button">Copy Text</button>
+<button class="btn" id="btnCloseReportPreview" type="button">Close</button>
+</div>
+</div>
+<div class="noPrint reportPreviewMeta">
+<span class="reportPreviewStatus" id="reportPreviewStatus"></span>
+<p class="muted" id="reportPreviewHint" style="margin:8px 0 0"></p>
+<p class="muted" style="margin:8px 0 0">For PDF, choose “Save as PDF” in your browser’s print dialog.</p>
+</div>
+<div class="reportPreviewBody" id="reportPreviewBody"></div>
 </div>
 </div>
 <!-- HELP MODAL -->
-<div class="modal" id="helpModal">
+<div aria-labelledby="helpModalTitle" aria-modal="true" class="modal" id="helpModal" role="dialog">
 <div class="modalCard">
 <div class="row">
-<h3 style="margin:0">Help</h3>
+<h3 id="helpModalTitle" style="margin:0">Help</h3>
 <button class="btn tiny" id="btnCloseHelp" type="button">Close</button>
 </div>
 <div class="scrollbox" style="max-height:60vh">
 <h3 style="margin-top:0">What this app is</h3>
 <p>
- A structured decision-support tool. It s your preferences (risk, doctors, travel, paperwork tolerance) into a score across three structures:
- Medigap + Part D, MA PPO, and MA HMO.
+ Coverage Compass is a local-first educational decision-support tool. It turns your answers into a coverage-structure result and printable packets you can use in real Medicare conversations.
  </p>
 <h3>What this app is not</h3>
 <p>
- Not enrollment, not sales, not plan shopping, and not a substitute for Medicare.gov, your SHIP counselor, or licensed professional advice.
+ It is not enrollment, sales, plan shopping, brokerage, a carrier recommendation, or a substitute for Medicare.gov, SHIP, plan documents, or licensed professional advice.
  </p>
 <h3>How to answer</h3>
 <ul>
 <li>If you’re unsure, pick the closest option and keep going.</li>
-<li>Use Skip if the question feels too sensitive — confidence will drop (on purpose).</li>
-<li>If you have complex providers or travel, answer those questions carefully — they matter a lot.</li>
+<li>Use Skip if the question feels too sensitive.</li>
+<li>More complete answers make your result and printable packets more useful.</li>
 </ul>
+<h3>How reports use your result</h3>
+<p>
+ Reports use your recommendation, confidence, score comparison, warnings, risk flags, and scenario summaries to create practical scripts and checklists. They do not recommend a specific carrier or plan.
+ </p>
+<h3>How to use printable packets</h3>
+<p>
+ Use packets with agents, family members, annual reviews, or calls where someone suggests a plan change. Print or save them, then verify details before enrolling, switching, or canceling coverage.
+ </p>
 <h3>About confidence</h3>
 <p>
  Confidence is based on how separated the top two scores are and how many high-impact questions were answered.
@@ -667,57 +846,56 @@ This version **removes all Blue Button / Blue Button 2.0 / CMS claims‑API assu
  </p>
 <h3>Privacy</h3>
 <p>
- This build is local-only. If you want to use it with clients, consider running it offline and using “Safe Export”.
+ This build is local-first. Your answers stay in this browser unless you choose to print, copy, download, or export them.
  </p>
 </div>
 </div>
 </div>
-<section id="case-study" style="padding: 18px 16px; max-width: 980px; margin: 0 auto;">
-<h2 style="margin:0 0 8px;">Case Study — Coverage Compass</h2>
-<p style="margin:0; opacity:0.9; line-height:1.6;">
- Short skim first. Then the medium story. Deep dive if you want the mechanics.
- </p>
-<div style="border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:14px; margin-top:12px;">
-<h3 style="margin:0 0 6px;">Skim (30–45 sec)</h3>
-<ul style="margin:0; padding-left:18px; line-height:1.75; opacity:0.93;">
-<li><strong>Broken frame:</strong> Most tools treat Medicare choice like shopping.</li>
-<li><strong>Why it fails:</strong> This is risk navigation across time with asymmetric consequences.</li>
-<li><strong>Reframe:</strong> "What happens if I'm wrong?" beats "what looks best today?"</li>
-<li><strong>System:</strong> A decision environment that surfaces tradeoffs + uncertainty + top drivers.</li>
-<li><strong>Signal:</strong> I build explainable, failure-aware systems that don’t pretend certainty.</li>
-</ul>
-</div>
-<div style="border:1px solid rgba(255,255,255,0.18); border-radius:14px; padding:14px; margin-top:12px;">
-<h3 style="margin:0 0 6px;">Medium (2–3 min)</h3>
-<p style="margin:10px 0 0; opacity:0.92; line-height:1.65;">Most Medicare decision tools simplify the wrong thing. They optimize for what’s easy to compare (premium, perks) and hide what’s expensive to misunderstand (lock-in, switching asymmetry, downside risk).</p>
-<p style="margin:10px 0 0; opacity:0.92; line-height:1.65;">Coverage Compass reframes the decision as constrained transitions under uncertainty. The UI is designed to show consequences, not just options — including what would change the recommendation and why.</p>
-<p style="margin:10px 0 0; opacity:0.92; line-height:1.65;">The core design principle: treat failure modes as first-class UX. If the model can be wrong, the user should see where and how.</p>
-<div style="margin-top:12px;">
-<a href="../../case-studies/coverage-compass.html" style="text-decoration:none; border:1px solid rgba(255,255,255,0.22); padding:8px 10px; border-radius:10px; display:inline-block;">Deep dive →</a>
-</div>
-</div>
-</section>
+
 </main>
 <footer class="foot">
 <div class="muted">
- Local-only. Saves progress in your browser. v1.0.2
+ Local-first. Saves progress in this browser. v2.0.0-modular.1
  <span class="sep">•</span>
 <a id="footLegal">Legal</a>
 <span class="sep">•</span>
 <a id="footHelp">Help</a>
 </div></footer>
 </div>
-<script defer="" src="../../shared/global-polyfill.js?v=7"></script>
-<script defer="" src="../../shared/appdata-client.js?v=1"></script>
+<!-- BUILD_ENV_START -->
+<script>
+  window.ENV = Object.freeze({
+    BUILD_MODE: "static-local-first-modular-core",
+    SUPABASE_SYNC_ENABLED: false,
+    MODEL_VERSION: "2.0.0-modular.1",
+    MODULAR_CORE_VERSION: "2.0.0-modular.1",
+    MODULAR_SCORING_ENABLED: true,
+    MODULAR_QUESTION_EXECUTION_ENABLED: true,
+    MODULAR_STORAGE_ENABLED: true,
+    MODULAR_PRODUCTION_POLICY_ENABLED: true,
+    REPORT_SNAPSHOT_ISOLATION_ENABLED: true,
+    EXPORT_CONTROLLER_ENABLED: true,
+    FULL_EXPORT_CONTROLLER_ENABLED: true,
+    DATA_LIFECYCLE_ENABLED: true,
+    RESULT_STATUS_CONTROLLER_ENABLED: true,
+    MODAL_ACCESSIBILITY_ENABLED: true,
+    RULE_SET_VERSION: "2026.07-beta"
+  });
+</script>
+<!-- BUILD_ENV_END -->
+<script defer="defer" src="preflight.js"></script>
 <script defer="defer" src="engine.js"></script>
+<script defer="defer" src="src/browser/storage-adapter.js"></script>
 <script defer="defer" src="glossary.js"></script>
+<script defer="defer" src="reports.js"></script>
+<script defer="defer" src="src/browser/report-snapshot-adapter.js"></script>
 <script defer="defer" src="app.js"></script>
-<script defer="" src="../../shared/runtime-load-guard.js"></script>
-<script defer="" src="../../shared/render-recovery-guard.js"></script>
-<script defer="" src="../../shared/resize-dpr-guard.js"></script>
-<script defer="" src="../../shared/error-boundary-guard.js"></script>
-<script defer="" src="../../shared/state-init-guard.js"></script>
-<script defer="" src="../../shared/scroll-focus-guard.js"></script>
-<script defer="" src="../../shared/ui-physics-guard.js"></script> <script src="../../shared/nexus-topnav-v2.js?v=54"></script>
+<script defer="defer" src="src/browser/export-controller.js"></script>
+<script defer="defer" src="src/browser/data-lifecycle.js"></script>
+<script defer="defer" src="src/browser/result-status-controller.js"></script>
+<script type="module" src="src/browser/runtime.js"></script>
+<script type="module" src="src/browser/modal-accessibility.js"></script>
+  <script defer src="/shared/nexus-topnav-v2.js?v=55"></script>
+  <script defer src="/shared/nexus-canonical-routes.js?v=1"></script>
 </body>
 </html>

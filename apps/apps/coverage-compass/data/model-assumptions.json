@@ -1,0 +1,40 @@
+{
+  "modelVersion": "2.0.0-hardening.1",
+  "ruleSetVersion": "2026.07-beta",
+  "lastReviewed": "2026-07-10",
+  "consumerPolicy": {
+    "personalizedCostForecastsAllowed": false,
+    "planSpecificEstimatesAllowed": false,
+    "qualitativeTradeoffsAllowed": true
+  },
+  "assumptions": [
+    {
+      "id": "RELATIVE_MONTHLY_COST_PRESSURE",
+      "classification": "qualitative",
+      "consumerDisplayAllowed": true,
+      "reviewStatus": "beta-educational",
+      "rationale": "Used only to contrast relative premium pressure among coverage structures; never presented as a quote or individualized forecast."
+    },
+    {
+      "id": "VARIABLE_MEDICAL_COST_EXPOSURE",
+      "classification": "qualitative",
+      "consumerDisplayAllowed": true,
+      "reviewStatus": "beta-educational",
+      "rationale": "Used to discuss relative exposure to copays, coinsurance, and maximum-out-of-pocket risk without fixed dollar projections."
+    },
+    {
+      "id": "PROVIDER_NETWORK_DEPENDENCY",
+      "classification": "qualitative",
+      "consumerDisplayAllowed": true,
+      "reviewStatus": "beta-educational",
+      "rationale": "Used to explain the relative importance of network verification and provider access."
+    },
+    {
+      "id": "LEGACY_SCENARIO_DOLLAR_CONSTANTS",
+      "classification": "internal-legacy-heuristic",
+      "consumerDisplayAllowed": false,
+      "reviewStatus": "unvalidated",
+      "rationale": "Legacy fixed-dollar and probability outputs are suppressed by the hardening layer until independently validated."
+    }
+  ]
+}

@@ -5,7 +5,7 @@
   "display": "standalone",
   "background_color": "#0b1020",
   "theme_color": "#111827",
-  "description": "Local-only Medicare decision-support tool (Medigap vs Medicare Advantage).",
+  "description": "Local-first Medicare decision support with printable decision-defense packets.",
   "icons": [
     {
       "src": "icon-192.png",

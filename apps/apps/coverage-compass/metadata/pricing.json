@@ -1,0 +1,39 @@
+{
+  "currency": "USD",
+  "billingProvider": "unconfigured",
+  "billingProviderOptions": ["stripe", "app-store-iap"],
+  "purchaseModel": "pay-per-report",
+  "subscription": false,
+  "privateBeta": true,
+  "products": [
+    { "id": "agent-ready", "name": "Agent Ready Packet", "priceUsd": 19, "type": "single-report", "includedInBundle": true },
+    { "id": "switch-defense", "name": "Switch Defense Sheet", "priceUsd": 12, "type": "single-report", "includedInBundle": true },
+    { "id": "phone-script", "name": "Phone Call Script", "priceUsd": 7, "type": "single-report", "includedInBundle": true },
+    { "id": "doorstep-event", "name": "Doorstep / Event Response Sheet", "priceUsd": 7, "type": "single-report", "includedInBundle": true },
+    { "id": "family-review", "name": "Family Review Packet", "priceUsd": 12, "type": "single-report", "includedInBundle": true },
+    { "id": "annual-review", "name": "Annual Review Checklist", "priceUsd": 12, "type": "single-report", "includedInBundle": true },
+    { "id": "red-flag", "name": "Red Flag Report", "priceUsd": 9, "type": "single-report", "includedInBundle": true },
+    { "id": "enrollment-status", "name": "Enrollment Status Review Packet", "priceUsd": 9, "type": "single-report", "includedInBundle": false }
+  ],
+  "bundle": {
+    "id": "full-bundle",
+    "name": "Full Coverage Compass Report Bundle",
+    "priceUsd": 39,
+    "includes": [
+      "agent-ready",
+      "switch-defense",
+      "phone-script",
+      "doorstep-event",
+      "family-review",
+      "annual-review",
+      "red-flag"
+    ]
+  },
+  "launchBlockers": [
+    "Connect verified checkout provider before public sales",
+    "Add refund/cancellation policy for report purchases",
+    "Add purchase receipt handling",
+    "Add final tax/app-store purchase handling",
+    "Add terms accepted timestamp before public purchase"
+  ]
+}

@@ -1,59 +1,108 @@
-/* Simple offline cache for Coverage Compass (static assets only). */
-const CACHE_NAME = 'cc-cache-v1.0.3';
-const ASSETS = [
+/* Coverage Compass modular offline worker. */
+const CACHE_NAME = 'coverage-compass-cache-v2-modular-14';
+const APP_SHELL = [
   './',
   './index.html',
   './404.html',
   './styles.css',
-  './app.js',
+  './accessibility.css',
+  './preflight.js',
   './engine.js',
   './glossary.js',
+  './reports.js',
+  './app.js',
+  './src/browser/storage-adapter.js',
+  './src/browser/report-snapshot-adapter.js',
+  './src/browser/export-controller.js',
+  './src/browser/data-lifecycle.js',
+  './src/browser/result-status-controller.js',
+  './src/browser/runtime.js',
+  './src/browser/modal-accessibility.js',
+  './src/config/versions.js',
+  './src/assessment/question-metadata.js',
+  './src/assessment/readiness.js',
+  './src/assessment/validation.js',
+  './src/engine/audit.js',
+  './src/engine/calculate.js',
+  './src/engine/confidence.js',
+  './src/engine/legacy-score-model.js',
+  './src/engine/question-execution.js',
+  './src/engine/overrides.js',
+  './src/engine/scoring.js',
+  './src/reports/readiness.js',
+  './src/reports/snapshot.js',
+  './src/storage/keys.js',
+  './src/storage/migrations.js',
   './manifest.webmanifest',
+  './build-metadata.json',
+  './metadata/app-store-listing.json',
+  './metadata/pricing.json',
+  './metadata/privacy-labels.json',
+  './data/model-assumptions.json',
+  './data/state-rules.json',
   './icon-192.png',
-  './icon-512.png',
-  './legal_pack_md/00_FILL_ME_FIRST.md',
-  './legal_pack_md/01_Disclaimer.md',
-  './legal_pack_md/02_Terms_of_Service.md',
-  './legal_pack_md/03_Privacy_Policy.md',
-  './legal_pack_md/04_Cookie_Policy.md',
-  './legal_pack_md/05_Methodology_and_Risk_Disclosure.md',
-  './legal_pack_md/06_Security_Practices_Summary.md',
-  './legal_pack_md/07_Accessibility_Statement.md',
-  './legal_pack_md/08_Third_Party_Notices.md',
-  './legal_pack_md/09_State_Disclosure_Templates.md',
-  './legal_pack_md/10_Changelog.md',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => (k === CACHE_NAME ? null : caches.delete(k))))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
+      .then((clients) => clients.forEach((client) => client.postMessage({ type: 'COVERAGE_COMPASS_UPDATE_READY', cacheName: CACHE_NAME })))
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
+function isNavigation(request) {
+  return request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html');
+}
 
-  // Avoid caching cross-origin requests.
-  const url = new URL(req.url);
+function isKnownStaticAsset(url) {
+  return APP_SHELL.some((asset) => new URL(asset, self.location.href).pathname === url.pathname);
+}
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(request);
+    if (response.ok) await cache.put(request, response.clone());
+    return response;
+  } catch (_) {
+    return (await cache.match(request)) || (await cache.match('./index.html'));
+  }
+}
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response.ok) await cache.put(request, response.clone());
+  return response;
+}
+
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    caches.match(req).then((cached) =>
-      cached || fetch(req).then((res) => {
-        // Best-effort runtime cache for same-origin GET.
-        const copy = res.clone().catch((e)=>{console.warn("fetch failed", e);});
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
-        return res;
-      }).catch(() => cached)
-    )
-  );
+  if (isNavigation(request)) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  if (isKnownStaticAsset(url)) {
+    event.respondWith(cacheFirst(request));
+  }
 });
