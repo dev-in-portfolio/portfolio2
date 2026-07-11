@@ -1,0 +1,143 @@
+name: Materialize Current Crossword and Sudoku
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/.game-swap-materialize-trigger'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: materialize-current-games
+  cancel-in-progress: false
+
+jobs:
+  materialize:
+    if: github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out writable target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 1
+
+      - name: Download and verify exact game artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 'https://sdmntprcentralus.oaiusercontent.com/files/00000000-bd10-71f5-9c63-930b6a781494/raw?se=2026-07-11T15:20:07Z&sp=r&sv=2026-02-06&sr=b&scid=635d11b3-82bb-5762-aa34-0a87ce803b6f&skoid=e9d2f8b1-028a-4cff-8eb1-d0e66fbefcca&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-11T13:55:57Z&ske=2026-07-13T13:55:57Z&sks=b&skv=2026-02-06&sig=6KwvVLXU9el1K72MBJ2pD7z%2B2Y3kvNBY8tvgTFFvy%2Bo%3D' --output /tmp/for-me-games.zip
+          echo '504ae652901ae41300125ae804834ac820629cac577b9fcf9dcc42293458116c  /tmp/for-me-games.zip' | sha256sum --check --strict
+          rm -rf /tmp/for-me-games /tmp/for-me-check
+          mkdir -p /tmp/for-me-games /tmp/for-me-check/export
+          unzip -q /tmp/for-me-games.zip -d /tmp/for-me-games
+          cp -R /tmp/for-me-games/crossword-arena /tmp/for-me-check/export/
+          cp -R /tmp/for-me-games/evening-epic-sudoku /tmp/for-me-check/export/
+          mkdir -p /tmp/for-me-check/export/shared
+          cp /tmp/for-me-games/shared/tokens.css /tmp/for-me-check/export/shared/tokens.css
+          cp /tmp/for-me-games/source.json /tmp/for-me-check/export/source.json
+          (cd /tmp/for-me-check && sha256sum --check --strict /tmp/for-me-games/SHA256SUMS.txt)
+
+      - name: Replace embedded games
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf apps/apps/crossword-arena apps/apps/evening-epic-sudoku
+          cp -R /tmp/for-me-games/crossword-arena apps/apps/crossword-arena
+          cp -R /tmp/for-me-games/evening-epic-sudoku apps/apps/evening-epic-sudoku
+          cmp --silent /tmp/for-me-games/shared/tokens.css apps/shared/tokens.css
+
+      - name: Apply portfolio routes and provenance
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          apps = {
+            'crossword-arena': {
+              'canonical': 'https://dev-in-portfolio.netlify.app/apps/crossword-arena/',
+              'cache_prefix': 'portfolio2-crossword-',
+            },
+            'evening-epic-sudoku': {
+              'canonical': 'https://dev-in-portfolio.netlify.app/apps/evening-epic-sudoku/',
+              'cache_prefix': 'portfolio2-sudoku-',
+            },
+          }
+
+          for slug, meta in apps.items():
+            directory = Path('apps/apps') / slug
+            page = directory / 'index.html'
+            html = page.read_text(encoding='utf-8')
+            html = html.replace('../shared/tokens.css', '/shared/tokens.css')
+            html = html.replace('../icon-192.png', './icon-192.png')
+            if '/shared/nexus-topnav-v2.css' not in html:
+              head = (
+                '  <link rel="stylesheet" href="/shared/nexus-topnav-v2.css?v=55">\n'
+                f'  <link rel="canonical" href="{meta["canonical"]}">\n'
+                f'  <script>window.APP_ID={json.dumps(slug)};</script>\n'
+              )
+              html = html.replace('</head>', head + '</head>', 1)
+            if 'class="nxTopNav"' not in html:
+              body_at = html.find('<body')
+              body_end = html.find('>', body_at) + 1
+              html = html[:body_end] + '\n  <nav class="nxTopNav" aria-label="Nexus navigation"></nav>' + html[body_end:]
+            if '/shared/nexus-topnav-v2.js' not in html:
+              scripts = (
+                '  <script defer src="/shared/nexus-topnav-v2.js?v=55"></script>\n'
+                '  <script defer src="/shared/nexus-canonical-routes.js?v=1"></script>\n'
+              )
+              html = html.replace('</body>', scripts + '</body>', 1)
+            page.write_text(html, encoding='utf-8')
+
+            sw = directory / 'sw.js'
+            sw_text = sw.read_text(encoding='utf-8')
+            sw_text = sw_text.replace("../shared/tokens.css", "/shared/tokens.css")
+            if "const APP_PREFIX = 'for-me-" in sw_text:
+              start = sw_text.index("const APP_PREFIX = '")
+              end = sw_text.index("';", start) + 2
+              sw_text = sw_text[:start] + f"const APP_PREFIX = '{meta['cache_prefix']}';" + sw_text[end:]
+            sw_text = sw_text.replace("const CACHE_VERSION = 'v5';", "const CACHE_VERSION = 'v1';")
+            sw.write_text(sw_text, encoding='utf-8')
+
+            provenance = {
+              'sourceRepository': 'dev-in-portfolio/for-me',
+              'sourceCommit': '758ef74d51fe248a75f18b1cf172a0ed26652a2f',
+              'exportHead': 'be16451f83b90b93707ae407967a7435896d411f',
+              'sourceArtifact': 'for-me-portfolio2-games',
+              'sourceArtifactSha256': '504ae652901ae41300125ae804834ac820629cac577b9fcf9dcc42293458116c',
+              'portfolioRoute': f'/apps/{slug}/',
+            }
+            (directory / '.portfolio-source.json').write_text(json.dumps(provenance, indent=2) + '\n', encoding='utf-8')
+          PY
+
+      - name: Validate imported game bundles
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check apps/apps/crossword-arena/app.js
+          node --check apps/apps/evening-epic-sudoku/sudoku.js
+          node --check apps/apps/evening-epic-sudoku/sudoku-worker.js
+          grep -q 'data/puzzles.json' apps/apps/crossword-arena/sw.js
+          grep -q 'sudoku-worker.js' apps/apps/evening-epic-sudoku/sw.js
+          grep -q '/shared/nexus-topnav-v2.js' apps/apps/crossword-arena/index.html
+          grep -q '/shared/nexus-topnav-v2.js' apps/apps/evening-epic-sudoku/index.html
+          npm run validate:registries
+          npm run validate:static-targets
+          npm run inventory:static:report
+          npm run verify:protected
+
+      - name: Remove transfer trigger and commit replacement
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f scripts/.game-swap-materialize-trigger
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A apps/apps/crossword-arena apps/apps/evening-epic-sudoku scripts/.game-swap-materialize-trigger
+          git status --short
+          git commit -m 'feat(apps): replace crossword and sudoku from for-me'
+          git push origin HEAD:${{ github.head_ref }}
