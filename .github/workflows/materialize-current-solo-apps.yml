@@ -128,10 +128,9 @@ jobs:
           test -f apps/apps/coverage-compass/src/browser/runtime.js
           grep -q '2.0.0-modular.1' apps/apps/coverage-compass/build-metadata.json
 
-      - name: Remove temporary transfer files
+      - name: Remove temporary non-workflow files
         run: |
           rm -f tmp/solo-deploy-bridge.html scripts/.solo-app-materialize-trigger
-          rm -f .github/workflows/materialize-current-solo-apps.yml
 
       - name: Commit exact standalone swaps
         shell: bash
@@ -139,6 +138,6 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A apps/apps/alibi apps/apps/coverage-compass data/apps.registry.json reports/reforge/solo-app-swap.json tmp/solo-deploy-bridge.html scripts/.solo-app-materialize-trigger .github/workflows/materialize-current-solo-apps.yml
+          git add -A apps/apps/alibi apps/apps/coverage-compass data/apps.registry.json reports/reforge/solo-app-swap.json tmp/solo-deploy-bridge.html scripts/.solo-app-materialize-trigger
           git commit -m 'feat(apps): replace Alibi and Coverage Compass from standalone releases'
           git push origin HEAD:main
