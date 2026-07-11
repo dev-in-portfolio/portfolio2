@@ -1,13 +1,9 @@
 name: Materialize Current Solo Apps
 
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/materialize-current-solo-apps.yml']
   pull_request:
     branches: [main]
     paths: ['scripts/.solo-app-materialize-trigger']
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -18,22 +14,22 @@ concurrency:
 
 jobs:
   materialize:
-    if: github.event_name != 'pull_request' || github.event.action == 'opened'
+    if: github.event.action == 'opened'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - name: Check out writable target branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
-          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+          fetch-depth: 1
 
       - name: Download validated standalone artifacts
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-750c-722f-a058-7d9ad4956ee6/raw?se=2026-07-11T01:47:42Z&sp=r&sv=2026-02-06&sr=b&scid=e974e53c-b34a-5df3-9522-f303fd5b8d97&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T06:30:10Z&ske=2026-07-12T06:30:10Z&sks=b&skv=2026-02-06&sig=tdzvPndLWgs9G55Nt61svoyWIriXcLSI2E1NJveGnn8%3D' --output /tmp/alibi.zip
-          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-d2d0-722f-a34d-44497b3d47c6/raw?se=2026-07-11T01:47:52Z&sp=r&sv=2026-02-06&sr=b&scid=d84c631e-b694-578d-8026-ccab6a4a4319&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T06:30:11Z&ske=2026-07-12T06:30:11Z&sks=b&skv=2026-02-06&sig=MTFnjA423qkgP/SAKtaI3XlQAdC23DNRypDcq121i6A%3D' --output /tmp/coverage.zip
+          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-b7f8-722f-bc9e-53f61ddae1ba/raw?se=2026-07-11T01:51:07Z&sp=r&sv=2026-02-06&sr=b&scid=b52a4537-050d-5551-9a2f-2cd490ebab21&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T02:00:02Z&ske=2026-07-12T02:00:02Z&sks=b&skv=2026-02-06&sig=IXkr6MnaqpOF95DgZ070BUv3CU2Aniak6GEpvQJCKyc%3D' --output /tmp/alibi.zip
+          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-45dc-722f-811d-fa795f91730a/raw?se=2026-07-11T01:51:13Z&sp=r&sv=2026-02-06&sr=b&scid=c0a581ab-e9ef-59aa-abf0-bc499d829c7c&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T02:03:51Z&ske=2026-07-12T02:03:51Z&sks=b&skv=2026-02-06&sig=5UJ9ZNavPXl96anWd2LRhj54/jMdLL/hzo24cbvKEyo%3D' --output /tmp/coverage.zip
           echo '9cfe80bfdc8c019561ea2b2eae1698b841c57cc836bdc7df707cfb0eb61c524a  /tmp/alibi.zip' | sha256sum --check --strict
           echo '069f0baeb47725de5aed78a5800f41d60353398ccd5ac667d7ca0c8f833c3d2f  /tmp/coverage.zip' | sha256sum --check --strict
 
@@ -130,16 +126,18 @@ jobs:
           grep -q '2.0.0-modular.1' apps/apps/coverage-compass/build-metadata.json
 
       - name: Remove temporary transfer files
-        run: |
-          rm -f tmp/solo-deploy-bridge.html scripts/.solo-app-materialize-trigger
+        run: rm -f tmp/solo-deploy-bridge.html scripts/.solo-app-materialize-trigger
 
-      - name: Commit exact standalone swaps to writable branch
-        shell: bash
+      - name: Stage replacement files
         run: |
-          set -euo pipefail
+          git add -A apps/apps/alibi apps/apps/coverage-compass data/apps.registry.json reports/reforge/solo-app-swap.json tmp/solo-deploy-bridge.html scripts/.solo-app-materialize-trigger
+          git status --short
+
+      - name: Commit replacement files
+        run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A apps/apps/alibi apps/apps/coverage-compass data/apps.registry.json reports/reforge/solo-app-swap.json tmp/solo-deploy-bridge.html scripts/.solo-app-materialize-trigger
           git commit -m 'feat(apps): replace Alibi and Coverage Compass from standalone releases'
-          target="${GITHUB_HEAD_REF:-main}"
-          git push origin HEAD:"$target"
+
+      - name: Push replacement commit
+        run: git push origin HEAD:${{ github.head_ref }}
