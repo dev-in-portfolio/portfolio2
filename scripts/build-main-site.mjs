@@ -66,6 +66,7 @@ for (const target of buildRegistry.targets) {
 }
 
 run(process.execPath, ['scripts/assemble-compiled-apps.mjs', '--output', 'dist']);
+run(process.execPath, ['scripts/prepare-static-app-compat.mjs']);
 run(process.execPath, ['scripts/assemble-static-apps.mjs', '--output', 'dist']);
 run(process.execPath, ['scripts/assemble-main-sections.mjs', '--output', 'dist']);
 run(process.execPath, ['scripts/assemble-inline-section-assets.mjs', '--output', 'dist']);
@@ -89,6 +90,7 @@ const manifest = {
     { route: '/contact/', source: 'contact' },
     { route: '/capabilities/', source: 'capabilities', protected: true }
   ],
+  compatibilityAdapters: ['coverage-compass-report-modules'],
   functionsDirectory: 'netlify/functions',
   assemblyValidated: true,
   productionValidated: true,
