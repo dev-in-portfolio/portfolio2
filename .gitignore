@@ -6,5 +6,6 @@ netlify/functions/
 
 node_modules/
 dist/
-reports/reforge/
+reports/reforge/*
+!reports/reforge/solo-app-swap.json
 package-lock.json
