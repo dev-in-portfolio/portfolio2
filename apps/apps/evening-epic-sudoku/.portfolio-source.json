@@ -1,0 +1,8 @@
+{
+  "sourceRepository": "dev-in-portfolio/for-me",
+  "sourceCommit": "758ef74d51fe248a75f18b1cf172a0ed26652a2f",
+  "exportHead": "be16451f83b90b93707ae407967a7435896d411f",
+  "sourceArtifact": "for-me-portfolio2-games",
+  "sourceArtifactSha256": "504ae652901ae41300125ae804834ac820629cac577b9fcf9dcc42293458116c",
+  "portfolioRoute": "/apps/evening-epic-sudoku/"
+}

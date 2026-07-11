@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "license": "Original puzzle pack created for Arcade Hub. Redistribution follows the repository content license.",
+  "weekly": [
+    {
+      "id": "weekly-01",
+      "title": "Weekly 1 — Opening Round",
+      "grid": ["LEAST", "ERROR", "ARENA", "SONGS", "TRASH"],
+      "clues": {
+        "LEAST": "Smallest in amount",
+        "ERROR": "A mistake",
+        "ARENA": "Place for a competition",
+        "SONGS": "Musical compositions",
+        "TRASH": "Waste material"
+      }
+    },
+    {
+      "id": "weekly-02",
+      "title": "Weekly 2 — First Principles",
+      "grid": ["CAUSE", "ALPHA", "UPPER", "SHEET", "EARTH"],
+      "clues": {
+        "CAUSE": "Reason something happens",
+        "ALPHA": "First Greek letter",
+        "UPPER": "Higher in position",
+        "SHEET": "Flat piece of paper",
+        "EARTH": "Our home planet"
+      }
+    },
+    {
+      "id": "weekly-03",
+      "title": "Weekly 3 — Follow the Path",
+      "grid": ["HEART", "ERROR", "ARGUE", "ROUTE", "TREES"],
+      "clues": {
+        "HEART": "Organ that pumps blood",
+        "ERROR": "A mistake",
+        "ARGUE": "Disagree verbally",
+        "ROUTE": "Path from place to place",
+        "TREES": "Tall woody plants"
+      }
+    },
+    {
+      "id": "weekly-04",
+      "title": "Weekly 4 — Stripe and Style",
+      "grid": ["STAND", "TIGER", "AGREE", "NEEDS", "DRESS"],
+      "clues": {
+        "STAND": "Rise to your feet",
+        "TIGER": "Striped big cat",
+        "AGREE": "Share the same opinion",
+        "NEEDS": "Requires",
+        "DRESS": "One-piece garment"
+      }
+    },
+    {
+      "id": "weekly-05",
+      "title": "Weekly 5 — Signal and Sound",
+      "grid": ["PARTS", "ALARM", "RADIO", "TRICK", "SMOKE"],
+      "clues": {
+        "PARTS": "Components",
+        "ALARM": "Warning signal",
+        "RADIO": "Audio broadcast device",
+        "TRICK": "Clever deceptive act",
+        "SMOKE": "What rises from a fire"
+      }
+    }
+  ],
+  "library": [
+    {
+      "id": "library-01",
+      "title": "Library — Fresh Start",
+      "grid": ["STAFF", "TIGER", "AGREE", "FEELS", "FRESH"],
+      "clues": {
+        "STAFF": "A group of employees",
+        "TIGER": "Striped big cat",
+        "AGREE": "Reach the same opinion",
+        "FEELS": "Experiences an emotion",
+        "FRESH": "New or recently made"
+      }
+    },
+    {
+      "id": "library-02",
+      "title": "Library — Essay Mode",
+      "grid": ["ISSUE", "SOULS", "SUITS", "ULTRA", "ESSAY"],
+      "clues": {
+        "ISSUE": "A topic or problem",
+        "SOULS": "Spiritual selves",
+        "SUITS": "Matches or formal outfits",
+        "ULTRA": "Beyond the usual limit",
+        "ESSAY": "A short written composition"
+      }
+    }
+  ],
+  "meta": {
+    "id": "weekly-meta-01",
+    "title": "Meta — Final Round",
+    "grid": ["COSTS", "OPERA", "SEVEN", "TREAT", "SANTA"],
+    "clues": {
+      "COSTS": "Prices",
+      "OPERA": "Drama sung on stage",
+      "SEVEN": "Number after six",
+      "TREAT": "Something special",
+      "SANTA": "Holiday gift giver"
+    }
+  }
+}
