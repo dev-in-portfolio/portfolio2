@@ -31,8 +31,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-aa98-722f-b6f4-b734d4941fab/raw?se=2026-07-11T01:37:41Z&sp=r&sv=2026-02-06&sr=b&scid=0a9e91de-4794-581c-ba66-62ee9e07ae4c&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T02:05:50Z&ske=2026-07-12T02:05:50Z&sks=b&skv=2026-02-06&sig=dBDQ3o8IqwY5uuNV1HtgVY7sSm260gmMdhSagHejoXc%3D' --output /tmp/alibi.zip
-          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-5968-722f-89e7-7ea01f3c79b6/raw?se=2026-07-11T01:37:48Z&sp=r&sv=2026-02-06&sr=b&scid=c2eafd56-66e0-522e-91ab-325f84ddba57&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T01:58:12Z&ske=2026-07-12T01:58:12Z&sks=b&skv=2026-02-06&sig=cv6aq3uWtNfCG3wLEwxMXygiHURf963lvlJsib9jlmA%3D' --output /tmp/coverage.zip
+          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-df08-722f-94f9-258609b9b05b/raw?se=2026-07-11T01:43:02Z&sp=r&sv=2026-02-06&sr=b&scid=f518c950-dc51-5624-8d32-da9d902cf4d9&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T02:02:44Z&ske=2026-07-12T02:02:44Z&sks=b&skv=2026-02-06&sig=VqcZSbbrS2Cvhb28AeSey5tFQTdUiaJtgjvz5Vwg0cM%3D' --output /tmp/alibi.zip
+          curl --fail --location --retry 3 'https://sdmntprnorthcentralus.oaiusercontent.com/files/00000000-f830-722f-8442-e6e11c2865c1/raw?se=2026-07-11T01:43:10Z&sp=r&sv=2026-02-06&sr=b&scid=c8da5bc9-d5bc-5f29-b34b-0d2304e0046f&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-07-10T06:29:52Z&ske=2026-07-12T06:29:52Z&sks=b&skv=2026-02-06&sig=Kzp0CL6acBO5ts2RZKG5uSpfCrugQ5kdqofCtydzfJ0%3D' --output /tmp/coverage.zip
           echo '9cfe80bfdc8c019561ea2b2eae1698b841c57cc836bdc7df707cfb0eb61c524a  /tmp/alibi.zip' | sha256sum --check --strict
           echo '069f0baeb47725de5aed78a5800f41d60353398ccd5ac667d7ca0c8f833c3d2f  /tmp/coverage.zip' | sha256sum --check --strict
 
@@ -116,16 +116,12 @@ jobs:
 
       - name: Validate registries
         run: npm run validate:registries
-
       - name: Validate static target registry
         run: npm run validate:static-targets
-
       - name: Inventory static dependencies
         run: npm run inventory:static:report
-
       - name: Verify protected files
         run: npm run verify:protected
-
       - name: Verify imported release markers
         run: |
           test -f apps/apps/alibi/src/runtime-hardening.js
