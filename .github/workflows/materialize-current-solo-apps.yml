@@ -115,7 +115,7 @@ jobs:
               if app['id'] in {'alibi', 'coverage-compass'}:
                   app.pop('reforgeScope', None)
                   app.pop('deferReason', None)
-                  app['lifecycleStatus'] = 'current-standalone-swap'
+                  app['lifecycleStatus'] = 'pending-review'
                   app['verification'] = {'status': 'pending'}
           registry_path.write_text(json.dumps(registry, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
 
