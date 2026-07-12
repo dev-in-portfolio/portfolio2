@@ -1,3 +1,4 @@
+# Standalone Apps project configuration when Netlify Base directory is set to apps.
 [build]
   command = "cd .. && npm run build:apps-deployment"
   publish = "dist"
