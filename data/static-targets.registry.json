@@ -1,1 +1,141 @@
-{"schemaVersion":1,"registryStatus":"foundation-readiness","policy":"Static-target registration identifies applications expected to run without a compilation step. Verification requires entry-point, resource, route, and browser checks.","expectedTargetCount":19,"targets":[{"id":"agents-ui","sourcePath":"apps/apps/agents","publicRoute":"/apps/agents/","entryFile":"index.html","runtimeClass":"static-platform"},{"id":"alibi","sourcePath":"apps/apps/alibi","publicRoute":"/apps/alibi/","entryFile":"index.html","runtimeClass":"static-application"},{"id":"prompt-vault","sourcePath":"apps/apps/prompt-vault","publicRoute":"/apps/prompt-vault/","entryFile":"index.html","runtimeClass":"static-application"},{"id":"coverage-compass","sourcePath":"apps/apps/coverage-compass","publicRoute":"/apps/coverage-compass/","entryFile":"index.html","runtimeClass":"pwa-static-application"},{"id":"ubr","sourcePath":"apps/apps/ubr","publicRoute":"/apps/ubr/","entryFile":"index.html","runtimeClass":"static-application"},{"id":"lingolive-ai","sourcePath":"apps/apps/lingolive-ai","publicRoute":"/apps/lingolive-ai/","entryFile":"index.html","runtimeClass":"static-ai-interface"},{"id":"oracle-pit","sourcePath":"apps/apps/oracle-pit","publicRoute":"/apps/oracle-pit/","entryFile":"index.html","runtimeClass":"static-ai-interface"},{"id":"sleepystory","sourcePath":"apps/apps/sleepystory","publicRoute":"/apps/sleepystory/","entryFile":"index.html","runtimeClass":"static-media-application"},{"id":"toonstudio","sourcePath":"apps/apps/toonstudio","publicRoute":"/apps/toonstudio/","entryFile":"index.html","runtimeClass":"static-media-application"},{"id":"splice","sourcePath":"apps/apps/splice","publicRoute":"/apps/splice/","entryFile":"index.html","runtimeClass":"static-media-application"},{"id":"crossword-arena","sourcePath":"apps/apps/crossword-arena","publicRoute":"/apps/crossword-arena/","entryFile":"index.html","runtimeClass":"static-game"},{"id":"evening-epic-sudoku","sourcePath":"apps/apps/evening-epic-sudoku","publicRoute":"/apps/evening-epic-sudoku/","entryFile":"index.html","runtimeClass":"static-game"},{"id":"wordz","sourcePath":"apps/apps/wordz","publicRoute":"/apps/wordz/","entryFile":"index.html","runtimeClass":"static-project-profile"},{"id":"dark-star-literary-agency","sourcePath":"apps/apps/dark-star-literary-agency","publicRoute":"/apps/dark-star-literary-agency/","entryFile":"index.html","runtimeClass":"static-project-profile"},{"id":"a-reliable-trucking","sourcePath":"apps/apps/a-reliable-trucking","publicRoute":"/apps/a-reliable-trucking/","entryFile":"index.html","runtimeClass":"static-project-profile"},{"id":"urban-hippie-art","sourcePath":"apps/apps/urban-hippie-art","publicRoute":"/apps/urban-hippie-art/","entryFile":"index.html","runtimeClass":"static-project-profile"},{"id":"animation-playground","sourcePath":"apps/apps/animation-playground","publicRoute":"/apps/animation-playground/","entryFile":"index.html","runtimeClass":"static-project-profile"},{"id":"vic-el-puaso","sourcePath":"apps/apps/vic-el-puaso","publicRoute":"/apps/vic-el-puaso/","entryFile":"index.html","runtimeClass":"static-project-profile"},{"id":"lulu-takes-over","sourcePath":"apps/apps/lulu-takes-over","publicRoute":"/apps/lulu-takes-over/","entryFile":"index.html","runtimeClass":"static-project-profile"}]}
+{
+  "schemaVersion": 1,
+  "registryStatus": "foundation-readiness",
+  "policy": "Static-target registration identifies applications expected to run without a compilation step. Verification requires entry-point, resource, route, and browser checks.",
+  "expectedTargetCount": 19,
+  "targets": [
+    {
+      "id": "agents-ui",
+      "sourcePath": "apps/apps/agents",
+      "publicRoute": "/apps/agents/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-platform"
+    },
+    {
+      "id": "alibi",
+      "sourcePath": "apps/apps/alibi",
+      "publicRoute": "/apps/alibi/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-application"
+    },
+    {
+      "id": "prompt-vault",
+      "sourcePath": "apps/apps/prompt-vault",
+      "publicRoute": "/apps/prompt-vault/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-application"
+    },
+    {
+      "id": "coverage-compass",
+      "sourcePath": "apps/apps/coverage-compass",
+      "publicRoute": "/apps/coverage-compass/",
+      "entryFile": "index.html",
+      "runtimeClass": "pwa-static-application"
+    },
+    {
+      "id": "ubr",
+      "sourcePath": "apps/apps/ubr",
+      "publicRoute": "/apps/ubr/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-application"
+    },
+    {
+      "id": "lingolive-ai",
+      "sourcePath": "apps/apps/lingolive-ai",
+      "publicRoute": "/apps/lingolive-ai/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-ai-interface"
+    },
+    {
+      "id": "oracle-pit",
+      "sourcePath": "apps/apps/oracle-pit",
+      "publicRoute": "/apps/oracle-pit/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-ai-interface"
+    },
+    {
+      "id": "sleepystory",
+      "sourcePath": "apps/apps/sleepystory",
+      "publicRoute": "/apps/sleepystory/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-media-application"
+    },
+    {
+      "id": "toonstudio",
+      "sourcePath": "apps/apps/toonstudio",
+      "publicRoute": "/apps/toonstudio/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-media-application"
+    },
+    {
+      "id": "splice",
+      "sourcePath": "apps/apps/splice",
+      "publicRoute": "/apps/splice/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-media-application"
+    },
+    {
+      "id": "crossword-arena",
+      "sourcePath": "apps/apps/crossword-arena",
+      "publicRoute": "/apps/crossword-arena/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-game"
+    },
+    {
+      "id": "evening-epic-sudoku",
+      "sourcePath": "apps/apps/evening-epic-sudoku",
+      "publicRoute": "/apps/evening-epic-sudoku/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-game"
+    },
+    {
+      "id": "wordz",
+      "sourcePath": "apps/apps/wordz",
+      "publicRoute": "/apps/wordz/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-project-profile"
+    },
+    {
+      "id": "dark-star-literary-agency",
+      "sourcePath": "apps/apps/dark-star-literary-agency",
+      "publicRoute": "/apps/dark-star-literary-agency/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-project-profile"
+    },
+    {
+      "id": "a-reliable-trucking",
+      "sourcePath": "apps/apps/a-reliable-trucking",
+      "publicRoute": "/apps/a-reliable-trucking/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-project-profile"
+    },
+    {
+      "id": "urban-hippie-art",
+      "sourcePath": "apps/apps/urban-hippie-art",
+      "publicRoute": "/apps/urban-hippie-art/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-project-profile"
+    },
+    {
+      "id": "animation-playground",
+      "sourcePath": "apps/apps/animation-playground",
+      "publicRoute": "/apps/animation-playground/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-project-profile"
+    },
+    {
+      "id": "vic-el-puaso",
+      "sourcePath": "apps/apps/vic-el-puaso",
+      "publicRoute": "/apps/vic-el-puaso/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-project-profile"
+    },
+    {
+      "id": "lulu-takes-over",
+      "sourcePath": "apps/apps/lulu-takes-over",
+      "publicRoute": "/apps/lulu-takes-over/",
+      "entryFile": "index.html",
+      "runtimeClass": "static-project-profile"
+    }
+  ]
+}
