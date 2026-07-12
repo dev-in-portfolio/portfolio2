@@ -1,12 +1,11 @@
-import { cp, mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, '..');
 const coverageRoot = path.join(rootDir, 'apps/apps/coverage-compass');
-const sourceReports = path.join(coverageRoot, 'src/reports');
-const compatibleReports = path.join(coverageRoot, 'src/report-modules');
+const reportingRoot = path.join(coverageRoot, 'src/reporting');
 
 async function exists(target) {
   try {
@@ -18,68 +17,58 @@ async function exists(target) {
 }
 
 if (!await exists(path.join(coverageRoot, 'build-metadata.json'))) {
-  console.log('Coverage Compass production artifact is not present; no static compatibility adaptation needed.');
+  console.log('Coverage Compass production artifact is not present; no static compatibility validation needed.');
   process.exit(0);
 }
 
-for (const file of ['readiness.js', 'snapshot.js']) {
-  const source = path.join(sourceReports, file);
-  if (!await exists(source)) throw new Error(`Coverage Compass compatibility source is missing: src/reports/${file}`);
-  await mkdir(compatibleReports, { recursive: true });
-  await cp(source, path.join(compatibleReports, file), { force: true });
+const requiredModules = ['readiness.js', 'snapshot.js'];
+for (const file of requiredModules) {
+  const source = path.join(reportingRoot, file);
+  if (!await exists(source)) throw new Error(`Coverage Compass reporting module is missing: src/reporting/${file}`);
 }
 
-const rewrites = [
+const expectedReferences = [
   {
     file: 'src/browser/runtime.js',
-    replacements: [
-      ["../reports/readiness.js", "../report-modules/readiness.js"],
-      ["../reports/snapshot.js", "../report-modules/snapshot.js"]
-    ]
+    references: ['../reporting/readiness.js', '../reporting/snapshot.js']
   },
   {
     file: 'src/engine/calculate.js',
-    replacements: [["../reports/snapshot.js", "../report-modules/snapshot.js"]]
+    references: ['../reporting/snapshot.js']
   },
   {
     file: 'src/engine/overrides.js',
-    replacements: [["../reports/snapshot.js", "../report-modules/snapshot.js"]]
+    references: ['../reporting/snapshot.js']
   },
   {
     file: 'service-worker.js',
-    replacements: [
-      ["./src/reports/readiness.js", "./src/report-modules/readiness.js"],
-      ["./src/reports/snapshot.js", "./src/report-modules/snapshot.js"]
-    ]
+    references: ['./src/reporting/readiness.js', './src/reporting/snapshot.js']
   }
 ];
 
-const changed = [];
-for (const item of rewrites) {
+for (const item of expectedReferences) {
   const target = path.join(coverageRoot, item.file);
   if (!await exists(target)) throw new Error(`Coverage Compass compatibility target is missing: ${item.file}`);
-  const original = await readFile(target, 'utf8');
-  let updated = original;
-  for (const [from, to] of item.replacements) {
-    if (updated.includes(from)) updated = updated.split(from).join(to);
-    else if (!updated.includes(to)) throw new Error(`${item.file}: expected compatibility reference not found: ${from}`);
+  const content = await readFile(target, 'utf8');
+  if (content.includes('../reports/') || content.includes('./src/reports/')) {
+    throw new Error(`${item.file}: obsolete reports path remains in the production artifact`);
   }
-  if (updated !== original) {
-    await writeFile(target, updated, 'utf8');
-    changed.push(item.file);
+  for (const reference of item.references) {
+    if (!content.includes(reference)) throw new Error(`${item.file}: canonical reporting reference is missing: ${reference}`);
   }
 }
 
 const manifest = {
   generatedAt: new Date().toISOString(),
   application: 'coverage-compass',
-  reason: 'The portfolio deployment excludes repository-generated reports directories; Coverage Compass uses src/reports for required runtime modules.',
-  sourceModules: ['src/reports/readiness.js', 'src/reports/snapshot.js'],
-  compatibleModules: ['src/report-modules/readiness.js', 'src/report-modules/snapshot.js'],
-  rewrittenFiles: changed
+  compatibilityMode: 'canonical-reporting-modules',
+  reason: 'Coverage Compass runtime modules live in a deployment-safe reporting directory and require no build-time duplication.',
+  sourceModules: requiredModules.map((file) => `src/reporting/${file}`),
+  validatedFiles: expectedReferences.map((item) => item.file),
+  rewrittenFiles: []
 };
 await writeFile(path.join(coverageRoot, '.portfolio-build-compat.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
-console.log('Coverage Compass static compatibility adaptation complete.');
-console.log(`- copied modules: ${manifest.compatibleModules.join(', ')}`);
-console.log(`- rewritten files: ${changed.join(', ') || 'already compatible'}`);
+console.log('Coverage Compass static compatibility validation complete.');
+console.log(`- reporting modules: ${manifest.sourceModules.join(', ')}`);
+console.log(`- validated references: ${manifest.validatedFiles.join(', ')}`);
