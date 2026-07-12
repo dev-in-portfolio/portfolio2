@@ -1,1 +1,451 @@
-{"categoryData":[{"name":"APPS - TOOLS","apps":[{"name":"Agents (UI)","href":"/apps/agents/","tags":["HTML/JS"]},{"name":"Alibi","href":"/apps/alibi/","tags":["HTML/JS"]},{"name":"Prompt Vault","href":"/apps/prompt-vault/","tags":["HTML/JS"]}]},{"name":"FLAGSHIP APPLICATIONS","apps":[{"name":"Wordz","href":"/apps/wordz/","tags":["Offline-first","IndexedDB","Capacitor"]}]},{"name":"DECISION SYSTEMS","apps":[{"name":"Coverage Compass","href":"/apps/coverage-compass/","tags":["HTML/JS"]},{"name":"Ultimate Broker Route (UBR)","href":"/apps/ubr/","tags":["HTML/JS"]}]},{"name":"AI / KNOWLEDGE","apps":[{"name":"LingoLive AI","href":"/apps/lingolive-ai/","tags":["HTML/JS"]},{"name":"Oracle Pit","href":"/apps/oracle-pit/","tags":["HTML/JS"]}]},{"name":"Reasoning & Language Systems","apps":[{"name":"SolveSpace","href":"https://dev-in-portfolio-solvespace.netlify.app","tags":["Next.js"]}]},{"name":"Forms, Grids & Structured Input","apps":[{"name":"TapForge","href":"https://dev-in-portfolio-tapforge.netlify.app","tags":["Flutter","Node API","Neon"]}]},{"name":"Timeline, Cadence & Session Flow","apps":[{"name":"SessionMint","href":"https://dev-in-portfolio-sessionmint.netlify.app","tags":["Next.js","Supabase"]}]},{"name":"Signal, Status & Monitoring Boards","apps":[{"name":"Signal Board","href":"https://dev-in-portfolio-signal-board.netlify.app","tags":["Vue","Functions","Neon"]}]},{"name":"Ledger, Vault & Record Systems","apps":[{"name":"PalmLedger","href":"https://dev-in-portfolio-palmledger.netlify.app","tags":["Node API","Functions","Neon"]}]},{"name":"Media, Cards & Composition Studios","apps":[{"name":"SleepyStory","href":"/apps/sleepystory/","tags":["HTML/JS"]},{"name":"ToonStudio","href":"/apps/toonstudio/","tags":["HTML/JS"]}]},{"name":"Spatial, Museum & Navigation Systems","apps":[{"name":"RouteForge Console","href":"https://dev-in-portfolio-routeforge-console.netlify.app","tags":["Streamlit","Python","Neon"]}]},{"name":"Docs, Specs & Release Libraries","apps":[{"name":"PatchSmith","href":"https://dev-in-portfolio-patchsmith.netlify.app","tags":["Gradio","Python","Neon"]},{"name":"Repo Pilot","href":"https://dev-in-portfolio-repo-pilot.netlify.app","tags":["Desktop","Download"]},{"name":"Switchboard","href":"https://dev-in-portfolio-swittchboard.netlify.app","tags":["Vue","Functions","Neon"]}]},{"name":"App Platform Labs & View Infrastructure","apps":[{"name":"NeonScope","href":"https://dev-in-portfolio-neonscope.netlify.app","tags":["Streamlit","Python","Neon"]},{"name":"LatchList","href":"https://dev-in-portfolio-latchlist.netlify.app","tags":["Next.js","Supabase"]}]},{"name":"CLIENT & BUSINESS WEBSITES","apps":[{"name":"Dark Star Literary Agency","href":"/apps/dark-star-literary-agency/","tags":["Publishing","SEO","Validation"]},{"name":"A Reliable Trucking Company","href":"/apps/a-reliable-trucking/","tags":["Next.js","React","TypeScript"]}]},{"name":"CREATIVE PLATFORMS","apps":[{"name":"Urban Hippie Art","href":"/apps/urban-hippie-art/","tags":["React","Curation","Netlify Blobs"]}]}],"extraCategories":[{"name":"MEDIA TOOLS / EDITING","apps":[{"name":"Splice","href":"/apps/splice/","tags":["HTML/JS"]}]},{"name":"REAL-TIME RENDER","apps":[{"name":"Helios","href":"/apps/helios/","tags":["HTML/JS"]},{"name":"Transit","href":"/apps/transit/","tags":["HTML/JS"]},{"name":"Vortex","href":"/apps/vortex/","tags":["HTML/JS"]},{"name":"Helix","href":"/apps/helix/","tags":["HTML/JS"]},{"name":"Tectonic","href":"/apps/tectonic/","tags":["HTML/JS"]}]},{"name":"INTERACTIVE SIM","apps":[{"name":"Aeon","href":"/apps/aeon/","tags":["HTML/JS"]},{"name":"Magma","href":"/apps/magma/","tags":["HTML/JS"]},{"name":"String","href":"/apps/string/","tags":["HTML/JS"]}]},{"name":"GAMES / PUZZLES / LOGIC","apps":[{"name":"Crossword Arena","href":"/apps/crossword-arena/","tags":["HTML/JS"]},{"name":"Evening Epic Sudoku","href":"/apps/evening-epic-sudoku/","tags":["HTML/JS"]}]},{"name":"UI LABS / MOTION","apps":[{"name":"Animation Playground","href":"/apps/animation-playground/","tags":["Canvas","Particles","Motion"]}]},{"name":"CREATIVE MEDIA / STORYWORLDS","apps":[{"name":"Vic: El Puaso","href":"/apps/vic-el-puaso/","tags":["PDF.js","Web Audio","Git LFS"]},{"name":"Lulu Takes Over","href":"/apps/lulu-takes-over/","tags":["Video","Audio","Git LFS"]}]}],"categoryOrder":["APPS - TOOLS","FLAGSHIP APPLICATIONS","DECISION SYSTEMS","AI / KNOWLEDGE","MEDIA TOOLS / EDITING","REAL-TIME RENDER","INTERACTIVE SIM","Forms, Grids & Structured Input","KNOWLEDGE / REFERENCE","GAMES / PUZZLES / LOGIC","Signal, Status & Monitoring Boards","BUILDERS / GENERATORS","Timeline, Cadence & Session Flow","CREATIVE TOOLS / CANVAS","CREATIVE PLATFORMS","Schema, Diff & Rule Enforcement Engines","Ledger, Vault & Record Systems","STORYWORLD / EXPLORER","CREATIVE MEDIA / STORYWORLDS","Docs, Specs & Release Libraries","App Platform Labs & View Infrastructure","UI LABS / MOTION","GENERATIVE / VISUAL SYSTEMS","Reasoning & Language Systems","Spatial, Museum & Navigation Systems","CLIENT & BUSINESS WEBSITES","KNOWLEDGE / FIELD GUIDE","TRAINING / REFLEX","CHAOS","INFO"],"categoryLabels":{"Media, Cards & Composition Studios":"CREATIVE / MEDIA / STUDIO","Timeline, Cadence & Session Flow":"TIMELINE / CADENCE","Signal, Status & Monitoring Boards":"SIGNAL / MONITORING","Spatial, Museum & Navigation Systems":"MUSEUM / EXPERIENCE","Ledger, Vault & Record Systems":"LEDGER / VAULT","FLAGSHIP APPLICATIONS":"FLAGSHIP / PRODUCT","CLIENT & BUSINESS WEBSITES":"CLIENT / BUSINESS","CREATIVE PLATFORMS":"CREATIVE / CURATION","CREATIVE MEDIA / STORYWORLDS":"CREATIVE / MEDIA"}}
+{
+  "categoryData": [
+    {
+      "name": "APPS - TOOLS",
+      "apps": [
+        {
+          "name": "Agents (UI)",
+          "href": "/apps/agents/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Alibi",
+          "href": "/apps/alibi/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Prompt Vault",
+          "href": "/apps/prompt-vault/",
+          "tags": [
+            "HTML/JS"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "FLAGSHIP APPLICATIONS",
+      "apps": [
+        {
+          "name": "Wordz",
+          "href": "/apps/wordz/",
+          "tags": [
+            "Offline-first",
+            "IndexedDB",
+            "Capacitor"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DECISION SYSTEMS",
+      "apps": [
+        {
+          "name": "Coverage Compass",
+          "href": "/apps/coverage-compass/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Ultimate Broker Route (UBR)",
+          "href": "/apps/ubr/",
+          "tags": [
+            "HTML/JS"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AI / KNOWLEDGE",
+      "apps": [
+        {
+          "name": "LingoLive AI",
+          "href": "/apps/lingolive-ai/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Oracle Pit",
+          "href": "/apps/oracle-pit/",
+          "tags": [
+            "HTML/JS"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reasoning & Language Systems",
+      "apps": [
+        {
+          "name": "SolveSpace",
+          "href": "https://dev-in-portfolio-solvespace.netlify.app",
+          "tags": [
+            "Next.js"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Forms, Grids & Structured Input",
+      "apps": [
+        {
+          "name": "TapForge",
+          "href": "https://dev-in-portfolio-tapforge.netlify.app",
+          "tags": [
+            "Flutter",
+            "Node API",
+            "Neon"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Timeline, Cadence & Session Flow",
+      "apps": [
+        {
+          "name": "SessionMint",
+          "href": "https://dev-in-portfolio-sessionmint.netlify.app",
+          "tags": [
+            "Next.js",
+            "Supabase"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Signal, Status & Monitoring Boards",
+      "apps": [
+        {
+          "name": "Signal Board",
+          "href": "https://dev-in-portfolio-signal-board.netlify.app",
+          "tags": [
+            "Vue",
+            "Functions",
+            "Neon"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ledger, Vault & Record Systems",
+      "apps": [
+        {
+          "name": "PalmLedger",
+          "href": "https://dev-in-portfolio-palmledger.netlify.app",
+          "tags": [
+            "Node API",
+            "Functions",
+            "Neon"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Media, Cards & Composition Studios",
+      "apps": [
+        {
+          "name": "SleepyStory",
+          "href": "/apps/sleepystory/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "ToonStudio",
+          "href": "/apps/toonstudio/",
+          "tags": [
+            "HTML/JS"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Spatial, Museum & Navigation Systems",
+      "apps": [
+        {
+          "name": "RouteForge Console",
+          "href": "https://dev-in-portfolio-routeforge-console.netlify.app",
+          "tags": [
+            "Streamlit",
+            "Python",
+            "Neon"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Docs, Specs & Release Libraries",
+      "apps": [
+        {
+          "name": "PatchSmith",
+          "href": "https://dev-in-portfolio-patchsmith.netlify.app",
+          "tags": [
+            "Gradio",
+            "Python",
+            "Neon"
+          ]
+        },
+        {
+          "name": "Repo Pilot",
+          "href": "https://dev-in-portfolio-repo-pilot.netlify.app",
+          "tags": [
+            "Desktop",
+            "Download"
+          ]
+        },
+        {
+          "name": "Switchboard",
+          "href": "https://dev-in-portfolio-swittchboard.netlify.app",
+          "tags": [
+            "Vue",
+            "Functions",
+            "Neon"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "App Platform Labs & View Infrastructure",
+      "apps": [
+        {
+          "name": "NeonScope",
+          "href": "https://dev-in-portfolio-neonscope.netlify.app",
+          "tags": [
+            "Streamlit",
+            "Python",
+            "Neon"
+          ]
+        },
+        {
+          "name": "LatchList",
+          "href": "https://dev-in-portfolio-latchlist.netlify.app",
+          "tags": [
+            "Next.js",
+            "Supabase"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CLIENT & BUSINESS WEBSITES",
+      "apps": [
+        {
+          "name": "Dark Star Literary Agency",
+          "href": "/apps/dark-star-literary-agency/",
+          "tags": [
+            "Publishing",
+            "SEO",
+            "Validation"
+          ]
+        },
+        {
+          "name": "A Reliable Trucking Company",
+          "href": "/apps/a-reliable-trucking/",
+          "tags": [
+            "Next.js",
+            "React",
+            "TypeScript"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CREATIVE PLATFORMS",
+      "apps": [
+        {
+          "name": "Urban Hippie Art",
+          "href": "/apps/urban-hippie-art/",
+          "tags": [
+            "React",
+            "Curation",
+            "Netlify Blobs"
+          ]
+        }
+      ]
+    }
+  ],
+  "extraCategories": [
+    {
+      "name": "MEDIA TOOLS / EDITING",
+      "apps": [
+        {
+          "name": "Splice",
+          "href": "/apps/splice/",
+          "tags": [
+            "HTML/JS"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "REAL-TIME RENDER",
+      "apps": [
+        {
+          "name": "Helios",
+          "href": "/apps/helios/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Transit",
+          "href": "/apps/transit/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Vortex",
+          "href": "/apps/vortex/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Helix",
+          "href": "/apps/helix/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Tectonic",
+          "href": "/apps/tectonic/",
+          "tags": [
+            "HTML/JS"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "INTERACTIVE SIM",
+      "apps": [
+        {
+          "name": "Aeon",
+          "href": "/apps/aeon/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Magma",
+          "href": "/apps/magma/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "String",
+          "href": "/apps/string/",
+          "tags": [
+            "HTML/JS"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GAMES / PUZZLES / LOGIC",
+      "apps": [
+        {
+          "name": "Crossword Arena",
+          "href": "/apps/crossword-arena/",
+          "tags": [
+            "HTML/JS"
+          ]
+        },
+        {
+          "name": "Evening Epic Sudoku",
+          "href": "/apps/evening-epic-sudoku/",
+          "tags": [
+            "HTML/JS"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UI LABS / MOTION",
+      "apps": [
+        {
+          "name": "Animation Playground",
+          "href": "/apps/animation-playground/",
+          "tags": [
+            "Canvas",
+            "Particles",
+            "Motion"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CREATIVE MEDIA / STORYWORLDS",
+      "apps": [
+        {
+          "name": "Vic: El Puaso",
+          "href": "/apps/vic-el-puaso/",
+          "tags": [
+            "PDF.js",
+            "Web Audio",
+            "Git LFS"
+          ]
+        },
+        {
+          "name": "Lulu Takes Over",
+          "href": "/apps/lulu-takes-over/",
+          "tags": [
+            "Video",
+            "Audio",
+            "Git LFS"
+          ]
+        }
+      ]
+    }
+  ],
+  "categoryOrder": [
+    "APPS - TOOLS",
+    "FLAGSHIP APPLICATIONS",
+    "DECISION SYSTEMS",
+    "AI / KNOWLEDGE",
+    "MEDIA TOOLS / EDITING",
+    "REAL-TIME RENDER",
+    "INTERACTIVE SIM",
+    "Forms, Grids & Structured Input",
+    "KNOWLEDGE / REFERENCE",
+    "GAMES / PUZZLES / LOGIC",
+    "Signal, Status & Monitoring Boards",
+    "BUILDERS / GENERATORS",
+    "Timeline, Cadence & Session Flow",
+    "CREATIVE TOOLS / CANVAS",
+    "CREATIVE PLATFORMS",
+    "Schema, Diff & Rule Enforcement Engines",
+    "Ledger, Vault & Record Systems",
+    "STORYWORLD / EXPLORER",
+    "CREATIVE MEDIA / STORYWORLDS",
+    "Docs, Specs & Release Libraries",
+    "App Platform Labs & View Infrastructure",
+    "UI LABS / MOTION",
+    "GENERATIVE / VISUAL SYSTEMS",
+    "Reasoning & Language Systems",
+    "Spatial, Museum & Navigation Systems",
+    "CLIENT & BUSINESS WEBSITES",
+    "KNOWLEDGE / FIELD GUIDE",
+    "TRAINING / REFLEX",
+    "CHAOS",
+    "INFO"
+  ],
+  "categoryLabels": {
+    "Media, Cards & Composition Studios": "CREATIVE / MEDIA / STUDIO",
+    "Timeline, Cadence & Session Flow": "TIMELINE / CADENCE",
+    "Signal, Status & Monitoring Boards": "SIGNAL / MONITORING",
+    "Spatial, Museum & Navigation Systems": "MUSEUM / EXPERIENCE",
+    "Ledger, Vault & Record Systems": "LEDGER / VAULT",
+    "FLAGSHIP APPLICATIONS": "FLAGSHIP / PRODUCT",
+    "CLIENT & BUSINESS WEBSITES": "CLIENT / BUSINESS",
+    "CREATIVE PLATFORMS": "CREATIVE / CURATION",
+    "CREATIVE MEDIA / STORYWORLDS": "CREATIVE / MEDIA"
+  }
+}
