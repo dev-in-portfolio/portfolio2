@@ -1,5 +1,5 @@
 /* Coverage Compass modular offline worker. */
-const CACHE_NAME = 'coverage-compass-cache-v2-modular-14';
+const CACHE_NAME = 'coverage-compass-cache-v2-modular-15';
 const APP_SHELL = [
   './',
   './index.html',
@@ -29,8 +29,8 @@ const APP_SHELL = [
   './src/engine/question-execution.js',
   './src/engine/overrides.js',
   './src/engine/scoring.js',
-  './src/reports/readiness.js',
-  './src/reports/snapshot.js',
+  './src/reporting/readiness.js',
+  './src/reporting/snapshot.js',
   './src/storage/keys.js',
   './src/storage/migrations.js',
   './manifest.webmanifest',
