@@ -1,4 +1,4 @@
-import { deepClone } from '../reports/snapshot.js';
+import { deepClone } from '../reporting/snapshot.js';
 
 export function applyRankingOverrides(rankedCandidates = [], overrideRules = [], context = {}) {
   let ranked = deepClone(rankedCandidates);
