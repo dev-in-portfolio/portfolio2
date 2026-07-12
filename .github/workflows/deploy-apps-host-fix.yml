@@ -1,0 +1,64 @@
+name: Deploy Apps Host Fix
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/deploy-apps-host-fix.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-apps-host-fix
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build and deploy Apps hostname fix
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NETLIFY_SITE_ID: 3a07e73d-1992-4f9c-adba-dab82f41e168
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN || secrets.NETLIFY_TOKEN }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Require Netlify credential
+        shell: bash
+        run: |
+          if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
+            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_TOKEN repository secret."
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build standalone Apps package
+        run: npm run build:apps-deployment
+
+      - name: Verify Apps package
+        shell: bash
+        run: |
+          test -f apps/dist/index.html
+          test -f apps/dist/runtime-guard.js
+          grep -q "displayActualHost" apps/dist/runtime-guard.js
+          node scripts/validate-assembled-site.mjs --output apps/dist
+
+      - name: Deploy to Apps production
+        shell: bash
+        run: |
+          npx -y netlify-cli@latest deploy \
+            --prod \
+            --dir=apps/dist \
+            --functions=apps/netlify/functions \
+            --site="$NETLIFY_SITE_ID" \
+            --auth="$NETLIFY_AUTH_TOKEN" \
+            --message="Apps hostname fix ${GITHUB_SHA}"
