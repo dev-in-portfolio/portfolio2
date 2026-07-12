@@ -11,6 +11,8 @@ const valueFor = flag => {
 };
 const outputRoot = path.resolve(rootDir, valueFor('--output') || 'dist');
 const appsRegistry = JSON.parse(await readFile(path.join(rootDir, 'data/apps.registry.json'), 'utf8'));
+const buildRegistry = JSON.parse(await readFile(path.join(rootDir, 'data/build-targets.registry.json'), 'utf8'));
+const staticRegistry = JSON.parse(await readFile(path.join(rootDir, 'data/static-targets.registry.json'), 'utf8'));
 const errors = [];
 const warnings = [];
 
@@ -52,6 +54,12 @@ async function walk(directory, base = directory) {
 const compiledManifest = await readJson(path.join(outputRoot, 'compiled-apps-manifest.json'), 'compiled app manifest');
 const staticManifest = await readJson(path.join(outputRoot, 'static-apps-manifest.json'), 'static app manifest');
 const localApps = (appsRegistry.applications || []).filter(app => app.deploymentType !== 'external');
+const expectedCompiledCount = Number.isInteger(buildRegistry.expectedTargetCount)
+  ? buildRegistry.expectedTargetCount
+  : (buildRegistry.targets || []).length;
+const expectedStaticCount = Number.isInteger(staticRegistry.expectedTargetCount)
+  ? staticRegistry.expectedTargetCount
+  : (staticRegistry.targets || []).length;
 
 if (!await exists(path.join(outputRoot, 'apps/index.html'))) errors.push('Apps console entry is missing from assembled output.');
 
@@ -62,7 +70,9 @@ for (const app of localApps) {
 }
 
 if (compiledManifest) {
-  if (compiledManifest.applicationCount !== 8) errors.push(`Compiled manifest expected 8 apps, found ${compiledManifest.applicationCount}`);
+  if (compiledManifest.applicationCount !== expectedCompiledCount) {
+    errors.push(`Compiled manifest expected ${expectedCompiledCount} apps from build registry, found ${compiledManifest.applicationCount}`);
+  }
   for (const app of compiledManifest.applications || []) {
     if (app.compiledOutputResult !== 'passed') errors.push(`${app.id}: compiled output result is ${app.compiledOutputResult}`);
     if (app.dependenciesResolved !== true) errors.push(`${app.id}: compiled dependencies are unresolved`);
@@ -73,13 +83,19 @@ if (compiledManifest) {
 }
 
 if (staticManifest) {
-  if (staticManifest.applicationCount !== 12) errors.push(`Static manifest expected 12 apps, found ${staticManifest.applicationCount}`);
+  if (staticManifest.applicationCount !== expectedStaticCount) {
+    errors.push(`Static manifest expected ${expectedStaticCount} apps from static registry, found ${staticManifest.applicationCount}`);
+  }
   for (const app of staticManifest.applications || []) {
     if (app.dependenciesResolved !== true) errors.push(`${app.id}: static dependencies are unresolved`);
     for (const dependency of app.dependencyResults || []) {
       if (dependency.present !== true) errors.push(`${app.id}: missing static dependency ${dependency.reference}`);
     }
   }
+}
+
+if (expectedCompiledCount + expectedStaticCount !== localApps.length) {
+  errors.push(`Registry count mismatch: ${expectedCompiledCount} compiled + ${expectedStaticCount} static does not equal ${localApps.length} local apps`);
 }
 
 const files = await walk(outputRoot);
@@ -101,6 +117,8 @@ if (totalBytes > 50 * 1024 * 1024) warnings.push(`Assembled local site exceeds 5
 
 console.log('NEXUS assembled-site validation');
 console.log(`- local routes expected: ${localApps.length}`);
+console.log(`- compiled apps expected: ${expectedCompiledCount}`);
+console.log(`- static apps expected: ${expectedStaticCount}`);
 console.log(`- output files: ${files.length}`);
 console.log(`- output bytes: ${totalBytes}`);
 for (const warning of warnings) console.log(`- warning: ${warning}`);
@@ -111,4 +129,4 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('Assembled-site validation passed: all 20 local app routes and declared dependencies are present.');
+console.log(`Assembled-site validation passed: all ${localApps.length} local app routes and declared dependencies are present.`);
