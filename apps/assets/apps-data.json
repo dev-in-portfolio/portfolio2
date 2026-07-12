@@ -192,6 +192,16 @@
             "Functions",
             "Neon"
           ]
+        },
+        {
+          "name": "Wordz",
+          "href": "/apps/wordz/",
+          "tags": [
+            "Offline-first",
+            "Document Editor",
+            "IndexedDB",
+            "Capacitor"
+          ]
         }
       ]
     },
@@ -213,6 +223,70 @@
           "tags": [
             "Next.js",
             "Supabase"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Public Websites & Brand Systems",
+      "apps": [
+        {
+          "name": "Dark Star Literary Agency",
+          "href": "/apps/dark-star-literary-agency/",
+          "tags": [
+            "Static Site",
+            "Publishing",
+            "SEO",
+            "Accessibility"
+          ]
+        },
+        {
+          "name": "A Reliable Trucking Company",
+          "href": "/apps/a-reliable-trucking/",
+          "tags": [
+            "Next.js",
+            "React",
+            "TypeScript",
+            "Tailwind"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Creative Platforms & Curation",
+      "apps": [
+        {
+          "name": "Urban Hippie Art",
+          "href": "/apps/urban-hippie-art/",
+          "tags": [
+            "React",
+            "Netlify Blobs",
+            "Curation"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Creative Technology & Storyworlds",
+      "apps": [
+        {
+          "name": "Vic: El Puaso",
+          "href": "/apps/vic-el-puaso/",
+          "tags": [
+            "PDF.js",
+            "Web Audio",
+            "Spanish",
+            "Git LFS"
+          ]
+        },
+        {
+          "name": "Lulu Takes Over",
+          "href": "/apps/lulu-takes-over/",
+          "tags": [
+            "Static Site",
+            "Video",
+            "Audio",
+            "Git LFS"
           ]
         }
       ]
@@ -315,6 +389,20 @@
           ]
         }
       ]
+    },
+    {
+      "name": "UI LABS / MOTION",
+      "apps": [
+        {
+          "name": "Animation Playground",
+          "href": "/apps/animation-playground/",
+          "tags": [
+            "HTML/JS",
+            "Particles",
+            "Motion"
+          ]
+        }
+      ]
     }
   ],
   "categoryOrder": [
@@ -324,6 +412,9 @@
     "MEDIA TOOLS / EDITING",
     "REAL-TIME RENDER",
     "INTERACTIVE SIM",
+    "Public Websites & Brand Systems",
+    "Creative Platforms & Curation",
+    "Creative Technology & Storyworlds",
     "Forms, Grids & Structured Input",
     "KNOWLEDGE / REFERENCE",
     "GAMES / PUZZLES / LOGIC",
@@ -350,6 +441,9 @@
     "Timeline, Cadence & Session Flow": "TIMELINE / CADENCE",
     "Signal, Status & Monitoring Boards": "SIGNAL / MONITORING",
     "Spatial, Museum & Navigation Systems": "MUSEUM / EXPERIENCE",
-    "Ledger, Vault & Record Systems": "LEDGER / VAULT"
+    "Ledger, Vault & Record Systems": "LEDGER / VAULT",
+    "Public Websites & Brand Systems": "PUBLIC / BRAND SYSTEMS",
+    "Creative Platforms & Curation": "CREATIVE / CURATION",
+    "Creative Technology & Storyworlds": "CREATIVE / STORYWORLDS"
   }
 }
