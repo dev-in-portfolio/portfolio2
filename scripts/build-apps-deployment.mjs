@@ -90,7 +90,6 @@ for (const target of buildRegistry.targets) {
 }
 
 run(process.execPath, ['scripts/assemble-compiled-apps.mjs', '--clean', '--output', 'apps/dist']);
-run(process.execPath, ['scripts/prepare-static-app-compat.mjs']);
 run(process.execPath, ['scripts/assemble-static-apps.mjs', '--output', 'apps/dist']);
 
 await copyRequired(
@@ -131,7 +130,6 @@ const manifest = {
   compiledApplications: buildRegistry.targets.length,
   staticApplications: staticRegistry.targets.length,
   deferredApplications: ['coverage-compass'],
-  compatibilityAdapters: ['coverage-compass-report-modules'],
   functionsDirectory: 'apps/netlify/functions',
   canonicalRouteOrigin: 'https://dev-in-portfolio.netlify.app',
   canonicalRouteGuard: 'shared/nexus-canonical-routes.js',
@@ -145,5 +143,5 @@ console.log('\nNEXUS Apps deployment build complete.');
 console.log(`- root console alias: ${await exists(path.join(outputRoot, 'index.html')) ? 'present' : 'missing'}`);
 console.log(`- canonical /apps/ console: ${await exists(appsConsolePath) ? 'present' : 'missing'}`);
 console.log(`- canonical route guard injected: ${injectedPageCount} page(s)`);
-console.log('- Coverage Compass: preserved through the report-module compatibility adapter');
+console.log('- Coverage Compass: preserved, deferred from reforge verification');
 console.log('- Capabilities source: excluded');
