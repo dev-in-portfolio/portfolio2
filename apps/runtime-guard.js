@@ -93,5 +93,17 @@
       });
     } catch (_) {}
   }
-  document.addEventListener('DOMContentLoaded', normalizeInternalNavigation, { once: true });
+
+  function displayActualHost() {
+    try {
+      var hostNode = document.getElementById('stat-host');
+      if (!hostNode) return;
+      hostNode.textContent = window.location.hostname || 'UNKNOWN';
+    } catch (_) {}
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    normalizeInternalNavigation();
+    displayActualHost();
+  }, { once: true });
 })();
