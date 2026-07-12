@@ -11,7 +11,7 @@
       "provider": "assembled",
       "configPath": "netlify.toml",
       "publishPath": "dist",
-      "functionsPath": "netlify/functions",
+      "functionsPath": null,
       "status": "active-canonical-production",
       "expectedNetlifyConfig": {
         "command": "npm run build:netlify",
