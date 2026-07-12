@@ -27,6 +27,20 @@
       ]
     },
     {
+      "name": "FLAGSHIP APPLICATIONS",
+      "apps": [
+        {
+          "name": "Wordz",
+          "href": "/apps/wordz/",
+          "tags": [
+            "Offline-first",
+            "IndexedDB",
+            "Capacitor"
+          ]
+        }
+      ]
+    },
+    {
       "name": "DECISION SYSTEMS",
       "apps": [
         {
@@ -216,6 +230,43 @@
           ]
         }
       ]
+    },
+    {
+      "name": "CLIENT & BUSINESS WEBSITES",
+      "apps": [
+        {
+          "name": "Dark Star Literary Agency",
+          "href": "/apps/dark-star-literary-agency/",
+          "tags": [
+            "Publishing",
+            "SEO",
+            "Validation"
+          ]
+        },
+        {
+          "name": "A Reliable Trucking Company",
+          "href": "/apps/a-reliable-trucking/",
+          "tags": [
+            "Next.js",
+            "React",
+            "TypeScript"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CREATIVE PLATFORMS",
+      "apps": [
+        {
+          "name": "Urban Hippie Art",
+          "href": "/apps/urban-hippie-art/",
+          "tags": [
+            "React",
+            "Curation",
+            "Netlify Blobs"
+          ]
+        }
+      ]
     }
   ],
   "extraCategories": [
@@ -315,10 +366,48 @@
           ]
         }
       ]
+    },
+    {
+      "name": "UI LABS / MOTION",
+      "apps": [
+        {
+          "name": "Animation Playground",
+          "href": "/apps/animation-playground/",
+          "tags": [
+            "Canvas",
+            "Particles",
+            "Motion"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CREATIVE MEDIA / STORYWORLDS",
+      "apps": [
+        {
+          "name": "Vic: El Puaso",
+          "href": "/apps/vic-el-puaso/",
+          "tags": [
+            "PDF.js",
+            "Web Audio",
+            "Git LFS"
+          ]
+        },
+        {
+          "name": "Lulu Takes Over",
+          "href": "/apps/lulu-takes-over/",
+          "tags": [
+            "Video",
+            "Audio",
+            "Git LFS"
+          ]
+        }
+      ]
     }
   ],
   "categoryOrder": [
     "APPS - TOOLS",
+    "FLAGSHIP APPLICATIONS",
     "DECISION SYSTEMS",
     "AI / KNOWLEDGE",
     "MEDIA TOOLS / EDITING",
@@ -331,15 +420,18 @@
     "BUILDERS / GENERATORS",
     "Timeline, Cadence & Session Flow",
     "CREATIVE TOOLS / CANVAS",
+    "CREATIVE PLATFORMS",
     "Schema, Diff & Rule Enforcement Engines",
     "Ledger, Vault & Record Systems",
     "STORYWORLD / EXPLORER",
+    "CREATIVE MEDIA / STORYWORLDS",
     "Docs, Specs & Release Libraries",
     "App Platform Labs & View Infrastructure",
     "UI LABS / MOTION",
     "GENERATIVE / VISUAL SYSTEMS",
     "Reasoning & Language Systems",
     "Spatial, Museum & Navigation Systems",
+    "CLIENT & BUSINESS WEBSITES",
     "KNOWLEDGE / FIELD GUIDE",
     "TRAINING / REFLEX",
     "CHAOS",
@@ -350,6 +442,10 @@
     "Timeline, Cadence & Session Flow": "TIMELINE / CADENCE",
     "Signal, Status & Monitoring Boards": "SIGNAL / MONITORING",
     "Spatial, Museum & Navigation Systems": "MUSEUM / EXPERIENCE",
-    "Ledger, Vault & Record Systems": "LEDGER / VAULT"
+    "Ledger, Vault & Record Systems": "LEDGER / VAULT",
+    "FLAGSHIP APPLICATIONS": "FLAGSHIP / PRODUCT",
+    "CLIENT & BUSINESS WEBSITES": "CLIENT / BUSINESS",
+    "CREATIVE PLATFORMS": "CREATIVE / CURATION",
+    "CREATIVE MEDIA / STORYWORLDS": "CREATIVE / MEDIA"
   }
 }

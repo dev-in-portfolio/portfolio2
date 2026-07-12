@@ -3,11 +3,12 @@
   "registryStatus": "baseline",
   "baselineCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
   "legacySource": "apps/assets/apps-data.json",
-  "expectedApplicationCount": 31,
+  "expectedApplicationCount": 38,
   "notes": [
     "This registry is a baseline inventory, not a claim that every listed application is verified.",
     "Lifecycle and verification states remain pending until application-by-application review is complete.",
-    "The Capabilities page must not consume this registry during the foundation pass."
+    "The Capabilities page must not consume this registry during the foundation pass.",
+    "Seven portfolio project profiles were added without modifying the protected Capabilities page."
   ],
   "applications": [
     {
@@ -521,6 +522,132 @@
       },
       "legacyTags": [
         "HTML/JS"
+      ]
+    },
+    {
+      "id": "wordz",
+      "name": "Wordz",
+      "category": "FLAGSHIP APPLICATIONS",
+      "href": "/apps/wordz/",
+      "sourcePath": "apps/apps/wordz",
+      "deploymentType": "local-static",
+      "buildType": "static",
+      "lifecycleStatus": "pending-review",
+      "verification": {
+        "status": "pending"
+      },
+      "legacyTags": [
+        "Offline-first",
+        "IndexedDB",
+        "Capacitor"
+      ]
+    },
+    {
+      "id": "dark-star-literary-agency",
+      "name": "Dark Star Literary Agency",
+      "category": "CLIENT & BUSINESS WEBSITES",
+      "href": "/apps/dark-star-literary-agency/",
+      "sourcePath": "apps/apps/dark-star-literary-agency",
+      "deploymentType": "local-static",
+      "buildType": "static",
+      "lifecycleStatus": "pending-review",
+      "verification": {
+        "status": "pending"
+      },
+      "legacyTags": [
+        "Publishing",
+        "SEO",
+        "Validation"
+      ]
+    },
+    {
+      "id": "a-reliable-trucking",
+      "name": "A Reliable Trucking Company",
+      "category": "CLIENT & BUSINESS WEBSITES",
+      "href": "/apps/a-reliable-trucking/",
+      "sourcePath": "apps/apps/a-reliable-trucking",
+      "deploymentType": "local-static",
+      "buildType": "static",
+      "lifecycleStatus": "pending-review",
+      "verification": {
+        "status": "pending"
+      },
+      "legacyTags": [
+        "Next.js",
+        "React",
+        "TypeScript"
+      ]
+    },
+    {
+      "id": "urban-hippie-art",
+      "name": "Urban Hippie Art",
+      "category": "CREATIVE PLATFORMS",
+      "href": "/apps/urban-hippie-art/",
+      "sourcePath": "apps/apps/urban-hippie-art",
+      "deploymentType": "local-static",
+      "buildType": "static",
+      "lifecycleStatus": "pending-review",
+      "verification": {
+        "status": "pending"
+      },
+      "legacyTags": [
+        "React",
+        "Curation",
+        "Netlify Blobs"
+      ]
+    },
+    {
+      "id": "animation-playground",
+      "name": "Animation Playground",
+      "category": "UI LABS / MOTION",
+      "href": "/apps/animation-playground/",
+      "sourcePath": "apps/apps/animation-playground",
+      "deploymentType": "local-static",
+      "buildType": "static",
+      "lifecycleStatus": "pending-review",
+      "verification": {
+        "status": "pending"
+      },
+      "legacyTags": [
+        "Canvas",
+        "Particles",
+        "Motion"
+      ]
+    },
+    {
+      "id": "vic-el-puaso",
+      "name": "Vic: El Puaso",
+      "category": "CREATIVE MEDIA / STORYWORLDS",
+      "href": "/apps/vic-el-puaso/",
+      "sourcePath": "apps/apps/vic-el-puaso",
+      "deploymentType": "local-static",
+      "buildType": "static",
+      "lifecycleStatus": "pending-review",
+      "verification": {
+        "status": "pending"
+      },
+      "legacyTags": [
+        "PDF.js",
+        "Web Audio",
+        "Git LFS"
+      ]
+    },
+    {
+      "id": "lulu-takes-over",
+      "name": "Lulu Takes Over",
+      "category": "CREATIVE MEDIA / STORYWORLDS",
+      "href": "/apps/lulu-takes-over/",
+      "sourcePath": "apps/apps/lulu-takes-over",
+      "deploymentType": "local-static",
+      "buildType": "static",
+      "lifecycleStatus": "pending-review",
+      "verification": {
+        "status": "pending"
+      },
+      "legacyTags": [
+        "Video",
+        "Audio",
+        "Git LFS"
       ]
     }
   ]
