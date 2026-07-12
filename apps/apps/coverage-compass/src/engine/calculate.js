@@ -3,7 +3,7 @@ import { validateAssessmentAnswers } from '../assessment/validation.js';
 import { assertCandidateTotals } from './audit.js';
 import { computeConfidence, rankCandidates } from './confidence.js';
 import { applyRankingOverrides } from './overrides.js';
-import { createImmutableSnapshot, deepClone } from '../reports/snapshot.js';
+import { createImmutableSnapshot, deepClone } from '../reporting/snapshot.js';
 import { MODEL_VERSION, RULE_SET_VERSION } from '../config/versions.js';
 
 const DEFAULT_CANDIDATE_NAMES = Object.freeze({
