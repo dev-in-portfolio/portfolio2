@@ -1,13 +1,21 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "baselineCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
-  "policy": "Files listed here are protected from intentional redesign during the NEXUS Reforged foundation pass. A hash change must be explicitly documented as a compatibility-only change.",
+  "policy": "The Capabilities modernization stage is active. The page remains hash-protected after each intentional, reviewed update, and its evidence registry is validated separately.",
   "files": [
     {
       "path": "capabilities/index.html",
-      "gitBlobSha": "ae70d0e87a1c5c1879e2b646348d28cb3255784f",
+      "gitBlobSha": "e7174c420c63b0cd940ddccf634d190223c16267",
       "protection": "content-and-behavior",
-      "reason": "The Capabilities page has a separate future stage and must remain unchanged during foundation modernization."
+      "reason": "Modernized evidence-backed Capabilities page approved for the dedicated Capabilities stage on 2026-07-12."
+    }
+  ],
+  "history": [
+    {
+      "path": "capabilities/index.html",
+      "previousGitBlobSha": "ae70d0e87a1c5c1879e2b646348d28cb3255784f",
+      "releasedAt": "2026-07-12",
+      "reason": "Replaced synthetic scoring, global proof inflation, stale routes, and duplicated role content with a canonical evidence-backed capability map."
     }
   ]
 }

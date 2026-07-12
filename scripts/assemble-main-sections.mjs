@@ -143,15 +143,28 @@ function collectJsonReferences(content) {
   } catch {
     return references;
   }
-  const visit = node => {
-    if (typeof node === 'string' && /(?:^|\/)\S+\.[a-z0-9]{2,8}(?:[?#].*)?$/i.test(node)) {
-      references.push({ reference: node, required: true, kind: 'json-resource' });
-    } else if (Array.isArray(node)) {
-      node.forEach(visit);
-    } else if (node && typeof node === 'object') {
-      Object.values(node).forEach(visit);
+
+  const resourceKeyPattern = /(?:^|_)(?:src|href|url|path|file|filename|asset|assets|icon|icons|manifest|entry|script|scripts|stylesheet|stylesheets|poster|source|sources)$/i;
+  const explicitPathPattern = /^(?:\.{0,2}\/|\/)[^\s]+$/;
+  const bareResourcePattern = /^[a-z0-9][a-z0-9._-]*\.(?:html?|m?js|css|json|webmanifest|txt|xml|svg|png|jpe?g|webp|gif|ico|mp3|wav|ogg|mp4|webm|vtt|pdf|wasm|glsl|wgsl)(?:[?#].*)?$/;
+
+  const visit = (node, key = '') => {
+    if (typeof node === 'string') {
+      const candidate = node.trim();
+      if (resourceKeyPattern.test(key) && (explicitPathPattern.test(candidate) || bareResourcePattern.test(candidate))) {
+        references.push({ reference: candidate, required: true, kind: 'json-resource' });
+      }
+      return;
+    }
+    if (Array.isArray(node)) {
+      node.forEach(item => visit(item, key));
+      return;
+    }
+    if (node && typeof node === 'object') {
+      Object.entries(node).forEach(([childKey, childValue]) => visit(childValue, childKey));
     }
   };
+
   visit(value);
   return references;
 }
