@@ -1,0 +1,218 @@
+[
+  {
+    "id": "portfolio2",
+    "name": "Portfolio 2 / NEXUS",
+    "href": "https://github.com/dev-in-portfolio/portfolio2",
+    "sourceType": "public-repository",
+    "reviewStatus": "reviewed",
+    "notes": "Repository-level build, validation, assembly, and release control plane."
+  },
+  {
+    "id": "alibi",
+    "name": "Alibi",
+    "href": "/apps/alibi/",
+    "sourceType": "repository-source",
+    "reviewStatus": "reviewed",
+    "notes": "Browser-local kitchen inventory and verification system."
+  },
+  {
+    "id": "coverage-compass",
+    "name": "Coverage Compass",
+    "href": "/apps/coverage-compass/",
+    "sourceType": "repository-source",
+    "reviewStatus": "reviewed",
+    "notes": "Medicare tradeoff and decision-support application."
+  },
+  {
+    "id": "prompt-vault",
+    "name": "Prompt Vault",
+    "href": "/apps/prompt-vault/",
+    "sourceType": "repository-source",
+    "reviewStatus": "reviewed",
+    "notes": "Local-first prompt organization and export tool; not a secure encrypted vault."
+  },
+  {
+    "id": "lingolive-ai",
+    "name": "LingoLive AI",
+    "href": "/apps/lingolive-ai/",
+    "sourceType": "repository-source",
+    "reviewStatus": "reviewed",
+    "notes": "Deterministic demo and client-side Gemini-assisted language practice prototype."
+  },
+  {
+    "id": "agents-ui",
+    "name": "Agents",
+    "href": "/apps/agents/",
+    "sourceType": "repository-source",
+    "reviewStatus": "partial-review",
+    "notes": "Hosted demo UI for packs, permissions, runner concepts, and receipts; the downloadable runner needs a separate audit."
+  },
+  {
+    "id": "crossword-arena",
+    "name": "Crossword Arena",
+    "href": "/apps/crossword-arena/",
+    "sourceType": "repository-source",
+    "reviewStatus": "reviewed",
+    "notes": "Constraint-driven crossword interaction demo."
+  },
+  {
+    "id": "evening-epic-sudoku",
+    "name": "Evening Epic Sudoku",
+    "href": "/apps/evening-epic-sudoku/",
+    "sourceType": "repository-source",
+    "reviewStatus": "reviewed",
+    "notes": "Sudoku validation and interaction demo."
+  },
+  {
+    "id": "helios",
+    "name": "Helios",
+    "href": "/apps/helios/",
+    "sourceType": "repository-source",
+    "reviewStatus": "reviewed",
+    "notes": "WebGPU solar visualization; displayed telemetry is locally generated proxy data."
+  },
+  {
+    "id": "dark-star-literary-agency",
+    "name": "Dark Star Literary Agency",
+    "href": "/apps/dark-star-literary-agency/",
+    "sourceType": "public-repository-and-deployment",
+    "reviewStatus": "reviewed",
+    "notes": "Publishing platform with structured catalogs, validation, accessibility governance, and release controls."
+  },
+  {
+    "id": "a-reliable-trucking",
+    "name": "A Reliable Trucking Company",
+    "href": "/apps/a-reliable-trucking/",
+    "sourceType": "public-repository",
+    "reviewStatus": "reviewed",
+    "notes": "Next.js business website with fact-constrained public content."
+  },
+  {
+    "id": "animation-playground",
+    "name": "Animation Playground",
+    "href": "/apps/animation-playground/",
+    "sourceType": "public-repository",
+    "reviewStatus": "reviewed",
+    "notes": "Dependency-free browser animation and interaction laboratory."
+  },
+  {
+    "id": "vic-el-puaso",
+    "name": "Vic: El Puaso",
+    "href": "/apps/vic-el-puaso/",
+    "sourceType": "public-repository",
+    "reviewStatus": "reviewed",
+    "notes": "PDF.js comic reader and Web Audio media microsite."
+  },
+  {
+    "id": "lulu-takes-over",
+    "name": "Lulu Takes Over",
+    "href": "/apps/lulu-takes-over/",
+    "sourceType": "private-repository-and-deployment",
+    "reviewStatus": "reviewed",
+    "notes": "Static video and audio landing experience with media validation."
+  },
+  {
+    "id": "oracle-pit",
+    "name": "Oracle Pit",
+    "href": "/apps/oracle-pit/",
+    "sourceType": "repository-source",
+    "reviewStatus": "documentation-review",
+    "notes": "Structured decision workflow demo; implementation-level review is incomplete."
+  },
+  {
+    "id": "wordz",
+    "name": "Wordz",
+    "href": "/apps/wordz/",
+    "sourceType": "private-repository-profile",
+    "reviewStatus": "queued",
+    "notes": "Private offline-first document editor; source and runtime review are pending."
+  },
+  {
+    "id": "urban-hippie-art",
+    "name": "Urban Hippie Art",
+    "href": "/apps/urban-hippie-art/",
+    "sourceType": "private-repository-and-deployment",
+    "reviewStatus": "queued",
+    "notes": "Live curation workspace; implementation review is pending."
+  },
+  {
+    "id": "sleepystory",
+    "name": "SleepyStory",
+    "href": "/apps/sleepystory/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  },
+  {
+    "id": "toonstudio",
+    "name": "ToonStudio",
+    "href": "/apps/toonstudio/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  },
+  {
+    "id": "splice",
+    "name": "Splice",
+    "href": "/apps/splice/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  },
+  {
+    "id": "transit",
+    "name": "Transit",
+    "href": "/apps/transit/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  },
+  {
+    "id": "vortex",
+    "name": "Vortex",
+    "href": "/apps/vortex/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  },
+  {
+    "id": "helix",
+    "name": "Helix",
+    "href": "/apps/helix/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  },
+  {
+    "id": "tectonic",
+    "name": "Tectonic",
+    "href": "/apps/tectonic/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  },
+  {
+    "id": "aeon",
+    "name": "Aeon",
+    "href": "/apps/aeon/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  },
+  {
+    "id": "magma",
+    "name": "Magma",
+    "href": "/apps/magma/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  },
+  {
+    "id": "string",
+    "name": "String",
+    "href": "/apps/string/",
+    "sourceType": "repository-source",
+    "reviewStatus": "queued",
+    "notes": "Queued for claim-level review."
+  }
+]

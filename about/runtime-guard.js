@@ -95,3 +95,15 @@
   }
   document.addEventListener('DOMContentLoaded', normalizeInternalNavigation, { once: true });
 })();
+
+(function loadSectionAmbientMotion() {
+  if (document.querySelector('script[data-nx-ambient-loader]')) return;
+  const current = document.currentScript;
+  if (!current?.src) return;
+  const script = document.createElement('script');
+  script.src = new URL('shared/ambient-motion.js', current.src).href;
+  script.defer = true;
+  script.dataset.nxAmbientLoader = 'about';
+  script.addEventListener('load', () => window.NexusAmbientMotion?.mount('drift', document.querySelector('.hero')), { once: true });
+  document.head.appendChild(script);
+})();

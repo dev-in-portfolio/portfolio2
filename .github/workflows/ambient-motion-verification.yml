@@ -1,0 +1,105 @@
+name: Ambient Motion Verification
+
+on:
+  push:
+    branches:
+      - main
+      - 'agent/**'
+    paths:
+      - 'shared/ambient-motion.js'
+      - 'apps/shared/ambient-motion.js'
+      - 'about/shared/ambient-motion.js'
+      - 'contact/shared/ambient-motion.js'
+      - 'utilities/shared/ambient-motion.js'
+      - 'runtime-guard.js'
+      - 'apps/runtime-guard.js'
+      - 'about/runtime-guard.js'
+      - 'contact/runtime-guard.js'
+      - 'utilities/runtime-guard.js'
+      - 'capabilities/**'
+      - 'scripts/audit-ambient-motion-browser.mjs'
+      - 'scripts/test-ambient-motion.mjs'
+      - 'package.json'
+      - '.github/workflows/ambient-motion-verification.yml'
+  pull_request:
+    paths:
+      - 'shared/ambient-motion.js'
+      - 'apps/shared/ambient-motion.js'
+      - 'about/shared/ambient-motion.js'
+      - 'contact/shared/ambient-motion.js'
+      - 'utilities/shared/ambient-motion.js'
+      - 'runtime-guard.js'
+      - 'apps/runtime-guard.js'
+      - 'about/runtime-guard.js'
+      - 'contact/runtime-guard.js'
+      - 'utilities/runtime-guard.js'
+      - 'capabilities/**'
+      - 'scripts/audit-ambient-motion-browser.mjs'
+      - 'scripts/test-ambient-motion.mjs'
+      - 'package.json'
+      - '.github/workflows/ambient-motion-verification.yml'
+
+concurrency:
+  group: ambient-motion-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Build and audit ambient motion
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate ambient motion source contracts
+        run: npm run test:ambient-motion
+
+      - name: Build exact Netlify package
+        env:
+          SITE_NAME: dev-in-portfolio
+        run: npm run build:netlify
+
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.61.1
+          npx playwright install --with-deps chromium
+
+      - name: Start production preview
+        run: |
+          python3 -m http.server 4173 --directory dist > /tmp/ambient-motion-preview.log 2>&1 &
+          echo $! > /tmp/ambient-motion-preview.pid
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/apps/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/tools/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/about/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/contact/ > /dev/null \
+              && curl --fail --silent http://127.0.0.1:4173/capabilities/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/ambient-motion-preview.log
+          exit 1
+
+      - name: Audit assigned effects and reduced motion
+        run: node scripts/audit-ambient-motion-browser.mjs --base-url http://127.0.0.1:4173 --output reports/reforge/ambient-motion-browser
+
+      - name: Upload ambient motion evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ambient-motion-browser-audit
+          path: reports/reforge/ambient-motion-browser
+          if-no-files-found: warn
+          retention-days: 14

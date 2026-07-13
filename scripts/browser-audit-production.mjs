@@ -20,7 +20,8 @@ const routes = [
   { id: 'tools', name: 'Utilities', href: '/tools/', kind: 'section' },
   { id: 'about', name: 'About', href: '/about/', kind: 'section' },
   { id: 'contact', name: 'Contact', href: '/contact/', kind: 'section' },
-  { id: 'capabilities', name: 'Capabilities', href: '/capabilities/', kind: 'protected-section' },
+  { id: 'capabilities', name: 'Capabilities', href: '/capabilities/', kind: 'section' },
+  { id: 'capabilities-mobile', name: 'Capabilities Mobile', href: '/capabilities/', kind: 'responsive-section', viewport: { width: 375, height: 812 } },
   { id: 'apps-console', name: 'Apps Console', href: '/apps/', kind: 'section' },
   ...localApps.map(app => ({ id: app.id, name: app.name, href: app.href, kind: 'application' }))
 ];
@@ -50,9 +51,113 @@ const sameOrigin = candidate => {
     return false;
   }
 };
+const parseLeadingCount = text => Number(String(text || '').match(/^\s*(\d+)/)?.[1] ?? Number.NaN);
+
+async function auditCapabilities(page) {
+  const findings = [];
+  const evidence = {};
+  try {
+    await page.waitForFunction(() => document.querySelectorAll('.claim-card').length > 0, null, { timeout: 12000 });
+  } catch {
+    findings.push('capabilities-claims-did-not-render');
+    return { findings, evidence };
+  }
+
+  const ledger = await page.evaluate(async () => {
+    const load = async reference => {
+      const response = await fetch(reference, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`${reference}:${response.status}`);
+      return response.json();
+    };
+    const manifest = await load('./evidence-ledger.json');
+    const projects = await load(manifest.projectFile);
+    const claimGroups = await Promise.all(manifest.claimFiles.map(load));
+    return { manifest, projects, claims: claimGroups.flat() };
+  }).catch(error => ({ error: String(error?.message || error) }));
+  if (ledger.error) {
+    findings.push(`capabilities-ledger-fetch:${ledger.error}`);
+    return { findings, evidence };
+  }
+
+  const accepted = ledger.claims.filter(claim => claim.public === true);
+  const acceptedProjectIds = new Set(accepted.map(claim => claim.projectId));
+  const domains = [...new Set(accepted.map(claim => claim.domain))].sort();
+  const queued = ledger.projects.filter(project => ['queued', 'documentation-review'].includes(project.reviewStatus)).length;
+  const expectedSummary = [accepted.length, acceptedProjectIds.size, domains.length, queued];
+
+  const pageState = await page.evaluate(() => ({
+    summary: [...document.querySelectorAll('#summary-grid dd')].map(node => Number(node.textContent)),
+    resultText: document.querySelector('#result-count')?.textContent || '',
+    claimCards: document.querySelectorAll('.claim-card').length,
+    domainOptions: [...document.querySelectorAll('#domain-filter option')].map(option => option.value),
+    evidenceOptions: [...document.querySelectorAll('#evidence-filter option')].map(option => option.value),
+    sourceLinks: [...document.querySelectorAll('.sources a')].map(link => ({ href: link.href, target: link.target, rel: link.rel })),
+    projectLinks: [...document.querySelectorAll('.project-link')].map(link => ({ href: link.href, target: link.target, rel: link.rel })),
+    labels: [...document.querySelectorAll('.controls label')].map(label => ({ text: label.innerText.trim(), control: Boolean(label.querySelector('input,select')) }))
+  }));
+  evidence.expectedSummary = expectedSummary;
+  evidence.pageSummary = pageState.summary;
+  evidence.acceptedClaims = accepted.length;
+  evidence.renderedClaims = pageState.claimCards;
+
+  if (JSON.stringify(pageState.summary) !== JSON.stringify(expectedSummary)) findings.push(`capabilities-summary-mismatch:${pageState.summary.join(',')}!=${expectedSummary.join(',')}`);
+  if (pageState.claimCards !== accepted.length) findings.push(`capabilities-claim-count:${pageState.claimCards}!=${accepted.length}`);
+  if (parseLeadingCount(pageState.resultText) !== accepted.length) findings.push(`capabilities-result-count:${pageState.resultText}`);
+  if (JSON.stringify(pageState.domainOptions) !== JSON.stringify(['all', ...domains])) findings.push('capabilities-domain-options-mismatch');
+  const expectedEvidenceOptions = ['all', ...Object.keys(ledger.manifest.verificationDimensions || {})];
+  if (JSON.stringify(pageState.evidenceOptions) !== JSON.stringify(expectedEvidenceOptions)) findings.push('capabilities-evidence-options-mismatch');
+  if (pageState.labels.some(label => !label.control || !label.text)) findings.push('capabilities-unlabeled-controls');
+  if (pageState.sourceLinks.some(link => !link.href.startsWith('https://github.com/') || link.target !== '_blank' || !/noopener/.test(link.rel) || !/noreferrer/.test(link.rel))) findings.push('capabilities-unsafe-source-link');
+  if (pageState.projectLinks.some(link => !/^https?:\/\//.test(link.href))) findings.push('capabilities-unsafe-project-link');
+
+  const search = page.locator('#search');
+  await search.fill('WebGPU');
+  await page.waitForTimeout(80);
+  const webGpuCount = parseLeadingCount(await page.locator('#result-count').textContent());
+  if (!(webGpuCount > 0 && webGpuCount < accepted.length)) findings.push(`capabilities-search-webgpu:${webGpuCount}`);
+  await search.fill('__no_such_capability_claim__');
+  await page.waitForTimeout(80);
+  const noMatchCount = parseLeadingCount(await page.locator('#result-count').textContent());
+  if (noMatchCount !== 0 || await page.locator('.empty').count() !== 1) findings.push(`capabilities-search-empty:${noMatchCount}`);
+  await search.fill('');
+
+  for (const domain of domains) {
+    await page.selectOption('#domain-filter', domain);
+    await page.waitForTimeout(30);
+    const actual = parseLeadingCount(await page.locator('#result-count').textContent());
+    const expected = accepted.filter(claim => claim.domain === domain).length;
+    if (actual !== expected) findings.push(`capabilities-domain-filter:${domain}:${actual}!=${expected}`);
+  }
+  await page.selectOption('#domain-filter', 'all');
+
+  for (const dimension of Object.keys(ledger.manifest.verificationDimensions || {})) {
+    await page.selectOption('#evidence-filter', dimension);
+    await page.waitForTimeout(30);
+    const actual = parseLeadingCount(await page.locator('#result-count').textContent());
+    const expected = accepted.filter(claim => claim.evidence?.[dimension] === true).length;
+    if (actual !== expected) findings.push(`capabilities-evidence-filter:${dimension}:${actual}!=${expected}`);
+  }
+  await page.selectOption('#evidence-filter', 'all');
+
+  const firstDomain = page.locator('.domain').first();
+  const firstSummary = firstDomain.locator(':scope > summary');
+  const initiallyOpen = await firstDomain.evaluate(element => element.open);
+  await firstSummary.focus();
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(30);
+  const toggledOpen = await firstDomain.evaluate(element => element.open);
+  if (initiallyOpen === toggledOpen) findings.push('capabilities-keyboard-details-did-not-toggle');
+
+  evidence.searchWebGpuCount = webGpuCount;
+  evidence.domainFilterCount = domains.length;
+  evidence.evidenceFilterCount = expectedEvidenceOptions.length - 1;
+  evidence.sourceLinkCount = pageState.sourceLinks.length;
+  return { findings, evidence };
+}
 
 for (const route of routes) {
-  const context = await browser.newContext({ viewport: report.viewport, reducedMotion: 'reduce', colorScheme: 'dark' });
+  const viewport = route.viewport || report.viewport;
+  const context = await browser.newContext({ viewport, reducedMotion: 'reduce', colorScheme: 'dark' });
   const page = await context.newPage();
   const pageErrors = [];
   const consoleErrors = [];
@@ -62,19 +167,10 @@ for (const route of routes) {
 
   page.on('pageerror', error => pageErrors.push(String(error?.message || error)));
   page.on('console', message => {
-    if (message.type() === 'error') {
-      consoleErrors.push({
-        text: message.text(),
-        location: message.location()
-      });
-    }
+    if (message.type() === 'error') consoleErrors.push({ text: message.text(), location: message.location() });
   });
   page.on('requestfailed', request => {
-    failedRequests.push({
-      url: request.url(),
-      sameOrigin: sameOrigin(request.url()),
-      errorText: request.failure()?.errorText || null
-    });
+    failedRequests.push({ url: request.url(), sameOrigin: sameOrigin(request.url()), errorText: request.failure()?.errorText || null });
   });
   page.on('response', response => {
     if (response.status() < 400) return;
@@ -93,6 +189,10 @@ for (const route of routes) {
   } catch (error) {
     navigationError = String(error?.message || error);
   }
+
+  const capabilityAudit = route.id.startsWith('capabilities') && !navigationError
+    ? await auditCapabilities(page)
+    : { findings: [], evidence: {} };
 
   const metrics = await page.evaluate(() => {
     const body = document.body;
@@ -125,19 +225,15 @@ for (const route of routes) {
     screenshotCaptured = false;
   }
 
-  const actionableFailedRequests = failedRequests.filter(request =>
-    request.sameOrigin && !/net::ERR_ABORTED/i.test(request.errorText || '')
-  );
-  const ignoredFailedRequests = failedRequests.filter(request =>
-    request.sameOrigin && /net::ERR_ABORTED/i.test(request.errorText || '')
-  );
+  const actionableFailedRequests = failedRequests.filter(request => request.sameOrigin && !/net::ERR_ABORTED/i.test(request.errorText || ''));
+  const ignoredFailedRequests = failedRequests.filter(request => request.sameOrigin && /net::ERR_ABORTED/i.test(request.errorText || ''));
   const actionableConsoleErrors = consoleErrors.filter(error => {
     const genericResourceError = /^Failed to load resource:/i.test(error.text);
     return !(genericResourceError && badResponses.length === 0 && actionableFailedRequests.length === 0);
   });
   const ignoredConsoleErrors = consoleErrors.filter(error => !actionableConsoleErrors.includes(error));
 
-  const findings = [];
+  const findings = [...capabilityAudit.findings];
   if (navigationError) findings.push(`navigation-error:${navigationError}`);
   if (!navigation || !navigation.ok()) findings.push(`route-status:${navigation?.status?.() ?? 'none'}`);
   if (badResponses.length > 0) findings.push(`same-origin-http-errors:${badResponses.length}`);
@@ -153,12 +249,14 @@ for (const route of routes) {
   const result = findings.length === 0 ? 'passed' : 'failed';
   report.routes.push({
     ...route,
+    viewport,
     targetUrl,
     result,
     durationMs: Date.now() - startedAt,
     navigation: navigation ? { status: navigation.status(), ok: navigation.ok(), finalUrl: page.url() } : null,
     navigationError,
     metrics,
+    capabilityAudit: capabilityAudit.evidence,
     findings,
     pageErrors,
     consoleErrors,

@@ -107,3 +107,19 @@
     displayActualHost();
   }, { once: true });
 })();
+
+(function loadAppsAmbientMotion() {
+  const load = () => {
+    const path = location.pathname.replace(/\/+$/, '/');
+    if (path !== '/apps/' && document.body?.dataset.app !== 'apps') return;
+    if (document.querySelector('script[data-nx-ambient-loader]')) return;
+    const script = document.createElement('script');
+    script.src = '/shared/ambient-motion.js';
+    script.defer = true;
+    script.dataset.nxAmbientLoader = 'apps';
+    script.addEventListener('load', () => window.NexusAmbientMotion?.mount('circuit', document.querySelector('.workspace-split')), { once: true });
+    document.head.appendChild(script);
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load, { once: true });
+  else load();
+})();
