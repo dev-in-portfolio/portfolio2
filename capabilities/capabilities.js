@@ -1,4 +1,9 @@
 const LEDGER_URL = './evidence-ledger.json';
+async function loadJson(url) {
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`${url} failed with ${response.status}`);
+  return response.json();
+}
 const evidenceLabels = {
   implementationInspected: 'Implementation inspected',
   automatedValidation: 'Automated validation',
@@ -99,9 +104,12 @@ function bindControls() {
 
 async function start() {
   try {
-    const response = await fetch(LEDGER_URL, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`Ledger request failed with ${response.status}`);
-    state.ledger = await response.json();
+    const manifest = await loadJson(LEDGER_URL);
+    const [projects, claimGroups] = await Promise.all([
+      loadJson(manifest.projectFile),
+      Promise.all(manifest.claimFiles.map(loadJson))
+    ]);
+    state.ledger = { ...manifest, projects, claims: claimGroups.flat() };
     renderSummary();
     renderDomainOptions();
     bindControls();
