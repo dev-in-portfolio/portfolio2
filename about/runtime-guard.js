@@ -104,6 +104,6 @@
   script.src = new URL('shared/ambient-motion.js', current.src).href;
   script.defer = true;
   script.dataset.nxAmbientLoader = 'about';
+  script.addEventListener('load', () => window.NexusAmbientMotion?.mount('drift', document.querySelector('.hero')), { once: true });
   document.head.appendChild(script);
 })();
-
