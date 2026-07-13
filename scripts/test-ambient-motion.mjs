@@ -9,7 +9,8 @@ const copies = [
   'apps/shared/ambient-motion.js',
   'about/shared/ambient-motion.js',
   'contact/shared/ambient-motion.js',
-  'utilities/shared/ambient-motion.js'
+  'utilities/shared/ambient-motion.js',
+  'capabilities/shared/ambient-motion.js'
 ];
 const errors = [];
 const digest = value => createHash('sha256').update(value).digest('hex');
@@ -35,7 +36,7 @@ const loaders = [
   ['about/runtime-guard.js', 'ambient-motion.js', "'about'", "mount('drift'"],
   ['contact/runtime-guard.js', 'ambient-motion.js', "'contact'", "mount('ripple'"],
   ['utilities/runtime-guard.js', 'ambient-motion.js', "'tools'", "mount('grid-reveal'"],
-  ['capabilities/capabilities.js', '/shared/ambient-motion.js', "'capabilities'", "mount('constellation'"]
+  ['capabilities/capabilities.js', './shared/ambient-motion.js', "'capabilities'", "mount('constellation'"]
 ];
 for (const [file, asset, marker, mountContract] of loaders) {
   const source = await readFile(path.join(root, file), 'utf8');
