@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 2,
+  "ledgerStatus": "clean-slate-phase-1",
+  "reviewedOn": "2026-07-12",
+  "policy": {
+    "publicRule": "A claim may appear publicly only when at least one implementation, automated-validation, runtime, or deployment dimension is verified. Documentation-only and queued items remain internal.",
+    "groupingRule": "Capability sections are derived from the domain values attached to accepted atomic claims. Projects are never assigned wholesale to a capability.",
+    "countingRule": "Counts describe accepted claims and reviewed projects, not self-scored proficiency or job fit."
+  },
+  "verificationDimensions": {
+    "implementationInspected": "Relevant source implementation was inspected.",
+    "automatedValidation": "Automated checks explicitly exercise or constrain the claim.",
+    "runtimeVerified": "The behavior was exercised in a browser or application runtime.",
+    "deploymentVerified": "A current deployed route or release was confirmed.",
+    "documented": "Project documentation states the behavior or limitation."
+  },
+  "projectFile": "./evidence-projects.json",
+  "claimFiles": [
+    "./evidence-claims-core.json",
+    "./evidence-claims-systems.json",
+    "./evidence-claims-creative.json"
+  ]
+}
