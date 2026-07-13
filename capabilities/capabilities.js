@@ -1,19 +1,56 @@
 const LEDGER_URL = './evidence-ledger.json';
+const evidenceLabels = {
+  implementationInspected: 'Implementation inspected',
+  automatedValidation: 'Automated validation',
+  runtimeVerified: 'Runtime verified',
+  deploymentVerified: 'Deployment verified',
+  documented: 'Documented'
+};
+
+const state = { ledger: null, search: '', domain: 'all', evidence: 'all' };
+const byId = id => document.getElementById(id);
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+
 async function loadJson(url) {
   const response = await fetch(url, { cache: 'no-store' });
   if (!response.ok) throw new Error(`${url} failed with ${response.status}`);
   return response.json();
 }
-const evidenceLabels = {
-  implementationInspected: 'Implementation inspected',
-  automatedValidation: 'Automated validation',
-  runtimeVerified: 'Runtime verified',
-  deploymentVerified: 'Deployment verified'
-};
 
-const state = { ledger: null, search: '', domain: 'all', evidence: 'all' };
-const byId = id => document.getElementById(id);
-const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+function safeHref(value, { source = false } = {}) {
+  const candidate = String(value || '').trim();
+  if (!source && candidate.startsWith('/') && !candidate.startsWith('//') && !candidate.includes('\\') && !candidate.split('/').includes('..')) return candidate;
+  try {
+    const url = new URL(candidate);
+    if (url.protocol !== 'https:' || url.username || url.password) return '#';
+    if (source && url.hostname !== 'github.com') return '#';
+    return url.href;
+  } catch {
+    return '#';
+  }
+}
+
+function validateLoadedLedger(manifest, projects, claims) {
+  if (!manifest || manifest.schemaVersion !== 2) throw new Error('Unsupported evidence ledger schema.');
+  if (!Array.isArray(projects) || !projects.length) throw new Error('Evidence projects are unavailable.');
+  if (!Array.isArray(claims) || !claims.length) throw new Error('Evidence claims are unavailable.');
+  const projectIds = new Set();
+  for (const project of projects) {
+    if (!project || typeof project.id !== 'string' || projectIds.has(project.id)) throw new Error('Evidence project IDs are missing or duplicated.');
+    if (safeHref(project.href) === '#') throw new Error(`Unsafe project link for ${project.id}.`);
+    projectIds.add(project.id);
+  }
+  const claimIds = new Set();
+  for (const claim of claims) {
+    if (!claim || typeof claim.id !== 'string' || claimIds.has(claim.id)) throw new Error('Evidence claim IDs are missing or duplicated.');
+    if (!projectIds.has(claim.projectId)) throw new Error(`Unknown evidence project ${claim.projectId}.`);
+    if (!claim.evidence || typeof claim.evidence !== 'object') throw new Error(`Missing evidence dimensions for ${claim.id}.`);
+    if (!Array.isArray(claim.sourceFiles) || !claim.sourceFiles.length || claim.sourceFiles.some(source => safeHref(source, { source: true }) === '#')) {
+      throw new Error(`Invalid evidence source for ${claim.id}.`);
+    }
+    claimIds.add(claim.id);
+  }
+}
 
 function acceptedClaims() {
   return state.ledger.claims.filter(claim => claim.public === true);
@@ -43,6 +80,7 @@ function renderSummary() {
 
 function renderDomainOptions() {
   const select = byId('domain-filter');
+  select.querySelectorAll('option:not([value="all"])').forEach(option => option.remove());
   const domains = [...new Set(acceptedClaims().map(claim => claim.domain))].sort();
   for (const domain of domains) {
     const option = document.createElement('option');
@@ -61,11 +99,8 @@ function evidenceBadges(claim) {
 function sourceLabel(source) {
   try {
     const url = new URL(source);
-    const marker = '/blob/';
-    if (url.pathname.includes(marker)) {
-      const afterBlob = url.pathname.split(marker)[1] || '';
-      return afterBlob.replace(/^[^/]+\//, '');
-    }
+    const match = url.pathname.match(/\/(?:blob|tree)\/([^/]+)\/(.+)$/);
+    if (match) return match[2];
     return `${url.hostname}${url.pathname}`.replace(/\/$/, '');
   } catch {
     return source;
@@ -76,11 +111,14 @@ function claimCard(claim, project) {
   const limitations = claim.limitations?.length
     ? `<p class="limitations"><strong>Boundary:</strong> ${escapeHtml(claim.limitations.join(' '))}</p>`
     : '';
-  const sources = claim.sourceFiles.map(source =>
-    `<li><a href="${escapeHtml(source)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceLabel(source))}</a></li>`
-  ).join('');
+  const sources = claim.sourceFiles.map(source => {
+    const href = safeHref(source, { source: true });
+    return `<li><a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceLabel(source))}</a></li>`;
+  }).join('');
+  const projectHref = safeHref(project.href);
+  const projectLinkAttributes = projectHref.startsWith('https://') ? ' target="_blank" rel="noopener noreferrer"' : '';
   return `<article class="claim-card">
-    <a class="project-link" href="${escapeHtml(project.href)}">${escapeHtml(project.name)}</a>
+    <a class="project-link" href="${escapeHtml(projectHref)}"${projectLinkAttributes}>${escapeHtml(project.name)}</a>
     <p class="claim-text">${escapeHtml(claim.claim)}</p>
     <div class="badges" aria-label="Verification dimensions">${evidenceBadges(claim)}</div>
     ${limitations}
@@ -105,9 +143,9 @@ function renderClaims() {
   root.innerHTML = [...grouped.entries()]
     .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
     .map(([domain, domainClaims], index) => `<details class="domain" ${index < 2 ? 'open' : ''}>
-      <summary><span class="domain-title"><h3>${escapeHtml(domain)}</h3><span>${domainClaims.length} accepted ${domainClaims.length === 1 ? 'claim' : 'claims'}</span></span></summary>
+      <summary><div class="domain-title"><h3>${escapeHtml(domain)}</h3><span>${domainClaims.length} accepted ${domainClaims.length === 1 ? 'claim' : 'claims'}</span></div></summary>
       <div class="claim-list">${domainClaims
-        .sort((a,b) => projects.get(a.projectId).name.localeCompare(projects.get(b.projectId).name))
+        .sort((a, b) => projects.get(a.projectId).name.localeCompare(projects.get(b.projectId).name))
         .map(claim => claimCard(claim, projects.get(claim.projectId))).join('')}</div>
     </details>`).join('');
 }
@@ -125,7 +163,9 @@ async function start() {
       loadJson(manifest.projectFile),
       Promise.all(manifest.claimFiles.map(loadJson))
     ]);
-    state.ledger = { ...manifest, projects, claims: claimGroups.flat() };
+    const claims = claimGroups.flat();
+    validateLoadedLedger(manifest, projects, claims);
+    state.ledger = { ...manifest, projects, claims };
     renderSummary();
     renderDomainOptions();
     bindControls();
