@@ -58,11 +58,27 @@ function evidenceBadges(claim) {
   ).join('');
 }
 
+function sourceLabel(source) {
+  try {
+    const url = new URL(source);
+    const marker = '/blob/';
+    if (url.pathname.includes(marker)) {
+      const afterBlob = url.pathname.split(marker)[1] || '';
+      return afterBlob.replace(/^[^/]+\//, '');
+    }
+    return `${url.hostname}${url.pathname}`.replace(/\/$/, '');
+  } catch {
+    return source;
+  }
+}
+
 function claimCard(claim, project) {
   const limitations = claim.limitations?.length
     ? `<p class="limitations"><strong>Boundary:</strong> ${escapeHtml(claim.limitations.join(' '))}</p>`
     : '';
-  const sources = claim.sourceFiles.map(source => `<li>${escapeHtml(source)}</li>`).join('');
+  const sources = claim.sourceFiles.map(source =>
+    `<li><a href="${escapeHtml(source)}" target="_blank" rel="noopener noreferrer">${escapeHtml(sourceLabel(source))}</a></li>`
+  ).join('');
   return `<article class="claim-card">
     <a class="project-link" href="${escapeHtml(project.href)}">${escapeHtml(project.name)}</a>
     <p class="claim-text">${escapeHtml(claim.claim)}</p>
