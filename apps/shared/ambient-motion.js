@@ -6,7 +6,7 @@
   if (!document.querySelector('style[data-nx-ambient-style]')) {
     const ambientStyle = document.createElement('style');
     ambientStyle.dataset.nxAmbientStyle = 'true';
-    ambientStyle.textContent = '.nx-ambient-host {\n  position: relative;\n  isolation: isolate;\n}\n\n.nx-ambient-layer {\n  display: block;\n  pointer-events: none;\n  user-select: none;\n  contain: strict;\n}\n\n.nx-ambient-host--workspace > .nx-ambient-layer {\n  position: absolute;\n  inset: 0;\n  z-index: 0;\n  width: 100%;\n  height: 100%;\n  opacity: .32;\n}\n\n.nx-ambient-host--workspace > :not(.nx-ambient-layer) {\n  position: relative;\n  z-index: 1;\n}\n\n.nx-ambient-host--hero > .nx-ambient-layer {\n  position: absolute;\n  inset: 0;\n  z-index: -1;\n  width: 100%;\n  height: 100%;\n  opacity: .38;\n}\n\n.page-contact .nx-ambient-host--hero > .nx-ambient-layer {\n  z-index: 0;\n  opacity: 1;\n}\n\n.page-contact .heroInner {\n  position: relative;\n  z-index: 1;\n}\n\n.nx-ambient-ripple {\n  position: absolute;\n  width: 18px;\n  height: 18px;\n  margin: -9px 0 0 -9px;\n  border: 1px solid rgba(121, 215, 232, .75);\n  border-radius: 50%;\n  box-shadow: 0 0 22px rgba(121, 215, 232, .26);\n  transform: scale(.25);\n  opacity: .85;\n  animation: nxAmbientRipple 900ms cubic-bezier(.18,.8,.2,1) forwards;\n  pointer-events: none;\n}\n\n@keyframes nxAmbientRipple {\n  70% { opacity: .32; }\n  100% { transform: scale(14); opacity: 0; }\n}\n\n.node-card.nx-grid-reveal {\n  opacity: 0;\n  transform: translateY(10px) scale(.985);\n  animation: nxGridReveal 520ms cubic-bezier(.2,.8,.2,1) forwards;\n  animation-delay: calc(min(var(--nx-reveal-order, 0), 12) * 34ms);\n}\n\n@keyframes nxGridReveal {\n  to { opacity: 1; transform: none; }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .nx-ambient-ripple { display: none !important; }\n  .node-card.nx-grid-reveal {\n    opacity: 1 !important;\n    transform: none !important;\n    animation: none !important;\n  }\n}\n';
+    ambientStyle.textContent = '.nx-ambient-host {\n  position: relative;\n  isolation: isolate;\n}\n\n.nx-ambient-layer {\n  display: block;\n  pointer-events: none;\n  user-select: none;\n  contain: strict;\n}\n\n.nx-ambient-host--workspace > .nx-ambient-layer {\n  position: absolute;\n  inset: 0;\n  z-index: 0;\n  width: 100%;\n  height: 100%;\n  opacity: .32;\n}\n\n.nx-ambient-host--workspace > :not(.nx-ambient-layer) {\n  position: relative;\n  z-index: 1;\n}\n\n.nx-ambient-host--hero > .nx-ambient-layer {\n  position: absolute;\n  inset: 0;\n  z-index: -1;\n  width: 100%;\n  height: 100%;\n  opacity: .38;\n}\n\n.nx-ambient-ripple {\n  position: fixed;\n  z-index: 8990;\n  width: 18px;\n  height: 18px;\n  margin: -9px 0 0 -9px;\n  border: 1px solid rgba(121, 215, 232, .75);\n  border-radius: 50%;\n  box-shadow: 0 0 22px rgba(121, 215, 232, .26);\n  transform: scale(.25);\n  opacity: .85;\n  animation: nxAmbientRipple 900ms cubic-bezier(.18,.8,.2,1) forwards;\n  pointer-events: none;\n}\n\n@keyframes nxAmbientRipple {\n  70% { opacity: .32; }\n  100% { transform: scale(14); opacity: 0; }\n}\n\n.node-card.nx-grid-reveal {\n  opacity: 0;\n  transform: translateY(10px) scale(.985);\n  animation: nxGridReveal 520ms cubic-bezier(.2,.8,.2,1) forwards;\n  animation-delay: var(--nx-reveal-delay, 0ms);\n}\n\n@keyframes nxGridReveal {\n  to { opacity: 1; transform: none; }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .nx-ambient-ripple { display: none !important; }\n  .node-card.nx-grid-reveal {\n    opacity: 1 !important;\n    transform: none !important;\n    animation: none !important;\n  }\n}\n';
     document.head.appendChild(ambientStyle);
   }
 
@@ -227,27 +227,25 @@
   function mountRipple(host) {
     if (!host || host.dataset.nxRippleMounted === 'true') return;
     host.dataset.nxRippleMounted = 'true';
-    host.classList.add('nx-ambient-host', 'nx-ambient-host--hero');
-    const targets = host.querySelectorAll('.chip, .btn, a[href^="mailto:"], a[href^="tel:"]');
+    const targets = document.querySelectorAll('.chip, .btn, a[href^="mailto:"], a[href^="tel:"]');
     const pulse = (target, clientX, clientY) => {
       if (reducedMotion?.matches) return;
-      const rect = host.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      const x = Number.isFinite(clientX) ? clientX - rect.left : targetRect.left - rect.left + targetRect.width / 2;
-      const y = Number.isFinite(clientY) ? clientY - rect.top : targetRect.top - rect.top + targetRect.height / 2;
+      const targetRect = target?.getBoundingClientRect?.() || { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
+      const x = Number.isFinite(clientX) ? clientX : targetRect.left + targetRect.width / 2;
+      const y = Number.isFinite(clientY) ? clientY : targetRect.top + targetRect.height / 2;
       const ripple = document.createElement('span');
       ripple.className = 'nx-ambient-ripple';
       ripple.style.left = `${x}px`;
       ripple.style.top = `${y}px`;
       ripple.setAttribute('aria-hidden', 'true');
-      host.appendChild(ripple);
+      document.body.appendChild(ripple);
       ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
     };
     targets.forEach(target => {
       target.addEventListener('pointerdown', event => pulse(target, event.clientX, event.clientY), { passive: true });
       target.addEventListener('focus', () => pulse(target), { passive: true });
     });
-    host.addEventListener('nexus:contact-success', event => pulse(event.target || host));
+    document.addEventListener('nexus:contact-success', event => pulse(event.target || host));
   }
 
   function mountGridReveal(host) {
@@ -255,7 +253,7 @@
     host.dataset.nxGridRevealMounted = 'true';
     const decorate = () => {
       [...host.querySelectorAll('.node-card')].forEach((card, index) => {
-        card.style.setProperty('--nx-reveal-order', String(index));
+        card.style.setProperty('--nx-reveal-delay', `${Math.min(index, 12) * 34}ms`);
         card.classList.remove('nx-grid-reveal');
         void card.offsetWidth;
         card.classList.add('nx-grid-reveal');
@@ -280,7 +278,7 @@
     const path = location.pathname.replace(/\/+$/, '/');
     if (app === 'apps' || path === '/apps/') mount('circuit', document.querySelector('.workspace-split'));
     else if (app === 'about' || path === '/about/') mount('drift', document.querySelector('.hero'));
-    else if (app === 'contact' || path === '/contact/') mount('ripple', document.querySelector('.hero'));
+    else if (app === 'contact' || path === '/contact/') mount('ripple', document.body);
     else if (path === '/tools/' || path.endsWith('/utilities/tools/')) mount('grid-reveal', document.querySelector('#node-deck'));
     else if (path === '/capabilities/') mount('constellation', document.querySelector('.hero'));
   }
@@ -289,3 +287,4 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoMount, { once: true });
   else autoMount();
 })();
+

@@ -178,3 +178,13 @@ async function start() {
 }
 
 start();
+
+(function loadCapabilitiesAmbientMotion() {
+  if (document.querySelector('script[data-nx-ambient-loader]')) return;
+  const script = document.createElement('script');
+  script.src = '/shared/ambient-motion.js';
+  script.defer = true;
+  script.dataset.nxAmbientLoader = 'capabilities';
+  document.head.appendChild(script);
+})();
+

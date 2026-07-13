@@ -107,3 +107,14 @@
     displayActualHost();
   }, { once: true });
 })();
+
+(function loadAppsAmbientMotion() {
+  const path = location.pathname.replace(/\/+$/, '/');
+  if (path !== '/apps/') return;
+  if (document.querySelector('script[data-nx-ambient-loader]')) return;
+  const script = document.createElement('script');
+  script.src = '/shared/ambient-motion.js';
+  script.defer = true;
+  script.dataset.nxAmbientLoader = 'apps';
+  document.head.appendChild(script);
+})();

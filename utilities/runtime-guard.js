@@ -127,3 +127,15 @@ function ensureAgentsNav() {
 }
 document.addEventListener('DOMContentLoaded', ensureAgentsNav, { once: true });
 })();
+
+(function loadSectionAmbientMotion() {
+  if (document.querySelector('script[data-nx-ambient-loader]')) return;
+  const current = document.currentScript;
+  if (!current?.src) return;
+  const script = document.createElement('script');
+  script.src = new URL('shared/ambient-motion.js', current.src).href;
+  script.defer = true;
+  script.dataset.nxAmbientLoader = 'tools';
+  document.head.appendChild(script);
+})();
+
