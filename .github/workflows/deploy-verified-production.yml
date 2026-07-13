@@ -1,0 +1,64 @@
+name: Deploy Verified Production Artifact
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened]
+    paths:
+      - '.github/workflows/deploy-verified-production.yml'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  deploy-production:
+    if: github.head_ref == 'deploy/verified-production-2026-07-11'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Download verified production site
+        uses: actions/download-artifact@v4
+        with:
+          name: nexus-production-site
+          path: deploy/site
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 29135477519
+
+      - name: Download verified production functions
+        uses: actions/download-artifact@v4
+        with:
+          name: nexus-production-functions
+          path: deploy/functions
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 29135477519
+
+      - name: Verify release markers
+        run: |
+          test -f deploy/site/apps/alibi/index.html
+          test -f deploy/site/apps/coverage-compass/index.html
+          test -f deploy/site/nexus-build-manifest.json
+          test -f deploy/functions/vortex-market.js
+
+      - name: Configure artifact-only deploy
+        run: |
+          cat > deploy/netlify.toml <<'EOF'
+          [build]
+            publish = "site"
+            functions = "functions"
+
+          [build.environment]
+            NODE_VERSION = "22"
+          EOF
+
+      - name: Deploy verified package to production
+        working-directory: deploy
+        env:
+          NETLIFY_PROXY_PATH: "https://netlify-mcp.netlify.app/proxy/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..GZcFm2kbzpADQbjO.kZFmYZ1CxjxqxdX3CezANlcNwLIZ1ZhAIypUKbVt_XryUm1h_l7HsT_yHTGY85tYDScwrIqKJjtLVCT6ESWkwnWoqx8sa71mL_YZVtllZ30LktJDkbSui8byyu6fimNOuF_oADJ6q11SOdI0ZNgKlG9BELji75PLuoAGVzdKB1Zeck-hziu8cMatuXDt1Y8zQpfnkV079eGd7AHdBI0jDx6hygm4U4rPsvYXarG8DECZhFcSqE4YvFzAun-jtk1c41ftTE9TXuvwWP9EaqbxVcN2JbOPkkZSI9o4a29FbjP-m5jK0tV6gqi10MmSMThrxbV0oNPw9YtCjA9167NJLlQ0P7sMvMOSYBYhxnP9LyHpAc798fYSFDH5SVt9eU1xhcmQCdeP.eCAMaLnGjbMQpgXJE_359w"
+        run: |
+          echo "::add-mask::$NETLIFY_PROXY_PATH"
+          npx -y @netlify/mcp@latest \
+            --site-id fa58fcc4-0fe4-4a94-8201-7720c69cc9fa \
+            --proxy-path "$NETLIFY_PROXY_PATH"
