@@ -31,16 +31,18 @@ if (!engine.includes('--nx-reveal-delay') || engine.includes('calc(min(var(--nx-
 if (engine.includes("path === '/'")) errors.push('Home must not auto-mount a new ambient effect.');
 
 const loaders = [
-  ['runtime-guard.js', 'data-nx-ambient-loader', "'/apps/'"],
-  ['about/runtime-guard.js', 'ambient-motion.js', "'about'"],
-  ['contact/runtime-guard.js', 'ambient-motion.js', "'contact'"],
-  ['utilities/runtime-guard.js', 'ambient-motion.js', "'tools'"],
-  ['capabilities/capabilities.js', '/shared/ambient-motion.js', "'capabilities'"]
+  ['runtime-guard.js', 'data-nx-ambient-loader', "'apps'", "mount('circuit'"],
+  ['about/runtime-guard.js', 'ambient-motion.js', "'about'", "mount('drift'"],
+  ['contact/runtime-guard.js', 'ambient-motion.js', "'contact'", "mount('ripple'"],
+  ['utilities/runtime-guard.js', 'ambient-motion.js', "'tools'", "mount('grid-reveal'"],
+  ['capabilities/capabilities.js', '/shared/ambient-motion.js', "'capabilities'", "mount('constellation'"]
 ];
-for (const [file, asset, marker] of loaders) {
+for (const [file, asset, marker, mountContract] of loaders) {
   const source = await readFile(path.join(root, file), 'utf8');
-  if (!source.includes(asset) || !source.includes(marker)) errors.push(`${file} is missing its ambient loader contract.`);
+  if (!source.includes(asset) || !source.includes(marker) || !source.includes(mountContract)) errors.push(`${file} is missing its ambient loader contract.`);
 }
+const appsLoader = await readFile(path.join(root, 'runtime-guard.js'), 'utf8');
+if (!appsLoader.includes("document.body?.dataset.app !== 'apps'")) errors.push('Apps loader must support its standalone root deployment.');
 
 if (errors.length) {
   console.error(`Ambient motion tests failed with ${errors.length} error(s):`);
