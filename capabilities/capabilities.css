@@ -69,7 +69,7 @@ label { display: grid; gap: 7px; color: var(--muted); font-size: .78rem; font-we
 input, select { width: 100%; min-height: 46px; border: 1px solid var(--line); border-radius: 12px; background: #090f19; color: var(--text); padding: 10px 12px; font: inherit; }
 input:focus, select:focus, a:focus-visible, summary:focus-visible { outline: 3px solid rgba(121,215,232,.35); outline-offset: 2px; }
 .result-count { margin: 0; color: var(--muted); font-family: var(--mono); font-size: .78rem; }
-.evidence { padding: 54px 0 22px; }
+.evidence { padding: 54px 0 22px; scroll-margin-top: 90px; }
 .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 25px; margin-bottom: 20px; }
 .section-heading > p { margin: 0; max-width: 58ch; color: var(--muted); line-height: 1.65; }
 .evidence-groups { display: grid; gap: 17px; }
