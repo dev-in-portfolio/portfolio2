@@ -185,6 +185,7 @@ start();
   script.src = '/shared/ambient-motion.js';
   script.defer = true;
   script.dataset.nxAmbientLoader = 'capabilities';
+  script.addEventListener('load', () => window.NexusAmbientMotion?.mount('constellation', document.querySelector('.hero')), { once: true });
   document.head.appendChild(script);
 })();
 
