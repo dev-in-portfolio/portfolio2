@@ -104,6 +104,6 @@
   script.src = new URL('shared/ambient-motion.js', current.src).href;
   script.defer = true;
   script.dataset.nxAmbientLoader = 'contact';
+  script.addEventListener('load', () => window.NexusAmbientMotion?.mount('ripple', document.body), { once: true });
   document.head.appendChild(script);
 })();
-
