@@ -30,6 +30,7 @@ if (!script.includes('validateLoadedLedger')) errors.push('capabilities.js must 
 if (!script.includes('<div class="domain-title">')) errors.push('Domain headings should use valid flow-content markup.');
 if (!css.includes('@media (max-width: 620px)')) errors.push('Mobile layout rules are missing.');
 if (!css.includes('@media (prefers-reduced-motion: reduce)')) errors.push('Reduced-motion handling is missing.');
+if (!/\.evidence\s*\{[^}]*scroll-margin-top\s*:/s.test(css)) errors.push('The skip-link target needs scroll margin beneath the sticky header.');
 if (/\b(?:fitScore|roleAlignment|percentage)\b/.test(manifestText)) errors.push('The ledger manifest contains obsolete score or role fields.');
 
 if (errors.length) {
