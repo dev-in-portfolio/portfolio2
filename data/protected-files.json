@@ -1,13 +1,6 @@
 {
-  "schemaVersion": 1,
-  "baselineCommit": "136ef3c39e85a67a00b8a65d49370e6ad11c888e",
-  "policy": "Files listed here are protected from intentional redesign during the NEXUS Reforged foundation pass. A hash change must be explicitly documented as a compatibility-only change.",
-  "files": [
-    {
-      "path": "capabilities/index.html",
-      "gitBlobSha": "ae70d0e87a1c5c1879e2b646348d28cb3255784f",
-      "protection": "content-and-behavior",
-      "reason": "The Capabilities page has a separate future stage and must remain unchanged during foundation modernization."
-    }
-  ]
+  "schemaVersion": 2,
+  "baselineCommit": "c588c7e09c5e0a76a5acf65426921f776294313a",
+  "policy": "The foundation-stage Capabilities redesign prohibition is complete. This registry now contains only files that remain intentionally protected from product-stage changes.",
+  "files": []
 }
