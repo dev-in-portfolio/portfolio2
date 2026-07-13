@@ -182,7 +182,7 @@ start();
 (function loadCapabilitiesAmbientMotion() {
   if (document.querySelector('script[data-nx-ambient-loader]')) return;
   const script = document.createElement('script');
-  script.src = '/shared/ambient-motion.js';
+  script.src = './shared/ambient-motion.js';
   script.defer = true;
   script.dataset.nxAmbientLoader = 'capabilities';
   script.addEventListener('load', () => window.NexusAmbientMotion?.mount('constellation', document.querySelector('.hero')), { once: true });
