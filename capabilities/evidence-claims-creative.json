@@ -1,0 +1,92 @@
+[
+  {
+    "id": "reliable-nextjs",
+    "projectId": "a-reliable-trucking",
+    "domain": "Business & Client Web Delivery",
+    "claim": "Delivers a multi-page freight business website using Next.js 15, React 19, TypeScript, and Tailwind CSS.",
+    "sourceFiles": ["README.md", "package.json"],
+    "evidence": {"implementationInspected": true, "automatedValidation": true, "runtimeVerified": false, "deploymentVerified": false, "documented": true},
+    "limitations": [],
+    "public": true
+  },
+  {
+    "id": "animations-lab",
+    "projectId": "animation-playground",
+    "domain": "Creative Technology & Media",
+    "claim": "Presents dependency-free browser experiments spanning particles, flocking, wave motion, 3D effects, and interactive physics.",
+    "sourceFiles": ["index.html"],
+    "evidence": {"implementationInspected": true, "automatedValidation": false, "runtimeVerified": false, "deploymentVerified": false, "documented": true},
+    "limitations": [],
+    "public": true
+  },
+  {
+    "id": "animations-validation",
+    "projectId": "animation-playground",
+    "domain": "Reliability, Recovery & Validation",
+    "claim": "Parses inline scripts, verifies gallery links, and runs server and runtime smoke tests.",
+    "sourceFiles": ["package.json", "scripts/validate.js", "scripts/server-smoke-test.js", "scripts/runtime-smoke-test.js"],
+    "evidence": {"implementationInspected": true, "automatedValidation": true, "runtimeVerified": true, "deploymentVerified": false, "documented": true},
+    "limitations": [],
+    "public": true
+  },
+  {
+    "id": "animations-server",
+    "projectId": "animation-playground",
+    "domain": "Release, Build & Operations",
+    "claim": "Includes a bounded local static server with path traversal protection, method restrictions, MIME handling, and defensive headers.",
+    "sourceFiles": ["server.js"],
+    "evidence": {"implementationInspected": true, "automatedValidation": true, "runtimeVerified": false, "deploymentVerified": false, "documented": true},
+    "limitations": [],
+    "public": true
+  },
+  {
+    "id": "vic-reader",
+    "projectId": "vic-el-puaso",
+    "domain": "Creative Technology & Media",
+    "claim": "Implements a PDF.js comic reader with page navigation, thumbnails, fullscreen, keyboard controls, and real zoom.",
+    "sourceFiles": ["README.md", "index.html", "assets/js"],
+    "evidence": {"implementationInspected": true, "automatedValidation": true, "runtimeVerified": false, "deploymentVerified": false, "documented": true},
+    "limitations": [],
+    "public": true
+  },
+  {
+    "id": "vic-audio",
+    "projectId": "vic-el-puaso",
+    "domain": "Creative Technology & Media",
+    "claim": "Coordinates multiple soundtrack downloads with shared Web Audio visualization and effects.",
+    "sourceFiles": ["README.md", "assets/js"],
+    "evidence": {"implementationInspected": true, "automatedValidation": true, "runtimeVerified": false, "deploymentVerified": false, "documented": true},
+    "limitations": [],
+    "public": true
+  },
+  {
+    "id": "vic-honest-metrics",
+    "projectId": "vic-el-puaso",
+    "domain": "Reliability, Recovery & Validation",
+    "claim": "Removed seeded browser-local download totals because they were not real public analytics.",
+    "sourceFiles": ["README.md"],
+    "evidence": {"implementationInspected": false, "automatedValidation": true, "runtimeVerified": false, "deploymentVerified": false, "documented": true},
+    "limitations": [],
+    "public": true
+  },
+  {
+    "id": "lulu-player",
+    "projectId": "lulu-takes-over",
+    "domain": "Creative Technology & Media",
+    "claim": "Synchronizes custom audio controls with native video behavior while preserving a usable no-JavaScript fallback.",
+    "sourceFiles": ["README.md", "assets/js/player.js", "index.html"],
+    "evidence": {"implementationInspected": true, "automatedValidation": true, "runtimeVerified": false, "deploymentVerified": true, "documented": true},
+    "limitations": [],
+    "public": true
+  },
+  {
+    "id": "lulu-lfs",
+    "projectId": "lulu-takes-over",
+    "domain": "Reliability, Recovery & Validation",
+    "claim": "Validates real Git LFS media objects, byte sizes, detected formats, HTML, JavaScript, and displayed download metadata.",
+    "sourceFiles": ["README.md", ".github/workflows/validate.yml"],
+    "evidence": {"implementationInspected": true, "automatedValidation": true, "runtimeVerified": false, "deploymentVerified": true, "documented": true},
+    "limitations": [],
+    "public": true
+  }
+]
