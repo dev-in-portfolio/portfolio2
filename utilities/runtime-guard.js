@@ -136,6 +136,6 @@ document.addEventListener('DOMContentLoaded', ensureAgentsNav, { once: true });
   script.src = new URL('shared/ambient-motion.js', current.src).href;
   script.defer = true;
   script.dataset.nxAmbientLoader = 'tools';
+  script.addEventListener('load', () => window.NexusAmbientMotion?.mount('grid-reveal', document.querySelector('#node-deck')), { once: true });
   document.head.appendChild(script);
 })();
-
